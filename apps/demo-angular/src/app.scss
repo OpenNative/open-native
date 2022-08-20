@@ -1,0 +1,22 @@
+﻿@import 'nativescript-theme-core/scss/light';
+@import 'nativescript-theme-core/scss/index';
+
+button, label, stack-layout {
+    horizontal-align: center;
+}
+
+button {
+    font-size: 36;
+}
+
+.title {
+    font-size: 30;
+    margin: 20;
+}
+
+.message {
+    font-size: 20;
+    color: #284848;
+    text-align: center;
+    margin: 0 20;
+} 

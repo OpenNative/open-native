@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noEmitHelpers": true,
+    "target": "es2017",
+    "module": "esnext",
+    "lib": ["es2017", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "plugins": [
+      {
+        "transform": "@nativescript/webpack/dist/transformers/NativeClass",
+        "type": "raw"
+      }
+    ],
+    "paths": {
+      "@demo/shared": ["tools/demo/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
