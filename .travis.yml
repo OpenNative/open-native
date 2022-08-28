@@ -3,4 +3,4 @@ node_js:
   - "node"
 script:
 - npm run setup
-- npm start @nativescript.build-all
+- npm start @@ammarahm-ed.build-all

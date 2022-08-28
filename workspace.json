@@ -2,6 +2,7 @@
   "version": 2,
   "projects": {
     "demo": "apps/demo",
-    "demo-angular": "apps/demo-angular"
+    "demo-angular": "apps/demo-angular",
+    "react-native": "packages/react-native"
   }
 }

@@ -55,12 +55,19 @@ module.exports = {
       },
     },
     '⚙️': {
-      script: `npx cowsay "@nativescript/* packages will keep your ⚙️ cranking"`,
-      description: '_____________  @nativescript/*  _____________',
+      script: `npx cowsay "@@ammarahm-ed/* packages will keep your ⚙️ cranking"`,
+      description: '_____________  @@ammarahm-ed/*  _____________',
     },
     // packages
     // build output is always in dist/packages
-    '@nativescript': {
+    '@@ammarahm-ed': {
+      // @@ammarahm-ed/react-native
+      'react-native': {
+        build: {
+          script: 'nx run react-native:build.all',
+          description: '@@ammarahm-ed/react-native: Build',
+        },
+      },
       'build-all': {
         script: 'nx run-many --target=build.all --all',
         description: 'Build all packages',
@@ -71,8 +78,12 @@ module.exports = {
       description: '_____________  Focus (VS Code supported)  _____________',
     },
     focus: {
+      'react-native': {
+        script: 'nx run react-native:focus',
+        description: 'Focus on @@ammarahm-ed/react-native',
+      },
       reset: {
-        script: 'nx g @nativescript/plugin-tools:focus-packages',
+        script: 'nx g @@ammarahm-ed/plugin-tools:focus-packages',
         description: 'Reset Focus',
       },
     },

@@ -1,0 +1,64 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/react-native",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "options": {
+        "outputPath": "dist/packages/react-native",
+        "tsConfig": "packages/react-native/tsconfig.json",
+        "packageJson": "packages/react-native/package.json",
+        "main": "packages/react-native/index.d.ts",
+        "assets": [
+          "packages/react-native/*.md",
+          "packages/react-native/index.d.ts",
+          "LICENSE",
+          {
+            "glob": "**/*",
+            "input": "packages/react-native/platforms/",
+            "output": "./platforms/"
+          }
+        ],
+        "dependsOn": [
+          {
+            "target": "build.all",
+            "projects": "dependencies"
+          }
+        ]
+      }
+    },
+    "build.all": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": ["node tools/scripts/build-finish.ts react-native"],
+        "parallel": false
+      },
+      "outputs": ["dist/packages/react-native"],
+      "dependsOn": [
+        {
+          "target": "build.all",
+          "projects": "dependencies"
+        },
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
+    },
+    "focus": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": ["nx g @nativescript/plugin-tools:focus-packages react-native"],
+        "parallel": false
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["packages/react-native/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

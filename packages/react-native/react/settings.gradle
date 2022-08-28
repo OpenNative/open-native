@@ -1,0 +1,26 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+//dependencyResolutionManagement {
+//    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+//    repositories {
+//        google()
+//        mavenCentral()
+//    }
+//}
+rootProject.name = "React Example"
+include ':app'
+include ':react'
+include ':bridge'
+
+
+include ':react-native-module-test'
+project(':react-native-module-test').projectDir = new File(rootProject.projectDir, '../../../react-native-module-test/android')
+// In a real world project, this would link to node_modules/react-native-*/android folder. Right now we will link
+// everything locally for development.
+
+

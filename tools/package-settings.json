@@ -1,0 +1,16 @@
+{
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ammarahm-ed/nativescript-magic-spells.git"
+  },
+  "keywords": ["NativeScript", "JavaScript", "TypeScript", "iOS", "Android"],
+  "author": {
+    "name": "Ammar Ahmed",
+    "email": "ammarahmed6506@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/ammarahm-ed/nativescript-magic-spells/issues"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/ammarahm-ed/nativescript-magic-spells"
+}

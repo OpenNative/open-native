@@ -1,0 +1,37 @@
+buildscript {
+  dependencies {
+    classpath 'com.github.kezong:fat-aar:1.3.8'
+  }
+}
+
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+  id 'com.android.application' version '7.2.1' apply false
+  id 'com.android.library' version '7.2.1' apply false
+}
+
+allprojects {
+
+  // We are replacing com.facebook.react:react-native with our local :react library in all linked libraries.
+  // We could do this inside the module itself but we want the module to work in both
+  // react-native & nativescript :D
+  configurations {
+    all {
+      resolutionStrategy {
+        dependencySubstitution {
+          substitute module("com.facebook.react:react-native") using project(":react") because "we will replace this with our local react"
+        }
+      }
+    }
+  }
+
+  repositories {
+    mavenCentral()
+    maven { url "https://plugins.gradle.org/m2/" }
+    google()
+  }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

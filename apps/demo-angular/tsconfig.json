@@ -3,7 +3,8 @@
   "compilerOptions": {
     "paths": {
       "~/*": ["src/*"],
-      "@demo/shared": ["tools/demo/index.ts"]
+      "@demo/shared": ["tools/demo/index.ts"],
+      "@@ammarahm-ed/*": ["../../dist/packages/*"]
     }
   },
   "files": ["./references.d.ts", "./src/main.ts", "./src/polyfills.ts"],

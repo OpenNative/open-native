@@ -4,7 +4,8 @@
   "license": "SEE LICENSE IN <your-license-filename>",
   "repository": "<fill-your-repository-here>",
   "dependencies": {
-    "@nativescript/core": "file:../../node_modules/@nativescript/core"
+    "@nativescript/core": "file:../../node_modules/@nativescript/core",
+    "@ammarahm-ed/react-native": "file:../../packages/react-native"
   },
   "devDependencies": {
     "@nativescript/android": "~8.2.0",

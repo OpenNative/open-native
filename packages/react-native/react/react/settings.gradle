@@ -1,0 +1,3 @@
+
+// In a real world project, this would link to node_modules/react-native-*/android folder. Right now we will link
+// everything locally for development.
