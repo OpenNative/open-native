@@ -6,7 +6,8 @@
     <StackLayout class="p-20">
         <ScrollView class="h-full">
           <StackLayout>
-            <Button text="Test react-native" tap="{{ testIt }}" class="btn btn-primary"/>
+            <Button text="Load Bridge" tap="{{ loadBridge }}" class="btn btn-primary"/>
+            <Button text="RNTestModule.getName" tap="{{ getName }}" class="btn btn-primary"/>
 
           </StackLayout>
         </ScrollView>

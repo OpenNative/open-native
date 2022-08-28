@@ -1,6 +1,6 @@
 import { Component, NgZone } from '@angular/core';
 import { DemoSharedReactNative } from '@demo/shared';
-import {} from '@@ammarahm-ed/react-native';
+import {} from '@ammarahm-ed/react-native';
 
 @Component({
   selector: 'demo-react-native',

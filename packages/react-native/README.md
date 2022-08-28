@@ -1,7 +1,7 @@
-# @@ammarahm-ed/react-native
+# @ammarahm-ed/react-native
 
 ```javascript
-ns plugin add @@ammarahm-ed/react-native
+ns plugin add @ammarahm-ed/react-native
 ```
 
 ## Usage

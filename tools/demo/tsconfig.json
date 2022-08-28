@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@@ammarahm-ed/*": ["../../packages/*"]
+      "@ammarahm-ed/*": ["../../packages/*"]
     }
   }
 }

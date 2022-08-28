@@ -21,8 +21,8 @@
     ],
     "paths": {
       "@demo/shared": ["tools/demo/index.ts"],
-      "@@ammarahm-ed/*": ["packages/*"],
-      "@@ammarahm-ed/react-native": ["packages/react-native/index.d.ts"]
+      "@ammarahm-ed/*": ["packages/*"],
+      "@ammarahm-ed/react-native": ["packages/react-native/index.d.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

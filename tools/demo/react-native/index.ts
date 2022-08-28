@@ -1,8 +1,17 @@
 import { DemoSharedBase } from '../utils';
-import {} from '@@ammarahm-ed/react-native';
+import { ReactNative } from '@ammarahm-ed/react-native';
 
+let bridgeLoaded = false;
+const RNBridge = new ReactNative();
 export class DemoSharedReactNative extends DemoSharedBase {
-  testIt() {
-    console.log('test react-native!');
+  loadBridge() {
+    if (bridgeLoaded) return;
+    RNBridge.init();
+    bridgeLoaded = true;
+    console.log(RNBridge, 'bridge loaded');
+  }
+
+  getName() {
+    RNBridge.getName();
   }
 }

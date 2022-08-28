@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/adjacent-overload-signatures */
-/* eslint-disable @typescript-eslint/triple-slash-reference */
-/* eslint-disable @typescript-eslint/prefer-namespace-keyword */
 /// <reference path="android-declarations.d.ts"/>
 
 declare module com {
@@ -12,8 +9,8 @@ declare module com {
       public static modules: java.util.List<com.facebook.react.bridge.NativeModule>;
       public static add(param0: com.facebook.react.ReactPackage): void;
       public getJSModule(param0: string): com.facebook.react.bridge.NativeModule;
-      public loadAllRegisteredModules(param0: com.facebook.react.bridge.ReactApplicationContext): void;
       public constructor();
+      public loadAllRegisteredModules(param0: com.facebook.react.bridge.ReactApplicationContext): number;
     }
   }
 }

@@ -22,7 +22,7 @@ public class Bridge {
     packages.add(pkg);
   }
 
-  public void loadAllRegisteredModules(ReactApplicationContext context) {
+  public int loadAllRegisteredModules(ReactApplicationContext context) {
     packages.add(new RNTestModulePackage());
 
     for (ReactPackage pkg : packages) {
@@ -33,11 +33,13 @@ public class Bridge {
         Log.d(TAG,e.getLocalizedMessage());
       }
     }
+    return packages.size();
   }
 
   public NativeModule getJSModule(String name) {
+    Log.d(TAG, String.valueOf(modules.size()));
     for (NativeModule module : modules) {
-      if (module.getName() == name) {
+      if (module.getName().equals(name)) {
         return module;
       }
     }
