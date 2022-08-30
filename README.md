@@ -4,7 +4,7 @@ Nativescript magic spells is an effort to build a series of plugins that will re
 
 ## Motivation
 
-NativeScript is a great framework to build apps but since React Native & Flutter came out they have completely taken over the market and the community of devs. Thus over the years, NativeScript community has grown smaller which has lead to a slowdown in development. This slowdown has occured due to the fact that the core team has a lot of work to do, which includes keeping the framework updated, update docs, write blogs, manage the community and lastly, to maintain a long list of plugins themselves.
+NativeScript is a great framework to build apps but since React Native & Flutter came out they have completely taken over the market and the community of developers. Thus over the years, NativeScript community has grown smaller which has lead to a slowdown in development. This slowdown has occured due to the fact that the core team has a lot of work to do, which includes keeping the framework updated, update docs, write blogs, manage the community and lastly, to maintain a long list of plugins themselves.
 
 My goal is to help the core NativeScript team focus on the core parts of the framework while, we the community around NativeScript work on the rest of things and find ways to give NativeScript the boost it needs to become mainstream again.
 
