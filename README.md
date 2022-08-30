@@ -37,7 +37,11 @@ Join the [NativeScript Discord Community](https://discord.com/invite/RgmpGky9GR)
 In the first spell, I and [@shirakaba](https://github.com/shirakaba) will be adding full support for **all** react-native native modules by writing a very thin layer of react-native that will expose the react native modules to NativeScript. The basic POC is ready on android with a functional RN module that works in {N} without any modifications.
 
 - Go to [@ammarahm-ed/react-native](packages/react-native/README.md) to learn more.
-- Read the [roadmap](https://github.com/ammarahm-ed/nativescript-magic-spells/issues/1)
+- Read the [roadmap](https://github.com/ammarahm-ed/nativescript-magic-spells/issues/2)
+
+## Contributing
+
+If you want to contribute, feel free to open an issue or join our discord community to discuss your ideas.
 
 ##
 
