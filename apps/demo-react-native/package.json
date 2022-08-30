@@ -25,10 +25,10 @@
     "!xcuserdata"
   ],
   "scripts": {
-    "compile": "rm -rf lib && tsc -p .",
+    "compile": "rm -rf lib && ../../node_modules/.bin/tsc -p .",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "prepare": "yarn compile",
-    "test": "jest"
+    "test": "../../node_modules/.bin/jest"
   },
   "devDependencies": {
     "@babel/core": "file:../../node_modules/@types/react-native/@babel/core",

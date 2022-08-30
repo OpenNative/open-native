@@ -3,11 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
-    "start": "react-native start",
-    "test": "jest",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "android": "../../../node_modules/.bin/react-native run-android",
+    "ios": "../../../node_modules/.bin/react-native run-ios",
+    "start": "../../../node_modules/.bin/react-native start",
+    "test": "../../../node_modules/.bin/jest",
+    "lint": "../../../node_modules/.bin/eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
     "react": "file:../../../node_modules/react",
