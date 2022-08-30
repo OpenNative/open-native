@@ -17,6 +17,26 @@ module.exports = {
     },
     // demos
     apps: {
+      '...React Native...': {
+        script: `npx cowsay "Let's get native ⚛️"`,
+        description: ` 🔻 React Native`,
+      },
+      // TODO: I have no idea how nx run works, so these are just placeholders
+      // for now. Not clear what they'll actually call on the CLI.
+      ['demo-react-native']: {
+        clean: {
+          script: 'nx run demo-react-native:clean',
+          description: '⚆  Clean  🧹',
+        },
+        ios: {
+          script: 'nx run demo-react-native:ios',
+          description: '⚆  Run iOS  ',
+        },
+        android: {
+          script: 'nx run demo-react-native:android',
+          description: '⚆  Run Android  🤖',
+        },
+      },
       '...Vanilla...': {
         script: `npx cowsay "Nothing wrong with vanilla 🍦"`,
         description: ` 🔻 Vanilla`,
