@@ -1,60 +1,48 @@
-# @ammarahm-ed/\* plugins
+# @ammarahm-ed/nativescript-magic-spells
 
-```
-npm run setup
-npm start
-```
+Nativescript magic spells is an effort to build a series of plugins that will revolutionize the way you develop apps with NativeScript.
 
-- [@ammarahm-ed/react-native](packages/react-native/README.md)
+## Motivation
 
-# How to use?
+NativeScript is a great framework to build apps but since React Native & Flutter came out they have completely taken over the market and the community of devs. Thus over the years, NativeScript community has grown smaller which has lead to a slowdown in development. This slowdown has occured due to the fact that the core team has a lot of work to do, which includes keeping the framework updated, update docs, write blogs, manage the community and lastly, to maintain a long list of plugins themselves.
 
-This workspace manages the suite of plugins listed above.
+My goal is to help the core NativeScript team focus on the core parts of the framework while, we the community around NativeScript work on the rest of things and find ways to give NativeScript the boost it needs to become mainstream again.
 
-In general, when in doubt with what to do, just `npm start`.
+## Why NativeScript
 
-## How to add a new package to workspace?
+One of the main reasons why NativeScript is still being maintained by such a small team of developers is because of how great it has been built from ground up. It's a revolutionary piece of software that let's you truly have 100% access of platform APIs directly in Javascript. For example, here's how I can create a Java Object in NativeScript.
 
-```
-npm run add
+```ts
+const javaObj = new java.lang.Object();
 ```
 
-At the prompt, enter the name of the new package.
+And NativeScript will handle the rest of the headache, I don't have to switch IDEs to write a Native plugins or access platform APIs, I can write Java in Javascript.
 
-- This adds a plugin harness in `packages` with the necessary boilerplate to just start developing
-- Updates all demo app flavors to support demoing the new package
-- Adds shared code in `tools/demo` where you can write demo code **once** and share across all demo flavors
-- Updates build tooling to support the new package
-- Updates the `npm start` interactive display
-- Updates the README here to list the new package
+See more about this here:
 
-## How to add Angular compatibility to a package
+- [High Fidelity Platform APIs with v8 and NativeScript](https://www.youtube.com/watch?v=Mzy1jWxrSiw)
 
-```
-npm run add-angular
-```
+- [Native API Access ](https://docs.nativescript.org/native-api-access.html)
 
-At the prompt, enter the name of the package to add an `angular` folder to it with the necessary boilerplate to provide Angular support to the package.
+NativeScript was developed to be flexible and adabtable to any kind of use case and requirement. This is why it supports many frameworks such as React, Vue, Svelte, Angular & even has experimental SolidJS support.
 
-## How to focus on just 1 package to develop in isolation
+NativeScript is not backed by some big tech company that can one day just decide it does not want to develop this anymore. It's supported by OpenJS Foundation and is truly a community effort from ground up. This also means that we the community are in control of it.
 
-```
-npm start
-```
+Finally this is open source, if you really want something excel, you have step in and play your part and help out. It's a community based effort and that's what I want to do, to leave you absolutely no excuse to not choose NativeScript.
 
-- Choose the focus commands for the package you wish to focus on and hit enter.
-- All the demo app's will be updated to isolate that 1 package and for supported IDE's (currently VS Code), the source code will also become isolated in the workspace.
+Join the [NativeScript Discord Community](https://discord.com/invite/RgmpGky9GR)
 
-Note: _good to always clean the demo you plan to run after focusing. (You can clean any demo from `npm start` as well)_
+## First spell: react native modules support
 
-## How to publish packages?
+In the first spell, I and [@shirakaba](https://github.com/shirakaba) will be adding full support for **all** react-native native modules by writing a very thin layer of react-native that will expose the react native modules to NativeScript. The basic POC is ready on android with a functional RN module that works in {N} without any modifications.
 
-```
-npm run publish-packages
-```
+- Go to [@ammarahm-ed/react-native](packages/react-native/README.md) to learn more.
+- Read the [roadmap](https://github.com/ammarahm-ed/nativescript-magic-spells/issues/1)
 
-- You will be prompted for the package names to publish. Leaving blank and hitting enter will publish them all.
-- You will then be prompted for the version to use. Leaving blank will auto bump the patch version (it also handles prerelease types like alpha, beta, rc, etc. - It even auto tags the corresponding prelease type on npm).
-- You will then be given a brief sanity check 🧠😊
+##
 
-<h3 align="center">Made with ❤️</h3>
+> _Nothing is impossible if you put your mind to it_
+
+# MIT License
+
+Copyright (c) 2022 Ammar Ahmed
