@@ -2,9 +2,7 @@
 
 Today almost every other SDK, Api or software is trying to add first class support for React Native. There are more than 50K react native modules in github and you can almost find a module for your use case. Many such modules are maintained and backed by well known companies and used by thousands of devs and therefore are more stable and reliable solution for a specific use case.
 
-NativeScript is great in that it gives you direct access to platform APIs however there are certain problems that require an abstraction for common day-to-day devs to just install and use instead of learning how the platform works and going through the specific documentation and implementing things from scratch. Therefore NativeScript has it's own plugins too but many are not well maintained anymore and are getting outdated eventually. The core team of NativeScript tries to add support for very popular plugins themselves but I really think this is something they should never have to do so they could work only on the core parts of NativeScript while the rest is managed by the community and devs using the plugins. But it's too late.
-
-React Native & Flutter have won this race. However soon this is going to change because of how NativeScript has been designed from scratch, we are adding first class support for react native modules & even flutter dart packages in future to {N}.
+This plugin will add complete support for React Native modules in NativeScript. Yes, all we need is a plugin to make React Native modules work because of how great NativeScript is at giving access to platform APIs.
 
 ## Architecture on android
 
