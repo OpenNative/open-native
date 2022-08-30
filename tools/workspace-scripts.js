@@ -88,6 +88,13 @@ module.exports = {
           description: '@ammarahm-ed/react-native: Build',
         },
       },
+      // @@ammarahm-ed/react-native-module-test
+      'react-native-module-test': {
+        build: {
+          script: 'nx run react-native-module-test:build.all',
+          description: '@@ammarahm-ed/react-native-module-test: Build',
+        },
+      },
       'build-all': {
         script: 'nx run-many --target=build.all --all',
         description: 'Build all packages',
@@ -101,6 +108,10 @@ module.exports = {
       'react-native': {
         script: 'nx run react-native:focus',
         description: 'Focus on @ammarahm-ed/react-native',
+      },
+      'react-native-module-test': {
+        script: 'nx run react-native-module-test:focus',
+        description: 'Focus on @@ammarahm-ed/react-native-module-test',
       },
       reset: {
         script: 'nx g @ammarahm-ed/plugin-tools:focus-packages',

@@ -7,6 +7,7 @@
       <StackLayout>
         <Button text="add a package first" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
 <Button text="react-native" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
+<Button text="react-native-module-test" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
       </StackLayout>
     </ScrollView>
   </StackLayout>
