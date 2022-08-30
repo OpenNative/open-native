@@ -2,7 +2,7 @@
 
 Today almost every other SDK, Api or software is trying to add first class support for React Native. There are more than 50K react native modules in github and you can almost find a module for your use case. Many such modules are maintained and backed by well known companies and used by thousands of devs and therefore are more stable and reliable solution for a specific use case.
 
-This plugin will add complete support for React Native modules in NativeScript. Yes, all we need is a plugin to make React Native modules work because of how great NativeScript is at giving access to platform APIs.
+This plugin will add complete support for React Native modules in NativeScript. Yes, all we need is a plugin to make React Native modules work. That's how great NativeScript is at giving access to platform APIs.
 
 ## Architecture on android
 
