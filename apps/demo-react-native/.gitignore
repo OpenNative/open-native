@@ -29,9 +29,6 @@ build/
 local.properties
 *.iml
 *.hprof
-/android/gradlew
-/android/gradlew.bat
-/android/gradle/
 
 # node.js
 #
@@ -61,6 +58,3 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
-
-# Library
-lib/

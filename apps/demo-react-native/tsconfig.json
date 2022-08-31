@@ -1,33 +1,17 @@
-// This tsconfig basically merges the officially recommended
-// @tsconfig/react-native with the plugin seed's apps/demo/tsconfig.json.
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../tsconfig.json",
 
   "$schema": "https://json.schemastore.org/tsconfig",
   "display": "React Native",
   "_version": "2.0.0",
   "compilerOptions": {
-    "rootDirs": [".", "../.."],
+    "rootDirs": [".", "../../.."],
     "baseUrl": ".",
-    "target": "esnext",
-    "module": "commonjs",
-    "types": ["react-native", "jest"],
-    "lib": ["es2019"],
-    "allowJs": true,
-    "jsx": "react-native",
-    "noEmit": true,
-    "isolatedModules": true,
-    "strict": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "esModuleInterop": true,
-    "skipLibCheck": false,
     "paths": {
       "~/*": ["src/*"],
-      "@demo/shared": ["../../tools/demo/index.ts"],
-      "@ammarahm-ed/*": ["../../packages/*"]
+      "@demo/shared": ["../../../tools/demo/index.ts"],
+      "@ammarahm-ed/*": ["../../../packages/*"],
+      "react-native-module-test": ["../src"]
     }
   },
   "exclude": [
@@ -36,5 +20,6 @@
     "babel.config.js",
     "metro.config.js",
     "jest.config.js"
-  ]
+  ],
+  "include": ["src"]
 }
