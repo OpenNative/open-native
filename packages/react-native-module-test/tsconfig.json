@@ -14,15 +14,13 @@
     "lib": ["es2019"],
     "allowJs": true,
     "jsx": "react-native",
-    "noEmit": true,
     "isolatedModules": true,
     "strict": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "esModuleInterop": true,
-    "skipLibCheck": false
+    "esModuleInterop": true
   },
   "exclude": ["**/*.spec.ts", "**/*.test.ts", "angular"],
   "include": ["**/*.ts", "references.d.ts"]

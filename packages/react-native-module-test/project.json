@@ -9,7 +9,7 @@
         "outputPath": "dist/packages/react-native-module-test",
         "tsConfig": "packages/react-native-module-test/tsconfig.json",
         "packageJson": "packages/react-native-module-test/package.json",
-        "main": "packages/react-native-module-test/index.d.ts",
+        "main": "packages/react-native-module-test/index.ts",
         "assets": [
           "packages/react-native-module-test/*.md",
           "packages/react-native-module-test/index.d.ts",
