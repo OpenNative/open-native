@@ -1,0 +1,60 @@
+{
+  "root": "apps/demo-react-native/",
+  "sourceRoot": "apps/demo-react-native/src",
+  "projectType": "application",
+  "prefix": "demo-react-native",
+  "targets": {
+    "build-android": {
+      "executor": "@nrwl/react-native:build-android",
+      "outputs": [
+        "apps/demo-react-native/android/app/build/outputs/bundle",
+        "apps/demo-react-native/android/app/build/outputs/apk"
+      ],
+      "options": {}
+    },
+    "bundle-android": {
+      "executor": "@nrwl/react-native:bundle",
+      "options": {
+        "entryFile": "apps/demo-react-native/index.js",
+        "platform": "android",
+        "bundleOutput": "dist/apps/demo-react-native/android/index.bundle"
+      }
+    },
+    "bundle-ios": {
+      "executor": "@nrwl/react-native:bundle",
+      "outputs": ["apps/demo-react-native/build"],
+      "options": {
+        "entryFile": "apps/demo-react-native/index.js",
+        "platform": "ios",
+        "bundleOutput": "dist/apps/demo-react-native/ios/index.bundle"
+      }
+    },
+    "run-android": {
+      "executor": "@nrwl/react-native:run-android",
+      "options": {}
+    },
+    "run-ios": {
+      "executor": "@nrwl/react-native:run-ios",
+      "options": {}
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["apps/demo-react-native/**/*.{js,ts,tsx}"]
+      }
+    },
+    "start": {
+      "executor": "@nrwl/react-native:start",
+      "options": {
+        "port": 8081
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "options": {
+        "jestConfig": "apps/demo-react-native/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

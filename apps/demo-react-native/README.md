@@ -1,46 +1,32 @@
-# example
+# demo-react-native
 
-## Getting Started
+A simple React Native demo app to help develop the React Native native modules used in this monorepo.
 
-```bash
-yarn
-```
+## Getting started
 
-for iOS:
+Instructions assume that your working directory is this directory.
 
-```bash
+```sh
+# Prerequisite, if you're running iOS and haven't installed the pods yet:
 npx pod-install
-```
 
-To run the app use:
+# Run iOS or Android via nx:
+nx run demo-react-native:run-ios
+nx run demo-react-native:run-android
 
-```bash
+# Or run Android via yarn:
 yarn ios
-```
-
-or
-
-```bash
 yarn android
 ```
 
-## Updating project
+See `project.json` for the full set of available commands.
 
-1. Remove current `example` project
-2. Create a project named `example` using [react-native-better-template](https://github.com/demchenkoalex/react-native-better-template)
-3. Revert `README.md` so you can see this guide
-4. In `tsconfig.json` add
+## About the dependencies
 
-```json
-"baseUrl": ".",
-"paths": {
-  "react-native-module-template": ["../src"]
-},
-```
+Hoisting dependencies is ideal in a monorepo where possible, so you'll see a lot of packages referenced by `file:` paths in `package.json`.
 
-5. Check the difference in `metro.config.js` and combine all
-6. Revert `App.tsx`
-7. Check the difference in `settings.gradle` and combine all
-8. Check the difference in `android/app/build.gradle` and combine all
-9. Check the difference in `MainApplication.kt` and combine all
-10. Open new `example` project in Xcode, right click on the `Libraries` folder, select "Add Files to". Navigate to the library root, `ios` folder, select `RNModuleTemplateModule.xcodeproj`. Deselect "Copy items if needed", click add. Go to the `Build Phases` of the `example` target, "Link Binary with Libraries", click +, search for the `libRNModuleTemplateModule.a`, click add.
+However, I was unable to hoist `react-native`. This is because `react-native/scripts/packager.sh` ends up setting PROJECT_ROOT as the monorepo, not this app itself. This is because it climbs up from node_modules/react-native to whichever holds the node_modules.
+
+Thus, when `@react-community/cli` is run, its CWD becomes that PROJECT_ROOT, and it starts bundling using all the wrong paths (e.g. it digs through both `dist/packages` and `packages` at the same time, getting confused by their duplicate package names and the fact that we have a package also named `react-native`).
+
+We could work around this by putting a `metro.config.js` in the root of our monorepo to amend the paths, or using our own modified `packager.sh` instead, but the most self-contained way to do it is simply to give up on hoisting the `react-native` dependency.
