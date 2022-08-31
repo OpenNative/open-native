@@ -5,13 +5,12 @@
   "display": "React Native",
   "_version": "2.0.0",
   "compilerOptions": {
-    "rootDirs": [".", "../../.."],
+    "rootDirs": [".", "../.."],
     "baseUrl": ".",
     "paths": {
       "~/*": ["src/*"],
-      "@demo/shared": ["../../../tools/demo/index.ts"],
-      "@ammarahm-ed/*": ["../../../packages/*"],
-      "react-native-module-test": ["../src"]
+      "@demo/shared": ["../../tools/demo/index.ts"],
+      "@ammarahm-ed/*": ["../../packages/*"]
     }
   },
   "exclude": [
