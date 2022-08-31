@@ -21,8 +21,6 @@ module.exports = {
         script: `npx cowsay "Let's get native ⚛️"`,
         description: ` 🔻 React Native`,
       },
-      // TODO: I have no idea how nx run works, so these are just placeholders
-      // for now. Not clear what they'll actually call on the CLI.
       ['demo-react-native']: {
         clean: {
           script: 'nx run demo-react-native:clean',
@@ -88,11 +86,11 @@ module.exports = {
           description: '@ammarahm-ed/react-native: Build',
         },
       },
-      // @@ammarahm-ed/react-native-module-test
+      // @ammarahm-ed/react-native-module-test
       'react-native-module-test': {
         build: {
           script: 'nx run react-native-module-test:build.all',
-          description: '@@ammarahm-ed/react-native-module-test: Build',
+          description: '@ammarahm-ed/react-native-module-test: Build',
         },
       },
       'build-all': {
