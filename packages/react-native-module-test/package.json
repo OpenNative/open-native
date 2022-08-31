@@ -1,7 +1,7 @@
 {
-  "name": "@@ammarahm-ed/react-native-module-test",
+  "name": "@ammarahm-ed/react-native-module-test",
   "version": "1.0.0",
-  "description": "Add a plugin description",
+  "description": "Some simple React Native native modules arranged in a format compatible with NativeScript plugins for easy interop.",
   "main": "index",
   "typings": "index.d.ts",
   "nativescript": {
