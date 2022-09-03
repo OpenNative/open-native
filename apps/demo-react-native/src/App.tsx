@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react'
 import { Text, View } from 'react-native'
 
-import RNTestModule from '../../src/index'
+import RNTestModule from '@ammarahm-ed/react-native-module-test'
 
 const App = () => {
   useEffect(() => {

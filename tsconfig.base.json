@@ -9,6 +9,7 @@
     "noEmitHelpers": true,
     "target": "es2017",
     "module": "esnext",
+    "jsx": "react-native",
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
