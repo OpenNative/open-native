@@ -4,14 +4,17 @@
 
 RCT_EXPORT_MODULE()
 
-RCT_EXPORT_METHOD(multiply,
-                 multiplyWithA:(double)a withB:(double)b
-                 withResolver:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(show:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
-{
-  NSNumber *result = @(a * b);
 
-  resolve(result);
+{
+  NSLog(@"Called RCT Method: show");
+  resolve(@"show method invoked");
+}
+
+-(NSString *) getName {
+    
+    return @"RNTestModule";
 }
 
 @end
