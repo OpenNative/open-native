@@ -1,0 +1,25 @@
+{
+  "extends": ["plugin:@nrwl/nx/react", "../../.eslintrc.json"],
+  "plugins": ["simple-import-sort"],
+  "ignorePatterns": ["!**/*", "public", ".cache", "node_modules"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "import/order": "off",
+        "simple-import-sort/exports": "error",
+        "simple-import-sort/imports": "error",
+        "sort-imports": "off",
+        "@typescript-eslint/ban-ts-comment": "off"
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {}
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "rules": {}
+    }
+  ]
+}
