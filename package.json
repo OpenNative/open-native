@@ -17,6 +17,11 @@
     "add-demo": "nx g @nativescript/plugin-tools:add-demo"
   },
   "private": true,
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-native": "^0.67.1",
+    "tslib": "^2.3.0"
+  },
   "devDependencies": {
     "@angular-devkit/build-angular": "^14.0.0",
     "@angular/animations": "^14.0.0",
@@ -36,6 +41,7 @@
     "@nativescript/types": "~8.2.0",
     "@nativescript/webpack": "~5.0.5",
     "@ngtools/webpack": "^14.0.0",
+    "@nrwl/react-native": "14.4.0",
     "@react-native-community/eslint-config": "^3.1.0",
     "@types/jest": "^27.4.0",
     "@types/react-native": "^0.67.8",
@@ -52,8 +58,6 @@
     "ng-packagr": "^14.0.0",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.1.0",
-    "react": "^17.0.2",
-    "react-native": "^0.67.1",
     "react-test-renderer": "^17.0.2",
     "rxjs": "~7.5.0",
     "typescript": "~4.7.3",

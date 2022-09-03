@@ -1,52 +1,35 @@
-/**
- * Metro configuration for React Native
- * https://github.com/facebook/react-native
- *
- * @format
- */
+const { withNxMetro } = require('@nrwl/react-native')
+const { getDefaultConfig } = require('metro-config')
+const exclusionList = require('metro-config/src/defaults/exclusionList')
 
-const path = require('path')
-// const exclusionList = require('metro-config/src/defaults/exclusionList')
-
-// e.g. /Users/jamie/nativescript-magic-spells/apps/demo-react-native
-const appRoot = path.resolve(__dirname)
-
-// e.g. /Users/jamie/nativescript-magic-spells
-const monorepoRoot = path.resolve(__dirname, '../..')
-
-// e.g. /Users/jamie/nativescript-magic-spells/node_modules
-// const monorepoNodeModules = path.resolve(monorepoRoot, 'node_modules');
-
-// e.g. /Users/jamie/nativescript-magic-spells/dist/packages
-const builtPackages = path.resolve(monorepoRoot, 'dist/packages')
-
-module.exports = {
-  projectRoot: appRoot,
-  watchFolders: [
-    // No need to add `appRoot`, as it's implicitly watched.
-    builtPackages,
-  ],
-  resolver: {
-    nodeModulesPaths: [
-      // No need to add `monorepoNodeModules`, as it's implicitly found.
-      builtPackages,
-    ],
-    // extraNodeModules: {
-    //   'react-native-module-test': path.resolve(builtPackages, 'react-native-module-test'),
-    //   react: path.resolve(__dirname, 'node_modules/react'),
-    //   'react-native': path.resolve(__dirname, 'node_modules/react-native'),
-    // },
-    // blockList: exclusionList([
-    //   new RegExp(`${monorepoRoot}/node_modules/react/.*`),
-    //   new RegExp(`${monorepoRoot}/node_modules/react-native/.*`),
-    // ]),
-  },
-  transformer: {
-    getTransformOptions: async () => ({
-      transform: {
-        experimentalImportSupport: false,
-        inlineRequires: true,
+module.exports = (async () => {
+  const {
+    resolver: { sourceExts, assetExts },
+  } = await getDefaultConfig()
+  return withNxMetro(
+    {
+      transformer: {
+        getTransformOptions: async () => ({
+          transform: {
+            experimentalImportSupport: false,
+            inlineRequires: true,
+          },
+        }),
       },
-    }),
-  },
-}
+      resolver: {
+        blockList: exclusionList([/^(?!.*node_modules).*\/dist\/.*/]),
+      },
+    },
+    {
+      // Change this to true to see debugging info.
+      // Useful if you have issues resolving modules
+      debug: true,
+      // all the file extensions used for imports other than 'ts', 'tsx', 'js', 'jsx', 'json'
+      extensions: [],
+      // the project root to start the metro server
+      projectRoot: __dirname,
+      // Specify folders to watch, in addition to Nx defaults (workspace libraries and node_modules)
+      watchFolders: [],
+    }
+  )
+})()
