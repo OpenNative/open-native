@@ -1,0 +1,65 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/react-native-module-test",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "options": {
+        "outputPath": "dist/packages/react-native-module-test",
+        "tsConfig": "packages/react-native-module-test/tsconfig.json",
+        "packageJson": "packages/react-native-module-test/package.json",
+        "main": "packages/react-native-module-test/index.ts",
+        "assets": [
+          "packages/react-native-module-test/*.md",
+          "packages/react-native-module-test/index.d.ts",
+          "packages/react-native-module-test/*.podspec",
+          "LICENSE",
+          {
+            "glob": "**/*",
+            "input": "packages/react-native-module-test/platforms/",
+            "output": "./platforms/"
+          }
+        ],
+        "dependsOn": [
+          {
+            "target": "build.all",
+            "projects": "dependencies"
+          }
+        ]
+      }
+    },
+    "build.all": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": ["node tools/scripts/build-finish.ts react-native-module-test"],
+        "parallel": false
+      },
+      "outputs": ["dist/packages/react-native-module-test"],
+      "dependsOn": [
+        {
+          "target": "build.all",
+          "projects": "dependencies"
+        },
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
+    },
+    "focus": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": ["nx g @nativescript/plugin-tools:focus-packages react-native-module-test"],
+        "parallel": false
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["packages/react-native-module-test/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

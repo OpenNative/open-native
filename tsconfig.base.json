@@ -9,6 +9,7 @@
     "noEmitHelpers": true,
     "target": "es2017",
     "module": "esnext",
+    "jsx": "react-native",
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
@@ -22,7 +23,8 @@
     "paths": {
       "@demo/shared": ["tools/demo/index.ts"],
       "@ammarahm-ed/*": ["packages/*"],
-      "@ammarahm-ed/react-native": ["packages/react-native/index.d.ts"]
+      "@ammarahm-ed/react-native": ["packages/react-native/index.d.ts"],
+      "@@ammarahm-ed/react-native-module-test": ["packages/react-native-module-test/index.d.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

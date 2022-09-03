@@ -5,7 +5,8 @@
   "repository": "<fill-your-repository-here>",
   "dependencies": {
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
-    "@ammarahm-ed/react-native": "file:../../packages/react-native"
+    "@ammarahm-ed/react-native": "file:../../dist/packages/react-native",
+    "@ammarahm-ed/react-native-module-test": "file:../../dist/packages/react-native-module-test"
   },
   "devDependencies": {
     "@nativescript/android": "~8.2.0",

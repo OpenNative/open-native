@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "React Native",
+  "_version": "2.0.0",
+  "compilerOptions": {
+    "rootDirs": [".", "../.."],
+    "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "~/*": ["src/*"],
+      "@demo/shared": ["../../tools/demo/index.ts"],
+      "@ammarahm-ed/*": ["../../packages/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "tmp",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js"
+  ],
+  "include": ["src"]
+}
