@@ -4,51 +4,22 @@
  *
  * @format
  */
-
 const path = require('path')
-const exclusionList = require('metro-config/src/defaults/exclusionList')
-const {
-  getResolveRequest,
-} = require('@nrwl/react-native/plugins/metro-resolver')
-
-// e.g. /Users/jamie/nativescript-magic-spells/apps/demo-react-native
-const appRoot = path.resolve(__dirname)
-
-// e.g. /Users/jamie/nativescript-magic-spells
-const monorepoRoot = path.resolve(__dirname, '../..')
-
-// e.g. /Users/jamie/nativescript-magic-spells/node_modules
-// const monorepoNodeModules = path.resolve(monorepoRoot, 'node_modules');
-
-// e.g. /Users/jamie/nativescript-magic-spells/dist/packages
-const builtPackages = path.resolve(monorepoRoot, 'dist/packages')
-
+const nodeModulesPaths = [
+  path.resolve(path.join(__dirname, '../../node_modules')),
+]
 module.exports = {
-  projectRoot: appRoot,
+  projectRoot: __dirname,
   watchFolders: [
-    // No need to add `appRoot`, as it's implicitly watched.
-    builtPackages,
+    path.join(__dirname, '../../dist/packages'),
+    path.join(__dirname, '../../node_modules'),
   ],
   resolver: {
-    // Add support for paths specified by tsconfig
-    resolveRequest: getResolveRequest(['', 'ts', 'tsx', 'js', 'jsx', 'json']),
-    nodeModulesPaths: [
-      // No need to add `monorepoNodeModules`, as it's implicitly found.
-      builtPackages,
-    ],
+    sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs'],
+    nodeModulesPaths,
     extraNodeModules: {
-      'react-native-module-test': path.resolve(
-        builtPackages,
-        'react-native-module-test'
-      ),
-      //  react: path.resolve(__dirname, 'node_modules/react'),
-      //  'react-native': path.resolve(__dirname, 'node_modules/react-native'),
+      '@ammarahm-ed': path.join(__dirname, '../../dist/packages'),
     },
-    blockList: exclusionList([
-      // new RegExp(`${monorepoRoot}/node_modules/react/.*`),
-      // new RegExp(`${monorepoRoot}/node_modules/react-native/.*`),
-      // new RegExp(`${monorepoRoot}/node_modules/packages/.*`),
-    ]),
   },
   transformer: {
     getTransformOptions: async () => ({
