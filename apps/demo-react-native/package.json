@@ -12,7 +12,20 @@
   "dependencies": {
     "@ammarahm-ed/react-native-module-test": "file:../../dist/packages/react-native-module-test",
     "react": "file:../../node_modules/react",
-    "react-native": "file:../../node_modules/react-native"
+    "react-native": "file:../../node_modules/react-native",
+    "@babel/core": "*",
+    "@babel/runtime": "*",
+    "@react-native-community/eslint-config": "*",
+    "@types/jest": "*",
+    "@types/react-native": "*",
+    "@types/react-test-renderer": "*",
+    "babel-jest": "*",
+    "eslint-plugin-simple-import-sort": "*",
+    "eslint": "*",
+    "jest": "*",
+    "metro-react-native-babel-preset": "*",
+    "react-test-renderer": "*",
+    "typescript": "*"
   },
   "devDependencies": {
     "@babel/core": "file:../../node_modules/@types/react-native/@babel/core",

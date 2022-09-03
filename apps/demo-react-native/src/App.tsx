@@ -1,8 +1,5 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, { useEffect } from 'react'
-import { Text, View } from 'react-native'
-
-import RNTestModule from '@ammarahm-ed/react-native-module-test'
+import { NativeModules, Text, View } from 'react-native'
 
 const App = () => {
   useEffect(() => {
@@ -10,9 +7,8 @@ const App = () => {
      * See available methods on the RNTestModule in
      * react native console.
      */
-    console.log(RNTestModule)
-  })
-
+    console.log('RNTestModule: ', typeof NativeModules?.RNTestModule)
+  }, [])
   return (
     <View
       style={{
