@@ -48,6 +48,7 @@
     "nativescript-vue": "~2.9.0",
     "nativescript-vue-template-compiler": "~2.9.0",
     "ng-packagr": "^14.0.0",
+    "patch-package": "^6.4.7",
     "react": "^17.0.2",
     "react-native": "^0.67.1",
     "react-test-renderer": "^17.0.2",
