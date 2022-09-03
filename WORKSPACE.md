@@ -2,6 +2,19 @@
 
 - [@ammarahm-ed/react-native](packages/react-native/README.md)
 
+# Setup workspace
+
+```
+npm run setup
+```
+
+# Run the demo app
+
+```
+npm start
+```
+And choose demo.android from the list.
+
 # How to use?
 
 This workspace manages the suite of plugins listed above.

@@ -4,7 +4,7 @@ Nativescript magic spells is an effort to build a series of plugins that will re
 
 ## Motivation
 
-NativeScript is a great framework to build apps but since React Native & Flutter came out they have completely taken over the market and the community of devs. Thus over the years, NativeScript community has grown smaller which has lead to a slowdown in development. This slowdown has occured due to the fact that the core team has a lot of work to do, which includes keeping the framework updated, update docs, write blogs, manage the community and lastly, to maintain a long list of plugins themselves.
+NativeScript is a great framework to build apps but since React Native & Flutter came out they have completely taken over the market and the community of developers. Thus over the years, NativeScript community has grown smaller which has lead to a slowdown in development. This slowdown has occured due to the fact that the core team has a lot of work to do, which includes keeping the framework updated, update docs, write blogs, manage the community and lastly, to maintain a long list of plugins themselves.
 
 My goal is to help the core NativeScript team focus on the core parts of the framework while, we the community around NativeScript work on the rest of things and find ways to give NativeScript the boost it needs to become mainstream again.
 
@@ -37,7 +37,11 @@ Join the [NativeScript Discord Community](https://discord.com/invite/RgmpGky9GR)
 In the first spell, I and [@shirakaba](https://github.com/shirakaba) will be adding full support for **all** react-native native modules by writing a very thin layer of react-native that will expose the react native modules to NativeScript. The basic POC is ready on android with a functional RN module that works in {N} without any modifications.
 
 - Go to [@ammarahm-ed/react-native](packages/react-native/README.md) to learn more.
-- Read the [roadmap](https://github.com/ammarahm-ed/nativescript-magic-spells/issues/1)
+- Read the [roadmap](https://github.com/ammarahm-ed/nativescript-magic-spells/issues/2)
+
+## Contributing
+
+If you want to contribute, feel free to open an issue or join our discord community to discuss your ideas.
 
 ##
 
