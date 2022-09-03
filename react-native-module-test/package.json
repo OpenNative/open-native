@@ -1,5 +1,5 @@
 {
-  "name": "react-native-test-module",
+  "name": "react-native-module-test",
   "version": "0.0.0",
   "description": "A starter for the React Native library written in TypeScript, with linked example project and optional native code in Swift and Kotlin.",
   "homepage": "https://github.com/demchenkoalex/react-native-module-template#readme",
