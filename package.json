@@ -14,7 +14,10 @@
     "publish-packages": "nx g @nativescript/plugin-tools:publish",
     "sync-packages-with-demos": "nx g @nativescript/plugin-tools:sync-packages-with-demos",
     "remove-package": "nx g @nativescript/plugin-tools:remove-package",
-    "add-demo": "nx g @nativescript/plugin-tools:add-demo"
+    "add-demo": "nx g @nativescript/plugin-tools:add-demo",
+    "start:metro": "nx run demo-react-native:start",
+    "start:rna": "nx run demo-react-native:run-android",
+    "start:rni": "nx run demo-react-native:run-ios"
   },
   "private": true,
   "dependencies": {
