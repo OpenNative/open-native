@@ -7,6 +7,7 @@
   "compilerOptions": {
     "rootDirs": [".", "../.."],
     "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "~/*": ["src/*"],
       "@demo/shared": ["../../tools/demo/index.ts"],
