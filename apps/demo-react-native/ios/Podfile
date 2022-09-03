@@ -1,11 +1,11 @@
 require_relative '../../../node_modules/react-native/scripts/react_native_pods'
 require_relative '../../../node_modules/@react-native-community/cli-platform-ios/native_modules'
-require_relative '../../../node_modules/@nrwl/react-native/nx_post_install'
 
 platform :ios, '11.0'
 
 target 'example' do
   config = use_native_modules!
+  pod 'react-native-module-test', :path => '../../../dist/packages/react-native-module-test/react-native-module-test.podspec' 
 
   use_react_native!(
     :path => config[:reactNativePath],
@@ -22,6 +22,5 @@ target 'example' do
   post_install do |installer|
     react_native_post_install(installer)
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
-    nx_post_install(installer)
   end
 end
