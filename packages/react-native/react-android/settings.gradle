@@ -19,7 +19,7 @@ include ':bridge'
 
 
 include ':react-native-module-test'
-project(':react-native-module-test').projectDir = new File(rootProject.projectDir, '../../../react-native-module-test/android')
+project(':react-native-module-test').projectDir = new File(rootProject.projectDir, '../../react-native-module-test/platforms/android')
 // In a real world project, this would link to node_modules/react-native-*/android folder. Right now we will link
 // everything locally for development.
 
