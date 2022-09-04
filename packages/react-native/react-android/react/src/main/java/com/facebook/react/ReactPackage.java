@@ -10,6 +10,7 @@ package com.facebook.react;
 import androidx.annotation.NonNull;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.uimanager.ViewManager;
 // import com.facebook.react.uimanager.UIManagerModule;
 // import com.facebook.react.uimanager.ViewManager;
 import java.util.List;
@@ -35,12 +36,12 @@ public interface ReactPackage {
   /**
    * @param reactContext react application context that can be used to create modules
    * @return list of native modules to register with the newly created catalyst instance
-   * 
+   *
    * ** NativeScript **
    * Since we are using NativeScript, we don't need a Catalyst instance. But instead we will
    * use all ReactPackages and keep them in a Map from where we can get the ones we want to
    * use in our application. Because there is not bridge, we shouldn't use one.
-   * 
+   *
    * React Native Modules do not need to know what's happening behind the scenes nor do they care lol.
    */
   @NonNull
@@ -50,9 +51,9 @@ public interface ReactPackage {
   // NativeModules, for example for sending Events to Javascript.
   List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext);
 
-//   /** @return a list of view managers that should be registered with {@link UIManagerModule} */
-//   @NonNull
-//   List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext);
+   /** @return a list of view managers that should be registered with {@link UIManagerModule} */
+   @NonNull
+   List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext);
 }
 
 // I have commented out anything related to ReactViews.
