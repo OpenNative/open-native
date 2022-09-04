@@ -8,7 +8,12 @@
     },
     {
       "files": ["*.ts", "*.tsx"],
-      "rules": {}
+      "rules": {
+        "@typescript-eslint/prefer-namespace-keyword": "off",
+        "@typescript-eslint/triple-slash-reference": "off",
+        "@typescript-eslint/adjacent-overload-signatures": "off",
+        "@typescript-eslint/ban-types": "off"
+      }
     },
     {
       "files": ["*.js", "*.jsx"],

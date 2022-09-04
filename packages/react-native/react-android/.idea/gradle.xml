@@ -9,11 +9,11 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
+            <option value="$PROJECT_DIR$/../../react-native-module-test/platforms/android" />
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/bridge" />
             <option value="$PROJECT_DIR$/react" />
-            <option value="$PROJECT_DIR$/../../../react-native-module-test/android" />
           </set>
         </option>
       </GradleProjectSettings>

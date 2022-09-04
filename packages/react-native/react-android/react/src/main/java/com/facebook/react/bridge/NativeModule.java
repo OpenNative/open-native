@@ -18,11 +18,6 @@ import androidx.annotation.NonNull;
  * themselves using {CxxModuleWrapper}.
  */
 public interface NativeModule {
-//   interface NativeMethod {
-//     void invoke(JSInstance jsInstance, ReadableArray parameters);
-
-//     String getType();
-//   }
 
   /**
    * @return the name of this module. This will be the name used to {@code require()} this module

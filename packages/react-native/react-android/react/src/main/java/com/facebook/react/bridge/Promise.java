@@ -63,51 +63,51 @@ public interface Promise {
    *  With userInfo WritableMap
    * --------------------------- */
 
-//  /**
-//   * Report an exception, with default error code, with userInfo. Useful in catch-all scenarios
-//   * where it's unclear why the error occurred.
-//   *
-//   * @param throwable Throwable
-//   * @param userInfo WritableMap
-//   */
-//  void reject(Throwable throwable, WritableMap userInfo);
-//
-//  /**
-//   * Reject with a code and userInfo WritableMap.
-//   *
-//   * @param code String
-//   * @param userInfo WritableMap
-//   */
-//  void reject(String code, @NonNull WritableMap userInfo);
-//
-//  /**
-//   * Report an exception with a custom code and userInfo.
-//   *
-//   * @param code String
-//   * @param throwable Throwable
-//   * @param userInfo WritableMap
-//   */
-//  void reject(String code, Throwable throwable, WritableMap userInfo);
-//
-//  /**
-//   * Report an error with a custom code, error message and userInfo, an error not caused by an
-//   * exception.
-//   *
-//   * @param code String
-//   * @param message String
-//   * @param userInfo WritableMap
-//   */
-//  void reject(String code, String message, @NonNull WritableMap userInfo);
-//
-//  /**
-//   * Report an exception with a custom code, error message and userInfo.
-//   *
-//   * @param code String
-//   * @param message String
-//   * @param throwable Throwable
-//   * @param userInfo WritableMap
-//   */
-//  void reject(String code, String message, Throwable throwable, WritableMap userInfo);
+  /**
+   * Report an exception, with default error code, with userInfo. Useful in catch-all scenarios
+   * where it's unclear why the error occurred.
+   *
+   * @param throwable Throwable
+   * @param userInfo WritableMap
+   */
+  void reject(Throwable throwable, WritableMap userInfo);
+
+  /**
+   * Reject with a code and userInfo WritableMap.
+   *
+   * @param code String
+   * @param userInfo WritableMap
+   */
+  void reject(String code, @NonNull WritableMap userInfo);
+
+  /**
+   * Report an exception with a custom code and userInfo.
+   *
+   * @param code String
+   * @param throwable Throwable
+   * @param userInfo WritableMap
+   */
+  void reject(String code, Throwable throwable, WritableMap userInfo);
+
+  /**
+   * Report an error with a custom code, error message and userInfo, an error not caused by an
+   * exception.
+   *
+   * @param code String
+   * @param message String
+   * @param userInfo WritableMap
+   */
+  void reject(String code, String message, @NonNull WritableMap userInfo);
+
+  /**
+   * Report an exception with a custom code, error message and userInfo.
+   *
+   * @param code String
+   * @param message String
+   * @param throwable Throwable
+   * @param userInfo WritableMap
+   */
+  void reject(String code, String message, Throwable throwable, WritableMap userInfo);
 
   /* ------------
    *  Deprecated

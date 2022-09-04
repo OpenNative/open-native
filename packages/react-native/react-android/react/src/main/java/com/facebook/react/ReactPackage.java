@@ -8,11 +8,11 @@
 package com.facebook.react;
 
 import androidx.annotation.NonNull;
+
+import com.facebook.proguard.annotations.DoNotStrip;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
-// import com.facebook.react.uimanager.UIManagerModule;
-// import com.facebook.react.uimanager.ViewManager;
 import java.util.List;
 
 /**
@@ -31,6 +31,7 @@ import java.util.List;
  *
  * <p>TODO(6788500, 6788507): Implement support for adding custom views, events and resources
  */
+@DoNotStrip
 public interface ReactPackage {
 
   /**

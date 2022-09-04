@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bridge {
-  public String TAG = "RNBridge";
+  public static String TAG = "RNBridge";
   public static List<ReactPackage> packages = new ArrayList<>();
   public static List<NativeModule> modules = new ArrayList<>();
 
@@ -22,7 +22,7 @@ public class Bridge {
     packages.add(pkg);
   }
 
-  public int loadAllRegisteredModules(ReactApplicationContext context) {
+  public static void loadModules(ReactApplicationContext context) {
     packages.add(new RNTestModulePackage());
 
     for (ReactPackage pkg : packages) {
@@ -33,10 +33,9 @@ public class Bridge {
         Log.d(TAG,e.getLocalizedMessage());
       }
     }
-    return packages.size();
   }
 
-  public NativeModule getJSModule(String name) {
+  public static NativeModule getJSModule(String name) {
     Log.d(TAG, String.valueOf(modules.size()));
     for (NativeModule module : modules) {
       if (module.getName().equals(name)) {
