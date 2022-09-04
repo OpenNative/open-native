@@ -1,5 +1,5 @@
 import { DemoSharedBase } from '../utils';
-import {} from '@@ammarahm-ed/react-native-module-test';
+import {} from '@ammarahm-ed/react-native-module-test';
 
 export class DemoSharedReactNativeModuleTest extends DemoSharedBase {
   testIt() {
