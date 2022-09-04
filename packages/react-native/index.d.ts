@@ -1,6 +1,8 @@
 import { ReactNativeCommon } from './common';
 
 export declare class ReactNative extends ReactNativeCommon {
-  loadBridge: () => void;
+  bridge: com.bridge.Bridge;
+  reactContext: com.facebook.react.bridge.ReactApplicationContext;
+  init: () => void;
   getName: () => void;
 }
