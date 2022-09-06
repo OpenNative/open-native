@@ -1,12 +1,11 @@
 import { Utils } from '@nativescript/core';
 
 export class ReactNative {
-  bridge: com.bridge.Bridge;
+  bridge = com.bridge.Bridge;
   reactContext: com.facebook.react.bridge.ReactApplicationContext;
   init() {
     this.reactContext = new com.facebook.react.bridge.ReactApplicationContext(Utils.android.getApplicationContext());
-    this.bridge = new com.bridge.Bridge();
-    this.bridge.loadAllRegisteredModules(this.reactContext);
+    this.bridge.loadModules(this.reactContext);
   }
 
   getName() {
