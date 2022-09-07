@@ -28,7 +28,7 @@
   "bugs": {
     "url": "https://github.com/ammarahm-ed/nativescript-magic-spells/issues"
   },
-  "license": "Apache-2.0",
+  "license": "MIT",
   "homepage": "https://github.com/ammarahm-ed/nativescript-magic-spells",
   "readmeFilename": "README.md",
   "bootstrapper": "@nativescript/plugin-seed"

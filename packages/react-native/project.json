@@ -13,6 +13,8 @@
         "assets": [
           "packages/react-native/*.md",
           "packages/react-native/index.d.ts",
+          "packages/react-native/platforms/ios/React.podspec",
+          "packages/react-native/platforms/ios/React-Core.podspec",
           "LICENSE",
           {
             "glob": "**/*",
