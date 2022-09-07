@@ -10,12 +10,12 @@
 #import <React/RCTBridgeDelegate.h>
 #import <React/RCTBridgeModule.h>
 #import <React/RCTDefines.h>
-#import <React/RCTFrameUpdate.h>
+// #import <React/RCTFrameUpdate.h>
 #import <React/RCTInvalidating.h>
 
 @class JSValue;
 @class RCTBridge;
-@class RCTPerformanceLogger;
+// @class RCTPerformanceLogger;
 
 /**
  * This notification fires when the bridge initializes.
@@ -302,10 +302,10 @@ RCT_EXTERN void RCTSetTurboModuleCleanupMode(RCTTurboModuleCleanupMode mode);
  */
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
-/**
- * Link to the Performance Logger that logs React Native perf events.
- */
-@property (nonatomic, readonly, strong) RCTPerformanceLogger *performanceLogger;
+// /**
+//  * Link to the Performance Logger that logs React Native perf events.
+//  */
+// @property (nonatomic, readonly, strong) RCTPerformanceLogger *performanceLogger;
 
 /**
  * Reload the bundle and reset executor & modules. Safe to call from any thread.

@@ -8,8 +8,8 @@
 #import "RCTReloadCommand.h"
 
 #import "RCTAssert.h"
-#import "RCTKeyCommands.h"
-#import "RCTUtils.h"
+// #import "RCTKeyCommands.h"
+// #import "RCTUtils.h"
 
 static NSHashTable<id<RCTReloadListener>> *listeners;
 static NSLock *listenersLock;
@@ -21,42 +21,42 @@ NSString *const RCTTriggerReloadCommandBundleURLKey = @"bundleURL";
 
 void RCTRegisterReloadCommandListener(id<RCTReloadListener> listener)
 {
-  if (!listenersLock) {
-    listenersLock = [NSLock new];
-  }
-  [listenersLock lock];
-  if (!listeners) {
-    listeners = [NSHashTable weakObjectsHashTable];
-  }
-#if RCT_DEV
-  RCTAssertMainQueue(); // because registerKeyCommandWithInput: must be called on the main thread
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [[RCTKeyCommands sharedInstance] registerKeyCommandWithInput:@"r"
-                                                   modifierFlags:UIKeyModifierCommand
-                                                          action:^(__unused UIKeyCommand *command) {
-                                                            RCTTriggerReloadCommandListeners(@"Command + R");
-                                                          }];
-  });
-#endif
-  [listeners addObject:listener];
-  [listenersLock unlock];
+//   if (!listenersLock) {
+//     listenersLock = [NSLock new];
+//   }
+//   [listenersLock lock];
+//   if (!listeners) {
+//     listeners = [NSHashTable weakObjectsHashTable];
+//   }
+// #if RCT_DEV
+//   RCTAssertMainQueue(); // because registerKeyCommandWithInput: must be called on the main thread
+//   static dispatch_once_t onceToken;
+//   dispatch_once(&onceToken, ^{
+//     [[RCTKeyCommands sharedInstance] registerKeyCommandWithInput:@"r"
+//                                                    modifierFlags:UIKeyModifierCommand
+//                                                           action:^(__unused UIKeyCommand *command) {
+//                                                             RCTTriggerReloadCommandListeners(@"Command + R");
+//                                                           }];
+//   });
+// #endif
+//   [listeners addObject:listener];
+//   [listenersLock unlock];
 }
 
 void RCTTriggerReloadCommandListeners(NSString *reason)
 {
-  [listenersLock lock];
-  [[NSNotificationCenter defaultCenter] postNotificationName:RCTTriggerReloadCommandNotification
-                                                      object:nil
-                                                    userInfo:@{
-                                                      RCTTriggerReloadCommandReasonKey : RCTNullIfNil(reason),
-                                                      RCTTriggerReloadCommandBundleURLKey : RCTNullIfNil(bundleURL)
-                                                    }];
+  // [listenersLock lock];
+  // [[NSNotificationCenter defaultCenter] postNotificationName:RCTTriggerReloadCommandNotification
+  //                                                     object:nil
+  //                                                   userInfo:@{
+  //                                                     RCTTriggerReloadCommandReasonKey : RCTNullIfNil(reason),
+  //                                                     RCTTriggerReloadCommandBundleURLKey : RCTNullIfNil(bundleURL)
+  //                                                   }];
 
-  for (id<RCTReloadListener> l in [listeners allObjects]) {
-    [l didReceiveReloadCommand];
-  }
-  [listenersLock unlock];
+  // for (id<RCTReloadListener> l in [listeners allObjects]) {
+  //   [l didReceiveReloadCommand];
+  // }
+  // [listenersLock unlock];
 }
 
 void RCTReloadCommandSetBundleURL(NSURL *URL)

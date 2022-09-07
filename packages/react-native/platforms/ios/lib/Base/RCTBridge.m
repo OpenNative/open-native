@@ -11,15 +11,15 @@
 #import <objc/runtime.h>
 
 #import "RCTConvert.h"
-#if RCT_ENABLE_INSPECTOR
-#import "RCTInspectorDevServerHelper.h"
-#endif
-#import "RCTDevLoadingViewProtocol.h"
+// #if RCT_ENABLE_INSPECTOR
+// #import "RCTInspectorDevServerHelper.h"
+// #endif
+// #import "RCTDevLoadingViewProtocol.h"
 #import "RCTJSThread.h"
 #import "RCTLog.h"
-#import "RCTModuleData.h"
-#import "RCTPerformanceLogger.h"
-#import "RCTProfile.h"
+// #import "RCTModuleData.h"
+// #import "RCTPerformanceLogger.h"
+// #import "RCTProfile.h"
 #import "RCTReloadCommand.h"
 #import "RCTUtils.h"
 
@@ -181,7 +181,7 @@ void RCTDisableViewConfigEventValidAttributes(BOOL disabled)
 
 + (void)initialize
 {
-  _RCTInitializeJSThreadConstantInternal();
+  // _RCTInitializeJSThreadConstantInternal();
 }
 
 static RCTBridge *RCTCurrentBridgeInstance = nil;
@@ -254,10 +254,10 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (void)didReceiveReloadCommand
 {
-#if RCT_ENABLE_INSPECTOR
-  // Disable debugger to resume the JsVM & avoid thread locks while reloading
-  [RCTInspectorDevServerHelper disableDebugger];
-#endif
+// #if RCT_ENABLE_INSPECTOR
+//   // Disable debugger to resume the JsVM & avoid thread locks while reloading
+//   [RCTInspectorDevServerHelper disableDebugger];
+// #endif
 
   [[NSNotificationCenter defaultCenter] postNotificationName:RCTBridgeWillReloadNotification object:self userInfo:nil];
 
@@ -353,16 +353,19 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (Class)bridgeClass
 {
-  return [RCTCxxBridge class];
+  @throw [NSException exceptionWithName:@"Not implemented"
+                                 reason:@"RCTBridge.bridgeClass not yet implemented; we need to add a dependency on CxxBridge to return RCTCxxBridge."
+                               userInfo:nil];
+  // return [RCTCxxBridge class];
 }
 
 - (void)setUp
 {
-  RCT_PROFILE_BEGIN_EVENT(0, @"-[RCTBridge setUp]", nil);
+  // RCT_PROFILE_BEGIN_EVENT(0, @"-[RCTBridge setUp]", nil);
 
-  _performanceLogger = [RCTPerformanceLogger new];
-  [_performanceLogger markStartForTag:RCTPLBridgeStartup];
-  [_performanceLogger markStartForTag:RCTPLTTI];
+  // _performanceLogger = [RCTPerformanceLogger new];
+  // [_performanceLogger markStartForTag:RCTPLBridgeStartup];
+  // [_performanceLogger markStartForTag:RCTPLTTI];
 
   Class bridgeClass = self.bridgeClass;
 
@@ -384,7 +387,7 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init)
   self.batchedBridge = [[bridgeClass alloc] initWithParentBridge:self];
   [self.batchedBridge start];
 
-  RCT_PROFILE_END_EVENT(RCTProfileTagAlways, @"");
+  // RCT_PROFILE_END_EVENT(RCTProfileTagAlways, @"");
 }
 
 - (BOOL)isLoading
