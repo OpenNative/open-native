@@ -5,4 +5,6 @@ export declare class ReactNative extends ReactNativeCommon {
   reactContext: com.facebook.react.bridge.ReactApplicationContext;
   init: () => void;
   getName: () => void;
+  callbackTest: () => void;
+  promiseTest: () => void;
 }

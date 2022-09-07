@@ -1190,6 +1190,8 @@ declare module com {
       public constructor(param0: com.facebook.react.bridge.ReactApplicationContext);
       public invalidate(): void;
       public getName(): string;
+      public testCallback(param0: com.facebook.react.bridge.Callback): void;
+      public testPromise(param0: com.facebook.react.bridge.Promise): void;
       public show(param0: string, param1: number): void;
       public initialize(): void;
       public constructor();

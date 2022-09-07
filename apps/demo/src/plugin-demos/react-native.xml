@@ -8,7 +8,7 @@
           <StackLayout>
             <Button text="Load Bridge" tap="{{ loadBridge }}" class="btn btn-primary"/>
             <Button text="RNTestModule.getName" tap="{{ getName }}" class="btn btn-primary"/>
-
+            <Button text="RNTestModule.Callback" tap="{{ callbackTest }}" class="btn btn-primary"/>
           </StackLayout>
         </ScrollView>
     </StackLayout>

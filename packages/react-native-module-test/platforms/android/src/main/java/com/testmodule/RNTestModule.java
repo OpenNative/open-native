@@ -3,7 +3,9 @@ package com.testmodule;
 
 import android.widget.Toast;
 
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -34,6 +36,16 @@ public class RNTestModule extends ReactContextBaseJavaModule {
     constants.put(DURATION_SHORT_KEY, Toast.LENGTH_SHORT);
     constants.put(DURATION_LONG_KEY, Toast.LENGTH_LONG);
     return constants;
+  }
+
+  @ReactMethod
+  public void testCallback(Callback callback) {
+    callback.invoke(true);
+  }
+
+  @ReactMethod
+  public void testPromise(Promise promise) {
+    promise.resolve(true);
   }
 
   @ReactMethod

@@ -14,4 +14,12 @@ export class DemoSharedReactNative extends DemoSharedBase {
   getName() {
     RNBridge.getName();
   }
+
+  callbackTest() {
+    RNBridge.callbackTest();
+  }
+
+  promiseTest() {
+    RNBridge.promiseTest();
+  }
 }
