@@ -20,6 +20,11 @@
             "glob": "**/*",
             "input": "packages/react-native/platforms/",
             "output": "./platforms/"
+          },
+          {
+            "glob": "**/*",
+            "input": "packages/react-native/hooks/",
+            "output": "./hooks/"
           }
         ],
         "dependsOn": [

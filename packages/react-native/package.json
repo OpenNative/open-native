@@ -8,7 +8,14 @@
     "platforms": {
       "ios": "6.0.0",
       "android": "6.0.0"
-    }
+    },
+    "hooks": [
+      {
+        "type": "before-buildIOS",
+        "script": "hooks/before-buildIOS.js",
+        "inject": true
+      }
+    ]
   },
   "repository": {
     "type": "git",
