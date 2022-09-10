@@ -17,6 +17,12 @@
       }
     ]
   },
+  "dependencies": {
+    "glob": "^8.0.3"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ammarahm-ed/nativescript-magic-spells.git"
