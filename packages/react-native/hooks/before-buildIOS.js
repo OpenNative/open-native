@@ -4,6 +4,7 @@ const fs = require('fs');
 const cp = require('child_process');
 const { promisify } = require('util');
 const execFile = promisify(cp.execFile);
+const readFile = promisify(fs.readFile);
 
 /**
  * For all available hook types, see:
@@ -83,15 +84,18 @@ module.exports = async function ({ projectData, platformData }) {
 
   const ignoredDepsSet = new Set(ignoredDependencies);
   const depsArr = Object.keys({ ...devDependencies, ...dependencies }).filter((key) => !ignoredDepsSet.has(key));
-  const packagePaths = depsArr.map((depName) => require.resolve(depName, { paths: [projectDir] }));
+  console.log('Alive with depsArr', depsArr);
+  const packagePaths = depsArr.map((depName) => path.dirname(require.resolve(`${depName}/package.json`, { paths: [projectDir] })));
+  console.log('Got packagePaths', packagePaths);
 
-  const implementationFilePaths = await Promise.all(
+  const output = await Promise.all(
     packagePaths.map(
       async (
-        // @example apps/demo/node_modules/@ammarahm-ed/react-native
+        // @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test'
         packagePath
       ) => {
         const podspecs = await globProm('*.podspec', { cwd: packagePath, absolute: true });
+        console.log(`Got podspecs for package: ${path.basename(packagePath)}:`, podspecs);
         if (podspecs.length === 0) {
           return;
         }
@@ -130,16 +134,34 @@ module.exports = async function ({ projectData, platformData }) {
 
         const sourceFilePathsArrays = await Promise.all(platformSourceFilesArr.map(async (pattern) => await globProm(pattern, { cwd: packagePath, absolute: true })));
 
-        const sourceFilePaths = [...new Set(sourceFilePathsArrays.flat(1))];
-
         // Look just for Obj-C and Obj-C++ implementation files, ignoring
         // headers.
-        return sourceFilePaths.filter((sourceFilePath) => /\.mm?$/.test(sourceFilePath));
+        const sourceFilePaths = [...new Set(sourceFilePathsArrays.flat(1))].filter((sourceFilePath) => /\.mm?$/.test(sourceFilePath));
+
+        return await Promise.all(
+          sourceFilePaths.map(async (sourceFilePath) => {
+            const sourceFileContents = await readFile(sourceFilePath, { encoding: 'utf8' });
+
+            const remappedMethods = sourceFileContents.match(/^(RCT_REMAP_METHOD)\((.|[\r\n])*?\)*?\{$/gm).map((match) => {
+              const [, fromMethodName] = match.split(/RCT_REMAP_METHOD\(\s*/);
+              const [methodName, afterMethodName] = fromMethodName.split(/\s*,/);
+              const methodArgs = afterMethodName.split(')').slice(0, -1).join(')');
+
+              return `- (void)${methodName.trim()}${methodArgs.trim().split(/\s+/).join('\n')};`;
+            });
+
+            // TODO: handle RCT_EXPORT_MODULE
+            // TODO: handle RCT_EXPORT_METHOD
+
+            return remappedMethods;
+          })
+        );
       }
     )
   );
 
-  console.log('Got implementationFilePaths:', implementationFilePaths);
+  const outputFlat = output.filter((p) => !!p).flat(1);
+  console.log(`Got outputFlat: ${outputFlat}`);
 
   // TODO: We should (ideally strip comments and then) search for
   // mentions of RCT_EXPORT_MODULE and RCT_EXPORT_METHOD, then add categories
