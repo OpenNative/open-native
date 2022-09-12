@@ -152,10 +152,10 @@ module.exports = async function ({ projectData, platformData }) {
                 return acc;
               }
 
-              const exportModuleMatches = fullMatch.match(/RCT_EXPORT_MODULE\((.*)\)/gm) || [];
-              const exportModuleNoLoadMatches = fullMatch.match(/RCT_EXPORT_MODULE_NO_LOAD\((.*)\)/gm) || [];
-              const exportPreRegisteredModuleNoLoadMatches = fullMatch.match(/RCT_EXPORT_PRE_REGISTERED_MODULE\((.*)\)/gm) || [];
-              const jsModuleName = exportModuleMatches[1] || exportModuleNoLoadMatches[1] || exportPreRegisteredModuleNoLoadMatches[1] || objcClassName;
+              const exportModuleMatches = [...fullMatch.matchAll(/RCT_EXPORT_MODULE\((.*)\)/gm)];
+              const exportModuleNoLoadMatches = [...fullMatch.matchAll(/RCT_EXPORT_MODULE_NO_LOAD\((.*)\)/gm)];
+              const exportPreRegisteredModuleNoLoadMatches = [...fullMatch.matchAll(/RCT_EXPORT_PRE_REGISTERED_MODULE\((.*)\)/gm)];
+              const jsModuleName = exportModuleMatches[0]?.[1] || exportModuleNoLoadMatches[0]?.[1] || exportPreRegisteredModuleNoLoadMatches[0]?.[1] || objcClassName;
 
               if (!jsModuleName) {
                 return acc;
@@ -201,7 +201,7 @@ module.exports = async function ({ projectData, platformData }) {
     `#import <React/RCTBridgeModule.h>`,
     '',
     outputFlat
-      .map(([comment, categories, podspecFile]) => {
+      .map(([comment, categories]) => {
         return `// ${comment}\n${categories}`;
       })
       .join('\n\n'),
