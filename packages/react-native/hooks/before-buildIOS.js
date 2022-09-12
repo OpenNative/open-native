@@ -108,6 +108,10 @@ module.exports = async function ({ projectData, platformData }) {
         // consistent with how the React Native Community CLI works).
         const podspecFile = podspecs.find((podspec) => podspec === packagePodspec) || podspecs[0];
 
+        // A comment to write into the header to indicate where the interfaces
+        // that we're about to extract came from.
+        const comment = `${packageName}/${path.basename(podspecFile)}`;
+
         const { stdout: podspecContents } = await execFile('pod', ['ipc', 'spec', podspecFile]);
 
         /**
@@ -142,18 +146,49 @@ module.exports = async function ({ projectData, platformData }) {
           sourceFilePaths.map(async (sourceFilePath) => {
             const sourceFileContents = await readFile(sourceFilePath, { encoding: 'utf8' });
 
-            const remappedMethods = sourceFileContents.match(/^(RCT_REMAP_METHOD)\((.|[\r\n])*?\)*?\{$/gm).map((match) => {
-              const [, fromMethodName] = match.split(/RCT_REMAP_METHOD\(\s*/);
-              const [methodName, afterMethodName] = fromMethodName.split(/\s*,/);
-              const methodArgs = afterMethodName.split(')').slice(0, -1).join(')');
+            const classImplementations = [...sourceFileContents.matchAll(/\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm)].reduce((acc, matches) => {
+              const [fullMatch, objcClassName] = matches;
+              if (!objcClassName) {
+                return acc;
+              }
 
-              return `- (void)${methodName.trim()}${methodArgs.trim().split(/\s+/).join('\n')};`;
-            });
+              const exportModuleMatches = fullMatch.match(/RCT_EXPORT_MODULE\((.*)\)/gm) || [];
+              const exportModuleNoLoadMatches = fullMatch.match(/RCT_EXPORT_MODULE_NO_LOAD\((.*)\)/gm) || [];
+              const exportPreRegisteredModuleNoLoadMatches = fullMatch.match(/RCT_EXPORT_PRE_REGISTERED_MODULE\((.*)\)/gm) || [];
+              const jsModuleName = exportModuleMatches[1] || exportModuleNoLoadMatches[1] || exportPreRegisteredModuleNoLoadMatches[1] || objcClassName;
 
-            // TODO: handle RCT_EXPORT_MODULE
-            // TODO: handle RCT_EXPORT_METHOD
+              if (!jsModuleName) {
+                return acc;
+              }
 
-            return remappedMethods;
+              const remappedMethods = [...fullMatch.matchAll(/\s*RCT_REMAP_METHOD\((.|[\r\n])*?\)*?\{$/gm)].map((match) => {
+                const [, fromMethodName] = match[0].split(/RCT_REMAP_METHOD\(\s*/);
+                const [methodName, afterMethodName] = fromMethodName.split(/\s*,/);
+                const methodArgs = afterMethodName.split(')').slice(0, -1).join(')');
+
+                return `- (void)${methodName.trim()}${methodArgs.trim().split(/\s+/).join('\n')};`;
+              });
+
+              const exportedMethods = [...fullMatch.matchAll(/\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{$/gm)].map((match) => {
+                const [, macroContents] = match[0].split(/RCT_EXPORT_METHOD\(\s*/);
+                const methodArgs = macroContents.split(')').slice(0, -1).join(')');
+
+                return `- (void)${methodArgs.trim().split(/\s+/).join('\n')};`;
+              });
+
+              acc[jsModuleName] = [...remappedMethods, ...exportedMethods];
+
+              return acc;
+            }, {});
+
+            const categories = Object.keys(classImplementations)
+              .map((jsModuleName) => {
+                const methods = classImplementations[jsModuleName];
+                return [`@interface ${jsModuleName} (${jsModuleName}TNS)`, methods.join('\n\n'), `@end`].join('\n');
+              })
+              .join('\n\n');
+
+            return [comment, categories, podspecFile];
           })
         );
       }
@@ -161,11 +196,21 @@ module.exports = async function ({ projectData, platformData }) {
   );
 
   const outputFlat = output.filter((p) => !!p).flat(1);
-  console.log(`Got outputFlat: ${outputFlat}`);
 
-  // TODO: We should (ideally strip comments and then) search for
-  // mentions of RCT_EXPORT_MODULE and RCT_EXPORT_METHOD, then add categories
-  // to a .h file that we finally write into this npm package.
+  const header = [
+    `#import <React/RCTBridgeModule.h>`,
+    '',
+    outputFlat
+      .map(([comment, categories, podspecFile]) => {
+        return `// ${comment}\n${categories}`;
+      })
+      .join('\n\n'),
+    '',
+  ].join('\n');
+
+  console.log(`Got header: ${header}`);
+
+  // TODO: We should ideally strip comments first.
   // Finally, we'll need a ReactNativeTNS.podspec, probably with a dependency
   // on React, that refers to headers in this npm package.
   // @see https://github.com/nativescript-community/expo-nativescript/blob/main/packages/expo-nativescript-adapter/hooks/after-prepare.js
