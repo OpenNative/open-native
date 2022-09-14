@@ -19,6 +19,11 @@
             "glob": "**/*",
             "input": "packages/react-native-module-test/platforms/",
             "output": "./platforms/"
+          },
+          {
+            "glob": "**/*",
+            "input": "packages/react-native-module-test/ios/",
+            "output": "./ios/"
           }
         ]
       },
