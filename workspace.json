@@ -5,7 +5,8 @@
     "demo-angular": "apps/demo-angular",
     "demo-react-native": "apps/demo-react-native",
     "react-native": "packages/react-native",
-    "react-native-module-test": "packages/react-native-module-test"
+    "react-native-module-test": "packages/react-native-module-test",
+    "react-native-podspecs": "packages/react-native-podspecs"
   },
   "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }

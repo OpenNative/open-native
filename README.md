@@ -1,3 +1,7 @@
+- [@ammarahm-ed/react-native](packages/react-native/README.md)
+- [@ammarahm-ed/react-native-module-test](packages/react-native-module-test/README.md)
+- [@ammarahm-ed/react-native-podspecs](packages/react-native-podspecs/README.md)
+
 # @ammarahm-ed/nativescript-magic-spells
 
 Nativescript magic spells is an effort to build a series of plugins that will revolutionize the way you develop apps with NativeScript.

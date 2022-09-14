@@ -1,5 +1,5 @@
 {
-  "name": "@ammarahm-ed/react-native",
+  "name": "@ammarahm-ed/react-native-podspecs",
   "version": "1.0.0",
   "description": "Add a plugin description",
   "main": "index",
@@ -8,13 +8,14 @@
     "platforms": {
       "ios": "6.0.0",
       "android": "6.0.0"
-    }
-  },
-  "dependencies": {
-    "glob": "^8.0.3"
-  },
-  "devDependencies": {
-    "@types/glob": "^8.0.0"
+    },
+    "hooks": [
+      {
+        "type": "before-buildIOS",
+        "script": "hooks/before-buildIOS.js",
+        "inject": true
+      }
+    ]
   },
   "repository": {
     "type": "git",
@@ -34,7 +35,7 @@
   "bugs": {
     "url": "https://github.com/ammarahm-ed/nativescript-magic-spells/issues"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "homepage": "https://github.com/ammarahm-ed/nativescript-magic-spells",
   "readmeFilename": "README.md",
   "bootstrapper": "@nativescript/plugin-seed"

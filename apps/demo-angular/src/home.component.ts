@@ -12,5 +12,8 @@ export class HomeComponent {
     {
       name: 'react-native-module-test',
     },
+    {
+      name: 'react-native-podspecs',
+    },
   ];
 }
