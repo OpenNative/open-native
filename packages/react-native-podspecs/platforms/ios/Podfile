@@ -1,4 +1,0 @@
-# This file will be automatically updated by hooks/before-buildIOS.js.
-platform :ios, '12.4'
-
-s.dependency 'React-Core'
