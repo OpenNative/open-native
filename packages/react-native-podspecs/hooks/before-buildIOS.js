@@ -72,7 +72,12 @@ const readFile = promisify(fs.readFile);
  * @param {string} hookArgs.projectData.webpackConfigPath
  * @param {boolean} hookArgs.projectData.initialized
  */
-module.exports = async function ({ projectData, platformData }) {
+module.exports = async function (hookArgs) {
+  const { projectData, platformData } = hookArgs;
+  console.log(`!! before-buildIOS.js __dirname:`, __dirname);
+  console.log(`!! before-buildIOS.js projectData:`, projectData);
+  console.log(`!! before-buildIOS.js platformData:`, platformData);
+
   const { platformNameLowerCase } = platformData;
   // For now, we handle only iOS (as platforms other than iOS are experimental
   // on NativeScript). We might come back for macOS one day! :D
