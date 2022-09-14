@@ -7,7 +7,7 @@ const execFile = promisify(cp.execFile);
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 
-const logPrefix = '[react-native-podspecs/hooks/before-buildIOS.js]';
+const logPrefix = '[react-native-podspecs/hooks/before-prepareNativeApp.js]';
 
 /**
  * For all available hook types, see:
@@ -22,6 +22,12 @@ const logPrefix = '[react-native-podspecs/hooks/before-buildIOS.js]';
  * @see https://github.com/NativeScript/nativescript-cli/blob/c61edbeef668b9c17e744d7af3909306c435a16a/lib/project-data.ts
  *
  * @param {object} hookArgs
+ * @param {object} hookArgs.platformData
+ * https://github.com/NativeScript/nativescript-cli/blob/fa257dd455ca55374cf419d638ac74166dc727db/lib/services/android-project-service.ts#L200
+ * https://github.com/NativeScript/nativescript-cli/blob/1435eef272aced36e7f97a355ff5c7ea936f94e7/lib/services/ios-project-service.ts#L131
+ * @param {string} hookArgs.platformData.frameworkPackageName
+ * @param {"iOS"|"Android"} hookArgs.platformData.normalizedPlatformName
+ * @param {"ios"|"android"} hookArgs.platformData.platformNameLowerCase
  * @param {string} hookArgs.projectRoot
  *   e.g. /Users/jamie/Documents/git/nativescript-magic-spells/apps/demo/platforms/ios
  * @param {object} hookArgs.projectData
@@ -70,15 +76,13 @@ const logPrefix = '[react-native-podspecs/hooks/before-buildIOS.js]';
  * @param {string} hookArgs.projectData.previewAppSchema
  * @param {string} hookArgs.projectData.webpackConfigPath
  * @param {boolean} hookArgs.projectData.initialized
- * @param {object} hookArgs.buildData
- * @param {string} hookArgs.buildData.platform
  * @param {[string, object, object]} hookArgs.$arguments
  *   Just lists out projectRoot, projectData, and buildData again in an array.
  */
 module.exports = async function (hookArgs) {
   const {
     projectData,
-    buildData: { platform },
+    platformData: { platformNameLowerCase },
   } = hookArgs;
 
   // e.g. /Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-podspecs
@@ -88,17 +92,17 @@ module.exports = async function (hookArgs) {
 
   // For now, we handle only iOS (as platforms other than iOS are experimental
   // on NativeScript). We might come back for macOS one day! :D
-  if (platform !== 'ios') {
+  if (platformNameLowerCase !== 'ios') {
     return;
   }
+
+  console.log(`${logPrefix} preparing React Native podspecs for iOS...`);
 
   const { devDependencies, dependencies, ignoredDependencies, projectDir } = projectData;
 
   const ignoredDepsSet = new Set(ignoredDependencies);
   const depsArr = Object.keys({ ...devDependencies, ...dependencies }).filter((key) => !ignoredDepsSet.has(key));
-  console.log('Alive with depsArr', depsArr);
   const packagePaths = depsArr.map((depName) => path.dirname(require.resolve(`${depName}/package.json`, { paths: [projectDir] })));
-  console.log('Got packagePaths', packagePaths);
 
   const output = await Promise.all(
     packagePaths.map(
@@ -107,7 +111,6 @@ module.exports = async function (hookArgs) {
         packagePath
       ) => {
         const podspecs = await globProm('*.podspec', { cwd: packagePath, absolute: true });
-        console.log(`Got podspecs for package: ${path.basename(packagePath)}:`, podspecs);
         if (podspecs.length === 0) {
           return;
         }
@@ -229,10 +232,8 @@ module.exports = async function (hookArgs) {
     '',
   ].join('\n');
 
-  console.log(`Got header: ${header}`);
-
   const podfileContents = [
-    `# This file will be updated automatically by hooks/before-buildIOS.js.`,
+    `# This file will be updated automatically by hooks/before-prepareNativeApp.js.`,
     `platform :ios, '12.4'`,
     '',
     // Depending on React and/or React-Core supports categories.h, which imports
@@ -248,6 +249,8 @@ module.exports = async function (hookArgs) {
   ].join('\n');
 
   await Promise.all([await writeFile(outputHeaderPath, header, { encoding: 'utf-8' }), await writeFile(outputPodfilePath, podfileContents, { encoding: 'utf-8' })]);
+
+  console.log(`${logPrefix} finished preparing React Native podspecs for iOS.`);
 };
 
 /**

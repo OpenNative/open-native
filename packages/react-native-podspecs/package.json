@@ -13,8 +13,8 @@
     },
     "hooks": [
       {
-        "type": "before-buildIOS",
-        "script": "hooks/before-buildIOS.js",
+        "type": "before-prepareNativeApp",
+        "script": "hooks/before-prepareNativeApp.js",
         "inject": true
       }
     ]
