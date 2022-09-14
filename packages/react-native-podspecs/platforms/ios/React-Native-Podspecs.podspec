@@ -22,4 +22,5 @@ Pod::Spec.new do |s|
   s.user_target_xcconfig   = {
     "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/Headers/Private/React-Native-Podspecs\"",
   }
+  s.dependency 'React-Core'
 end

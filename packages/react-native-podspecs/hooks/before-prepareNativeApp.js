@@ -237,9 +237,13 @@ module.exports = async function (hookArgs) {
     `platform :ios, '12.4'`,
     '',
     // Depending on React and/or React-Core supports categories.h, which imports
-    // the <React/RCTBridgeModule.h> header.
-    `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
-    `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React.podspec")`,
+    // the <React/RCTBridgeModule.h> header. I'm not sure whether to include
+    // these two lines (given we know that `@ammarahm-ed/react-native` is going
+    // to include them anyway), but probably including them is better. For now,
+    // though, I'll leave them out until it becomes a clear problem. The main
+    // advantage is that it saves spinning up node wastefully.
+    // `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
+    // `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React.podspec")`,
     // Depending on React-Native-Podspecs allows us to include our categories.h
     // file.
     `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native-podspecs/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`,
@@ -250,7 +254,7 @@ module.exports = async function (hookArgs) {
 
   await Promise.all([await writeFile(outputHeaderPath, header, { encoding: 'utf-8' }), await writeFile(outputPodfilePath, podfileContents, { encoding: 'utf-8' })]);
 
-  console.log(`${logPrefix} finished preparing React Native podspecs for iOS.`);
+  console.log(`${logPrefix} ...finished preparing React Native podspecs for iOS.`);
 };
 
 /**
