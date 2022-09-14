@@ -5,6 +5,9 @@ const cp = require('child_process');
 const { promisify } = require('util');
 const execFile = promisify(cp.execFile);
 const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
+
+const logPrefix = '[react-native-podspecs/hooks/before-buildIOS.js]';
 
 /**
  * For all available hook types, see:
@@ -19,12 +22,8 @@ const readFile = promisify(fs.readFile);
  * @see https://github.com/NativeScript/nativescript-cli/blob/c61edbeef668b9c17e744d7af3909306c435a16a/lib/project-data.ts
  *
  * @param {object} hookArgs
- * @param {object} hookArgs.platformData
- * https://github.com/NativeScript/nativescript-cli/blob/fa257dd455ca55374cf419d638ac74166dc727db/lib/services/android-project-service.ts#L200
- * https://github.com/NativeScript/nativescript-cli/blob/1435eef272aced36e7f97a355ff5c7ea936f94e7/lib/services/ios-project-service.ts#L131
- * @param {string} hookArgs.platformData.frameworkPackageName
- * @param {"iOS"|"Android"} hookArgs.platformData.normalizedPlatformName
- * @param {"ios"|"android"} hookArgs.platformData.platformNameLowerCase
+ * @param {string} hookArgs.projectRoot
+ *   e.g. /Users/jamie/Documents/git/nativescript-magic-spells/apps/demo/platforms/ios
  * @param {object} hookArgs.projectData
  * https://github.com/NativeScript/nativescript-cli/blob/master/lib/services/android-project-service.ts
  * https://github.com/NativeScript/nativescript-cli/blob/master/lib/services/ios-project-service.ts
@@ -71,17 +70,25 @@ const readFile = promisify(fs.readFile);
  * @param {string} hookArgs.projectData.previewAppSchema
  * @param {string} hookArgs.projectData.webpackConfigPath
  * @param {boolean} hookArgs.projectData.initialized
+ * @param {object} hookArgs.buildData
+ * @param {string} hookArgs.buildData.platform
+ * @param {[string, object, object]} hookArgs.$arguments
+ *   Just lists out projectRoot, projectData, and buildData again in an array.
  */
 module.exports = async function (hookArgs) {
-  const { projectData, platformData } = hookArgs;
-  console.log(`!! before-buildIOS.js __dirname:`, __dirname);
-  console.log(`!! before-buildIOS.js projectData:`, projectData);
-  console.log(`!! before-buildIOS.js platformData:`, platformData);
+  const {
+    projectData,
+    buildData: { platform },
+  } = hookArgs;
 
-  const { platformNameLowerCase } = platformData;
+  // e.g. /Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-podspecs
+  const reactNativePodspecsPackageDir = path.dirname(__dirname);
+  const outputHeaderPath = path.resolve(reactNativePodspecsPackageDir, 'platforms/ios/lib/categories.h');
+  const outputPodfilePath = path.resolve(reactNativePodspecsPackageDir, 'platforms/ios/Podfile');
+
   // For now, we handle only iOS (as platforms other than iOS are experimental
   // on NativeScript). We might come back for macOS one day! :D
-  if (platformNameLowerCase !== 'ios') {
+  if (platform !== 'ios') {
     return;
   }
 
@@ -111,18 +118,19 @@ module.exports = async function (hookArgs) {
         // If there are multiple podspecs, prefer the podspec named after the
         // package; otherwise just take the first match (all of this is
         // consistent with how the React Native Community CLI works).
-        const podspecFile = podspecs.find((podspec) => podspec === packagePodspec) || podspecs[0];
+        const resolvedPodspecFilePath = podspecs.find((podspec) => podspec === packagePodspec) || podspecs[0];
 
         // A comment to write into the header to indicate where the interfaces
         // that we're about to extract came from.
-        const comment = `${packageName}/${path.basename(podspecFile)}`;
+        const comment = `${packageName}/${path.basename(resolvedPodspecFilePath)}`;
 
-        const { stdout: podspecContents } = await execFile('pod', ['ipc', 'spec', podspecFile]);
+        const { stdout: podspecContents } = await execFile('pod', ['ipc', 'spec', resolvedPodspecFilePath]);
 
         /**
          * These are the typings (that we're interested in), assuming a valid
          * podspec. We'll handle it in a failsafe manner.
          * @type {{
+         *   name?: string;
          *   source_files?: string|string[];
          *   ios?: {
          *     source_files?: string|string[];
@@ -132,7 +140,11 @@ module.exports = async function (hookArgs) {
         const podspecParsed = JSON.parse(podspecContents);
 
         // The other platforms are "osx", "macos", "tvos", and "watchos".
-        const { source_files: commonSourceFiles = [], ios: { source_files: iosSourceFiles } = { source_files: [] } } = podspecParsed;
+        const { name: podSpecName = packageName, source_files: commonSourceFiles = [], ios: { source_files: iosSourceFiles } = { source_files: [] } } = podspecParsed;
+
+        if (!podspecParsed.name) {
+          console.warn(`${logPrefix} Podspec "${path.basename(resolvedPodspecFilePath)}" for npm package "${packageName}" did not specify a name, so using "${packageName}" instead.`);
+        }
 
         // Normalise to an array, treating empty-string as an empty array.
         const commonSourceFilesArr = commonSourceFiles ? (Array.isArray(commonSourceFiles) ? commonSourceFiles : [commonSourceFiles]) : [];
@@ -150,6 +162,8 @@ module.exports = async function (hookArgs) {
         return await Promise.all(
           sourceFilePaths.map(async (sourceFilePath) => {
             const sourceFileContents = await readFile(sourceFilePath, { encoding: 'utf8' });
+
+            // TODO: We should ideally strip comments before running any Regex.
 
             const classImplementations = [...sourceFileContents.matchAll(/\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm)].reduce((acc, matches) => {
               const [fullMatch, objcClassName] = matches;
@@ -193,7 +207,9 @@ module.exports = async function (hookArgs) {
               })
               .join('\n\n');
 
-            return [comment, categories, podspecFile];
+            const podfileEntry = `pod '${podSpecName}', path: "${resolvedPodspecFilePath}"`;
+
+            return { comment, categories, podfileEntry };
           })
         );
       }
@@ -206,7 +222,7 @@ module.exports = async function (hookArgs) {
     `#import <React/RCTBridgeModule.h>`,
     '',
     outputFlat
-      .map(([comment, categories]) => {
+      .map(({ comment, categories }) => {
         return `// ${comment}\n${categories}`;
       })
       .join('\n\n'),
@@ -215,10 +231,23 @@ module.exports = async function (hookArgs) {
 
   console.log(`Got header: ${header}`);
 
-  // TODO: We should ideally strip comments first.
-  // Finally, we'll need a ReactNativeTNS.podspec, probably with a dependency
-  // on React, that refers to headers in this npm package.
-  // @see https://github.com/nativescript-community/expo-nativescript/blob/main/packages/expo-nativescript-adapter/hooks/after-prepare.js
+  const podfileContents = [
+    `# This file will be updated automatically by hooks/before-buildIOS.js.`,
+    `platform :ios, '12.4'`,
+    '',
+    // Depending on React and/or React-Core supports categories.h, which imports
+    // the <React/RCTBridgeModule.h> header.
+    `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
+    `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React.podspec")`,
+    // Depending on React-Native-Podspecs allows us to include our categories.h
+    // file.
+    `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native-podspecs/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`,
+    // NativeScript doesn't auto-link React Native modules, so here we add a
+    // dependency on each React Native podspec we found during our search.
+    ...outputFlat.map(({ podfileEntry }) => podfileEntry),
+  ].join('\n');
+
+  await Promise.all([await writeFile(outputHeaderPath, header, { encoding: 'utf-8' }), await writeFile(outputPodfilePath, podfileContents, { encoding: 'utf-8' })]);
 };
 
 /**

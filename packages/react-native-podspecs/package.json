@@ -4,6 +4,9 @@
   "description": "Add a plugin description",
   "main": "index",
   "typings": "index.d.ts",
+  "scripts": {
+    "postinstall": "node hooks/postinstall.js"
+  },
   "nativescript": {
     "platforms": {
       "ios": "6.0.0"

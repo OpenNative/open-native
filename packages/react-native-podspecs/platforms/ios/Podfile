@@ -1,0 +1,4 @@
+# This file will be updated automatically by hooks/before-buildIOS.js.
+platform :ios, '12.4'
+
+pod 'React-Native-Podspecs', path: File.join(File.dirname(`node --print "require.resolve('@ammarahm-ed/react-native-podspecs/package.json')"`), "platforms/ios/React-Native-Podspecs.podspec")
