@@ -87,7 +87,7 @@ module.exports = async function (hookArgs) {
 
   // e.g. /Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-podspecs
   const reactNativePodspecsPackageDir = path.dirname(__dirname);
-  const outputHeaderPath = path.resolve(reactNativePodspecsPackageDir, 'platforms/ios/lib/categories.h');
+  const outputHeaderPath = path.resolve(reactNativePodspecsPackageDir, 'platforms/ios/lib/RNPodspecs.h');
   const outputPodfilePath = path.resolve(reactNativePodspecsPackageDir, 'platforms/ios/Podfile');
 
   // For now, we handle only iOS (as platforms other than iOS are experimental
@@ -203,16 +203,16 @@ module.exports = async function (hookArgs) {
               return acc;
             }, {});
 
-            const categories = Object.keys(classImplementations)
+            const interfaces = Object.keys(classImplementations)
               .map((jsModuleName) => {
                 const methods = classImplementations[jsModuleName];
-                return [`@interface ${jsModuleName} (${jsModuleName}TNS)`, methods.join('\n\n'), `@end`].join('\n');
+                return [`@interface ${jsModuleName}`, methods.join('\n\n'), `@end`].join('\n');
               })
               .join('\n\n');
 
             const podfileEntry = `pod '${podSpecName}', path: "${resolvedPodspecFilePath}"`;
 
-            return { comment, categories, podfileEntry };
+            return { comment, interfaces, podfileEntry };
           })
         );
       }
@@ -220,18 +220,18 @@ module.exports = async function (hookArgs) {
   );
 
   const outputFlat = output.filter((p) => !!p).flat(1);
-
+  const RNPodspecsInterface = ['@interface RNPodspecs: NSObject', '@end'].join('\n\n');
   const header = [
     `#import <React/RCTBridgeModule.h>`,
     '',
     outputFlat
-      .map(({ comment, categories }) => {
-        return `// ${comment}\n${categories}`;
+      .map(({ comment, interfaces }) => {
+        return `// ${comment}\n${interfaces}`;
       })
       .join('\n\n'),
+    RNPodspecsInterface,
     '',
   ].join('\n');
-
   const podfileContents = [
     `# This file will be updated automatically by hooks/before-prepareNativeApp.js.`,
     `platform :ios, '12.4'`,
