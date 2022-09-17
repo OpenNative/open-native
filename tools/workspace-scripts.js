@@ -21,7 +21,7 @@ module.exports = {
         script: `npx cowsay "Let's get native ⚛️"`,
         description: ` 🔻 React Native`,
       },
-      ['demo-react-native']: {
+      'demo-react-native': {
         clean: {
           script: 'nx run demo-react-native:clean',
           description: '⚆  Clean  🧹',

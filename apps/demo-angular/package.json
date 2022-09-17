@@ -6,7 +6,7 @@
     "@ammarahm-ed/react-native-module-test": "file:../../dist/packages/react-native-module-test"
   },
   "devDependencies": {
-    "@nativescript/android": "~8.2.0",
-    "@nativescript/ios": "~8.2.0"
+    "@nativescript/android": "~8.3.0",
+    "@nativescript/ios": "~8.3.0"
   }
 }

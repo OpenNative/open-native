@@ -6,5 +6,6 @@
     "demo-react-native": "apps/demo-react-native",
     "react-native": "packages/react-native",
     "react-native-module-test": "packages/react-native-module-test"
-  }
+  },
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }

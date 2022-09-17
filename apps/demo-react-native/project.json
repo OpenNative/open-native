@@ -1,5 +1,5 @@
 {
-  "root": "apps/demo-react-native/",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/demo-react-native/src",
   "projectType": "application",
   "prefix": "demo-react-native",

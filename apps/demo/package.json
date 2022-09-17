@@ -9,7 +9,7 @@
     "@nativescript/core": "file:../../node_modules/@nativescript/core"
   },
   "devDependencies": {
-    "@nativescript/android": "~8.2.0",
-    "@nativescript/ios": "8.2.0"
+    "@nativescript/android": "~8.3.0",
+    "@nativescript/ios": "~8.3.0"
   }
 }
