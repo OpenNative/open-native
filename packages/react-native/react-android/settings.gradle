@@ -5,22 +5,18 @@ pluginManagement {
         mavenCentral()
     }
 }
-//dependencyResolutionManagement {
-//    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-//    repositories {
-//        google()
-//        mavenCentral()
-//    }
-//}
+import groovy.json.JsonSlurper
+def modules = new JsonSlurper().parse(new File(settingsDir,"./bridge/modules.json"));
+
 rootProject.name = "React Example"
 include ':app'
 include ':react'
 include ':bridge'
 
-
-include ':react-native-module-test'
-project(':react-native-module-test').projectDir = new File(rootProject.projectDir, '../../react-native-module-test/platforms/android')
-// In a real world project, this would link to node_modules/react-native-*/android folder. Right now we will link
-// everything locally for development.
+modules.each {
+  print(it.androidProjectName);
+  include ":${it.androidProjectName}"
+  project(":${it.androidProjectName}").projectDir = new File(it.absolutePath)
+}
 
 
