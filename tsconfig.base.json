@@ -21,10 +21,10 @@
       }
     ],
     "paths": {
-      "@demo/shared": ["tools/demo/index.ts"],
+      "@@ammarahm-ed/react-native-module-test": ["packages/react-native-module-test/index.d.ts"],
       "@ammarahm-ed/*": ["packages/*"],
       "@ammarahm-ed/react-native": ["packages/react-native/index.d.ts"],
-      "@@ammarahm-ed/react-native-module-test": ["packages/react-native-module-test/index.d.ts"]
+      "@demo/shared": ["tools/demo/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
