@@ -87,8 +87,14 @@ module.exports = async function (hookArgs) {
 
   // e.g. /Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-podspecs
   const reactNativePodspecsPackageDir = path.dirname(__dirname);
-  const outputHeaderPath = path.resolve(reactNativePodspecsPackageDir, 'platforms/ios/lib/RNPodspecs.h');
-  const outputPodfilePath = path.resolve(reactNativePodspecsPackageDir, 'platforms/ios/Podfile');
+  const outputHeaderPath = path.resolve(
+    reactNativePodspecsPackageDir,
+    'platforms/ios/lib/RNPodspecs.h'
+  );
+  const outputPodfilePath = path.resolve(
+    reactNativePodspecsPackageDir,
+    'platforms/ios/Podfile'
+  );
 
   // For now, we handle only iOS (as platforms other than iOS are experimental
   // on NativeScript). We might come back for macOS one day! :D
@@ -98,11 +104,18 @@ module.exports = async function (hookArgs) {
 
   console.log(`${logPrefix} preparing React Native podspecs for iOS...`);
 
-  const { devDependencies, dependencies, ignoredDependencies, projectDir } = projectData;
+  const { devDependencies, dependencies, ignoredDependencies, projectDir } =
+    projectData;
 
   const ignoredDepsSet = new Set(ignoredDependencies);
-  const depsArr = Object.keys({ ...devDependencies, ...dependencies }).filter((key) => !ignoredDepsSet.has(key));
-  const packagePaths = depsArr.map((depName) => path.dirname(require.resolve(`${depName}/package.json`, { paths: [projectDir] })));
+  const depsArr = Object.keys({ ...devDependencies, ...dependencies }).filter(
+    (key) => !ignoredDepsSet.has(key)
+  );
+  const packagePaths = depsArr.map((depName) =>
+    path.dirname(
+      require.resolve(`${depName}/package.json`, { paths: [projectDir] })
+    )
+  );
 
   const output = await Promise.all(
     packagePaths.map(
@@ -110,7 +123,10 @@ module.exports = async function (hookArgs) {
         // @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test'
         packagePath
       ) => {
-        const podspecs = await globProm('*.podspec', { cwd: packagePath, absolute: true });
+        const podspecs = await globProm('*.podspec', {
+          cwd: packagePath,
+          absolute: true,
+        });
         if (podspecs.length === 0) {
           return;
         }
@@ -121,13 +137,20 @@ module.exports = async function (hookArgs) {
         // If there are multiple podspecs, prefer the podspec named after the
         // package; otherwise just take the first match (all of this is
         // consistent with how the React Native Community CLI works).
-        const resolvedPodspecFilePath = podspecs.find((podspec) => podspec === packagePodspec) || podspecs[0];
+        const resolvedPodspecFilePath =
+          podspecs.find((podspec) => podspec === packagePodspec) || podspecs[0];
 
         // A comment to write into the header to indicate where the interfaces
         // that we're about to extract came from.
-        const comment = `${packageName}/${path.basename(resolvedPodspecFilePath)}`;
+        const comment = `${packageName}/${path.basename(
+          resolvedPodspecFilePath
+        )}`;
 
-        const { stdout: podspecContents } = await execFile('pod', ['ipc', 'spec', resolvedPodspecFilePath]);
+        const { stdout: podspecContents } = await execFile('pod', [
+          'ipc',
+          'spec',
+          resolvedPodspecFilePath,
+        ]);
 
         /**
          * These are the typings (that we're interested in), assuming a valid
@@ -143,57 +166,122 @@ module.exports = async function (hookArgs) {
         const podspecParsed = JSON.parse(podspecContents);
 
         // The other platforms are "osx", "macos", "tvos", and "watchos".
-        const { name: podSpecName = packageName, source_files: commonSourceFiles = [], ios: { source_files: iosSourceFiles } = { source_files: [] } } = podspecParsed;
+        const {
+          name: podSpecName = packageName,
+          source_files: commonSourceFiles = [],
+          ios: { source_files: iosSourceFiles } = { source_files: [] },
+        } = podspecParsed;
 
         if (!podspecParsed.name) {
-          console.warn(`${logPrefix} Podspec "${path.basename(resolvedPodspecFilePath)}" for npm package "${packageName}" did not specify a name, so using "${packageName}" instead.`);
+          console.warn(
+            `${logPrefix} Podspec "${path.basename(
+              resolvedPodspecFilePath
+            )}" for npm package "${packageName}" did not specify a name, so using "${packageName}" instead.`
+          );
         }
 
         // Normalise to an array, treating empty-string as an empty array.
-        const commonSourceFilesArr = commonSourceFiles ? (Array.isArray(commonSourceFiles) ? commonSourceFiles : [commonSourceFiles]) : [];
-        const iosSourceFilesArr = iosSourceFiles ? (Array.isArray(iosSourceFiles) ? iosSourceFiles : [iosSourceFiles]) : [];
+        const commonSourceFilesArr = commonSourceFiles
+          ? Array.isArray(commonSourceFiles)
+            ? commonSourceFiles
+            : [commonSourceFiles]
+          : [];
+        const iosSourceFilesArr = iosSourceFiles
+          ? Array.isArray(iosSourceFiles)
+            ? iosSourceFiles
+            : [iosSourceFiles]
+          : [];
 
         // Take all the distinct patterns.
-        const platformSourceFilesArr = [...new Set([...commonSourceFilesArr, ...iosSourceFilesArr])];
+        const platformSourceFilesArr = [
+          ...new Set([...commonSourceFilesArr, ...iosSourceFilesArr]),
+        ];
 
-        const sourceFilePathsArrays = await Promise.all(platformSourceFilesArr.map(async (pattern) => await globProm(pattern, { cwd: packagePath, absolute: true })));
+        const sourceFilePathsArrays = await Promise.all(
+          platformSourceFilesArr.map(
+            async (pattern) =>
+              await globProm(pattern, { cwd: packagePath, absolute: true })
+          )
+        );
 
         // Look just for Obj-C and Obj-C++ implementation files, ignoring
         // headers.
-        const sourceFilePaths = [...new Set(sourceFilePathsArrays.flat(1))].filter((sourceFilePath) => /\.mm?$/.test(sourceFilePath));
+        const sourceFilePaths = [
+          ...new Set(sourceFilePathsArrays.flat(1)),
+        ].filter((sourceFilePath) => /\.mm?$/.test(sourceFilePath));
 
         return await Promise.all(
           sourceFilePaths.map(async (sourceFilePath) => {
-            const sourceFileContents = await readFile(sourceFilePath, { encoding: 'utf8' });
+            const sourceFileContents = await readFile(sourceFilePath, {
+              encoding: 'utf8',
+            });
 
             // TODO: We should ideally strip comments before running any Regex.
 
-            const classImplementations = [...sourceFileContents.matchAll(/\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm)].reduce((acc, matches) => {
+            const classImplementations = [
+              ...sourceFileContents.matchAll(
+                /\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm
+              ),
+            ].reduce((acc, matches) => {
               const [fullMatch, objcClassName] = matches;
               if (!objcClassName) {
                 return acc;
               }
 
-              const exportModuleMatches = [...fullMatch.matchAll(/RCT_EXPORT_MODULE\((.*)\)/gm)];
-              const exportModuleNoLoadMatches = [...fullMatch.matchAll(/RCT_EXPORT_MODULE_NO_LOAD\((.*)\)/gm)];
-              const exportPreRegisteredModuleNoLoadMatches = [...fullMatch.matchAll(/RCT_EXPORT_PRE_REGISTERED_MODULE\((.*)\)/gm)];
-              const jsModuleName = exportModuleMatches[0]?.[1] || exportModuleNoLoadMatches[0]?.[1] || exportPreRegisteredModuleNoLoadMatches[0]?.[1] || objcClassName;
+              const exportModuleMatches = [
+                ...fullMatch.matchAll(/RCT_EXPORT_MODULE\((.*)\)/gm),
+              ];
+              const exportModuleNoLoadMatches = [
+                ...fullMatch.matchAll(/RCT_EXPORT_MODULE_NO_LOAD\((.*)\)/gm),
+              ];
+              const exportPreRegisteredModuleNoLoadMatches = [
+                ...fullMatch.matchAll(
+                  /RCT_EXPORT_PRE_REGISTERED_MODULE\((.*)\)/gm
+                ),
+              ];
+              const jsModuleName =
+                exportModuleMatches[0]?.[1] ||
+                exportModuleNoLoadMatches[0]?.[1] ||
+                exportPreRegisteredModuleNoLoadMatches[0]?.[1] ||
+                objcClassName;
 
               if (!jsModuleName) {
                 return acc;
               }
 
-              const remappedMethods = [...fullMatch.matchAll(/\s*RCT_REMAP_METHOD\((.|[\r\n])*?\)*?\{$/gm)].map((match) => {
-                const [, fromMethodName] = match[0].split(/RCT_REMAP_METHOD\(\s*/);
-                const [methodName, afterMethodName] = fromMethodName.split(/\s*,/);
-                const methodArgs = afterMethodName.split(')').slice(0, -1).join(')');
+              const remappedMethods = [
+                ...fullMatch.matchAll(
+                  /\s*RCT_REMAP_METHOD\((.|[\r\n])*?\)*?\{$/gm
+                ),
+              ].map((match) => {
+                const [, fromMethodName] = match[0].split(
+                  /RCT_REMAP_METHOD\(\s*/
+                );
+                const [methodName, afterMethodName] =
+                  fromMethodName.split(/\s*,/);
+                const methodArgs = afterMethodName
+                  .split(')')
+                  .slice(0, -1)
+                  .join(')');
 
-                return `- (void)${methodName.trim()}${methodArgs.trim().split(/\s+/).join('\n')};`;
+                return `- (void)${methodName.trim()}${methodArgs
+                  .trim()
+                  .split(/\s+/)
+                  .join('\n')};`;
               });
 
-              const exportedMethods = [...fullMatch.matchAll(/\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{$/gm)].map((match) => {
-                const [, macroContents] = match[0].split(/RCT_EXPORT_METHOD\(\s*/);
-                const methodArgs = macroContents.split(')').slice(0, -1).join(')');
+              const exportedMethods = [
+                ...fullMatch.matchAll(
+                  /\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{$/gm
+                ),
+              ].map((match) => {
+                const [, macroContents] = match[0].split(
+                  /RCT_EXPORT_METHOD\(\s*/
+                );
+                const methodArgs = macroContents
+                  .split(')')
+                  .slice(0, -1)
+                  .join(')');
 
                 return `- (void)${methodArgs.trim().split(/\s+/).join('\n')};`;
               });
@@ -206,7 +294,11 @@ module.exports = async function (hookArgs) {
             const interfaces = Object.keys(classImplementations)
               .map((jsModuleName) => {
                 const methods = classImplementations[jsModuleName];
-                return [`@interface ${jsModuleName}`, methods.join('\n\n'), `@end`].join('\n');
+                return [
+                  `@interface ${jsModuleName}`,
+                  methods.join('\n\n'),
+                  `@end`,
+                ].join('\n');
               })
               .join('\n\n');
 
@@ -220,7 +312,9 @@ module.exports = async function (hookArgs) {
   );
 
   const outputFlat = output.filter((p) => !!p).flat(1);
-  const RNPodspecsInterface = ['@interface RNPodspecs: NSObject', '@end'].join('\n\n');
+  const RNPodspecsInterface = ['@interface RNPodspecs: NSObject', '@end'].join(
+    '\n\n'
+  );
   const header = [
     `#import <React/RCTBridgeModule.h>`,
     '',
@@ -234,7 +328,7 @@ module.exports = async function (hookArgs) {
   ].join('\n');
   const podfileContents = [
     `# This file will be updated automatically by hooks/before-prepareNativeApp.js.`,
-    `platform :ios, '12.4'`,
+    "platform :ios, '12.4'",
     '',
     // Depending on React and/or React-Core supports categories.h, which imports
     // the <React/RCTBridgeModule.h> header. I'm not sure whether to include
@@ -252,9 +346,14 @@ module.exports = async function (hookArgs) {
     ...outputFlat.map(({ podfileEntry }) => podfileEntry),
   ].join('\n');
 
-  await Promise.all([await writeFile(outputHeaderPath, header, { encoding: 'utf-8' }), await writeFile(outputPodfilePath, podfileContents, { encoding: 'utf-8' })]);
+  await Promise.all([
+    await writeFile(outputHeaderPath, header, { encoding: 'utf-8' }),
+    await writeFile(outputPodfilePath, podfileContents, { encoding: 'utf-8' }),
+  ]);
 
-  console.log(`${logPrefix} ...finished preparing React Native podspecs for iOS.`);
+  console.log(
+    `${logPrefix} ...finished preparing React Native podspecs for iOS.`
+  );
 };
 
 /**
