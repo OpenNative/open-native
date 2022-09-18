@@ -1,7 +1,5 @@
 platform :ios, '12.4'
 
-pod 'react-native-module-test', path: File.join(File.dirname(`node --print "require.resolve('@ammarahm-ed/react-native-module-test/package.json')"`), "react-native-module-test.podspec")
-
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|

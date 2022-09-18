@@ -21,14 +21,14 @@
             "input": "packages/react-native/platforms/",
             "output": "./platforms/"
           }
-        ],
-        "dependsOn": [
-          {
-            "target": "build.all",
-            "projects": "dependencies"
-          }
         ]
-      }
+      },
+      "dependsOn": [
+        {
+          "target": "build.all",
+          "projects": "dependencies"
+        }
+      ]
     },
     "build.all": {
       "executor": "@nrwl/workspace:run-commands",

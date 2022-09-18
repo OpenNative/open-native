@@ -1,29 +1,29 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/react-native-module-test",
+  "sourceRoot": "packages/react-native-podspecs",
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
       "options": {
-        "outputPath": "dist/packages/react-native-module-test",
-        "tsConfig": "packages/react-native-module-test/tsconfig.json",
-        "packageJson": "packages/react-native-module-test/package.json",
-        "main": "packages/react-native-module-test/index.ts",
+        "outputPath": "dist/packages/react-native-podspecs",
+        "tsConfig": "packages/react-native-podspecs/tsconfig.json",
+        "packageJson": "packages/react-native-podspecs/package.json",
+        "main": "packages/react-native-podspecs/index.d.ts",
         "assets": [
-          "packages/react-native-module-test/*.md",
-          "packages/react-native-module-test/index.d.ts",
-          "packages/react-native-module-test/*.podspec",
+          "packages/react-native-podspecs/*.md",
+          "packages/react-native-podspecs/index.d.ts",
+          "packages/react-native-podspecs/platforms/ios/ReactNativePodspecs.podspec",
           "LICENSE",
           {
             "glob": "**/*",
-            "input": "packages/react-native-module-test/platforms/",
+            "input": "packages/react-native-podspecs/platforms/",
             "output": "./platforms/"
           },
           {
             "glob": "**/*",
-            "input": "packages/react-native-module-test/ios/",
-            "output": "./ios/"
+            "input": "packages/react-native-podspecs/hooks/",
+            "output": "./hooks/"
           }
         ]
       },
@@ -37,10 +37,10 @@
     "build.all": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": ["node tools/scripts/build-finish.ts react-native-module-test"],
+        "commands": ["node tools/scripts/build-finish.ts react-native-podspecs"],
         "parallel": false
       },
-      "outputs": ["dist/packages/react-native-module-test"],
+      "outputs": ["dist/packages/react-native-podspecs"],
       "dependsOn": [
         {
           "target": "build.all",
@@ -55,14 +55,14 @@
     "focus": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": ["nx g @nativescript/plugin-tools:focus-packages react-native-module-test"],
+        "commands": ["nx g @nativescript/plugin-tools:focus-packages react-native-podspecs"],
         "parallel": false
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["packages/react-native-module-test/**/*.ts"]
+        "lintFilePatterns": ["packages/react-native-podspecs/**/*.ts"]
       }
     }
   },
