@@ -205,11 +205,22 @@ async function mapPackagePathToOutput(packagePath) {
 }
 
 /**
- * @param {string} sourceFileContents
+ * Extracts interfaces representing the methods added to any RCTBridgeModule by
+ * macros (e.g. RCT_EXPORT_METHOD).
+ * @param {string} sourceCode
  */
-function extractInterfaces(sourceFileContents) {
-  const classImplementations = [
-    ...sourceFileContents.matchAll(
+function extractInterfaces(sourceCode) {
+  /**
+   * A record of JS bridge module names to method signatures.
+   * @example
+   * {
+   *    RNTestModule: [
+   *      '(void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;'
+   *    ]
+   * }
+   */
+  const moduleNamesToMethods = [
+    ...sourceCode.matchAll(
       /\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm
     ),
   ].reduce((acc, matches) => {
@@ -218,25 +229,17 @@ function extractInterfaces(sourceFileContents) {
       return acc;
     }
 
-    const exportModuleMatches = [
-      ...fullMatch.matchAll(/RCT_EXPORT_MODULE\((.*)\)/gm),
-    ];
-    const exportModuleNoLoadMatches = [
-      ...fullMatch.matchAll(/RCT_EXPORT_MODULE_NO_LOAD\((.*)\)/gm),
-    ];
-    const exportPreRegisteredModuleNoLoadMatches = [
-      ...fullMatch.matchAll(/RCT_EXPORT_PRE_REGISTERED_MODULE\((.*)\)/gm),
-    ];
     const jsModuleName =
-      exportModuleMatches[0]?.[1] ||
-      exportModuleNoLoadMatches[0]?.[1] ||
-      exportPreRegisteredModuleNoLoadMatches[0]?.[1] ||
-      objcClassName;
-
+      extractBridgeModuleAliasedName(fullMatch) || objcClassName;
     if (!jsModuleName) {
       return acc;
     }
 
+    /**
+     * Extract the signatures of any methods registered using RCT_REMAP_METHOD.
+     * @example
+     * ['(void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;']
+     */
     const remappedMethods = [
       ...fullMatch.matchAll(/\s*RCT_REMAP_METHOD\((.|[\r\n])*?\)*?\{$/gm),
     ].map((match) => {
@@ -250,6 +253,11 @@ function extractInterfaces(sourceFileContents) {
         .join('\n')};`;
     });
 
+    /**
+     * Extract the signatures of any methods registered using RCT_EXPORT_METHOD.
+     * @example
+     * ['(void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;']
+     */
     const exportedMethods = [
       ...fullMatch.matchAll(/\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{$/gm),
     ].map((match) => {
@@ -259,19 +267,70 @@ function extractInterfaces(sourceFileContents) {
       return `- (void)${methodArgs.trim().split(/\s+/).join('\n')};`;
     });
 
-    acc[jsModuleName] = [...remappedMethods, ...exportedMethods];
+    const allMethods = [...remappedMethods, ...exportedMethods];
+
+    if (!allMethods.length) {
+      console.warn(
+        `${logPrefix} Unable to extract any methods from RCTBridgeModule named "${jsModuleName}".`
+      );
+    }
+
+    acc[jsModuleName] = allMethods;
 
     return acc;
   }, /** @type {Record<string, string[]>} */ ({}));
 
-  return Object.keys(classImplementations)
+  /**
+   * For each module name, form an interface from the extracted method
+   * signatures. Concatenate the resulting array of interfaces.
+   * @example
+   * @interface RNTestModule1
+   *  - (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;
+   * @end
+   *
+   * @interface RNTestModule2
+   *  - (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;
+   * @end
+   */
+  const interface = Object.keys(moduleNamesToMethods)
     .map((jsModuleName) => {
-      const methods = classImplementations[jsModuleName];
-      return [`@interface ${jsModuleName}`, methods.join('\n\n'), `@end`].join(
-        '\n'
-      );
+      const methodSignatures = moduleNamesToMethods[jsModuleName];
+      return [
+        `@interface ${jsModuleName}`,
+        methodSignatures.join('\n\n'),
+        `@end`,
+      ].join('\n');
     })
     .join('\n\n');
+
+  return interface;
+}
+
+/**
+ * Gets the aliased name for a bridge module if there is one.
+ * @param {string} classImplementation The source code for the bridge module's
+ *   class implementation.
+ * @returns {string|undefined} The aliased name for the bridge module as a
+ *   string, or undefined if no alias was registered (in which case, the Obj-C
+ *   class name should be used for the bridge module as-is).
+ */
+function extractBridgeModuleAliasedName(classImplementation) {
+  const exportModuleMatches = [
+    ...classImplementation.matchAll(/RCT_EXPORT_MODULE\((.*)\)/gm),
+  ];
+  const exportModuleNoLoadMatches = [
+    ...classImplementation.matchAll(/RCT_EXPORT_MODULE_NO_LOAD\((.*)\)/gm),
+  ];
+  const exportPreRegisteredModuleNoLoadMatches = [
+    ...classImplementation.matchAll(
+      /RCT_EXPORT_PRE_REGISTERED_MODULE\((.*)\)/gm
+    ),
+  ];
+  return (
+    exportModuleMatches[0]?.[1] ||
+    exportModuleNoLoadMatches[0]?.[1] ||
+    exportPreRegisteredModuleNoLoadMatches[0]?.[1]
+  );
 }
 
 /**
