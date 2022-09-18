@@ -24,7 +24,7 @@ module.exports = async function (hookArgs) {
     return;
   }
 
-  console.log(`${logPrefix} preparing React Native podspecs for iOS...`);
+  console.log(`${logPrefix} Autolinking React Native podspecs for iOS...`);
 
   const { devDependencies, dependencies, ignoredDependencies, projectDir } =
     projectData;
@@ -41,17 +41,27 @@ module.exports = async function (hookArgs) {
    *   podfileEntry: string;
    * }[]}
    */
-  const output = (
+  const autolinkingInfo = (
     await Promise.all(
       depsArr.map((packageName) =>
-        mapPackageNameToOutput(packageName, projectDir)
+        mapPackageNameToAutolinkingInfo(packageName, projectDir)
       )
     )
   )
     .filter((p) => !!p)
     .flat(1);
 
+  const green = '\x1b[32m';
+  const reset = '\x1b[0m';
+  autolinkingInfo.map(({ packageName }) =>
+    console.log(`${logPrefix} Autolinked ${green}${packageName}${reset}!`)
+  );
+
   // TODO: log out the names of all the packages we're autolinking.
+
+  const headerEntries = autolinkingInfo
+    .map(({ headerEntry }) => headerEntry)
+    .join('\n\n');
 
   const RNPodspecsInterface = [
     '// START: react-native-podspecs placeholder interface',
@@ -59,9 +69,6 @@ module.exports = async function (hookArgs) {
     '@end',
     '// END: react-native-podspecs placeholder interface',
   ].join('\n');
-  const headerEntries = output
-    .map(({ headerEntry }) => headerEntry)
-    .join('\n\n');
 
   const header = [
     `#import <React/RCTBridgeModule.h>`,
@@ -95,7 +102,9 @@ module.exports = async function (hookArgs) {
    * NativeScript doesn't auto-link React Native modules, so here we add a
    * dependency on each React Native podspec we found during our search.
    */
-  const autolinkedDeps = output.map(({ podfileEntry }) => podfileEntry);
+  const autolinkedDeps = autolinkingInfo.map(
+    ({ podfileEntry }) => podfileEntry
+  );
 
   const podfileContents = [
     `# This file will be updated automatically by hooks/before-prepareNativeApp.js.`,
@@ -106,7 +115,9 @@ module.exports = async function (hookArgs) {
     ...autolinkedDeps,
   ].join('\n');
 
-  // e.g. /Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-podspecs
+  /**
+   * @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-podspecs'
+   */
   const reactNativePodspecsPackageDir = path.dirname(__dirname);
   const outputHeaderPath = path.resolve(
     reactNativePodspecsPackageDir,
@@ -123,7 +134,7 @@ module.exports = async function (hookArgs) {
   ]);
 
   console.log(
-    `${logPrefix} ...finished preparing React Native podspecs for iOS.`
+    `${logPrefix} ... Finished autolinking React Native podspecs for iOS.`
   );
 };
 
@@ -133,7 +144,7 @@ module.exports = async function (hookArgs) {
  * @param {string} projectDir The project directory (relative to which the
  *   package should be resolved).
  */
-async function mapPackageNameToOutput(packageName, projectDir) {
+async function mapPackageNameToAutolinkingInfo(packageName, projectDir) {
   const packagePath = path.dirname(
     require.resolve(`${packageName}/package.json`, { paths: [projectDir] })
   );
