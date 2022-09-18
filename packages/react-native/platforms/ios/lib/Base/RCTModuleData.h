@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,7 +10,6 @@
 #import <React/RCTInvalidating.h>
 #import "RCTDefines.h"
 
-@protocol RCTBridgeMethod;
 @protocol RCTBridgeModule;
 @class RCTBridge;
 @class RCTModuleRegistry;
@@ -54,18 +53,6 @@ typedef id<RCTBridgeModule> (^RCTBridgeModuleProvider)(void);
 
 @property (nonatomic, strong, readonly) Class moduleClass;
 @property (nonatomic, copy, readonly) NSString *name;
-
-/**
- * Returns the module methods. Note that this will gather the methods the first
- * time it is called and then memoize the results.
- */
-@property (nonatomic, copy, readonly) NSArray<id<RCTBridgeMethod>> *methods;
-
-/**
- * Returns a map of the module methods. Note that this will gather the methods the first
- * time it is called and then memoize the results.
- */
-@property (nonatomic, copy, readonly) NSDictionary<NSString *, id<RCTBridgeMethod>> *methodsByName;
 
 /**
  * Returns the module's constants, if it exports any
@@ -114,4 +101,4 @@ typedef id<RCTBridgeModule> (^RCTBridgeModuleProvider)(void);
 @end
 
 RCT_EXTERN void RCTSetIsMainQueueExecutionOfConstantsToExportDisabled(BOOL val);
-RCT_EXTERN BOOL RCTIsMainQueueExecutionOfConstantsToExportDisabled(void);
+RCT_EXTERN BOOL RCTIsMainQueueExecutionOfConstantsToExportDisabled(void)
