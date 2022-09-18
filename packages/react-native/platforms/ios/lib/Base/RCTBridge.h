@@ -339,4 +339,5 @@ RCT_EXTERN void RCTSetTurboModuleCleanupMode(RCTTurboModuleCleanupMode mode);
                              onError:(RCTLoadAndExecuteErrorBlock)onError
                           onComplete:(dispatch_block_t)onComplete;
 
+-(void)setJSModuleInvokerCallback:(RCTCallbackBlock)callback;
 @end

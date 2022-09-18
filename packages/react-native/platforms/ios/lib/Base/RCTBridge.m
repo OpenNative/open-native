@@ -92,6 +92,13 @@ NSString *RCTBridgeModuleNameForClass(Class cls)
 RCTCallableJSModules *_callableJSModules;
 RCTModuleRegistry *moduleRegistry;
 static RCTBridge *RCTCurrentBridgeInstance = nil;
+
+/**
+* A callback method registered when bridge is loaded. It isused by 
+* CallableJSModules to invoke methods in JS Runtime.
+*/
+static RCTCallbackBlock JSModuleInvokerCallback = nil;
+
 NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
 
 /**
@@ -108,6 +115,10 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
 + (void)setCurrentBridge:(RCTBridge *)currentBridge
 {
     RCTCurrentBridgeInstance = currentBridge;
+}
+
+- (void)setJSModuleInvokerCallback:(RCTCallbackBlock)callback {
+    JSModuleInvokerCallback = callback;
 }
 
 - (id)moduleForName:(NSString *)moduleName {
@@ -164,7 +175,9 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
                  args:(NSArray *)args
            completion:(dispatch_block_t)completion
 {
-
+    if (JSModuleInvokerCallback)  {
+        JSModuleInvokerCallback(module,method,args,completion);
+    }
 }
 
 - (void)enqueueCallback:(NSNumber *)cbID args:(NSArray *)args
