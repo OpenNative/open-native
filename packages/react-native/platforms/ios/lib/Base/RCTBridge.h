@@ -38,6 +38,6 @@ typedef void (^RCTCallbackBlock)(NSString *moduleName,NSString *methodName, NSAr
                  args:(NSArray *)args
            completion:(dispatch_block_t)completion;
 
--(void)registerJSModuleInvoker:(RCTCallbackBlock)callback;
+-(void)setJSModuleInvokerCallback:(RCTCallbackBlock)callback;
 
 @end

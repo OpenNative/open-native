@@ -6,7 +6,7 @@
  */
 
 #import <React/RCTBridge.h>
-
+#import <React/RCTInvalidating.h>
 /**
  * RCTEventEmitter is an abstract base class to be used for modules that emit
  * events to be observed by JS.
@@ -42,7 +42,6 @@
 
 - (void)invalidate NS_REQUIRES_SUPER;
 
-// These methods are exported by default.
 - (void)addListener:(NSString *)eventName;
 - (void)removeListeners:(double)count;
 
