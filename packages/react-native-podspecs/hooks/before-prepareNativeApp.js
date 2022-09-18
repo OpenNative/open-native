@@ -40,40 +40,55 @@ module.exports = async function (hookArgs) {
   );
 
   const output = await Promise.all(packagePaths.map(mapPackagePathToOutput));
-
   const outputFlat = output.filter((p) => !!p).flat(1);
+
   const RNPodspecsInterface = ['@interface RNPodspecs: NSObject', '@end'].join(
     '\n\n'
   );
+  const headerEntries = outputFlat
+    .map(({ headerEntry }) => headerEntry)
+    .join('\n\n');
+
   const header = [
     `#import <React/RCTBridgeModule.h>`,
     '',
-    outputFlat
-      .map(({ comment, interfaces }) => {
-        return `// ${comment}\n${interfaces}`;
-      })
-      .join('\n\n'),
+    headerEntries,
     RNPodspecsInterface,
     '',
   ].join('\n');
+
+  /**
+   * Depending on React and/or React-Core supports RNPodspecs.h, which imports
+   * the <React/RCTBridgeModule.h> header. I'm not sure whether to include
+   * these two lines (given we know that `@ammarahm-ed/react-native` is going
+   * to include them anyway), but probably including them is better. For now,
+   * though, I'll leave them out until it becomes a clear problem. The main
+   * advantage is that it saves spinning up node wastefully.
+   */
+  const reactDeps = [
+    // `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
+    // `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React.podspec")`,
+  ];
+
+  /**
+   * Depending on React-Native-Podspecs allows us to include our RNPodspecs.h
+   * file.
+   */
+  const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native-podspecs/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
+
+  /**
+   * NativeScript doesn't auto-link React Native modules, so here we add a
+   * dependency on each React Native podspec we found during our search.
+   */
+  const autolinkedDeps = outputFlat.map(({ podfileEntry }) => podfileEntry);
+
   const podfileContents = [
     `# This file will be updated automatically by hooks/before-prepareNativeApp.js.`,
     "platform :ios, '12.4'",
     '',
-    // Depending on React and/or React-Core supports categories.h, which imports
-    // the <React/RCTBridgeModule.h> header. I'm not sure whether to include
-    // these two lines (given we know that `@ammarahm-ed/react-native` is going
-    // to include them anyway), but probably including them is better. For now,
-    // though, I'll leave them out until it becomes a clear problem. The main
-    // advantage is that it saves spinning up node wastefully.
-    // `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
-    // `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React.podspec")`,
-    // Depending on React-Native-Podspecs allows us to include our categories.h
-    // file.
-    `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native-podspecs/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`,
-    // NativeScript doesn't auto-link React Native modules, so here we add a
-    // dependency on each React Native podspec we found during our search.
-    ...outputFlat.map(({ podfileEntry }) => podfileEntry),
+    ...reactDeps,
+    reactNativePodspecsDep,
+    ...autolinkedDeps,
   ].join('\n');
 
   // e.g. /Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-podspecs
@@ -116,10 +131,6 @@ async function mapPackagePathToOutput(packagePath) {
     packagePath,
     podspecs,
   });
-
-  // A comment to write into the header to indicate where the interfaces that
-  // we're about to extract came from.
-  const comment = `${packageName}/${podspecFileName}`;
 
   const { stdout: podspecContents } = await execFile('pod', [
     'ipc',
@@ -171,7 +182,12 @@ async function mapPackagePathToOutput(packagePath) {
 
       const podfileEntry = `pod '${podSpecName}', path: "${podspecFilePath}"`;
 
-      return { comment, interfaces, podfileEntry };
+      // A comment to write into the header to indicate where the interfaces
+      // that we're about to extract came from.
+      const comment = `${packageName}/${podspecFileName}`;
+      const headerEntry = `// ${comment}\n${interfaces}`;
+
+      return { headerEntry, podfileEntry };
     })
   );
 }
