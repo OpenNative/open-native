@@ -111,22 +111,20 @@ async function mapPackagePathToOutput(packagePath) {
   }
 
   const packageName = path.basename(packagePath);
-  const packagePodspec = path.join(packageName, `${packagePath}.podspec`);
+  const { podspecFileName, podspecFilePath } = resolvePodspecFilePath({
+    packageName,
+    packagePath,
+    podspecs,
+  });
 
-  // If there are multiple podspecs, prefer the podspec named after the
-  // package; otherwise just take the first match (all of this is
-  // consistent with how the React Native Community CLI works).
-  const resolvedPodspecFilePath =
-    podspecs.find((podspec) => podspec === packagePodspec) || podspecs[0];
-
-  // A comment to write into the header to indicate where the interfaces
-  // that we're about to extract came from.
-  const comment = `${packageName}/${path.basename(resolvedPodspecFilePath)}`;
+  // A comment to write into the header to indicate where the interfaces that
+  // we're about to extract came from.
+  const comment = `${packageName}/${podspecFileName}`;
 
   const { stdout: podspecContents } = await execFile('pod', [
     'ipc',
     'spec',
-    resolvedPodspecFilePath,
+    podspecFilePath,
   ]);
 
   /**
@@ -151,9 +149,7 @@ async function mapPackagePathToOutput(packagePath) {
 
   if (!podspecParsed.name) {
     console.warn(
-      `${logPrefix} Podspec "${path.basename(
-        resolvedPodspecFilePath
-      )}" for npm package "${packageName}" did not specify a name, so using "${packageName}" instead.`
+      `${logPrefix} Podspec "${podspecFileName}" for npm package "${packageName}" did not specify a name, so using "${packageName}" instead.`
     );
   }
 
@@ -197,11 +193,35 @@ async function mapPackagePathToOutput(packagePath) {
 
       const interfaces = extractInterfaces(sourceFileContents);
 
-      const podfileEntry = `pod '${podSpecName}', path: "${resolvedPodspecFilePath}"`;
+      const podfileEntry = `pod '${podSpecName}', path: "${podspecFilePath}"`;
 
       return { comment, interfaces, podfileEntry };
     })
   );
+}
+
+/**
+ * Resolve the appropriate podspec using the React Native Community CLI rules.
+ * @param {object} args
+ * @param {string} args.packageName The package name, e.g.
+ *   'react-native-module-test'
+ * @param {string} args.packagePath The absolute path to the package, e.g.
+ *   '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test'
+ * @param {string[]} args.podspecs An array of absolute paths to podspecs.
+ */
+function resolvePodspecFilePath({ packageName, packagePath, podspecs }) {
+  const packagePodspec = path.join(packageName, `${packagePath}.podspec`);
+
+  // If there are multiple podspecs, prefer the podspec named after the package
+  // otherwise, just take the first match (all of this is consistent with how
+  // the React Native Community CLI works).
+  const resolvedPodspecPath =
+    podspecs.find((podspec) => podspec === packagePodspec) || podspecs[0];
+
+  return {
+    podspecFileName: path.basename(resolvedPodspecPath),
+    podspecFilePath: resolvedPodspecPath,
+  };
 }
 
 /**
