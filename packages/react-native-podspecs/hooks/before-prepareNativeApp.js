@@ -128,8 +128,8 @@ async function mapPackagePathToOutput(packagePath) {
   ]);
 
   /**
-   * These are the typings (that we're interested in), assuming a valid
-   * podspec. We'll handle it in a failsafe manner.
+   * These are the typings (that we're interested in), assuming a valid podspec.
+   * We'll handle it in a failsafe manner.
    * @type {{
    *   name?: string;
    *   source_files?: string|string[];
@@ -153,6 +153,44 @@ async function mapPackagePathToOutput(packagePath) {
     );
   }
 
+  const sourceFilePaths = await getSourceFilePaths({
+    commonSourceFiles,
+    iosSourceFiles,
+    packagePath,
+  });
+
+  return await Promise.all(
+    sourceFilePaths.map(async (sourceFilePath) => {
+      const sourceFileContents = await readFile(sourceFilePath, {
+        encoding: 'utf8',
+      });
+
+      // TODO: We should ideally strip comments before running any Regex.
+
+      const interfaces = extractInterfaces(sourceFileContents);
+
+      const podfileEntry = `pod '${podSpecName}', path: "${podspecFilePath}"`;
+
+      return { comment, interfaces, podfileEntry };
+    })
+  );
+}
+
+/**
+ * Build a unique-membered array of source files referenced by a podspec.
+ * @param {object} args
+ * @param {string|string[]} args.commonSourceFiles The `source_files` value from
+ *   the podspec.
+ * @param {string|string[]} args.iosSourceFiles The `ios.source_files` from the
+ *   podspec.
+ * @param {string} args.packagePath The absolute path to the package, e.g.
+ *   '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test'
+ */
+async function getSourceFilePaths({
+  commonSourceFiles,
+  iosSourceFiles,
+  packagePath,
+}) {
   // Normalise to an array, treating empty-string as an empty array.
   const commonSourceFilesArr = commonSourceFiles
     ? Array.isArray(commonSourceFiles)
@@ -177,27 +215,18 @@ async function mapPackagePathToOutput(packagePath) {
     )
   );
 
-  // Look just for Obj-C and Obj-C++ implementation files, ignoring
-  // headers.
+  /**
+   * Look just for Obj-C and Obj-C++ implementation files, ignoring headers.
+   * @example
+   * [
+   *   '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/ios/RNTestModule.m'
+   * ]
+   */
   const sourceFilePaths = [...new Set(sourceFilePathsArrays.flat(1))].filter(
     (sourceFilePath) => /\.mm?$/.test(sourceFilePath)
   );
 
-  return await Promise.all(
-    sourceFilePaths.map(async (sourceFilePath) => {
-      const sourceFileContents = await readFile(sourceFilePath, {
-        encoding: 'utf8',
-      });
-
-      // TODO: We should ideally strip comments before running any Regex.
-
-      const interfaces = extractInterfaces(sourceFileContents);
-
-      const podfileEntry = `pod '${podSpecName}', path: "${podspecFilePath}"`;
-
-      return { comment, interfaces, podfileEntry };
-    })
-  );
+  return sourceFilePaths;
 }
 
 /**
