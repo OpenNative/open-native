@@ -124,7 +124,7 @@ async function mapPackageNameToAutolinkingInfo(packageName, projectDir) {
    */
   const podspecParsed = JSON.parse(podspecContents);
 
-  // The other platforms are "osx", "macos", "tvos", and "watchos".
+  // The other platforms are 'osx', 'macos', 'tvos', and 'watchos'.
   const {
     name: podSpecName = packageName,
     source_files: commonSourceFiles = [],
@@ -353,7 +353,7 @@ function extractInterfaces(sourceCode) {
       return [
         `@interface ${jsModuleName}`,
         methodSignatures.join('\n\n'),
-        `@end`,
+        '@end',
       ].join('\n');
     })
     .join('\n\n');
@@ -423,7 +423,7 @@ async function writePodfile({ autolinkedDeps, reactNativePodspecsPackageDir }) {
   const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native-podspecs/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
 
   const podfileContents = [
-    `# This file will be updated automatically by hooks/before-prepareNativeApp.js.`,
+    '# This file will be updated automatically by hooks/before-prepareNativeApp.js.',
     "platform :ios, '12.4'",
     '',
     ...reactDeps,
@@ -466,7 +466,7 @@ async function writeHeaderFile({
   ].join('\n');
 
   const header = [
-    `#import <React/RCTBridgeModule.h>`,
+    '#import <React/RCTBridgeModule.h>',
     '',
     headerEntries.join('\n\n'),
     '',
