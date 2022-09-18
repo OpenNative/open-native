@@ -107,7 +107,7 @@ async function mapPackagePathToOutput(packagePath) {
     absolute: true,
   });
   if (podspecs.length === 0) {
-    return;
+    return null;
   }
 
   const packageName = path.basename(packagePath);
@@ -195,78 +195,83 @@ async function mapPackagePathToOutput(packagePath) {
 
       // TODO: We should ideally strip comments before running any Regex.
 
-      const classImplementations = [
-        ...sourceFileContents.matchAll(
-          /\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm
-        ),
-      ].reduce((acc, matches) => {
-        const [fullMatch, objcClassName] = matches;
-        if (!objcClassName) {
-          return acc;
-        }
-
-        const exportModuleMatches = [
-          ...fullMatch.matchAll(/RCT_EXPORT_MODULE\((.*)\)/gm),
-        ];
-        const exportModuleNoLoadMatches = [
-          ...fullMatch.matchAll(/RCT_EXPORT_MODULE_NO_LOAD\((.*)\)/gm),
-        ];
-        const exportPreRegisteredModuleNoLoadMatches = [
-          ...fullMatch.matchAll(/RCT_EXPORT_PRE_REGISTERED_MODULE\((.*)\)/gm),
-        ];
-        const jsModuleName =
-          exportModuleMatches[0]?.[1] ||
-          exportModuleNoLoadMatches[0]?.[1] ||
-          exportPreRegisteredModuleNoLoadMatches[0]?.[1] ||
-          objcClassName;
-
-        if (!jsModuleName) {
-          return acc;
-        }
-
-        const remappedMethods = [
-          ...fullMatch.matchAll(/\s*RCT_REMAP_METHOD\((.|[\r\n])*?\)*?\{$/gm),
-        ].map((match) => {
-          const [, fromMethodName] = match[0].split(/RCT_REMAP_METHOD\(\s*/);
-          const [methodName, afterMethodName] = fromMethodName.split(/\s*,/);
-          const methodArgs = afterMethodName.split(')').slice(0, -1).join(')');
-
-          return `- (void)${methodName.trim()}${methodArgs
-            .trim()
-            .split(/\s+/)
-            .join('\n')};`;
-        });
-
-        const exportedMethods = [
-          ...fullMatch.matchAll(/\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{$/gm),
-        ].map((match) => {
-          const [, macroContents] = match[0].split(/RCT_EXPORT_METHOD\(\s*/);
-          const methodArgs = macroContents.split(')').slice(0, -1).join(')');
-
-          return `- (void)${methodArgs.trim().split(/\s+/).join('\n')};`;
-        });
-
-        acc[jsModuleName] = [...remappedMethods, ...exportedMethods];
-
-        return acc;
-      }, {});
-
-      const interfaces = Object.keys(classImplementations)
-        .map((jsModuleName) => {
-          const methods = classImplementations[jsModuleName];
-          return [
-            `@interface ${jsModuleName}`,
-            methods.join('\n\n'),
-            `@end`,
-          ].join('\n');
-        })
-        .join('\n\n');
+      const interfaces = extractInterfaces(sourceFileContents);
 
       const podfileEntry = `pod '${podSpecName}', path: "${resolvedPodspecFilePath}"`;
 
       return { comment, interfaces, podfileEntry };
     })
   );
+}
+
+/**
+ * @param {string} sourceFileContents
+ */
+function extractInterfaces(sourceFileContents) {
+  const classImplementations = [
+    ...sourceFileContents.matchAll(
+      /\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm
+    ),
+  ].reduce((acc, matches) => {
+    const [fullMatch, objcClassName] = matches;
+    if (!objcClassName) {
+      return acc;
+    }
+
+    const exportModuleMatches = [
+      ...fullMatch.matchAll(/RCT_EXPORT_MODULE\((.*)\)/gm),
+    ];
+    const exportModuleNoLoadMatches = [
+      ...fullMatch.matchAll(/RCT_EXPORT_MODULE_NO_LOAD\((.*)\)/gm),
+    ];
+    const exportPreRegisteredModuleNoLoadMatches = [
+      ...fullMatch.matchAll(/RCT_EXPORT_PRE_REGISTERED_MODULE\((.*)\)/gm),
+    ];
+    const jsModuleName =
+      exportModuleMatches[0]?.[1] ||
+      exportModuleNoLoadMatches[0]?.[1] ||
+      exportPreRegisteredModuleNoLoadMatches[0]?.[1] ||
+      objcClassName;
+
+    if (!jsModuleName) {
+      return acc;
+    }
+
+    const remappedMethods = [
+      ...fullMatch.matchAll(/\s*RCT_REMAP_METHOD\((.|[\r\n])*?\)*?\{$/gm),
+    ].map((match) => {
+      const [, fromMethodName] = match[0].split(/RCT_REMAP_METHOD\(\s*/);
+      const [methodName, afterMethodName] = fromMethodName.split(/\s*,/);
+      const methodArgs = afterMethodName.split(')').slice(0, -1).join(')');
+
+      return `- (void)${methodName.trim()}${methodArgs
+        .trim()
+        .split(/\s+/)
+        .join('\n')};`;
+    });
+
+    const exportedMethods = [
+      ...fullMatch.matchAll(/\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{$/gm),
+    ].map((match) => {
+      const [, macroContents] = match[0].split(/RCT_EXPORT_METHOD\(\s*/);
+      const methodArgs = macroContents.split(')').slice(0, -1).join(')');
+
+      return `- (void)${methodArgs.trim().split(/\s+/).join('\n')};`;
+    });
+
+    acc[jsModuleName] = [...remappedMethods, ...exportedMethods];
+
+    return acc;
+  }, /** @type {Record<string, string[]>} */ ({}));
+
+  return Object.keys(classImplementations)
+    .map((jsModuleName) => {
+      const methods = classImplementations[jsModuleName];
+      return [`@interface ${jsModuleName}`, methods.join('\n\n'), `@end`].join(
+        '\n'
+      );
+    })
+    .join('\n\n');
 }
 
 /**
