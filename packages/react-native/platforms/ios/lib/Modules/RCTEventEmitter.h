@@ -42,6 +42,7 @@
 
 - (void)invalidate NS_REQUIRES_SUPER;
 
+// These methods are exported by default.
 - (void)addListener:(NSString *)eventName;
 - (void)removeListeners:(double)count;
 
