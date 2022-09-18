@@ -17,16 +17,28 @@
 #import "RCTUtils.h"
 #import "RCTModuleData.h"
 
-static NSMutableArray<Class> *RCTModuleClasses;
+static NSMutableDictionary<NSString *, Class> *RCTModuleClasses;
 static dispatch_queue_t RCTModuleClassesSyncQueue;
-NSArray<Class> *RCTGetModuleClasses(void)
+
+NSDictionary<NSString *, Class> *RCTGetModuleClasses(void)
 {
-  __block NSArray<Class> *result;
-  dispatch_sync(RCTModuleClassesSyncQueue, ^{
-    result = [RCTModuleClasses copy];
-  });
-  return result;
+    __block NSDictionary<NSString *,Class> *result;
+    dispatch_sync(RCTModuleClassesSyncQueue, ^{
+        result = [RCTModuleClasses copy];
+    });
+    return result;
 }
+
+Class RCTGetModuleClassForName(NSString * moduleName)
+{
+    __block Class result;
+    dispatch_sync(RCTModuleClassesSyncQueue, ^{
+        result = [[RCTModuleClasses copy] objectForKey:moduleName];
+    });
+    return result;
+}
+
+
 
 /**
  * Register the given class as a bridge module. All modules must be registered
@@ -36,24 +48,43 @@ NSArray<Class> *RCTGetModuleClasses(void)
 void RCTRegisterModule(Class);
 void RCTRegisterModule(Class moduleClass)
 {
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    RCTModuleClasses = [NSMutableArray new];
-    RCTModuleClassesSyncQueue =
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        RCTModuleClasses = [NSMutableDictionary new];
+        RCTModuleClassesSyncQueue =
         dispatch_queue_create("com.facebook.react.ModuleClassesSyncQueue", DISPATCH_QUEUE_CONCURRENT);
-  });
-
-  RCTAssert(
-      [moduleClass conformsToProtocol:@protocol(RCTBridgeModule)],
-      @"%@ does not conform to the RCTBridgeModule protocol",
-      moduleClass);
-
-  // Register module
-  dispatch_barrier_async(RCTModuleClassesSyncQueue, ^{
-    [RCTModuleClasses addObject:moduleClass];
-  });
+    });
+    
+    RCTAssert(
+              [moduleClass conformsToProtocol:@protocol(RCTBridgeModule)],
+              @"%@ does not conform to the RCTBridgeModule protocol",
+              moduleClass);
+    // Register module by name
+    dispatch_barrier_async(RCTModuleClassesSyncQueue, ^{
+        [RCTModuleClasses setObject:moduleClass forKey:RCTBridgeModuleNameForClass(moduleClass)];
+    });
 }
 
+
+/**
+ * This function returns the module name for a given class.
+ */
+NSString *RCTBridgeModuleNameForClass(Class cls)
+{
+#if RCT_DEBUG
+    RCTAssert(
+              [cls conformsToProtocol:@protocol(RCTBridgeModule)],
+              @"Bridge module `%@` does not conform to RCTBridgeModule",
+              cls);
+#endif
+    
+    NSString *name = [cls moduleName];
+    if (name.length == 0) {
+        name = NSStringFromClass(cls);
+    }
+    
+    return RCTDropReactPrefixes(name);
+}
 
 
 @implementation RCTBridge
