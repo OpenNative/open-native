@@ -53,84 +53,26 @@ module.exports = async function (hookArgs) {
 
   const green = '\x1b[32m';
   const reset = '\x1b[0m';
-  autolinkingInfo.map(({ packageName }) =>
+  autolinkingInfo.forEach(({ packageName }) =>
     console.log(`${logPrefix} Autolinked ${green}${packageName}${reset}!`)
   );
 
   // TODO: log out the names of all the packages we're autolinking.
 
-  const headerEntries = autolinkingInfo
-    .map(({ headerEntry }) => headerEntry)
-    .join('\n\n');
-
-  const RNPodspecsInterface = [
-    '// START: react-native-podspecs placeholder interface',
-    '@interface RNPodspecs: NSObject',
-    '@end',
-    '// END: react-native-podspecs placeholder interface',
-  ].join('\n');
-
-  const header = [
-    `#import <React/RCTBridgeModule.h>`,
-    '',
-    headerEntries,
-    '',
-    RNPodspecsInterface,
-    '',
-  ].join('\n');
-
-  /**
-   * Depending on React and/or React-Core supports RNPodspecs.h, which imports
-   * the <React/RCTBridgeModule.h> header. I'm not sure whether to include
-   * these two lines (given we know that `@ammarahm-ed/react-native` is going
-   * to include them anyway), but probably including them is better. For now,
-   * though, I'll leave them out until it becomes a clear problem. The main
-   * advantage is that it saves spinning up node wastefully.
-   */
-  const reactDeps = [
-    // `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
-    // `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React.podspec")`,
-  ];
-
-  /**
-   * Depending on React-Native-Podspecs allows us to include our RNPodspecs.h
-   * file.
-   */
-  const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native-podspecs/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
-
-  /**
-   * NativeScript doesn't auto-link React Native modules, so here we add a
-   * dependency on each React Native podspec we found during our search.
-   */
-  const autolinkedDeps = autolinkingInfo.map(
-    ({ podfileEntry }) => podfileEntry
-  );
-
-  const podfileContents = [
-    `# This file will be updated automatically by hooks/before-prepareNativeApp.js.`,
-    "platform :ios, '12.4'",
-    '',
-    ...reactDeps,
-    reactNativePodspecsDep,
-    ...autolinkedDeps,
-  ].join('\n');
-
   /**
    * @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-podspecs'
    */
   const reactNativePodspecsPackageDir = path.dirname(__dirname);
-  const outputHeaderPath = path.resolve(
-    reactNativePodspecsPackageDir,
-    'platforms/ios/lib/RNPodspecs.h'
-  );
-  const outputPodfilePath = path.resolve(
-    reactNativePodspecsPackageDir,
-    'platforms/ios/Podfile'
-  );
 
   await Promise.all([
-    await writeFile(outputHeaderPath, header, { encoding: 'utf-8' }),
-    await writeFile(outputPodfilePath, podfileContents, { encoding: 'utf-8' }),
+    await writeHeaderFile({
+      headerEntries: autolinkingInfo.map(({ headerEntry }) => headerEntry),
+      reactNativePodspecsPackageDir,
+    }),
+    await writePodfile({
+      autolinkedDeps: autolinkingInfo.map(({ podfileEntry }) => podfileEntry),
+      reactNativePodspecsPackageDir,
+    }),
   ]);
 
   console.log(
@@ -228,6 +170,30 @@ async function mapPackageNameToAutolinkingInfo(packageName, projectDir) {
 }
 
 /**
+ * Resolve the appropriate podspec using the React Native Community CLI rules.
+ * @param {object} args
+ * @param {string} args.packageName The package name, e.g.
+ *   'react-native-module-test'
+ * @param {string} args.packagePath The absolute path to the package, e.g.
+ *   '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test'
+ * @param {string[]} args.podspecs An array of absolute paths to podspecs.
+ */
+function resolvePodspecFilePath({ packageName, packagePath, podspecs }) {
+  const packagePodspec = path.join(packageName, `${packagePath}.podspec`);
+
+  // If there are multiple podspecs, prefer the podspec named after the package
+  // otherwise, just take the first match (all of this is consistent with how
+  // the React Native Community CLI works).
+  const resolvedPodspecPath =
+    podspecs.find((podspec) => podspec === packagePodspec) || podspecs[0];
+
+  return {
+    podspecFileName: path.basename(resolvedPodspecPath),
+    podspecFilePath: resolvedPodspecPath,
+  };
+}
+
+/**
  * Build a unique-membered array of source files referenced by a podspec.
  * @param {object} args
  * @param {string|string[]} args.commonSourceFiles The `source_files` value from
@@ -281,27 +247,16 @@ async function getSourceFilePaths({
 }
 
 /**
- * Resolve the appropriate podspec using the React Native Community CLI rules.
- * @param {object} args
- * @param {string} args.packageName The package name, e.g.
- *   'react-native-module-test'
- * @param {string} args.packagePath The absolute path to the package, e.g.
- *   '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test'
- * @param {string[]} args.podspecs An array of absolute paths to podspecs.
+ * @param {string} pattern
+ * @param {import('glob').IOptions} options
+ * @returns {Promise<string[]>}
  */
-function resolvePodspecFilePath({ packageName, packagePath, podspecs }) {
-  const packagePodspec = path.join(packageName, `${packagePath}.podspec`);
-
-  // If there are multiple podspecs, prefer the podspec named after the package
-  // otherwise, just take the first match (all of this is consistent with how
-  // the React Native Community CLI works).
-  const resolvedPodspecPath =
-    podspecs.find((podspec) => podspec === packagePodspec) || podspecs[0];
-
-  return {
-    podspecFileName: path.basename(resolvedPodspecPath),
-    podspecFilePath: resolvedPodspecPath,
-  };
+function globProm(pattern, options) {
+  return new Promise((resolve, reject) => {
+    glob(pattern, options, (err, matches) => {
+      return err ? reject(err) : resolve(matches);
+    });
+  });
 }
 
 /**
@@ -434,14 +389,90 @@ function extractBridgeModuleAliasedName(classImplementation) {
 }
 
 /**
- * @param {string} pattern
- * @param {import('glob').IOptions} options
- * @returns {Promise<string[]>}
+ *
+ * @param {object} args
+ * @param {string[]} args.autolinkedDeps podfile entries for each React Native
+ *   dependency to be autolinked.
+ * @param {string} args.reactNativePodspecsPackageDir An absolute path to the
+ *   react-native-podspecs directory.
+ * @returns
  */
-function globProm(pattern, options) {
-  return new Promise((resolve, reject) => {
-    glob(pattern, options, (err, matches) => {
-      return err ? reject(err) : resolve(matches);
-    });
+async function writePodfile({ autolinkedDeps, reactNativePodspecsPackageDir }) {
+  const outputPodfilePath = path.resolve(
+    reactNativePodspecsPackageDir,
+    'platforms/ios/Podfile'
+  );
+
+  /**
+   * Depending on React and/or React-Core supports RNPodspecs.h, which imports
+   * the <React/RCTBridgeModule.h> header. I'm not sure whether to include
+   * these two lines (given we know that `@ammarahm-ed/react-native` is going
+   * to include them anyway), but probably including them is better. For now,
+   * though, I'll leave them out until it becomes a clear problem. The main
+   * advantage is that it saves spinning up node wastefully.
+   */
+  const reactDeps = [
+    // `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
+    // `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React.podspec")`,
+  ];
+
+  /**
+   * Depending on React-Native-Podspecs allows us to include our RNPodspecs.h
+   * file.
+   */
+  const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native-podspecs/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
+
+  const podfileContents = [
+    `# This file will be updated automatically by hooks/before-prepareNativeApp.js.`,
+    "platform :ios, '12.4'",
+    '',
+    ...reactDeps,
+    reactNativePodspecsDep,
+    /**
+     * NativeScript doesn't auto-link React Native modules, so here we add a
+     * dependency on each React Native podspec we found during our search.
+     */
+    ...autolinkedDeps,
+  ].join('\n');
+
+  return await writeFile(outputPodfilePath, podfileContents, {
+    encoding: 'utf-8',
   });
+}
+
+/**
+ * @param {object} args
+ * @param {string[]} args.headerEntries Sections of the header file to be filled
+ *   in.
+ * @param {string} args.reactNativePodspecsPackageDir An absolute path to the
+ *   react-native-podspecs directory.
+ * @returns A Promise to write the header file into the react-native-podspecs
+ *   package.
+ */
+async function writeHeaderFile({
+  headerEntries,
+  reactNativePodspecsPackageDir,
+}) {
+  const outputHeaderPath = path.resolve(
+    reactNativePodspecsPackageDir,
+    'platforms/ios/lib/RNPodspecs.h'
+  );
+
+  const RNPodspecsInterface = [
+    '// START: react-native-podspecs placeholder interface',
+    '@interface RNPodspecs: NSObject',
+    '@end',
+    '// END: react-native-podspecs placeholder interface',
+  ].join('\n');
+
+  const header = [
+    `#import <React/RCTBridgeModule.h>`,
+    '',
+    headerEntries.join('\n\n'),
+    '',
+    RNPodspecsInterface,
+    '',
+  ].join('\n');
+
+  return await writeFile(outputHeaderPath, header, { encoding: 'utf-8' });
 }
