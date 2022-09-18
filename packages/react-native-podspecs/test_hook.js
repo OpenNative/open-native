@@ -8,7 +8,7 @@ const nsDemoPackageJson = JSON.parse(
   fs.readFileSync(path.join(nsDemoProjectDir, 'package.json')).toString()
 );
 
-require('./hooks/before-buildIOS')({
+require('./hooks/before-prepareNativeApp')({
   platformData: {
     normalizedPlatformName: 'iOS',
     platformNameLowerCase: 'ios',

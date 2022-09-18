@@ -40,11 +40,20 @@ module.exports = async function (hookArgs) {
   );
 
   const output = await Promise.all(packagePaths.map(mapPackagePathToOutput));
+  /**
+   * @type {({
+   *   headerEntry: string;
+   *   podfileEntry: string;
+   * }[]}
+   */
   const outputFlat = output.filter((p) => !!p).flat(1);
 
-  const RNPodspecsInterface = ['@interface RNPodspecs: NSObject', '@end'].join(
-    '\n\n'
-  );
+  const RNPodspecsInterface = [
+    '// START: react-native-podspecs placeholder interface',
+    '@interface RNPodspecs: NSObject',
+    '@end',
+    '// END: react-native-podspecs placeholder interface',
+  ].join('\n');
   const headerEntries = outputFlat
     .map(({ headerEntry }) => headerEntry)
     .join('\n\n');
@@ -53,6 +62,7 @@ module.exports = async function (hookArgs) {
     `#import <React/RCTBridgeModule.h>`,
     '',
     headerEntries,
+    '',
     RNPodspecsInterface,
     '',
   ].join('\n');
@@ -184,8 +194,12 @@ async function mapPackagePathToOutput(packagePath) {
 
       // A comment to write into the header to indicate where the interfaces
       // that we're about to extract came from.
-      const comment = `${packageName}/${podspecFileName}`;
-      const headerEntry = `// ${comment}\n${interfaces}`;
+      // const headerEntry = `// START: ${comment}\n${interfaces}`;
+      const headerEntry = [
+        `// START: ${packageName}/${podspecFileName}`,
+        interfaces,
+        `// END: ${packageName}/${podspecFileName}`,
+      ].join('\n');
 
       return { headerEntry, podfileEntry };
     })
