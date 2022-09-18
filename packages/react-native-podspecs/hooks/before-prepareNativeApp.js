@@ -33,20 +33,25 @@ module.exports = async function (hookArgs) {
   const depsArr = Object.keys({ ...devDependencies, ...dependencies }).filter(
     (key) => !ignoredDepsSet.has(key)
   );
-  const packagePaths = depsArr.map((depName) =>
-    path.dirname(
-      require.resolve(`${depName}/package.json`, { paths: [projectDir] })
-    )
-  );
 
-  const output = await Promise.all(packagePaths.map(mapPackagePathToOutput));
   /**
    * @type {({
+   *   packageName: string;
    *   headerEntry: string;
    *   podfileEntry: string;
    * }[]}
    */
-  const outputFlat = output.filter((p) => !!p).flat(1);
+  const output = (
+    await Promise.all(
+      depsArr.map((packageName) =>
+        mapPackageNameToOutput(packageName, projectDir)
+      )
+    )
+  )
+    .filter((p) => !!p)
+    .flat(1);
+
+  // TODO: log out the names of all the packages we're autolinking.
 
   const RNPodspecsInterface = [
     '// START: react-native-podspecs placeholder interface',
@@ -54,7 +59,7 @@ module.exports = async function (hookArgs) {
     '@end',
     '// END: react-native-podspecs placeholder interface',
   ].join('\n');
-  const headerEntries = outputFlat
+  const headerEntries = output
     .map(({ headerEntry }) => headerEntry)
     .join('\n\n');
 
@@ -90,7 +95,7 @@ module.exports = async function (hookArgs) {
    * NativeScript doesn't auto-link React Native modules, so here we add a
    * dependency on each React Native podspec we found during our search.
    */
-  const autolinkedDeps = outputFlat.map(({ podfileEntry }) => podfileEntry);
+  const autolinkedDeps = output.map(({ podfileEntry }) => podfileEntry);
 
   const podfileContents = [
     `# This file will be updated automatically by hooks/before-prepareNativeApp.js.`,
@@ -123,10 +128,16 @@ module.exports = async function (hookArgs) {
 };
 
 /**
- * @param {string} packagePath The absolute path to the package, e.g.
- *   '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test'
+ * @param {string} packageName The package name, e.g.
+ *   'react-native-module-test'
+ * @param {string} projectDir The project directory (relative to which the
+ *   package should be resolved).
  */
-async function mapPackagePathToOutput(packagePath) {
+async function mapPackageNameToOutput(packageName, projectDir) {
+  const packagePath = path.dirname(
+    require.resolve(`${packageName}/package.json`, { paths: [projectDir] })
+  );
+
   const podspecs = await globProm('*.podspec', {
     cwd: packagePath,
     absolute: true,
@@ -135,7 +146,6 @@ async function mapPackagePathToOutput(packagePath) {
     return null;
   }
 
-  const packageName = path.basename(packagePath);
   const { podspecFileName, podspecFilePath } = resolvePodspecFilePath({
     packageName,
     packagePath,
@@ -201,7 +211,7 @@ async function mapPackagePathToOutput(packagePath) {
         `// END: ${packageName}/${podspecFileName}`,
       ].join('\n');
 
-      return { headerEntry, podfileEntry };
+      return { packageName, headerEntry, podfileEntry };
     })
   );
 }
