@@ -58,6 +58,8 @@ void RCTRegisterModule(Class moduleClass)
 
 @implementation RCTBridge
 
+RCTCallableJSModules *_callableJSModules;
+RCTModuleRegistry *moduleRegistry;
 static RCTBridge *RCTCurrentBridgeInstance = nil;
 NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
 
@@ -92,7 +94,15 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
 }
 
 -(instancetype)init {
-    
+    if (self = [super init]) {
+        RCTCurrentBridgeInstance = self;
+        nativeModules = [NSMutableDictionary new];
+        moduleRegistry = [[RCTModuleRegistry alloc] init];
+        [moduleRegistry setBridge:self];
+        _callableJSModules = [[RCTCallableJSModules alloc] init];
+        [_callableJSModules setBridge:self];
+    }
+    return self;    
 }
 
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args
