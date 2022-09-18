@@ -7,7 +7,7 @@
 
 #import "RCTBridge.h"
 #import "RCTBridge+Private.h"
-
+#import "RCTBridgeModule.h"
 #import <objc/runtime.h>
 
 #import "RCTConvert.h"
@@ -15,7 +15,7 @@
 #import "RCTLog.h"
 #import "RCTReloadCommand.h"
 #import "RCTUtils.h"
-
+#import "RCTModuleData.h"
 
 static NSMutableArray<Class> *RCTModuleClasses;
 static dispatch_queue_t RCTModuleClassesSyncQueue;
@@ -80,7 +80,22 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
 }
 
 - (id)moduleForName:(NSString *)moduleName {
-  
+    RCTModuleData *moduleData = [nativeModules objectForKey:moduleName];
+    if (moduleData.instance) return moduleData.instance;
+    Class moduleClass = RCTGetModuleClassForName(moduleName);
+    
+    if (!moduleClass) return nil;
+    
+    moduleData = [[RCTModuleData alloc]
+                  initWithModuleClass:moduleClass
+                  bridge:self moduleRegistry:moduleRegistry
+                  viewRegistry_DEPRECATED:NULL
+                  bundleManager:NULL
+                  callableJSModules:_callableJSModules];
+    
+    [nativeModules setObject:moduleData forKey:moduleName];
+    
+    return moduleData.instance;  
 }
 
 - (id)moduleForName:(NSString *)moduleName lazilyLoadIfNecessary:(BOOL)lazilyLoad {
