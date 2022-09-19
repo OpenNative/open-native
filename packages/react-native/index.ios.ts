@@ -3,12 +3,9 @@ import { ReactNativeCommon } from './common';
 export class ReactNative extends ReactNativeCommon {
   bridge: RCTBridge;
   init() {
-    if (this.bridge) {
-      console.log('Bridge:', this.bridge);
-      return;
+    if (!this.bridge) {
+      this.bridge = RCTBridge.alloc().init();
     }
-    this.bridge = RCTBridge.alloc().init();
-    console.log('Bridge:', this.bridge);
   }
 
   getName() {
