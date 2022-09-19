@@ -23,21 +23,20 @@ typedef void (^RCTCallbackBlock)(NSString *moduleName,NSString *methodName, NSAr
 
 @interface RCTBridge : NSObject
 
-- (id)moduleForName:(NSString *)moduleName;
-- (id)moduleForName:(NSString *)moduleName lazilyLoadIfNecessary:(BOOL)lazilyLoad;
-- (id)moduleForClass:(Class)moduleClass;
 /**
  * This method is used to call functions in the JavaScript application context.
  * It is primarily intended for use by modules that require two-way communication
  * with the JavaScript code. Safe to call from any thread.
  */
-
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args;
 - (void)enqueueJSCall:(NSString *)module
                method:(NSString *)method
                  args:(NSArray *)args
            completion:(dispatch_block_t)completion;
 
+- (id)moduleForName:(NSString *)moduleName;
+- (id)moduleForName:(NSString *)moduleName lazilyLoadIfNecessary:(BOOL)lazilyLoad;
+- (id)moduleForClass:(Class)moduleClass;
 -(void)setJSModuleInvokerCallback:(RCTCallbackBlock)callback;
 
 @end
