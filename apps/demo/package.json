@@ -7,7 +7,8 @@
     "@ammarahm-ed/react-native": "file:../../dist/packages/react-native",
     "@ammarahm-ed/react-native-module-test": "file:../../dist/packages/react-native-module-test",
     "@ammarahm-ed/react-native-podspecs": "file:../../dist/packages/react-native-podspecs",
-    "@nativescript/core": "file:../../node_modules/@nativescript/core"
+    "@nativescript/core": "file:../../node_modules/@nativescript/core",
+    "@ammarahm-ed/react-native-autolinking": "file:../../packages/react-native-autolinking"
   },
   "devDependencies": {
     "@nativescript/android": "~8.3.0",
