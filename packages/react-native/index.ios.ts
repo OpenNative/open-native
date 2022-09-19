@@ -9,12 +9,6 @@ export class ReactNative extends ReactNativeCommon {
   }
 
   getName() {
-    if (!this.bridge) {
-      console.log('bridge not loaded');
-      return;
-    }
-    const module: RCTBridgeModule = this.bridge.moduleForName('RNTestModule');
-    console.log('Module:', module);
-    return RCTBridgeModuleNameForClass(module.class()) || module.class().name;
+    return this.bridge?.moduleForName('RNTestModule')?.class().name;
   }
 }
