@@ -22,21 +22,23 @@ static dispatch_queue_t RCTModuleClassesSyncQueue;
 
 NSDictionary<NSString *, Class> *RCTGetModuleClasses(void)
 {
-    __block NSDictionary<NSString *,Class> *result;
-    dispatch_sync(RCTModuleClassesSyncQueue, ^{
-        result = [RCTModuleClasses copy];
-    });
-    return result;
+  __block NSDictionary<NSString *,Class> *result;
+  dispatch_sync(RCTModuleClassesSyncQueue, ^{
+    result = [RCTModuleClasses copy];
+  });
+  return result;
 }
 
 Class RCTGetModuleClassForName(NSString * moduleName)
 {
-    __block Class result;
-    dispatch_sync(RCTModuleClassesSyncQueue, ^{
-        result = [[RCTModuleClasses copy] objectForKey:moduleName];
-    });
-    return result;
+  __block Class result;
+  dispatch_sync(RCTModuleClassesSyncQueue, ^{
+    result = [[RCTModuleClasses copy] objectForKey:moduleName];
+  });
+  return result;
 }
+
+
 
 /**
  * Register the given class as a bridge module. All modules must be registered
@@ -46,21 +48,21 @@ Class RCTGetModuleClassForName(NSString * moduleName)
 void RCTRegisterModule(Class);
 void RCTRegisterModule(Class moduleClass)
 {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        RCTModuleClasses = [NSMutableDictionary new];
-        RCTModuleClassesSyncQueue =
-        dispatch_queue_create("com.facebook.react.ModuleClassesSyncQueue", DISPATCH_QUEUE_CONCURRENT);
-    });
-    
-    RCTAssert(
-        [moduleClass conformsToProtocol:@protocol(RCTBridgeModule)],
-        @"%@ does not conform to the RCTBridgeModule protocol",
-        moduleClass);
-    // Register module by name
-    dispatch_barrier_async(RCTModuleClassesSyncQueue, ^{
-        [RCTModuleClasses setObject:moduleClass forKey:RCTBridgeModuleNameForClass(moduleClass)];
-    });
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    RCTModuleClasses = [NSMutableDictionary new];
+    RCTModuleClassesSyncQueue =
+    dispatch_queue_create("com.facebook.react.ModuleClassesSyncQueue", DISPATCH_QUEUE_CONCURRENT);
+  });
+  
+  RCTAssert(
+            [moduleClass conformsToProtocol:@protocol(RCTBridgeModule)],
+            @"%@ does not conform to the RCTBridgeModule protocol",
+            moduleClass);
+  // Register module by name
+  dispatch_barrier_async(RCTModuleClassesSyncQueue, ^{
+    [RCTModuleClasses setObject:moduleClass forKey:RCTBridgeModuleNameForClass(moduleClass)];
+  });
 }
 
 
@@ -70,18 +72,18 @@ void RCTRegisterModule(Class moduleClass)
 NSString *RCTBridgeModuleNameForClass(Class cls)
 {
 #if RCT_DEBUG
-    RCTAssert(
-              [cls conformsToProtocol:@protocol(RCTBridgeModule)],
-              @"Bridge module `%@` does not conform to RCTBridgeModule",
-              cls);
+  RCTAssert(
+            [cls conformsToProtocol:@protocol(RCTBridgeModule)],
+            @"Bridge module `%@` does not conform to RCTBridgeModule",
+            cls);
 #endif
-    
-    NSString *name = [cls moduleName];
-    if (name.length == 0) {
-        name = NSStringFromClass(cls);
-    }
-    
-    return RCTDropReactPrefixes(name);
+  
+  NSString *name = [cls moduleName];
+  if (name.length == 0) {
+    name = NSStringFromClass(cls);
+  }
+  
+  return RCTDropReactPrefixes(name);
 }
 
 
@@ -92,9 +94,9 @@ RCTModuleRegistry *moduleRegistry;
 static RCTBridge *RCTCurrentBridgeInstance = nil;
 
 /**
-* A callback method registered when bridge is loaded. It isused by 
-* CallableJSModules to invoke methods in JS Runtime.
-*/
+ * A callback method registered when bridge is loaded. It isused by
+ * CallableJSModules to invoke methods in JS Runtime.
+ */
 static RCTCallbackBlock JSModuleInvokerCallback = nil;
 
 NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
@@ -107,45 +109,45 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
  */
 + (instancetype)currentBridge
 {
-    return RCTCurrentBridgeInstance;
+  return RCTCurrentBridgeInstance;
 }
 
 + (void)setCurrentBridge:(RCTBridge *)currentBridge
 {
-    RCTCurrentBridgeInstance = currentBridge;
+  RCTCurrentBridgeInstance = currentBridge;
 }
 
 - (void)setJSModuleInvokerCallback:(RCTCallbackBlock)callback {
-    JSModuleInvokerCallback = callback;
+  JSModuleInvokerCallback = callback;
 }
 
 - (id)moduleForName:(NSString *)moduleName {
-    RCTModuleData *moduleData = [nativeModules objectForKey:moduleName];
-    if (moduleData.instance) return moduleData.instance;
-    Class moduleClass = RCTGetModuleClassForName(moduleName);
-    
-    if (!moduleClass) return nil;
-    
-    moduleData = [[RCTModuleData alloc]
-                  initWithModuleClass:moduleClass
-                  bridge:self moduleRegistry:moduleRegistry
-                  viewRegistry_DEPRECATED:NULL
-                  bundleManager:NULL
-                  callableJSModules:_callableJSModules];
-    
-    [nativeModules setObject:moduleData forKey:moduleName];
-    
-    return moduleData.instance;  
+  RCTModuleData *moduleData = [nativeModules objectForKey:moduleName];
+  if (moduleData.instance) return moduleData.instance;
+  Class moduleClass = RCTGetModuleClassForName(moduleName);
+  
+  if (!moduleClass) return nil;
+  
+  moduleData = [[RCTModuleData alloc]
+                initWithModuleClass:moduleClass
+                bridge:self moduleRegistry:moduleRegistry
+                viewRegistry_DEPRECATED:NULL
+                bundleManager:NULL
+                callableJSModules:_callableJSModules];
+  
+  [nativeModules setObject:moduleData forKey:moduleName];
+  
+  return moduleData.instance;
 }
 
 - (id)moduleForName:(NSString *)moduleName lazilyLoadIfNecessary:(BOOL)lazilyLoad {
-    
-    return [self moduleForName:moduleName];
+  
+  return [self moduleForName:moduleName];
 }
 
 - (id) moduleForClass:(Class)moduleClass {
-    NSString *moduleName = RCTBridgeModuleNameForClass(moduleClass);
-    return [self moduleForName:moduleName];
+  NSString *moduleName = RCTBridgeModuleNameForClass(moduleClass);
+  return [self moduleForName:moduleName];
 }
 
 -(instancetype)init {
@@ -156,7 +158,7 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
     [moduleRegistry setBridge:self];
     _callableJSModules = [[RCTCallableJSModules alloc] init];
     [_callableJSModules setBridge:self];
-    }
+  }
   return self;
 }
 
