@@ -26,7 +26,7 @@
       "@ammarahm-ed/react-native": ["packages/react-native/index.d.ts"],
       "@ammarahm-ed/react-native-podspecs": ["packages/react-native-podspecs/index.d.ts"],
       "@demo/shared": ["tools/demo/index.ts"],
-      "@ammarahm-ed/react-native-autolinking": ["packages/react-native-autolinking/index.d.ts"]
+      "@ammarahm-ed/react-native-autolinking": ["packages/react-native-autolinking/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

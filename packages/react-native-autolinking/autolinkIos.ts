@@ -5,39 +5,36 @@ import type { IOptions } from 'glob';
 import * as path from 'path';
 import { promisify } from 'util';
 
-import { HookArgs } from './hookArgs';
-
 const execFile = promisify(cp.execFile);
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 
 const logPrefix = '[react-native-autolinking/autolinkIos.js]';
 
-export async function autolinkIos(hookArgs: HookArgs) {
-  const {
-    projectData,
-    platformData: { platformNameLowerCase },
-  } = hookArgs;
-
-  // For now, we handle only iOS (as platforms other than iOS are experimental
-  // on NativeScript). We might come back for macOS one day! :D
-  if (platformNameLowerCase !== 'ios') {
-    return;
-  }
-
-  console.log(`${logPrefix} Autolinking React Native podspecs for iOS...`);
-
-  const { devDependencies, dependencies, ignoredDependencies, projectDir } =
-    projectData;
-
-  const ignoredDepsSet = new Set(ignoredDependencies);
-  const depsArr = Object.keys({ ...devDependencies, ...dependencies }).filter(
-    (key) => !ignoredDepsSet.has(key)
-  );
-
+/**
+ * Given a list of dependencies, autolinks any podspecs found within them, using
+ * the React Native Community CLI search rules.
+ * @param {object} args
+ * @param args.dependencies The names of the npm dependencies to examine for
+ *   autolinking.
+ * @param args.projectDir The project directory (relative to which the package
+ *   should be resolved).
+ * @returns a list of package names in which podspecs were found and autolinked.
+ */
+export async function autolinkIos({
+  dependencies,
+  projectDir,
+  outputHeaderPath,
+  outputPodfilePath,
+}: {
+  dependencies: string[];
+  projectDir: string;
+  outputHeaderPath: string;
+  outputPodfilePath: string;
+}) {
   const autolinkingInfo = (
     await Promise.all(
-      depsArr.map((packageName) =>
+      dependencies.map((packageName) =>
         mapPackageNameToAutolinkingInfo(packageName, projectDir)
       )
     )
@@ -45,31 +42,18 @@ export async function autolinkIos(hookArgs: HookArgs) {
     .filter((p) => !!p)
     .flat(1);
 
-  const green = '\x1b[32m';
-  const reset = '\x1b[0m';
-  autolinkingInfo.forEach(({ packageName }) =>
-    console.log(`${logPrefix} Autolinked ${green}${packageName}${reset}!`)
-  );
-
-  /**
-   * @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-podspecs'
-   */
-  const reactNativePodspecsPackageDir = path.dirname(__dirname);
-
   await Promise.all([
     await writeHeaderFile({
       headerEntries: autolinkingInfo.map(({ headerEntry }) => headerEntry),
-      reactNativePodspecsPackageDir,
+      outputHeaderPath,
     }),
     await writePodfile({
       autolinkedDeps: autolinkingInfo.map(({ podfileEntry }) => podfileEntry),
-      reactNativePodspecsPackageDir,
+      outputPodfilePath,
     }),
   ]);
 
-  console.log(
-    `${logPrefix} ... Finished autolinking React Native podspecs for iOS.`
-  );
+  return autolinkingInfo.map(({ packageName }) => packageName);
 }
 
 /**
@@ -390,21 +374,15 @@ function extractBridgeModuleAliasedName(
  * @param {object} args
  * @param args.autolinkedDeps podfile entries for each React Native
  *   dependency to be autolinked.
- * @param args.reactNativePodspecsPackageDir An absolute path to the
- *   react-native-podspecs directory.
+ * @param args.outputPodfilePath An absolute path to output the Podfile to.
  */
 async function writePodfile({
   autolinkedDeps,
-  reactNativePodspecsPackageDir,
+  outputPodfilePath,
 }: {
   autolinkedDeps: string[];
-  reactNativePodspecsPackageDir: string;
+  outputPodfilePath: string;
 }) {
-  const outputPodfilePath = path.resolve(
-    reactNativePodspecsPackageDir,
-    'platforms/ios/Podfile'
-  );
-
   /**
    * Depending on React and/or React-Core supports RNPodspecs.h, which imports
    * the <React/RCTBridgeModule.h> header. I'm not sure whether to include
@@ -445,23 +423,17 @@ async function writePodfile({
 /**
  * @param {object} args
  * @param args.headerEntries Sections of the header file to be filled in.
- * @param args.reactNativePodspecsPackageDir An absolute path to the
- *   react-native-podspecs directory.
+ * @param args.outputHeaderPath An absolute path to output the header to.
  * @returns A Promise to write the header file into the react-native-podspecs
  *   package.
  */
 async function writeHeaderFile({
   headerEntries,
-  reactNativePodspecsPackageDir,
+  outputHeaderPath,
 }: {
   headerEntries: string[];
-  reactNativePodspecsPackageDir: string;
+  outputHeaderPath: string;
 }) {
-  const outputHeaderPath = path.resolve(
-    reactNativePodspecsPackageDir,
-    'platforms/ios/lib/RNPodspecs.h'
-  );
-
   const RNPodspecsInterface = [
     '// START: react-native-podspecs placeholder interface',
     '@interface RNPodspecs: NSObject',

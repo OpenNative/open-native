@@ -2,13 +2,13 @@
   "name": "@ammarahm-ed/react-native-autolinking",
   "version": "1.0.0",
   "description": "Add a plugin description",
-  "main": "index",
+  "main": "index.js",
   "typings": "index.d.ts",
-  "nativescript": {
-    "platforms": {
-      "ios": "6.0.0",
-      "android": "6.0.0"
-    }
+  "dependencies": {
+    "glob": "^8.0.3"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.0.0"
   },
   "repository": {
     "type": "git",

@@ -11,11 +11,7 @@
     }
   },
   "dependencies": {
-    "@ammarahm-ed/react-native-podspecs": "^1.0.0",
-    "glob": "^8.0.3"
-  },
-  "devDependencies": {
-    "@types/glob": "^8.0.0"
+    "@ammarahm-ed/react-native-podspecs": "^1.0.0"
   },
   "repository": {
     "type": "git",

@@ -19,11 +19,6 @@
             "glob": "**/*",
             "input": "packages/react-native-autolinking/platforms/",
             "output": "./platforms/"
-          },
-          {
-            "glob": "**/*",
-            "input": "packages/react-native-autolinking/hooks/",
-            "output": "./hooks/"
           }
         ]
       },
