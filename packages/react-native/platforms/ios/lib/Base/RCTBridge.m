@@ -159,7 +159,7 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
         _callableJSModules = [[RCTCallableJSModules alloc] init];
         [_callableJSModules setBridge:self];
     }
-    return self;    
+  return self;
 }
 
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args
