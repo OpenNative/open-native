@@ -164,10 +164,10 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
 
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args
 {
-    NSArray<NSString *> *ids = [moduleDotMethod componentsSeparatedByString:@"."];
-    NSString *module = ids[0];
-    NSString *method = ids[1];
-    [self enqueueJSCall:module method:method args:args completion:NULL];
+  NSArray<NSString *> *ids = [moduleDotMethod componentsSeparatedByString:@"."];
+  NSString *module = ids[0];
+  NSString *method = ids[1];
+  [self enqueueJSCall:module method:method args:args completion:NULL];
 }
 
 - (void)enqueueJSCall:(NSString *)module
