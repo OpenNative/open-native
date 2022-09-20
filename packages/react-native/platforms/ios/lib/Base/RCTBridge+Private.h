@@ -32,7 +32,6 @@ RCT_EXTERN void RCTRegisterModule(Class);
  */
 @property (atomic, strong) RCTBridge *batchedBridge;
 
-
 /**
  * An object that allows one to require NativeModules/TurboModules.
  * RCTModuleRegistry is implemented in bridgeless mode and bridge mode.

@@ -16,10 +16,9 @@
  * This function returns the module name for a given class.
  */
 RCT_EXTERN NSString *RCTBridgeModuleNameForClass(Class bridgeModuleClass);
-RCT_EXTERN Class RCTGetModuleClassForName(NSString * moduleName);
-typedef void (^RCTCallbackBlock)(NSString *moduleName,NSString *methodName, NSArray *args, dispatch_block_t onComplete);
-
-
+RCT_EXTERN Class RCTGetModuleClassForName(NSString *moduleName);
+typedef void (
+    ^RCTCallbackBlock)(NSString *moduleName, NSString *methodName, NSArray *args, dispatch_block_t onComplete);
 
 @interface RCTBridge : NSObject
 
@@ -37,6 +36,6 @@ typedef void (^RCTCallbackBlock)(NSString *moduleName,NSString *methodName, NSAr
 - (id)moduleForName:(NSString *)moduleName;
 - (id)moduleForName:(NSString *)moduleName lazilyLoadIfNecessary:(BOOL)lazilyLoad;
 - (id)moduleForClass:(Class)moduleClass;
--(void)setJSModuleInvokerCallback:(RCTCallbackBlock)callback;
+- (void)setJSModuleInvokerCallback:(RCTCallbackBlock)callback;
 
 @end
