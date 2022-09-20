@@ -56,9 +56,9 @@ void RCTRegisterModule(Class moduleClass)
     });
     
     RCTAssert(
-              [moduleClass conformsToProtocol:@protocol(RCTBridgeModule)],
-              @"%@ does not conform to the RCTBridgeModule protocol",
-              moduleClass);
+        [moduleClass conformsToProtocol:@protocol(RCTBridgeModule)],
+        @"%@ does not conform to the RCTBridgeModule protocol",
+        moduleClass);
     // Register module by name
     dispatch_barrier_async(RCTModuleClassesSyncQueue, ^{
         [RCTModuleClasses setObject:moduleClass forKey:RCTBridgeModuleNameForClass(moduleClass)];
