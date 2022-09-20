@@ -760,7 +760,8 @@ RCT_JSON_CONVERTER(NSString)
 //     NSMutableDictionary<NSString *, NSDictionary *> *aliases = [NSMutableDictionary new];
 //     for (NSString *objcSelector in map) {
 //       RCTAssert(
-//           [objcSelector hasSuffix:RCTColorSuffix], @"A selector in the color map did not end with the suffix Color.");
+//           [objcSelector hasSuffix:RCTColorSuffix], @"A selector in the color map did not end with the suffix
+//           Color.");
 //       NSMutableDictionary *entry = [map[objcSelector] mutableCopy];
 //       RCTAssert([entry objectForKey:RCTSelector] == nil, @"Entry should not already have an RCTSelector");
 //       NSString *swiftSelector = [objcSelector substringToIndex:[objcSelector length] - [RCTColorSuffix length]];
@@ -884,7 +885,8 @@ RCT_JSON_CONVERTER(NSString)
 //         if (color == nil) {
 //           RCTLogConvertError(
 //               json,
-//               [@"a UIColor.  Expected one of the following values: " stringByAppendingString:RCTSemanticColorNames()]);
+//               [@"a UIColor.  Expected one of the following values: "
+//               stringByAppendingString:RCTSemanticColorNames()]);
 //         }
 //         return color;
 //       } else if ([value isKindOfClass:[NSArray class]]) {

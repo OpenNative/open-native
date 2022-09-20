@@ -5,19 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-@class RCTBridge;
-
-typedef NSURL * (^RCTBridgelessBundleURLGetter)(void);
-typedef void (^RCTBridgelessBundleURLSetter)(NSURL *bundleURL);
-
-/**
- * A class that allows NativeModules/TurboModules to read/write the bundleURL, with or without the bridge.
- */
 @interface RCTBundleManager : NSObject
-- (void)setBridge:(RCTBridge *)bridge;
-- (void)setBridgelessBundleURLGetter:(RCTBridgelessBundleURLGetter)getter
-                           andSetter:(RCTBridgelessBundleURLSetter)setter
-                    andDefaultGetter:(RCTBridgelessBundleURLGetter)defaultGetter;
-- (void)resetBundleURL;
-@property NSURL *bundleURL;
+
 @end

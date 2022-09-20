@@ -21,26 +21,26 @@ NSString *const RCTTriggerReloadCommandBundleURLKey = @"bundleURL";
 
 void RCTRegisterReloadCommandListener(id<RCTReloadListener> listener)
 {
-//   if (!listenersLock) {
-//     listenersLock = [NSLock new];
-//   }
-//   [listenersLock lock];
-//   if (!listeners) {
-//     listeners = [NSHashTable weakObjectsHashTable];
-//   }
-// #if RCT_DEV
-//   RCTAssertMainQueue(); // because registerKeyCommandWithInput: must be called on the main thread
-//   static dispatch_once_t onceToken;
-//   dispatch_once(&onceToken, ^{
-//     [[RCTKeyCommands sharedInstance] registerKeyCommandWithInput:@"r"
-//                                                    modifierFlags:UIKeyModifierCommand
-//                                                           action:^(__unused UIKeyCommand *command) {
-//                                                             RCTTriggerReloadCommandListeners(@"Command + R");
-//                                                           }];
-//   });
-// #endif
-//   [listeners addObject:listener];
-//   [listenersLock unlock];
+  //   if (!listenersLock) {
+  //     listenersLock = [NSLock new];
+  //   }
+  //   [listenersLock lock];
+  //   if (!listeners) {
+  //     listeners = [NSHashTable weakObjectsHashTable];
+  //   }
+  // #if RCT_DEV
+  //   RCTAssertMainQueue(); // because registerKeyCommandWithInput: must be called on the main thread
+  //   static dispatch_once_t onceToken;
+  //   dispatch_once(&onceToken, ^{
+  //     [[RCTKeyCommands sharedInstance] registerKeyCommandWithInput:@"r"
+  //                                                    modifierFlags:UIKeyModifierCommand
+  //                                                           action:^(__unused UIKeyCommand *command) {
+  //                                                             RCTTriggerReloadCommandListeners(@"Command + R");
+  //                                                           }];
+  //   });
+  // #endif
+  //   [listeners addObject:listener];
+  //   [listenersLock unlock];
 }
 
 void RCTTriggerReloadCommandListeners(NSString *reason)

@@ -2,7 +2,7 @@ declare function RCTAddAssertFunction(assertFunction: (p1: string, p2: string, p
 
 declare function RCTAddLogFunction(logFunction: (p1: RCTLogLevel, p2: RCTLogSource, p3: string, p4: number, p5: string) => void): void;
 
-declare class RCTBridge extends NSObject implements RCTInvalidating {
+declare class RCTBridge extends NSObject {
   static alloc(): RCTBridge; // inherited from NSObject
 
   static currentBridge(): RCTBridge;
@@ -13,67 +13,7 @@ declare class RCTBridge extends NSObject implements RCTInvalidating {
 
   batchedBridge: RCTBridge;
 
-  bridgeDescription: string;
-
-  bundleURL: NSURL;
-
-  readonly delegate: RCTBridgeDelegate;
-
-  executorClass: typeof NSObject;
-
-  flowID: number;
-
-  flowIDMap: NSDictionary<any, any>;
-
-  flowIDMapLock: NSLock;
-
-  readonly inspectable: boolean;
-
-  readonly launchOptions: NSDictionary<any, any>;
-
-  readonly loading: boolean;
-
-  readonly moduleClasses: NSArray<typeof NSObject>;
-
-  readonly moduleProvider: () => NSArray<RCTBridgeModule>;
-
   readonly moduleRegistry: RCTModuleRegistry;
-
-  readonly moduleSetupComplete: boolean;
-
-  readonly parentBridge: RCTBridge;
-
-  readonly valid: boolean;
-
-  readonly debugDescription: string; // inherited from NSObjectProtocol
-
-  readonly description: string; // inherited from NSObjectProtocol
-
-  readonly hash: number; // inherited from NSObjectProtocol
-
-  readonly isProxy: boolean; // inherited from NSObjectProtocol
-
-  readonly superclass: typeof NSObject; // inherited from NSObjectProtocol
-
-  readonly; // inherited from NSObjectProtocol
-
-  constructor(o: { bundleURL: NSURL; moduleProvider: () => NSArray<RCTBridgeModule>; launchOptions: NSDictionary<any, any> });
-
-  constructor(o: { delegate: RCTBridgeDelegate; bundleURL: NSURL; moduleProvider: () => NSArray<RCTBridgeModule>; launchOptions: NSDictionary<any, any> });
-
-  constructor(o: { delegate: RCTBridgeDelegate; launchOptions: NSDictionary<any, any> });
-
-  _immediatelyCallTimer(timer: number): void;
-
-  attachBridgeAPIsToTurboModule(module: any): void;
-
-  callNativeModuleMethodParams(moduleID: number, methodID: number, params: NSArray<any> | any[]): any;
-
-  class(): typeof NSObject;
-
-  conformsToProtocol(aProtocol: any /* Protocol */): boolean;
-
-  dispatchBlockQueue(block: () => void, queue: NSObject): void;
 
   enqueueCallbackArgs(cbID: number, args: NSArray<any> | any[]): void;
 
@@ -81,71 +21,13 @@ declare class RCTBridge extends NSObject implements RCTInvalidating {
 
   enqueueJSCallMethodArgsCompletion(module: string, method: string, args: NSArray<any> | any[], completion: () => void): void;
 
-  initWithBundleURLModuleProviderLaunchOptions(bundleURL: NSURL, block: () => NSArray<RCTBridgeModule>, launchOptions: NSDictionary<any, any>): this;
-
-  initWithDelegateBundleURLModuleProviderLaunchOptions(delegate: RCTBridgeDelegate, bundleURL: NSURL, block: () => NSArray<RCTBridgeModule>, launchOptions: NSDictionary<any, any>): this;
-
-  initWithDelegateLaunchOptions(delegate: RCTBridgeDelegate, launchOptions: NSDictionary<any, any>): this;
-
-  invalidate(): void;
-
-  isBatchActive(): boolean;
-
-  isEqual(object: any): boolean;
-
-  isKindOfClass(aClass: typeof NSObject): boolean;
-
-  isMemberOfClass(aClass: typeof NSObject): boolean;
-
-  loadAndExecuteSplitBundleURLOnErrorOnComplete(bundleURL: NSURL, onError: (p1: NSError) => void, onComplete: () => void): void;
-
-  logMessageLevel(message: string, level: string): void;
-
   moduleForClass(moduleClass: typeof NSObject): any;
 
   moduleForName(moduleName: string): any;
 
   moduleForNameLazilyLoadIfNecessary(moduleName: string, lazilyLoad: boolean): any;
 
-  moduleIsInitialized(moduleClass: typeof NSObject): boolean;
-
-  modulesConformingToProtocol(protocol: any /* Protocol */): NSArray<any>;
-
-  onFastRefresh(): void;
-
-  performSelector(aSelector: string): any;
-
-  performSelectorWithObject(aSelector: string, object: any): any;
-
-  performSelectorWithObjectWithObject(aSelector: string, object1: any, object2: any): any;
-
-  registerAdditionalModuleClasses(newModules: NSArray<typeof NSObject> | typeof NSObject[]): void;
-
-  registerSegmentWithIdPath(segmentId: number, path: string): void;
-
-  reload(): void;
-
-  reloadWithReason(reason: string): void;
-
-  requestReload(): void;
-
-  respondsToSelector(aSelector: string): boolean;
-
-  retainCount(): number;
-
-  self(): this;
-
-  setRCTTurboModuleRegistry(turboModuleRegistry: RCTTurboModuleRegistry): void;
-
-  setUp(): void;
-
-  start(): void;
-
-  startProfiling(): void;
-
-  stopProfiling(callback: (p1: NSData) => void): void;
-
-  updateModuleWithInstance(instance: RCTBridgeModule): void;
+  setJSModuleInvokerCallback(callback: (p1: string, p2: string, p3: NSArray<any>, p4: () => void) => void): void;
 }
 
 interface RCTBridgeDelegate extends NSObjectProtocol {
@@ -166,18 +48,6 @@ interface RCTBridgeDelegate extends NSObjectProtocol {
 declare var RCTBridgeDelegate: {
   prototype: RCTBridgeDelegate;
 };
-
-declare var RCTBridgeDidDownloadScriptNotification: string;
-
-declare var RCTBridgeDidDownloadScriptNotificationBridgeDescriptionKey: string;
-
-declare var RCTBridgeDidDownloadScriptNotificationReasonKey: string;
-
-declare var RCTBridgeDidDownloadScriptNotificationSourceKey: string;
-
-declare var RCTBridgeDidInvalidateModulesNotification: string;
-
-declare var RCTBridgeFastRefreshNotification: string;
 
 interface RCTBridgeModule extends NSObjectProtocol {
   bridge?: RCTBridge;
@@ -210,26 +80,10 @@ declare var RCTBridgeModule: {
 
 declare function RCTBridgeModuleNameForClass(bridgeModuleClass: typeof NSObject): string;
 
-declare var RCTBridgeWillBeInvalidatedNotification: string;
-
-declare var RCTBridgeWillDownloadScriptNotification: string;
-
-declare var RCTBridgeWillInvalidateModulesNotification: string;
-
-declare var RCTBridgeWillReloadNotification: string;
-
 declare class RCTBundleManager extends NSObject {
   static alloc(): RCTBundleManager; // inherited from NSObject
 
   static new(): RCTBundleManager; // inherited from NSObject
-
-  bundleURL: NSURL;
-
-  resetBundleURL(): void;
-
-  setBridge(bridge: RCTBridge): void;
-
-  setBridgelessBundleURLGetterAndSetterAndDefaultGetter(getter: () => NSURL, setter: (p1: NSURL) => void, defaultGetter: () => NSURL): void;
 }
 
 declare function RCTBundlePathForURL(URL: NSURL): string;
@@ -270,43 +124,11 @@ declare class RCTConvert extends NSObject {
 
 declare function RCTCurrentThreadName(): string;
 
-declare class RCTCxxBridge extends RCTBridge {
-  static alloc(): RCTCxxBridge; // inherited from NSObject
-
-  static currentBridge(): RCTCxxBridge; // inherited from RCTBridge
-
-  static new(): RCTCxxBridge; // inherited from NSObject
-
-  readonly runtime: interop.Pointer | interop.Reference<any>;
-
-  constructor(o: { parentBridge: RCTBridge });
-
-  initWithParentBridge(bridge: RCTBridge): this;
-}
-
 declare function RCTDataURL(mimeType: string, data: NSData): NSURL;
 
 declare var RCTDefaultLogFunction: (p1: RCTLogLevel, p2: RCTLogSource, p3: string, p4: number, p5: string) => void;
 
-declare var RCTDidInitializeModuleNotification: string;
-
-declare var RCTDidSetupModuleNotification: string;
-
-declare var RCTDidSetupModuleNotificationModuleNameKey: string;
-
-declare var RCTDidSetupModuleNotificationSetupTimeKey: string;
-
-declare function RCTDisableTurboModuleManagerDelegateLocking(enabled: boolean): void;
-
-declare function RCTDisableViewConfigEventValidAttributes(disabled: boolean): void;
-
 declare function RCTDropReactPrefixes(s: string): string;
-
-declare function RCTEnableTurboModule(enabled: boolean): void;
-
-declare function RCTEnableTurboModuleEagerInit(enabled: boolean): void;
-
-declare function RCTEnableTurboModuleSharedMutexInit(enabled: boolean): void;
 
 declare function RCTEnforceNewArchitectureValidation(type: RCTNotAllowedValidation, context: any, extra: string): void;
 
@@ -319,6 +141,88 @@ declare var RCTErrorUnspecified: string;
 declare function RCTErrorWithMessage(message: string): NSError;
 
 declare function RCTErrorWithNSException(exception: NSException): NSError;
+
+declare class RCTEventEmitter extends NSObject implements RCTBridgeModule, RCTInvalidating {
+  static alloc(): RCTEventEmitter; // inherited from NSObject
+
+  static moduleName(): string;
+
+  static new(): RCTEventEmitter; // inherited from NSObject
+
+  static requiresMainQueueSetup(): boolean;
+
+  bridge: RCTBridge;
+
+  bundleManager: RCTBundleManager; // inherited from RCTBridgeModule
+
+  callableJSModules: RCTCallableJSModules; // inherited from RCTBridgeModule
+
+  readonly debugDescription: string; // inherited from NSObjectProtocol
+
+  readonly description: string; // inherited from NSObjectProtocol
+
+  readonly hash: number; // inherited from NSObjectProtocol
+
+  readonly isProxy: boolean; // inherited from NSObjectProtocol
+
+  readonly methodQueue: NSObject; // inherited from RCTBridgeModule
+
+  moduleRegistry: RCTModuleRegistry; // inherited from RCTBridgeModule
+
+  readonly superclass: typeof NSObject; // inherited from NSObjectProtocol
+
+  viewRegistry_DEPRECATED: RCTViewRegistry; // inherited from RCTBridgeModule
+
+  readonly; // inherited from NSObjectProtocol
+
+  constructor(o: { disabledObservation: void });
+
+  addListener(eventName: string): void;
+
+  batchDidComplete(): void;
+
+  class(): typeof NSObject;
+
+  conformsToProtocol(aProtocol: any /* Protocol */): boolean;
+
+  constantsToExport(): NSDictionary<any, any>;
+
+  initWithDisabledObservation(): this;
+
+  invalidate(): void;
+
+  isEqual(object: any): boolean;
+
+  isKindOfClass(aClass: typeof NSObject): boolean;
+
+  isMemberOfClass(aClass: typeof NSObject): boolean;
+
+  methodsToExport(): NSArray<any>;
+
+  partialBatchDidFlush(): void;
+
+  performSelector(aSelector: string): any;
+
+  performSelectorWithObject(aSelector: string, object: any): any;
+
+  performSelectorWithObjectWithObject(aSelector: string, object1: any, object2: any): any;
+
+  removeListeners(count: number): void;
+
+  respondsToSelector(aSelector: string): boolean;
+
+  retainCount(): number;
+
+  self(): this;
+
+  sendEventWithNameBody(name: string, body: any): void;
+
+  startObserving(): void;
+
+  stopObserving(): void;
+
+  supportedEvents(): NSArray<string>;
+}
 
 declare function RCTExecuteOnMainQueue(block: () => void): void;
 
@@ -379,11 +283,11 @@ declare function RCTGetLogFunction(): (p1: RCTLogLevel, p2: RCTLogSource, p3: st
 
 declare function RCTGetLogThreshold(): RCTLogLevel;
 
-declare function RCTGetModuleClasses(): NSArray<typeof NSObject>;
+declare function RCTGetModuleClassForName(moduleName: string): typeof NSObject;
+
+declare function RCTGetModuleClasses(): NSDictionary<string, typeof NSObject>;
 
 declare function RCTGetRGBAColorComponents(color: any, rgba: interop.Reference<number>): void;
-
-declare function RCTGetTurboModuleCleanupMode(): RCTTurboModuleCleanupMode;
 
 declare function RCTGetURLQueryParam(URL: NSURL, param: string): string;
 
@@ -394,6 +298,13 @@ declare function RCTHumanReadableType(obj: NSObject): string;
 declare function RCTImageFromLocalAssetURL(imageURL: NSURL): UIImage;
 
 declare function RCTImageFromLocalBundleAssetURL(imageURL: NSURL): UIImage;
+
+interface RCTInitializing extends NSObjectProtocol {
+  initialize(): void;
+}
+declare var RCTInitializing: {
+  prototype: RCTInitializing;
+};
 
 interface RCTInvalidating extends NSObjectProtocol {
   invalidate(): void;
@@ -411,6 +322,8 @@ declare function RCTIsLibraryAssetURL(imageURL: NSURL): boolean;
 declare function RCTIsLocalAssetURL(imageURL: NSURL): boolean;
 
 declare function RCTIsMainQueue(): boolean;
+
+declare function RCTIsMainQueueExecutionOfConstantsToExportDisabled(): boolean;
 
 declare function RCTIsMainQueueFunction(): boolean;
 
@@ -433,10 +346,6 @@ declare var RCTJSRawStackTraceKey: string;
 declare var RCTJSStackTraceKey: string;
 
 declare var RCTJSThread: NSObject;
-
-declare var RCTJavaScriptDidFailToLoadNotification: string;
-
-declare var RCTJavaScriptDidLoadNotification: string;
 
 interface RCTJavaScriptExecutor extends RCTBridgeModule, RCTInvalidating {
   valid: boolean;
@@ -492,10 +401,6 @@ declare const RCTJavaScriptLoaderErrorFailedStatingFile: number;
 declare const RCTJavaScriptLoaderErrorNoScriptURL: number;
 
 declare const RCTJavaScriptLoaderErrorURLLoadFailed: number;
-
-declare var RCTJavaScriptWillStartExecutingNotification: string;
-
-declare var RCTJavaScriptWillStartLoadingNotification: string;
 
 declare function RCTKeyWindow(): UIWindow;
 
@@ -555,6 +460,82 @@ interface RCTMethodInfo {
   isSync: boolean;
 }
 declare var RCTMethodInfo: interop.StructType<RCTMethodInfo>;
+
+declare class RCTModuleData extends NSObject implements RCTInvalidating {
+  static alloc(): RCTModuleData; // inherited from NSObject
+
+  static new(): RCTModuleData; // inherited from NSObject
+
+  readonly exportedConstants: NSDictionary<string, any>;
+
+  readonly hasConstantsToExport: boolean;
+
+  readonly hasInstance: boolean;
+
+  readonly implementsBatchDidComplete: boolean;
+
+  readonly implementsPartialBatchDidFlush: boolean;
+
+  instance: RCTBridgeModule;
+
+  readonly methodQueue: NSObject;
+
+  readonly moduleClass: typeof NSObject;
+
+  readonly name: string;
+
+  requiresMainQueueSetup: boolean;
+
+  readonly debugDescription: string; // inherited from NSObjectProtocol
+
+  readonly description: string; // inherited from NSObjectProtocol
+
+  readonly hash: number; // inherited from NSObjectProtocol
+
+  readonly isProxy: boolean; // inherited from NSObjectProtocol
+
+  readonly superclass: typeof NSObject; // inherited from NSObjectProtocol
+
+  readonly; // inherited from NSObjectProtocol
+
+  constructor(o: { moduleClass: typeof NSObject; bridge: RCTBridge; moduleRegistry: RCTModuleRegistry; viewRegistry_DEPRECATED: RCTViewRegistry; bundleManager: RCTBundleManager; callableJSModules: RCTCallableJSModules });
+
+  constructor(o: { moduleClass: typeof NSObject; moduleProvider: () => RCTBridgeModule; bridge: RCTBridge; moduleRegistry: RCTModuleRegistry; viewRegistry_DEPRECATED: RCTViewRegistry; bundleManager: RCTBundleManager; callableJSModules: RCTCallableJSModules });
+
+  constructor(o: { moduleInstance: RCTBridgeModule; bridge: RCTBridge; moduleRegistry: RCTModuleRegistry; viewRegistry_DEPRECATED: RCTViewRegistry; bundleManager: RCTBundleManager; callableJSModules: RCTCallableJSModules });
+
+  class(): typeof NSObject;
+
+  conformsToProtocol(aProtocol: any /* Protocol */): boolean;
+
+  gatherConstants(): void;
+
+  initWithModuleClassBridgeModuleRegistryViewRegistry_DEPRECATEDBundleManagerCallableJSModules(moduleClass: typeof NSObject, bridge: RCTBridge, moduleRegistry: RCTModuleRegistry, viewRegistry_DEPRECATED: RCTViewRegistry, bundleManager: RCTBundleManager, callableJSModules: RCTCallableJSModules): this;
+
+  initWithModuleClassModuleProviderBridgeModuleRegistryViewRegistry_DEPRECATEDBundleManagerCallableJSModules(moduleClass: typeof NSObject, moduleProvider: () => RCTBridgeModule, bridge: RCTBridge, moduleRegistry: RCTModuleRegistry, viewRegistry_DEPRECATED: RCTViewRegistry, bundleManager: RCTBundleManager, callableJSModules: RCTCallableJSModules): this;
+
+  initWithModuleInstanceBridgeModuleRegistryViewRegistry_DEPRECATEDBundleManagerCallableJSModules(instance: RCTBridgeModule, bridge: RCTBridge, moduleRegistry: RCTModuleRegistry, viewRegistry_DEPRECATED: RCTViewRegistry, bundleManager: RCTBundleManager, callableJSModules: RCTCallableJSModules): this;
+
+  invalidate(): void;
+
+  isEqual(object: any): boolean;
+
+  isKindOfClass(aClass: typeof NSObject): boolean;
+
+  isMemberOfClass(aClass: typeof NSObject): boolean;
+
+  performSelector(aSelector: string): any;
+
+  performSelectorWithObject(aSelector: string, object: any): any;
+
+  performSelectorWithObjectWithObject(aSelector: string, object1: any, object2: any): any;
+
+  respondsToSelector(aSelector: string): boolean;
+
+  retainCount(): number;
+
+  self(): this;
+}
 
 declare class RCTModuleRegistry extends NSObject {
   static alloc(): RCTModuleRegistry; // inherited from NSObject
@@ -627,11 +608,11 @@ declare function RCTSetFatalExceptionHandler(fatalExceptionHandler: (p1: NSExcep
 
 declare function RCTSetFatalHandler(fatalHandler: (p1: NSError) => void): void;
 
+declare function RCTSetIsMainQueueExecutionOfConstantsToExportDisabled(val: boolean): void;
+
 declare function RCTSetLogFunction(logFunction: (p1: RCTLogLevel, p2: RCTLogSource, p3: string, p4: number, p5: string) => void): void;
 
 declare function RCTSetLogThreshold(threshold: RCTLogLevel): void;
-
-declare function RCTSetTurboModuleCleanupMode(mode: RCTTurboModuleCleanupMode): void;
 
 declare function RCTSharedApplication(): UIApplication;
 
@@ -671,20 +652,6 @@ declare var RCTTriggerReloadCommandNotification: string;
 
 declare var RCTTriggerReloadCommandReasonKey: string;
 
-declare const enum RCTTurboModuleCleanupMode {
-  kRCTGlobalScope = 0,
-
-  kRCTGlobalScopeUsingRetainJSCallback = 1,
-
-  kRCTTurboModuleManagerScope = 2,
-}
-
-declare function RCTTurboModuleEagerInitEnabled(): boolean;
-
-declare function RCTTurboModuleEnabled(): boolean;
-
-declare function RCTTurboModuleManagerDelegateLockingDisabled(): boolean;
-
 interface RCTTurboModuleRegistry extends NSObjectProtocol {
   eagerInitMainQueueModuleNames(): NSArray<string>;
 
@@ -699,8 +666,6 @@ interface RCTTurboModuleRegistry extends NSObjectProtocol {
 declare var RCTTurboModuleRegistry: {
   prototype: RCTTurboModuleRegistry;
 };
-
-declare function RCTTurboModuleSharedMutexInitEnabled(): boolean;
 
 declare function RCTUIKitLocalizedString(string: string): string;
 
@@ -723,8 +688,6 @@ declare class RCTUtilsUIOverride extends NSObject {
 }
 
 declare function RCTValidateTypeOfViewCommandArgument(obj: NSObject, expectedClass: any, expectedType: string, componentName: string, commandName: string, argPos: string): boolean;
-
-declare function RCTViewConfigEventValidAttributesDisabled(): boolean;
 
 declare class RCTViewRegistry extends NSObject {
   static alloc(): RCTViewRegistry; // inherited from NSObject
