@@ -38,8 +38,6 @@ Class RCTGetModuleClassForName(NSString * moduleName)
     return result;
 }
 
-
-
 /**
  * Register the given class as a bridge module. All modules must be registered
  * prior to the first bridge initialization.
