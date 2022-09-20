@@ -175,9 +175,9 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
                  args:(NSArray *)args
            completion:(dispatch_block_t)completion
 {
-    if (JSModuleInvokerCallback)  {
-        JSModuleInvokerCallback(module,method,args,completion);
-    }
+  if (JSModuleInvokerCallback)  {
+    JSModuleInvokerCallback(module,method,args,completion);
+  }
 }
 
 - (void)enqueueCallback:(NSNumber *)cbID args:(NSArray *)args
