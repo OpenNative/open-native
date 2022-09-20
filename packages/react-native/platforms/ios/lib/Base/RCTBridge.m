@@ -182,7 +182,7 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
 
 - (void)enqueueCallback:(NSNumber *)cbID args:(NSArray *)args
 {
-    //Most probably not needed by any modules.
+  // Most probably not needed by any modules.
 }
 
 @end
