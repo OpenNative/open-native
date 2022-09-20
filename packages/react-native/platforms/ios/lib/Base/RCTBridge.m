@@ -151,13 +151,13 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
 }
 
 -(instancetype)init {
-    if (self = [super init]) {
-        RCTCurrentBridgeInstance = self;
-        nativeModules = [NSMutableDictionary new];
-        moduleRegistry = [[RCTModuleRegistry alloc] init];
-        [moduleRegistry setBridge:self];
-        _callableJSModules = [[RCTCallableJSModules alloc] init];
-        [_callableJSModules setBridge:self];
+  if (self = [super init]) {
+    RCTCurrentBridgeInstance = self;
+    nativeModules = [NSMutableDictionary new];
+    moduleRegistry = [[RCTModuleRegistry alloc] init];
+    [moduleRegistry setBridge:self];
+    _callableJSModules = [[RCTCallableJSModules alloc] init];
+    [_callableJSModules setBridge:self];
     }
   return self;
 }
