@@ -1,6 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    // The whole package could be in ES6 were it not for the hook.
+    // TODO: figure out how to have a separate tsconfig just for the hook.
+    "module": "CommonJS",
     "outDir": "../../dist/out-tsc",
     "rootDir": ".",
     "allowJs": true

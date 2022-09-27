@@ -12,6 +12,12 @@
         "main": "packages/react-native/index.d.ts",
         "assets": [
           "packages/react-native/*.md",
+          "packages/react-native/hooks/before-prepareNativeApp.d.ts",
+          "packages/react-native/hooks/before-prepareNativeApp.js",
+          "packages/react-native/hooks/before-prepareNativeApp.js.map",
+          "packages/react-native/hooks/postinstall.d.ts",
+          "packages/react-native/hooks/postinstall.js",
+          "packages/react-native/hooks/postinstall.js.map",
           "packages/react-native/index.d.ts",
           "packages/react-native/react-android/**/*",
           "packages/react-native/platforms/ios/React.podspec",
