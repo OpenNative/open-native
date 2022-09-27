@@ -6,7 +6,8 @@
     "demo-react-native": "apps/demo-react-native",
     "react-native": "packages/react-native",
     "react-native-module-test": "packages/react-native-module-test",
-    "react-native-podspecs": "packages/react-native-podspecs"
+    "react-native-podspecs": "packages/react-native-podspecs",
+    "react-native-autolinking": "packages/react-native-autolinking"
   },
   "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }

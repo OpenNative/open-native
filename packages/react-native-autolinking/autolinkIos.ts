@@ -1,49 +1,40 @@
-const glob = require('glob');
-const path = require('path');
-const fs = require('fs');
-const cp = require('child_process');
-const { promisify } = require('util');
+import * as cp from 'child_process';
+import * as fs from 'fs';
+import * as glob from 'glob';
+import type { IOptions } from 'glob';
+import * as path from 'path';
+import { promisify } from 'util';
+
 const execFile = promisify(cp.execFile);
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 
-const logPrefix = '[react-native-podspecs/hooks/before-prepareNativeApp.js]';
+const logPrefix = '[react-native-autolinking/autolinkIos.js]';
 
 /**
- * @param {import('./hookArgs').HookArgs} hookArgs
+ * Given a list of dependencies, autolinks any podspecs found within them, using
+ * the React Native Community CLI search rules.
+ * @param {object} args
+ * @param args.dependencies The names of the npm dependencies to examine for
+ *   autolinking.
+ * @param args.projectDir The project directory (relative to which the package
+ *   should be resolved).
+ * @returns a list of package names in which podspecs were found and autolinked.
  */
-module.exports = async function (hookArgs) {
-  const {
-    projectData,
-    platformData: { platformNameLowerCase },
-  } = hookArgs;
-
-  // For now, we handle only iOS (as platforms other than iOS are experimental
-  // on NativeScript). We might come back for macOS one day! :D
-  if (platformNameLowerCase !== 'ios') {
-    return;
-  }
-
-  console.log(`${logPrefix} Autolinking React Native podspecs for iOS...`);
-
-  const { devDependencies, dependencies, ignoredDependencies, projectDir } =
-    projectData;
-
-  const ignoredDepsSet = new Set(ignoredDependencies);
-  const depsArr = Object.keys({ ...devDependencies, ...dependencies }).filter(
-    (key) => !ignoredDepsSet.has(key)
-  );
-
-  /**
-   * @type {({
-   *   packageName: string;
-   *   headerEntry: string;
-   *   podfileEntry: string;
-   * }[]}
-   */
+export async function autolinkIos({
+  dependencies,
+  projectDir,
+  outputHeaderPath,
+  outputPodfilePath,
+}: {
+  dependencies: string[];
+  projectDir: string;
+  outputHeaderPath: string;
+  outputPodfilePath: string;
+}) {
   const autolinkingInfo = (
     await Promise.all(
-      depsArr.map((packageName) =>
+      dependencies.map((packageName) =>
         mapPackageNameToAutolinkingInfo(packageName, projectDir)
       )
     )
@@ -51,42 +42,29 @@ module.exports = async function (hookArgs) {
     .filter((p) => !!p)
     .flat(1);
 
-  const green = '\x1b[32m';
-  const reset = '\x1b[0m';
-  autolinkingInfo.forEach(({ packageName }) =>
-    console.log(`${logPrefix} Autolinked ${green}${packageName}${reset}!`)
-  );
-
-  // TODO: log out the names of all the packages we're autolinking.
-
-  /**
-   * @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-podspecs'
-   */
-  const reactNativePodspecsPackageDir = path.dirname(__dirname);
-
   await Promise.all([
     await writeHeaderFile({
       headerEntries: autolinkingInfo.map(({ headerEntry }) => headerEntry),
-      reactNativePodspecsPackageDir,
+      outputHeaderPath,
     }),
     await writePodfile({
       autolinkedDeps: autolinkingInfo.map(({ podfileEntry }) => podfileEntry),
-      reactNativePodspecsPackageDir,
+      outputPodfilePath,
     }),
   ]);
 
-  console.log(
-    `${logPrefix} ... Finished autolinking React Native podspecs for iOS.`
-  );
-};
+  return autolinkingInfo.map(({ packageName }) => packageName);
+}
 
 /**
- * @param {string} packageName The package name, e.g.
- *   'react-native-module-test'
- * @param {string} projectDir The project directory (relative to which the
- *   package should be resolved).
+ * @param packageName The package name, e.g. 'react-native-module-test'.
+ * @param projectDir The project directory (relative to which the package should
+ *   be resolved).
  */
-async function mapPackageNameToAutolinkingInfo(packageName, projectDir) {
+async function mapPackageNameToAutolinkingInfo(
+  packageName: string,
+  projectDir: string
+) {
   const packagePath = path.dirname(
     require.resolve(`${packageName}/package.json`, { paths: [projectDir] })
   );
@@ -114,15 +92,12 @@ async function mapPackageNameToAutolinkingInfo(packageName, projectDir) {
   /**
    * These are the typings (that we're interested in), assuming a valid podspec.
    * We'll handle it in a failsafe manner.
-   * @type {{
-   *   name?: string;
-   *   source_files?: string|string[];
-   *   ios?: {
-   *     source_files?: string|string[];
-   *   };
-   * }}
    */
-  const podspecParsed = JSON.parse(podspecContents);
+  const podspecParsed: {
+    name?: string;
+    source_files?: string | string[];
+    ios?: { source_files?: string | string[] };
+  } = JSON.parse(podspecContents);
 
   // The other platforms are 'osx', 'macos', 'tvos', and 'watchos'.
   const {
@@ -172,13 +147,20 @@ async function mapPackageNameToAutolinkingInfo(packageName, projectDir) {
 /**
  * Resolve the appropriate podspec using the React Native Community CLI rules.
  * @param {object} args
- * @param {string} args.packageName The package name, e.g.
- *   'react-native-module-test'
- * @param {string} args.packagePath The absolute path to the package, e.g.
+ * @param args.packageName The package name, e.g. 'react-native-module-test'.
+ * @param args.packagePath The absolute path to the package, e.g.
  *   '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test'
- * @param {string[]} args.podspecs An array of absolute paths to podspecs.
+ * @param args.podspecs An array of absolute paths to podspecs.
  */
-function resolvePodspecFilePath({ packageName, packagePath, podspecs }) {
+function resolvePodspecFilePath({
+  packageName,
+  packagePath,
+  podspecs,
+}: {
+  packageName: string;
+  packagePath: string;
+  podspecs: string[];
+}) {
   const packagePodspec = path.join(packageName, `${packagePath}.podspec`);
 
   // If there are multiple podspecs, prefer the podspec named after the package
@@ -196,17 +178,19 @@ function resolvePodspecFilePath({ packageName, packagePath, podspecs }) {
 /**
  * Build a unique-membered array of source files referenced by a podspec.
  * @param {object} args
- * @param {string|string[]} args.commonSourceFiles The `source_files` value from
- *   the podspec.
- * @param {string|string[]} args.iosSourceFiles The `ios.source_files` from the
- *   podspec.
- * @param {string} args.packagePath The absolute path to the package, e.g.
+ * @param args.commonSourceFiles The `source_files` value from the podspec.
+ * @param args.iosSourceFiles The `ios.source_files` from the podspec.
+ * @param args.packagePath The absolute path to the package, e.g.
  *   '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test'
  */
 async function getSourceFilePaths({
   commonSourceFiles,
   iosSourceFiles,
   packagePath,
+}: {
+  commonSourceFiles: string | string[];
+  iosSourceFiles: string | string[];
+  packagePath: string;
 }) {
   // Normalise to an array, treating empty-string as an empty array.
   const commonSourceFilesArr = commonSourceFiles
@@ -246,12 +230,7 @@ async function getSourceFilePaths({
   return sourceFilePaths;
 }
 
-/**
- * @param {string} pattern
- * @param {import('glob').IOptions} options
- * @returns {Promise<string[]>}
- */
-function globProm(pattern, options) {
+function globProm(pattern: string, options: IOptions): Promise<string[]> {
   return new Promise((resolve, reject) => {
     glob(pattern, options, (err, matches) => {
       return err ? reject(err) : resolve(matches);
@@ -262,9 +241,8 @@ function globProm(pattern, options) {
 /**
  * Extracts interfaces representing the methods added to any RCTBridgeModule by
  * macros (e.g. RCT_EXPORT_METHOD).
- * @param {string} sourceCode
  */
-function extractInterfaces(sourceCode) {
+function extractInterfaces(sourceCode: string) {
   /**
    * A record of JS bridge module names to method signatures.
    * @example
@@ -278,7 +256,7 @@ function extractInterfaces(sourceCode) {
     ...sourceCode.matchAll(
       /\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm
     ),
-  ].reduce((acc, matches) => {
+  ].reduce<Record<string, string[]>>((acc, matches) => {
     const [fullMatch, objcClassName] = matches;
     if (!objcClassName) {
       return acc;
@@ -333,7 +311,7 @@ function extractInterfaces(sourceCode) {
     acc[jsModuleName] = allMethods;
 
     return acc;
-  }, /** @type {Record<string, string[]>} */ ({}));
+  }, {});
 
   /**
    * For each module name, form an interface from the extracted method
@@ -347,7 +325,7 @@ function extractInterfaces(sourceCode) {
    *  - (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;
    * @end
    */
-  const interface = Object.keys(moduleNamesToMethods)
+  const interfaceDecl = Object.keys(moduleNamesToMethods)
     .map((jsModuleName) => {
       const methodSignatures = moduleNamesToMethods[jsModuleName];
       return [
@@ -358,18 +336,20 @@ function extractInterfaces(sourceCode) {
     })
     .join('\n\n');
 
-  return interface;
+  return interfaceDecl;
 }
 
 /**
  * Gets the aliased name for a bridge module if there is one.
- * @param {string} classImplementation The source code for the bridge module's
+ * @param classImplementation The source code for the bridge module's
  *   class implementation.
- * @returns {string|undefined} The aliased name for the bridge module as a
+ * @returns The aliased name for the bridge module as a
  *   string, or undefined if no alias was registered (in which case, the Obj-C
  *   class name should be used for the bridge module as-is).
  */
-function extractBridgeModuleAliasedName(classImplementation) {
+function extractBridgeModuleAliasedName(
+  classImplementation: string
+): string | undefined {
   const exportModuleMatches = [
     ...classImplementation.matchAll(/RCT_EXPORT_MODULE\((.*)\)/gm),
   ];
@@ -381,6 +361,7 @@ function extractBridgeModuleAliasedName(classImplementation) {
       /RCT_EXPORT_PRE_REGISTERED_MODULE\((.*)\)/gm
     ),
   ];
+
   return (
     exportModuleMatches[0]?.[1] ||
     exportModuleNoLoadMatches[0]?.[1] ||
@@ -391,18 +372,17 @@ function extractBridgeModuleAliasedName(classImplementation) {
 /**
  *
  * @param {object} args
- * @param {string[]} args.autolinkedDeps podfile entries for each React Native
+ * @param args.autolinkedDeps podfile entries for each React Native
  *   dependency to be autolinked.
- * @param {string} args.reactNativePodspecsPackageDir An absolute path to the
- *   react-native-podspecs directory.
- * @returns
+ * @param args.outputPodfilePath An absolute path to output the Podfile to.
  */
-async function writePodfile({ autolinkedDeps, reactNativePodspecsPackageDir }) {
-  const outputPodfilePath = path.resolve(
-    reactNativePodspecsPackageDir,
-    'platforms/ios/Podfile'
-  );
-
+async function writePodfile({
+  autolinkedDeps,
+  outputPodfilePath,
+}: {
+  autolinkedDeps: string[];
+  outputPodfilePath: string;
+}) {
   /**
    * Depending on React and/or React-Core supports RNPodspecs.h, which imports
    * the <React/RCTBridgeModule.h> header. I'm not sure whether to include
@@ -442,22 +422,18 @@ async function writePodfile({ autolinkedDeps, reactNativePodspecsPackageDir }) {
 
 /**
  * @param {object} args
- * @param {string[]} args.headerEntries Sections of the header file to be filled
- *   in.
- * @param {string} args.reactNativePodspecsPackageDir An absolute path to the
- *   react-native-podspecs directory.
+ * @param args.headerEntries Sections of the header file to be filled in.
+ * @param args.outputHeaderPath An absolute path to output the header to.
  * @returns A Promise to write the header file into the react-native-podspecs
  *   package.
  */
 async function writeHeaderFile({
   headerEntries,
-  reactNativePodspecsPackageDir,
+  outputHeaderPath,
+}: {
+  headerEntries: string[];
+  outputHeaderPath: string;
 }) {
-  const outputHeaderPath = path.resolve(
-    reactNativePodspecsPackageDir,
-    'platforms/ios/lib/RNPodspecs.h'
-  );
-
   const RNPodspecsInterface = [
     '// START: react-native-podspecs placeholder interface',
     '@interface RNPodspecs: NSObject',

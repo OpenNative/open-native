@@ -9,6 +9,7 @@
 <Button text="react-native" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
 <Button text="react-native-module-test" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
 <Button text="react-native-podspecs" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
+<Button text="react-native-autolinking" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
       </StackLayout>
     </ScrollView>
   </StackLayout>

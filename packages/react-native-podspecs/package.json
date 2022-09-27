@@ -2,7 +2,7 @@
   "name": "@ammarahm-ed/react-native-podspecs",
   "version": "1.0.0",
   "description": "Add a plugin description",
-  "main": "index",
+  "main": "index.js",
   "typings": "index.d.ts",
   "scripts": {
     "postinstall": "node hooks/postinstall.js"
@@ -18,6 +18,9 @@
         "inject": true
       }
     ]
+  },
+  "dependencies": {
+    "@ammarahm-ed/react-native-autolinking": "^1.0.0"
   },
   "repository": {
     "type": "git",

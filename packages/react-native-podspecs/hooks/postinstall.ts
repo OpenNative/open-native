@@ -1,6 +1,14 @@
-const path = require('path');
+import * as path from 'path';
+import * as NativeScriptHook from '@nativescript/hook';
+
+interface NativeScriptHookType {
+  findProjectDir(): void;
+  preuninstall(): void;
+  postinstall(): void;
+}
+
 const pluginDir = path.dirname(__dirname);
-const hook = require('@nativescript/hook')(pluginDir);
+const hook: NativeScriptHookType = NativeScriptHook(pluginDir);
 
 /**
  * By calling this, each entry specified in the `nativescript.hooks` field in this

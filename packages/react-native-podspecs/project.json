@@ -12,6 +12,12 @@
         "main": "packages/react-native-podspecs/index.d.ts",
         "assets": [
           "packages/react-native-podspecs/*.md",
+          "packages/react-native-podspecs/hooks/before-prepareNativeApp.d.ts",
+          "packages/react-native-podspecs/hooks/before-prepareNativeApp.js",
+          "packages/react-native-podspecs/hooks/before-prepareNativeApp.js.map",
+          "packages/react-native-podspecs/hooks/postinstall.d.ts",
+          "packages/react-native-podspecs/hooks/postinstall.js",
+          "packages/react-native-podspecs/hooks/postinstall.js.map",
           "packages/react-native-podspecs/index.d.ts",
           "packages/react-native-podspecs/platforms/ios/ReactNativePodspecs.podspec",
           "LICENSE",
@@ -19,11 +25,6 @@
             "glob": "**/*",
             "input": "packages/react-native-podspecs/platforms/",
             "output": "./platforms/"
-          },
-          {
-            "glob": "**/*",
-            "input": "packages/react-native-podspecs/hooks/",
-            "output": "./hooks/"
           }
         ]
       },
@@ -37,7 +38,9 @@
     "build.all": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": ["node tools/scripts/build-finish.ts react-native-podspecs"],
+        "commands": [
+          "node tools/scripts/build-finish.ts react-native-podspecs"
+        ],
         "parallel": false
       },
       "outputs": ["dist/packages/react-native-podspecs"],
@@ -55,7 +58,9 @@
     "focus": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": ["nx g @nativescript/plugin-tools:focus-packages react-native-podspecs"],
+        "commands": [
+          "nx g @nativescript/plugin-tools:focus-packages react-native-podspecs"
+        ],
         "parallel": false
       }
     },

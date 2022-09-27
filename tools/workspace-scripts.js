@@ -100,6 +100,13 @@ module.exports = {
           description: '@ammarahm-ed/react-native-podspecs: Build',
         },
       },
+      // @ammarahm-ed/react-native-autolinking
+      'react-native-autolinking': {
+        build: {
+          script: 'nx run react-native-autolinking:build.all',
+          description: '@ammarahm-ed/react-native-autolinking: Build',
+        },
+      },
       'build-all': {
         script: 'nx run-many --target=build.all --all',
         description: 'Build all packages',
@@ -121,6 +128,10 @@ module.exports = {
       'react-native-podspecs': {
         script: 'nx run react-native-podspecs:focus',
         description: 'Focus on @ammarahm-ed/react-native-podspecs',
+      },
+      'react-native-autolinking': {
+        script: 'nx run react-native-autolinking:focus',
+        description: 'Focus on @ammarahm-ed/react-native-autolinking',
       },
       reset: {
         script: 'nx g @ammarahm-ed/plugin-tools:focus-packages',

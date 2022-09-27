@@ -1,10 +1,11 @@
 {
   "main": "./src/main.ts",
   "dependencies": {
-    "@nativescript/core": "file:../../node_modules/@nativescript/core",
     "@ammarahm-ed/react-native": "file:../../dist/packages/react-native",
+    "@ammarahm-ed/react-native-autolinking": "file:../../dist/packages/react-native-autolinking",
     "@ammarahm-ed/react-native-module-test": "file:../../dist/packages/react-native-module-test",
-    "@ammarahm-ed/react-native-podspecs": "file:../../dist/packages/react-native-podspecs"
+    "@ammarahm-ed/react-native-podspecs": "file:../../dist/packages/react-native-podspecs",
+    "@nativescript/core": "file:../../node_modules/@nativescript/core"
   },
   "devDependencies": {
     "@nativescript/android": "~8.3.0",

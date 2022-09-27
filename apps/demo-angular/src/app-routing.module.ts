@@ -8,6 +8,7 @@ const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'react-native', loadChildren: () => import('./plugin-demos/react-native.module').then((m) => m.ReactNativeModule) },
+  { path: 'react-native-autolinking', loadChildren: () => import('./plugin-demos/react-native-autolinking.module').then((m) => m.ReactNativeAutolinkingModule) },
   { path: 'react-native-module-test', loadChildren: () => import('./plugin-demos/react-native-module-test.module').then((m) => m.ReactNativeModuleTestModule) },
   { path: 'react-native-podspecs', loadChildren: () => import('./plugin-demos/react-native-podspecs.module').then((m) => m.ReactNativePodspecsModule) },
 ];
