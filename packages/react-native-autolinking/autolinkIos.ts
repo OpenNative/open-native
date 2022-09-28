@@ -21,6 +21,8 @@ const logPrefix = '[react-native-autolinking/autolinkIos.js]';
  *   should be resolved).
  * @param args.outputHeaderPath An absolute path to output the header to.
  * @param args.outputPodfilePath An absolute path to output the Podfile to.
+ * @param args.outputModuleMapPath An absolute path to output the module map to.
+ *   (Just a JSON file. Not to be confused with a clang module.modulemap file).
  * @returns a list of package names in which podspecs were found and autolinked.
  */
 export async function autolinkIos({
@@ -28,11 +30,13 @@ export async function autolinkIos({
   projectDir,
   outputHeaderPath,
   outputPodfilePath,
+  outputModuleMapPath,
 }: {
   dependencies: string[];
   projectDir: string;
   outputHeaderPath: string;
   outputPodfilePath: string;
+  outputModuleMapPath: string;
 }) {
   const autolinkingInfo = (
     await Promise.all(
@@ -44,6 +48,13 @@ export async function autolinkIos({
     .filter((p) => !!p)
     .flat(1);
 
+  const moduleNamesToMethodDescriptionsCombined = autolinkingInfo.reduce(
+    (acc, { moduleNamesToMethodDescriptions }) => {
+      return Object.assign(acc, moduleNamesToMethodDescriptions);
+    },
+    {}
+  );
+
   await Promise.all([
     await writeHeaderFile({
       headerEntries: autolinkingInfo.map(({ headerEntry }) => headerEntry),
@@ -53,6 +64,11 @@ export async function autolinkIos({
     await writePodfile({
       autolinkedDeps: autolinkingInfo.map(({ podfileEntry }) => podfileEntry),
       outputPodfilePath,
+    }),
+
+    await writeModuleMapFile({
+      moduleNamesToMethodDescriptions: moduleNamesToMethodDescriptionsCombined,
+      outputModuleMapPath,
     }),
   ]);
 
@@ -131,18 +147,22 @@ async function mapPackageNameToAutolinkingInfo(
 
       const interfaces = extractInterfaces(sourceFileContents);
 
-      const podfileEntry = `pod '${podSpecName}', path: "${podspecFilePath}"`;
-
-      // A comment to write into the header to indicate where the interfaces
-      // that we're about to extract came from.
-      // const headerEntry = `// START: ${comment}\n${interfaces}`;
       const headerEntry = [
+        // A comment to write into the header to indicate where the interfaces
+        // that we're about to extract came from.
         `// START: ${packageName}/${podspecFileName}`,
-        interfaces,
+        interfaces.interfaceDecl,
         `// END: ${packageName}/${podspecFileName}`,
       ].join('\n');
 
-      return { packageName, headerEntry, podfileEntry };
+      const podfileEntry = `pod '${podSpecName}', path: "${podspecFilePath}"`;
+      return {
+        packageName,
+        headerEntry,
+        podfileEntry,
+        moduleNamesToMethodDescriptions:
+          interfaces.moduleNamesToMethodDescriptions,
+      };
     })
   );
 }
@@ -247,19 +267,23 @@ function globProm(pattern: string, options: IOptions): Promise<string[]> {
  */
 function extractInterfaces(sourceCode: string) {
   /**
-   * A record of JS bridge module names to method signatures.
+   * A record of JS bridge module names to method descriptions.
    * @example
    * {
    *    RNTestModule: [
-   *      '(void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;'
+   *      {
+   *        name: 'show',
+   *        methodTypes: ['void', 'RCTPromiseResolveBlock', 'RCTPromiseRejectBlock'],
+   *        signature: '- (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;',
+   *      }
    *    ]
    * }
    */
-  const moduleNamesToMethods = [
+  const moduleNamesToMethodDescriptions = [
     ...sourceCode.matchAll(
       /\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm
     ),
-  ].reduce<Record<string, string[]>>((acc, matches) => {
+  ].reduce<ModuleNamesToMethodDescriptions>((acc, matches) => {
     const [fullMatch, objcClassName] = matches;
     if (!objcClassName) {
       return acc;
@@ -336,7 +360,21 @@ function extractInterfaces(sourceCode: string) {
       );
     }
 
-    acc[jsModuleName] = allMethods;
+    acc[jsModuleName] = allMethods.map((method) => {
+      /**
+       * Everything between brackets in the method signature.
+       * @example ["void", "RCTPromiseResolveBlock", "RCTPromiseRejectBlock"]
+       */
+      const methodTypes = [...method.matchAll(/\(.*?\)/g)].map((match) =>
+        match[0].replace(/[()]/g, '')
+      );
+
+      return {
+        signature: method,
+        name: method.replace('- (void)', '').split(':')[0],
+        methodTypes,
+      };
+    });
 
     return acc;
   }, {});
@@ -353,18 +391,31 @@ function extractInterfaces(sourceCode: string) {
    *  - (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;
    * @end
    */
-  const interfaceDecl = Object.keys(moduleNamesToMethods)
+  const interfaceDecl = Object.keys(moduleNamesToMethodDescriptions)
     .map((jsModuleName) => {
-      const methodSignatures = moduleNamesToMethods[jsModuleName];
+      const methodDescriptions = moduleNamesToMethodDescriptions[jsModuleName];
       return [
         `@interface ${jsModuleName}`,
-        methodSignatures.join('\n\n'),
+        methodDescriptions.map((record) => record.signature).join('\n\n'),
         '@end',
       ].join('\n');
     })
     .join('\n\n');
 
-  return interfaceDecl;
+  return {
+    interfaceDecl,
+    moduleNamesToMethodDescriptions,
+  };
+}
+
+interface MethodDescription {
+  name: string;
+  methodTypes: string[];
+  signature: string;
+}
+
+interface ModuleNamesToMethodDescriptions {
+  [moduleName: string]: MethodDescription[];
 }
 
 /**
@@ -479,4 +530,135 @@ async function writeHeaderFile({
   ].join('\n');
 
   return await writeFile(outputHeaderPath, header, { encoding: 'utf-8' });
+}
+
+/**
+ * @param {object} args
+ * @param args.moduleNamesToMethodDescriptions A record of JS bridge module
+ * names to method descriptions, e.g.:
+ * {
+ *    RNTestModule: [
+ *      {
+ *        name: 'show',
+ *        methodTypes: ['void', 'RCTPromiseResolveBlock', 'RCTPromiseRejectBlock'],
+ *        signature: '- (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;',
+ *      }
+ *    ]
+ * }
+ * @param args.outputModuleMapPath An absolute path to output the module map to.
+ * @returns A Promise to write the module map file into the specified location.
+ */
+async function writeModuleMapFile({
+  moduleNamesToMethodDescriptions,
+  outputModuleMapPath,
+}: {
+  moduleNamesToMethodDescriptions: ModuleNamesToMethodDescriptions;
+  outputModuleMapPath: string;
+}) {
+  const moduleNamesToMethodDescriptionsMinimal = Object.keys(
+    moduleNamesToMethodDescriptions
+  ).reduce<ModuleNamesToMethodDescriptionsMinimal>((acc, moduleName) => {
+    const methodDescriptions = moduleNamesToMethodDescriptions[moduleName];
+
+    acc[moduleName] = methodDescriptions.reduce<MethodDescriptionsMinimal>(
+      (innerAcc, methodDescription) => {
+        innerAcc[methodDescription.name] = methodDescription.methodTypes.map(
+          (paramType) => parseObjcTypeToEnum(paramType)
+        );
+        return innerAcc;
+      },
+      {}
+    );
+
+    return acc;
+  }, {});
+
+  return await writeFile(
+    outputModuleMapPath,
+    JSON.stringify(moduleNamesToMethodDescriptionsMinimal, null, 2) + '\n',
+    { encoding: 'utf-8' }
+  );
+}
+
+interface MethodDescriptionsMinimal {
+  [methodName: string]: RNObjcSerialisableType[];
+}
+
+interface ModuleNamesToMethodDescriptionsMinimal {
+  [moduleName: string]: MethodDescriptionsMinimal;
+}
+
+function parseObjcTypeToEnum(objcType: string): RNObjcSerialisableType {
+  // Crudely search for nullability annotations. We don't bother searching for
+  // nullable annotations, because that's our default nullability for each type
+  // that supports nullability.
+  const splitOnWhitespace = objcType.split(/\s+/);
+  const nonnull = splitOnWhitespace
+    .map((split) => split.trim().toLowerCase())
+    .includes('nonnull');
+
+  const splitBeforeGeneric = objcType.split('<')[0];
+
+  if (splitBeforeGeneric.includes('NSString')) {
+    return nonnull
+      ? RNObjcSerialisableType.nonnullString
+      : RNObjcSerialisableType.string;
+  }
+  if (splitBeforeGeneric.includes('NSNumber')) {
+    return nonnull
+      ? RNObjcSerialisableType.nonnullNumber
+      : RNObjcSerialisableType.number;
+  }
+  if (splitBeforeGeneric.includes('NSDictionary')) {
+    return nonnull
+      ? RNObjcSerialisableType.nonnullObject
+      : RNObjcSerialisableType.object;
+  }
+  if (splitBeforeGeneric.includes('NSArray')) {
+    return nonnull
+      ? RNObjcSerialisableType.nonnullArray
+      : RNObjcSerialisableType.array;
+  }
+
+  switch (objcType) {
+    case 'void': // This is only of relevance for parsing the return type.
+      return RNObjcSerialisableType.void;
+    case 'double':
+    case 'float': // deprecated
+    case 'CGFloat': // deprecated
+    case 'NSInteger': // deprecated
+      return RNObjcSerialisableType.nonnullNumber;
+    case 'BOOL':
+      return RNObjcSerialisableType.nonnullBoolean;
+    case 'RCTResponseSenderBlock':
+      return RNObjcSerialisableType.RCTResponseSenderBlock;
+    case 'RCTResponseErrorBlock':
+      return RNObjcSerialisableType.RCTResponseErrorBlock;
+    case 'RCTPromiseResolveBlock':
+      return RNObjcSerialisableType.RCTPromiseResolveBlock;
+    case 'RCTPromiseRejectBlock':
+      return RNObjcSerialisableType.RCTPromiseRejectBlock;
+    default:
+      return RNObjcSerialisableType.other;
+  }
+}
+
+export enum RNObjcSerialisableType {
+  other, // Anything we fail to parse!
+  void, // void
+  string, // NSString*
+  nonnullString, // nonnull NSString*
+  boolean, // NSNumber* (bounded between 0 and 1, presumably)
+  nonnullBoolean, // BOOL
+  number, // NSNumber*
+  nonnullNumber, // nonnull NSNumber*, double (and the deprecated float,
+  // CGFloat, and NSInteger)
+  array, // NSArray*
+  nonnullArray, // nonnull NSArray*
+  object, // NSDictionary*
+  nonnullObject, // nonnull NSDictionary*
+  RCTResponseSenderBlock,
+  RCTResponseErrorBlock,
+  RCTPromiseResolveBlock,
+  RCTPromiseRejectBlock,
 }
