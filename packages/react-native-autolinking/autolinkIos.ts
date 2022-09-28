@@ -274,33 +274,58 @@ function extractInterfaces(sourceCode: string) {
     /**
      * Extract the signatures of any methods registered using RCT_REMAP_METHOD.
      * @example
-     * ['(void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;']
+     * ['- (void)showWithRemappedName:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject']
      */
     const remappedMethods = [
       ...fullMatch.matchAll(/\s*RCT_REMAP_METHOD\((.|[\r\n])*?\)*?\{$/gm),
     ].map((match) => {
-      const [, fromMethodName] = match[0].split(/RCT_REMAP_METHOD\(\s*/);
-      const [methodName, afterMethodName] = fromMethodName.split(/\s*,/);
-      const methodArgs = afterMethodName.split(')').slice(0, -1).join(')');
+      const [
+        ,
+        /** @example 'showWithRemappedName , show : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject) {' */
+        fromMethodName,
+      ] = match[0].split(/RCT_REMAP_METHOD\(\s*/);
 
-      return `- (void)${methodName.trim()}${methodArgs
+      const [
+        /** @example 'showWithRemappedName' */
+        methodRemappedName,
+        /** @example ' show : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject) {' */
+        fromUnmappedMethodName,
+      ] = fromMethodName.split(/\s*,/);
+
+      /** @example 'show : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject' */
+      const methodUnmappedNameAndArgs = fromUnmappedMethodName
+        .split(')')
+        .slice(0, -1)
+        .join(')');
+
+      /** @example '- (void)showWithRemappedName:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject' */
+      return `- (void)${methodRemappedName.trim()}${methodUnmappedNameAndArgs
         .trim()
-        .split(/\s+/)
-        .join('\n')};`;
+        .replace(/\s*:\s*/g, ':')};`;
     });
 
     /**
      * Extract the signatures of any methods registered using RCT_EXPORT_METHOD.
      * @example
-     * ['(void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;']
+     * ['- (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject']
      */
     const exportedMethods = [
       ...fullMatch.matchAll(/\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{$/gm),
     ].map((match) => {
-      const [, macroContents] = match[0].split(/RCT_EXPORT_METHOD\(\s*/);
-      const methodArgs = macroContents.split(')').slice(0, -1).join(')');
+      const [
+        ,
+        /** @example 'show : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject) {' */
+        fromMethodName,
+      ] = match[0].split(/RCT_EXPORT_METHOD\(\s*/);
 
-      return `- (void)${methodArgs.trim().split(/\s+/).join('\n')};`;
+      /** @example 'show : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject' */
+      const methodNameAndArgs = fromMethodName
+        .split(')')
+        .slice(0, -1)
+        .join(')');
+
+      /** @example '- (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject' */
+      return `- (void)${methodNameAndArgs.trim().replace(/\s*:\s*/g, ':')}`;
     });
 
     const allMethods = [...remappedMethods, ...exportedMethods];
