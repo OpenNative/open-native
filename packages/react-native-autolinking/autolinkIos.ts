@@ -19,6 +19,8 @@ const logPrefix = '[react-native-autolinking/autolinkIos.js]';
  *   autolinking.
  * @param args.projectDir The project directory (relative to which the package
  *   should be resolved).
+ * @param args.outputHeaderPath An absolute path to output the header to.
+ * @param args.outputPodfilePath An absolute path to output the Podfile to.
  * @returns a list of package names in which podspecs were found and autolinked.
  */
 export async function autolinkIos({
@@ -47,6 +49,7 @@ export async function autolinkIos({
       headerEntries: autolinkingInfo.map(({ headerEntry }) => headerEntry),
       outputHeaderPath,
     }),
+
     await writePodfile({
       autolinkedDeps: autolinkingInfo.map(({ podfileEntry }) => podfileEntry),
       outputPodfilePath,
@@ -375,6 +378,7 @@ function extractBridgeModuleAliasedName(
  * @param args.autolinkedDeps podfile entries for each React Native
  *   dependency to be autolinked.
  * @param args.outputPodfilePath An absolute path to output the Podfile to.
+ * @returns A Promise to write the podfile into the specified location.
  */
 async function writePodfile({
   autolinkedDeps,
@@ -424,8 +428,7 @@ async function writePodfile({
  * @param {object} args
  * @param args.headerEntries Sections of the header file to be filled in.
  * @param args.outputHeaderPath An absolute path to output the header to.
- * @returns A Promise to write the header file into the react-native-podspecs
- *   package.
+ * @returns A Promise to write the header file into the specified location.
  */
 async function writeHeaderFile({
   headerEntries,

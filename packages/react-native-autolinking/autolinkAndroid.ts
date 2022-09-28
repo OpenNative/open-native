@@ -22,14 +22,22 @@ const exists = promisify(fs.exists);
  *   autolinking.
  * @param args.projectDir The project directory (relative to which the package
  *   should be resolved).
+ * @param args.outputModulesJsonPath An absolute path to output the modules.json
+ *   to.
+ * @param args.outputPackagesJavaPath An absolute path to output the
+ *   Packages.java to.
  * @returns a list of package names in which podspecs were found and autolinked.
  */
 export async function autolinkAndroid({
   dependencies,
   projectDir,
+  outputModulesJsonPath,
+  outputPackagesJavaPath,
 }: {
   dependencies: string[];
   projectDir: string;
+  outputModulesJsonPath: string;
+  outputPackagesJavaPath: string;
 }) {
   const autolinkingInfo = (
     await Promise.all(
@@ -39,15 +47,42 @@ export async function autolinkAndroid({
     )
   )
     .filter((p) => !!p)
-    .flat(1);
+    .flat(1)
+    .map(
+      ({
+        npmPackageName,
+        sourceDir,
+        androidProjectName,
+        packageImportPath,
+        packageInstance,
+      }) => ({
+        packageName: npmPackageName,
+        absolutePath: sourceDir,
+        androidProjectName,
+        packageImportPath,
+        packageInstance,
+      })
+    );
 
-  return autolinkingInfo.map(
-    ({ npmPackageName, sourceDir, androidProjectName }) => ({
-      packageName: npmPackageName,
-      absolutePath: sourceDir,
-      androidProjectName,
-    })
-  );
+  await Promise.all([
+    await writeModulesJsonFile({
+      moduleInfo: autolinkingInfo.map(
+        ({ packageName, absolutePath, androidProjectName }) => ({
+          packageName,
+          absolutePath,
+          androidProjectName,
+        })
+      ),
+      outputModulesJsonPath,
+    }),
+
+    await writePackagesJavaFile({
+      moduleInfo: autolinkingInfo,
+      outputPackagesJavaPath,
+    }),
+  ]);
+
+  return autolinkingInfo.map(({ packageName }) => packageName);
 }
 
 /**
@@ -311,4 +346,77 @@ export function extractComponentDescriptors(contents: string): string {
     return `${match[2]}ComponentDescriptor`;
   }
   return null;
+}
+
+/**
+ * @param {object} args
+ * @param args.packageImportPaths An array of package import paths, e.g.:
+ *   ['import com.testmodule.RNTestModulePackage;']
+ * @param args.packageInstances A corresponding array of package instance
+ *   instantiation strings, e.g.:
+ *   ['new RNTestModulePackage()']
+ * @returns A Promise to write the Packages.java file into the specified
+ *   location.
+ */
+async function writeModulesJsonFile({
+  moduleInfo,
+  outputModulesJsonPath,
+}: {
+  moduleInfo: {
+    packageName: string;
+    absolutePath: string;
+    androidProjectName: string;
+  }[];
+  outputModulesJsonPath: string;
+}) {
+  return await writeFile(
+    outputModulesJsonPath,
+    JSON.stringify(moduleInfo, null, 2),
+    { encoding: 'utf-8' }
+  );
+}
+
+/**
+ * @param {object} args
+ * @param args.moduleInfo An array of module information, with fields as such:
+ *   [{
+ *       packageImportPath: 'import com.testmodule.RNTestModulePackage;',
+ *       packageInstance: 'new RNTestModulePackage()'
+ *   }]
+ * @returns A Promise to write the Packages.java file into the specified
+ *   location.
+ */
+async function writePackagesJavaFile({
+  moduleInfo,
+  outputPackagesJavaPath,
+}: {
+  moduleInfo: { packageImportPath: string; packageInstance: string }[];
+  outputPackagesJavaPath: string;
+}) {
+  const contents = [
+    'package com.bridge;',
+    '',
+    'import com.facebook.react.ReactPackage;',
+    '// Add all imports here:',
+    ...moduleInfo.map(({ packageImportPath }) => packageImportPath),
+    '',
+    'import java.util.ArrayList;',
+    'import java.util.Collections;',
+    'import java.util.List;',
+    '',
+    'public class Packages {',
+    '  public static List<ReactPackage> list = new ArrayList<>();',
+    '  public static void init() {',
+    '    // Register each package.',
+    '    Collections.addAll(list,',
+    ...moduleInfo.map(({ packageInstance }) => `      ${packageInstance},`),
+    '    );',
+    '  }',
+    '}',
+    '',
+  ].join('\n');
+
+  return await writeFile(outputPackagesJavaPath, contents, {
+    encoding: 'utf-8',
+  });
 }

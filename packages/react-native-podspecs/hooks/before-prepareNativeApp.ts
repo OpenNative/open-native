@@ -40,7 +40,7 @@ async function autolinkIosHook(hookArgs: HookArgs) {
     })
   )) as typeof ReactNativeAutolinking;
 
-  console.log(`${logPrefix} Autolinking React Native podspecs for iOS...`);
+  console.log(`${logPrefix} Autolinking React Native iOS native modules...`);
 
   /**
    * @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-podspecs'
@@ -70,7 +70,7 @@ async function autolinkIosHook(hookArgs: HookArgs) {
   );
 
   console.log(
-    `${logPrefix} ... Finished autolinking React Native podspecs for iOS.`
+    `${logPrefix} ... Finished autolinking React Native iOS native modules.`
   );
 }
 

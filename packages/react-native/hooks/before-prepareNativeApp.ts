@@ -37,7 +37,26 @@ async function autolinkAndroidHook(hookArgs: HookArgs) {
     })
   )) as typeof ReactNativeAutolinking;
 
-  await autolinkAndroid({ dependencies: depsArr, projectDir });
+  console.log(`${logPrefix} Autolinking React Native Android native modules...`);
+
+  /**
+   * @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native'
+   */
+  const reactNativeAdapterPackageDir = path.dirname(__dirname);
+  const outputModulesJsonPath = path.resolve(reactNativeAdapterPackageDir, 'react-android/bridge/modules.json');
+  const outputPackagesJavaPath = path.resolve(reactNativeAdapterPackageDir, 'react-android/bridge/src/main/java/com/bridge/Packages.java');
+
+  const autolinkingInfo = await autolinkAndroid({
+    dependencies: depsArr,
+    projectDir,
+    outputModulesJsonPath,
+    outputPackagesJavaPath,
+  });
+
+  const green = '\x1b[32m';
+  const reset = '\x1b[0m';
+  autolinkingInfo.forEach((packageName) => console.log(`${logPrefix} Autolinked ${green}${packageName}${reset}!`));
+  console.log(`${logPrefix} ... Finished autolinking React Native Android native modules.`);
 }
 
 export = autolinkAndroidHook;
