@@ -1,18 +1,22 @@
+/// <reference path="android-declarations.d.ts"/>
+
 declare module com {
   export module bridge {
     export class Bridge {
       public static class: java.lang.Class<com.bridge.Bridge>;
       public static TAG: string;
-      public static packages: java.util.List<com.facebook.react.ReactPackage>;
-      public static modules: java.util.List<com.facebook.react.bridge.NativeModule>;
-      public static getJSModule(
+      public static packages: com.bridge.Packages;
+      public modules: java.util.List<com.facebook.react.bridge.NativeModule>;
+      public reactContext: com.facebook.react.bridge.ReactApplicationContext;
+      public constructor(
+        param0: com.facebook.react.bridge.ReactApplicationContext
+      );
+      public getModuleByName(
         param0: string
       ): com.facebook.react.bridge.NativeModule;
-      public static add(param0: com.facebook.react.ReactPackage): void;
-      public static loadModules(
+      public loadModules(
         param0: com.facebook.react.bridge.ReactApplicationContext
       ): void;
-      public constructor();
     }
   }
 }
@@ -24,6 +28,21 @@ declare module com {
       public static DEBUG: boolean;
       public static LIBRARY_PACKAGE_NAME: string;
       public static BUILD_TYPE: string;
+      public constructor();
+    }
+  }
+}
+
+declare module com {
+  export module bridge {
+    export class Packages {
+      public static class: java.lang.Class<com.bridge.Packages>;
+      public static list: java.util.List<com.facebook.react.ReactPackage>;
+      public static moduleClasses: java.util.HashMap<
+        string,
+        java.lang.Class<any>
+      >;
+      public static init(): void;
       public constructor();
     }
   }

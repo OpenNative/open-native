@@ -396,6 +396,8 @@ async function writePackagesJavaFile({
     'package com.bridge;',
     '',
     'import com.facebook.react.ReactPackage;',
+    'import com.facebook.react.bridge.ReactApplicationContext;',
+    '',
     '// Add all imports here:',
     ...moduleInfo.map(({ packageImportPath }) => packageImportPath),
     '',
