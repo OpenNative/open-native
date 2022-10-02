@@ -2070,10 +2070,10 @@
     "@nativescript/zone-js" "^3.0.0"
     tslib "^2.3.0"
 
-"@nativescript/core@~8.3.0":
-  version "8.3.4"
-  resolved "https://registry.yarnpkg.com/@nativescript/core/-/core-8.3.4.tgz#04ac7a47051a7e14fc091a55f691fb6821f2d21d"
-  integrity sha512-qI/5DbVc973AwxSprunS5BxUz4nl8EtQeyPVOQTJIyT3GF/h2O7JF0YMYWMSGrjGSsY4GP/xZyxzqqZzJNnXTQ==
+"@nativescript/core@~8.3.5":
+  version "8.3.5"
+  resolved "https://registry.yarnpkg.com/@nativescript/core/-/core-8.3.5.tgz#3f8aeee18e64a7c0343df05aec2c18a88952c35f"
+  integrity sha512-YUcrg0LB3Q9wqGgNhs6O0TsUX+l134JibbqVG+lgAXRaqrF0ysEiYnCqdUWEOUBuot/soKd0a/wzKnEWsMZx3Q==
   dependencies:
     "@nativescript/hook" "~2.0.0"
     acorn "^8.7.0"
@@ -2146,7 +2146,7 @@
   resolved "https://registry.yarnpkg.com/@nativescript/types-ios/-/types-ios-8.3.1.tgz#9e67de4c7303ef0ad180f7ceb599cbf1a9e40ebc"
   integrity sha512-gb7e1vtQjD90nb84VQw9lrBoGV48ikiKi7EqvHT8fmURqeFJ+g1feC9+vYEEoWkNJGWx2VhSUCjQVPWr5uUahA==
 
-"@nativescript/types@~8.3.0":
+"@nativescript/types@~8.3.1":
   version "8.3.1"
   resolved "https://registry.yarnpkg.com/@nativescript/types/-/types-8.3.1.tgz#ab4aa32ed1a76857b42cb1ed14a529c05ec4cfd9"
   integrity sha512-ouHerFdjVOAjgYoKFs54jwQeWoOdCf3SAmaUPF1lNnS9s2UU4hNECesB5RrDh5YvziC84810kjcBwlARY1wNbw==
