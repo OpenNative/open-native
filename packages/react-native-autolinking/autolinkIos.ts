@@ -349,7 +349,7 @@ function extractInterfaces(sourceCode: string) {
         .join(')');
 
       /** @example '- (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject' */
-      return `- (void)${methodNameAndArgs.trim().replace(/\s*:\s*/g, ':')}`;
+      return `- (void)${methodNameAndArgs.trim().replace(/\s*:\s*/g, ':')};`;
     });
 
     const allMethods = [...remappedMethods, ...exportedMethods];
