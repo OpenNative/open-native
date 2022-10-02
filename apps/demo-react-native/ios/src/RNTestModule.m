@@ -4,7 +4,7 @@
 
 RCT_EXPORT_MODULE()
 
-RCT_EXPORT_METHOD(show:withResolver : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject)
+RCT_EXPORT_METHOD(show:(RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject)
 {
   NSLog(@"Called RCT Method: show");
   resolve(@"show method invoked");
