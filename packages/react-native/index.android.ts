@@ -21,8 +21,7 @@ export class ReactNative {
 
   callbackTest() {
     if (!this.bridge) return;
-    //@ts-ignore
-    const RNTestModule: com.testmodule.RNTestModule = this.bridge.getJSModule('RNTestModule');
+    const RNTestModule = this.bridge.getJSModule('RNTestModule') as com.testmodule.RNTestModule;
 
     RNTestModule.testCallback(
       new com.facebook.react.bridge.Callback({

@@ -2,13 +2,23 @@
   "name": "@ammarahm-ed/react-native",
   "version": "1.0.0",
   "description": "Add a plugin description",
-  "main": "index",
+  "main": "index.js",
   "typings": "index.d.ts",
+  "scripts": {
+    "postinstall": "node hooks/postinstall.js"
+  },
   "nativescript": {
     "platforms": {
       "ios": "6.0.0",
       "android": "6.0.0"
-    }
+    },
+    "hooks": [
+      {
+        "type": "before-prepareNativeApp",
+        "script": "hooks/before-prepareNativeApp.js",
+        "inject": true
+      }
+    ]
   },
   "dependencies": {
     "@ammarahm-ed/react-native-podspecs": "^1.0.0"

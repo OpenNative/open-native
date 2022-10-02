@@ -17,8 +17,8 @@
           "LICENSE",
           {
             "glob": "**/*",
-            "input": "packages/react-native-module-test/platforms/",
-            "output": "./platforms/"
+            "input": "packages/react-native-module-test/android/",
+            "output": "./android/"
           },
           {
             "glob": "**/*",
