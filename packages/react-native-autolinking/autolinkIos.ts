@@ -272,9 +272,11 @@ function extractInterfaces(sourceCode: string) {
    * {
    *    RNTestModule: [
    *      {
-   *        name: 'show',
-   *        methodTypes: ['void', 'RCTPromiseResolveBlock', 'RCTPromiseRejectBlock'],
+   *        exportedName: 'show',
+   *        jsName: 'showWithRejecter',
+   *        selector: 'show:withRejecter:',
    *        signature: '- (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;',
+   *        types: ['void', 'RCTPromiseResolveBlock', 'RCTPromiseRejectBlock'],
    *      }
    *    ]
    * }
@@ -323,9 +325,27 @@ function extractInterfaces(sourceCode: string) {
         .join(')');
 
       /** @example '- (void)showWithRemappedName:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject' */
-      return `- (void)${methodRemappedName.trim()}${methodUnmappedNameAndArgs
+      const signature = `- (void)${methodRemappedName.trim()}${methodUnmappedNameAndArgs
         .trim()
         .replace(/\s*:\s*/g, ':')};`;
+
+      /** @example ['showWithRemappedName:(RCTPromiseResolveBlock)resolve', 'withRejecter:(RCTPromiseRejectBlock)reject'] */
+      const params = signature.split('- (void)')[1].split(' ');
+
+      /** @example 'showWithRemappedName:withRejecter:' */
+      const selector =
+        params.map((param) => param.split(':')[0]).join(':') +
+        (signature.includes(':') ? ':' : '');
+
+      /** @example 'showWithRemappedNameWithRejecter' */
+      const jsName = convertObjcSelectorToJsName(selector);
+
+      return {
+        exportedName: methodRemappedName,
+        jsName,
+        selector,
+        signature,
+      };
     });
 
     /**
@@ -349,7 +369,27 @@ function extractInterfaces(sourceCode: string) {
         .join(')');
 
       /** @example '- (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject' */
-      return `- (void)${methodNameAndArgs.trim().replace(/\s*:\s*/g, ':')};`;
+      const signature = `- (void)${methodNameAndArgs
+        .trim()
+        .replace(/\s*:\s*/g, ':')};`;
+
+      /** @example ['show:(RCTPromiseResolveBlock)resolve', 'withRejecter:(RCTPromiseRejectBlock)reject'] */
+      const params = signature.split('- (void)')[1].split(' ');
+
+      /** @example 'show:withRejecter:' */
+      const selector =
+        params.map((param) => param.split(':')[0]).join(':') +
+        (signature.includes(':') ? ':' : '');
+
+      /** @example 'showWithRejecter' */
+      const jsName = convertObjcSelectorToJsName(selector);
+
+      return {
+        exportedName: signature.replace('- (void)', '').split(':')[0],
+        jsName,
+        selector,
+        signature,
+      };
     });
 
     const allMethods = [...remappedMethods, ...exportedMethods];
@@ -361,18 +401,22 @@ function extractInterfaces(sourceCode: string) {
     }
 
     acc[jsModuleName] = allMethods.map((method) => {
+      const { exportedName, jsName, selector, signature } = method;
+
       /**
        * Everything between brackets in the method signature.
        * @example ["void", "RCTPromiseResolveBlock", "RCTPromiseRejectBlock"]
        */
-      const methodTypes = [...method.matchAll(/\(.*?\)/g)].map((match) =>
+      const types = [...signature.matchAll(/\(.*?\)/g)].map((match) =>
         match[0].replace(/[()]/g, '')
       );
 
       return {
-        signature: method,
-        name: method.replace('- (void)', '').split(':')[0],
-        methodTypes,
+        exportedName,
+        jsName,
+        selector,
+        signature,
+        types,
       };
     });
 
@@ -409,9 +453,11 @@ function extractInterfaces(sourceCode: string) {
 }
 
 interface MethodDescription {
-  name: string;
-  methodTypes: string[];
+  exportedName: string;
+  jsName: string;
+  selector: string;
   signature: string;
+  types: string[];
 }
 
 interface ModuleNamesToMethodDescriptions {
@@ -419,12 +465,32 @@ interface ModuleNamesToMethodDescriptions {
 }
 
 /**
+ * Converts the Obj-C method selector into the JS-safe property name that the
+ * NativeScript metadata generator would convert the selector into.
+ * @param selector the Obj-C method selector, e.g. 'show:withRejecter:'
+ * @example 'showWithRejecter'
+ */
+function convertObjcSelectorToJsName(selector: string): string {
+  const tokens: string[] = selector.split(':').filter((param) => param !== '');
+  console.log(`!! selector: ${selector} -> tokens: ${JSON.stringify(tokens)}`);
+  let jsName = tokens[0];
+
+  for (let i = 1; i < tokens.length; i++) {
+    const token = tokens[i];
+    tokens[i] = `${token[0].toUpperCase()}${token.slice(1)}`;
+    jsName += tokens[i];
+  }
+
+  return jsName;
+}
+
+/**
  * Gets the aliased name for a bridge module if there is one.
  * @param classImplementation The source code for the bridge module's
  *   class implementation.
- * @returns The aliased name for the bridge module as a
- *   string, or undefined if no alias was registered (in which case, the Obj-C
- *   class name should be used for the bridge module as-is).
+ * @returns The aliased name for the bridge module as a string, or undefined if
+ *   no alias was registered (in which case, the Obj-C class name should be used
+ *   for the bridge module as-is).
  */
 function extractBridgeModuleAliasedName(
   classImplementation: string
@@ -451,8 +517,8 @@ function extractBridgeModuleAliasedName(
 /**
  *
  * @param {object} args
- * @param args.autolinkedDeps podfile entries for each React Native
- *   dependency to be autolinked.
+ * @param args.autolinkedDeps podfile entries for each React Native dependency
+ *   to be autolinked.
  * @param args.outputPodfilePath An absolute path to output the Podfile to.
  * @returns A Promise to write the podfile into the specified location.
  */
@@ -562,9 +628,11 @@ async function writeModuleMapFile({
 
     acc[moduleName] = methodDescriptions.reduce<MethodDescriptionsMinimal>(
       (innerAcc, methodDescription) => {
-        innerAcc[methodDescription.name] = methodDescription.methodTypes.map(
-          (paramType) => parseObjcTypeToEnum(paramType)
-        );
+        const { exportedName, jsName, types } = methodDescription;
+        innerAcc[exportedName] = {
+          j: jsName,
+          t: types.map((paramType) => parseObjcTypeToEnum(paramType)),
+        };
         return innerAcc;
       },
       {}
@@ -575,13 +643,30 @@ async function writeModuleMapFile({
 
   return await writeFile(
     outputModuleMapPath,
-    JSON.stringify(moduleNamesToMethodDescriptionsMinimal, null, 2) + '\n',
+    JSON.stringify(moduleNamesToMethodDescriptionsMinimal) + '\n',
     { encoding: 'utf-8' }
   );
 }
 
 interface MethodDescriptionsMinimal {
-  [methodName: string]: RNObjcSerialisableType[];
+  /**
+   * The method name specified in RCT_EXPORT_METHOD() or RCT_REMAP_METHOD().
+   * @example For RCT_EXPORT_METHOD(show), it would be 'show'.
+   */
+  [exportedMethodName: string]: {
+    /**
+     * The equivalent method name once mapped into a JS-friendly property by the
+     * NativeScript metadata generator.
+     * @example 'showWithRejecter'
+     */
+    j: string;
+    /**
+     * The types (first the return type, followed by each of the params) mapped
+     * to an enum.
+     * @example [1, 14, 15]
+     */
+    t: RNObjcSerialisableType[];
+  };
 }
 
 interface ModuleNamesToMethodDescriptionsMinimal {
