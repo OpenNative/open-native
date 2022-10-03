@@ -1,46 +1,55 @@
 import { RNObjcSerialisableType } from '@ammarahm-ed/react-native-autolinking/RNObjcSerialisableType';
 import { Utils } from '@nativescript/core';
 
-//https://github.com/nativescript-community/expo-nativescript/blob/6524b9ff787c635cddf8a19799b2fcadc287e986/packages/expo-nativescript-adapter/NativeModulesProxy.ios.ts#L16
-export function toJSValue(value: unknown) {
+type ReactNativePrimitive = Date | string | number | null | ReactNativePrimitive[] | { [key: string]: ReactNativePrimitive };
+
+// https://github.com/nativescript-community/expo-nativescript/blob/6524b9ff787c635cddf8a19799b2fcadc287e986/packages/expo-nativescript-adapter/NativeModulesProxy.ios.ts#L16
+export function toJSValue(value: unknown): ReactNativePrimitive {
   if (value instanceof NSDictionary) {
-    const obj: any = {};
-    value.enumerateKeysAndObjectsUsingBlock((key: string, value: any, stop: interop.Reference<boolean>) => {
+    const obj: ReactNativePrimitive = {};
+    value.enumerateKeysAndObjectsUsingBlock((key: string, value: unknown) => {
       obj[key] = toJSValue(value);
     });
     return obj;
-  } else if (value instanceof NSArray) {
-    const arr: any[] = [];
-    value.enumerateObjectsUsingBlock((value: any, index: number, stop: interop.Reference<boolean>) => {
-      arr[index] = toJSValue(value);
-    });
-    return arr;
-  } else {
-    /**
-     * NSDate, NSString, NSNumber, and NSNull should all be automatically marshalled as Date, string, number, and null.
-     * @see https://docs.nativescript.org/core-concepts/ios-runtime/marshalling-overview#primitive-exceptions
-     *
-     * NULL, Nil, and nil are all implicitly converted to null.
-     * @see https://docs.nativescript.org/core-concepts/ios-runtime/marshalling-overview#null-values
-     */
-    return value as Date | string | number | null;
   }
+
+  if (value instanceof NSArray) {
+    const arr: ReactNativePrimitive[] = [];
+    value.enumerateObjectsUsingBlock((value: unknown) => arr.push(toJSValue(value)));
+    return arr;
+  }
+
+  /**
+   * NSDate, NSString, NSNumber, and NSNull should all be automatically marshalled as Date, string, number, and null.
+   * @see https://docs.nativescript.org/core-concepts/ios-runtime/marshalling-overview#primitive-exceptions
+   *
+   * NULL, Nil, and nil are all implicitly converted to null.
+   * @see https://docs.nativescript.org/core-concepts/ios-runtime/marshalling-overview#null-values
+   */
+  return value as Date | string | number | null;
 }
 
-export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args: any[], resolve?: (value: unknown) => void, reject?: (reason?: any) => void) {
-  const nativeArguments = [];
+type RCTResponseSenderBlockType = (...args: unknown[]) => void;
+type RCTResponseErrorBlockType = (value: NSError) => void;
+type RCTPromiseBlockType = (value: unknown) => void;
+type BlockTypes = RCTResponseSenderBlockType | RCTResponseErrorBlockType | RCTPromiseBlockType;
+
+type NativeArg = NSObject | BlockTypes;
+
+export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args: unknown[], resolve?: (value: unknown) => void, reject?: (reason?: unknown) => void): NativeArg[] {
+  const nativeArguments: NativeArg[] = [];
 
   for (let i = 0; i < argumentTypes.length; i++) {
     const argType = argumentTypes[i];
     const data = args[i];
     switch (argType) {
       case RNObjcSerialisableType.array: {
-        nativeArguments.push(Utils.ios.collections.jsArrayToNSArray(data));
+        nativeArguments.push(Utils.ios.collections.jsArrayToNSArray(data as unknown[]));
         break;
       }
       case RNObjcSerialisableType.nonnullArray: {
         if (!data) throw new Error(`Argument at index ${i} expects a nonnull Array value`);
-        nativeArguments.push(Utils.ios.collections.jsArrayToNSArray(data));
+        nativeArguments.push(Utils.ios.collections.jsArrayToNSArray(data as unknown[]));
         break;
       }
       case RNObjcSerialisableType.object: {
@@ -48,7 +57,7 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
         break;
       }
       case RNObjcSerialisableType.nonnullObject: {
-        if (!data) throw new Error(`Argument at index ${i} expects a nonnull Object value`);
+        if (data === null) throw new Error(`Argument at index ${i} expects a nonnull Object value`);
         nativeArguments.push(Utils.dataSerialize(data));
         break;
       }
@@ -56,28 +65,29 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
       case RNObjcSerialisableType.string:
       case RNObjcSerialisableType.other:
       case RNObjcSerialisableType.number:
-        nativeArguments.push(data);
+        nativeArguments.push(Utils.dataSerialize(data));
         break;
       case RNObjcSerialisableType.nonnullBoolean:
-        if (Utils.isBoolean(data)) throw new Error(`Expected a boolean but got ${data}`);
+        if (!Utils.isBoolean(data)) throw new Error(`Expected a boolean but got ${data}`);
         nativeArguments.push(data);
         break;
       case RNObjcSerialisableType.nonnullString:
-        if (Utils.isString(data)) throw new Error(`Expected a string but got ${data}`);
+        if (!Utils.isString(data)) throw new Error(`Expected a string but got ${data}`);
         nativeArguments.push(data);
         break;
       case RNObjcSerialisableType.nonnullNumber:
         if (!Utils.isNumber(data)) throw new Error(`Expected a number but got ${data}`);
-        nativeArguments.push(data);
+        nativeArguments.push(Utils.dataSerialize(data));
         break;
       case RNObjcSerialisableType.RCTResponseSenderBlock: {
-        nativeArguments.push(
-          !data
-            ? undefined
-            : (value: unknown[]) => {
-                data(...(toJSValue(value) as unknown[]));
-              }
-        );
+        if (!data) {
+          nativeArguments.push(null);
+          break;
+        }
+        if (typeof data !== 'function') throw new Error(`Expected a function, but got ${data}`);
+        nativeArguments.push((...args: unknown[]) => {
+          data(...args.map((arg) => toJSValue(arg)));
+        });
         break;
       }
       case RNObjcSerialisableType.RCTResponseErrorBlock: {
@@ -109,7 +119,7 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
   return nativeArguments;
 }
 
-export function promisify(module: RCTBridgeModule, methodName: string, argumentTypes: RNObjcSerialisableType[], args) {
+export function promisify(module: RCTBridgeModule, methodName: string, argumentTypes: RNObjcSerialisableType[], args: unknown[]): Promise<unknown> {
   return new Promise((resolve, reject) => {
     module[methodName](...toNativeArguments(argumentTypes, args, resolve, reject));
   });

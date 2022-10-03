@@ -2,8 +2,9 @@ import DeviceEventEmitter from './core/EventEmitter/RCTDeviceEventEmitter';
 import JSModules from './js-modules.ios';
 
 export function getJSModules() {
-  if (global.jsModulesIOS) return global.jsModulesIOS;
-  global.jsModulesIOS = new JSModules();
+  if (!global.jsModulesIOS) {
+    global.jsModulesIOS = new JSModules();
+  }
   return global.jsModulesIOS;
 }
 
