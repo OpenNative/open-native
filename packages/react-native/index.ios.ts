@@ -5,7 +5,7 @@ import { getModuleMethods, isPromise, TModuleMethodsType, TNativeModuleMap } fro
 export { NativeEventEmitter } from './core/EventEmitter/NativeEventEmitter';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const NativemModuleMap: TNativeModuleMap = require('@ammarahm-ed/react-native-podspecs/platforms/ios/lib/modulemap.json');
+const NativemModuleMap = require('./modulemap.json') as TNativeModuleMap;
 
 class NativeModuleHolder {
   module: RCTBridgeModule;
@@ -26,11 +26,11 @@ class NativeModuleHolder {
       this[method] = (...args: unknown[]) => {
         this.module = this.module || this._bridge.moduleForName(this.moduleName);
         this.objcMethodsNames = this.objcMethodsNames || getModuleMethods(this.module);
-        const jsName = this.moduleMethods[method].jsName;
+        const jsName = this.moduleMethods[method].j;
         if (isPromise(this.moduleMethods, method)) {
-          return promisify(this.module[jsName], this.moduleMethods[method].types, args);
+          return promisify(this.module, jsName, this.moduleMethods[method].t, args);
         } else {
-          return this.module[jsName]?.(...toNativeArguments(this.moduleMethods[method].types, args));
+          return this.module[jsName]?.(...toNativeArguments(this.moduleMethods[method].t, args));
         }
       };
     }

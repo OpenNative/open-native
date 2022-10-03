@@ -7,6 +7,7 @@ class JSModules {
   constructor() {
     this._bridge = getCurrentBridge();
     this._bridge.setJSModuleInvokerCallback(this.jsModuleInvoker);
+    this._modules = {};
   }
 
   jsModuleInvoker(moduleName: string, methodName: string, args: NSArray<any>) {

@@ -109,8 +109,8 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
   return nativeArguments;
 }
 
-export function promisify(method: Function, argumentTypes: RNObjcSerialisableType[], args) {
+export function promisify(module: RCTBridgeModule, methodName: string, argumentTypes: RNObjcSerialisableType[], args) {
   return new Promise((resolve, reject) => {
-    method(...toNativeArguments(argumentTypes, args, resolve, reject));
+    module[methodName](...toNativeArguments(argumentTypes, args, resolve, reject));
   });
 }

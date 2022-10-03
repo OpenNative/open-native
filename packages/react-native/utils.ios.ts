@@ -2,8 +2,8 @@ import { RNObjcSerialisableType } from '@ammarahm-ed/react-native-autolinking/RN
 
 export type TModuleMethodsType = {
   [name: string]: {
-    jsName: string;
-    types: RNObjcSerialisableType[];
+    j: string;
+    t: RNObjcSerialisableType[];
   };
 };
 
@@ -18,5 +18,5 @@ export function getModuleMethods(module: RCTBridgeModule) {
 }
 
 export function isPromise(moduleMethods: TModuleMethodsType, methodName: string) {
-  return moduleMethods[methodName].types.indexOf(RNObjcSerialisableType.RCTPromiseResolveBlock) > -1;
+  return moduleMethods[methodName].t.indexOf(RNObjcSerialisableType.RCTPromiseResolveBlock) > -1;
 }
