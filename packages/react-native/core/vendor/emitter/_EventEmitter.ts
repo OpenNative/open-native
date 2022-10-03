@@ -84,7 +84,7 @@ class EventEmitter {
    * Called by `EmitterSubscription` to bypass the above deprecation warning.
    */
   __removeSubscription(subscription: EmitterSubscription): void {
-    if (subscription.emitter === this) {
+    if (subscription.emitter !== this) {
       throw new Error('Subscription does not belong to this emitter.');
     }
 
