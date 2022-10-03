@@ -1,4 +1,4 @@
-import { RNObjcSerialisableType } from '@ammarahm-ed/react-native-autolinking';
+import { RNObjcSerialisableType } from '@ammarahm-ed/react-native-autolinking/RNObjcSerialisableType';
 
 export type TModuleMethodsType = {
   [name: string]: {

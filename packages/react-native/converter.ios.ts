@@ -1,4 +1,4 @@
-import { RNObjcSerialisableType } from '@ammarahm-ed/react-native-autolinking';
+import { RNObjcSerialisableType } from '@ammarahm-ed/react-native-autolinking/RNObjcSerialisableType';
 import { Utils } from '@nativescript/core';
 
 //https://github.com/nativescript-community/expo-nativescript/blob/6524b9ff787c635cddf8a19799b2fcadc287e986/packages/expo-nativescript-adapter/NativeModulesProxy.ios.ts#L16
