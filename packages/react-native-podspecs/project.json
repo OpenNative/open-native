@@ -20,6 +20,7 @@
           "packages/react-native-podspecs/hooks/postinstall.js.map",
           "packages/react-native-podspecs/index.d.ts",
           "packages/react-native-podspecs/platforms/ios/ReactNativePodspecs.podspec",
+          "packages/react-native-podspecs/platforms/ios/lib/modulemap.json",
           "LICENSE",
           {
             "glob": "**/*",
