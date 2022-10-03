@@ -91,13 +91,10 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
         break;
       }
       case RNObjcSerialisableType.RCTResponseErrorBlock: {
-        nativeArguments.push(
-          !data
-            ? undefined
-            : (value: NSError) => {
-                data(toJSValue(value.userInfo));
-              }
-        );
+        if (typeof data !== 'function') throw new Error(`Expected a function, but got ${data}`);
+        nativeArguments.push((value: NSError) => {
+          data(toJSValue(value.userInfo));
+        });
         break;
       }
       case RNObjcSerialisableType.RCTPromiseResolveBlock: {
