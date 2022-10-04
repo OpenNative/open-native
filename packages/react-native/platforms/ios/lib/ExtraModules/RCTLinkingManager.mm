@@ -126,8 +126,9 @@ RCT_EXPORT_METHOD(canOpenURL:(NSString *)URL
   }
 
   // This can be expensive, so we deliberately don't call on main thread
-  BOOL canOpen = [RCTSharedApplication() canOpenURL:URL];
-  NSString *scheme = [URL scheme];
+  NSURL *_URL = [NSURL URLWithString:URL];
+  BOOL canOpen = [RCTSharedApplication() canOpenURL:_URL];
+  NSString *scheme = [_URL scheme];
   if (canOpen) {
     resolve(@YES);
   } else if (![[scheme lowercaseString] hasPrefix:@"http"] && ![[scheme lowercaseString] hasPrefix:@"https"]) {
