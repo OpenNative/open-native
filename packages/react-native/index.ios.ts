@@ -4,6 +4,7 @@ import RCTDeviceEventEmitter from './core/EventEmitter/RCTDeviceEventEmitter';
 import { getModuleMethods, isPromise, TModuleMethodsType, TNativeModuleMap } from './utils.ios';
 export { Platform, PlatformSelect, PlatformSelectOSType } from './core/Utilities/Platform';
 export { NativeEventEmitter } from './core/EventEmitter/NativeEventEmitter';
+export { Linking } from './core/Libraries/Linking/Linking';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const NativeModuleMap = require('@ammarahm-ed/react-native-podspecs/platforms/ios/lib/modulemap.json') as TNativeModuleMap;

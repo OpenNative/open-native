@@ -1,16 +1,9 @@
 import { DemoSharedBase } from '../utils';
 import { NativeModules } from '@ammarahm-ed/react-native';
+import Auth0 from 'react-native-auth0';
 
 export class DemoSharedReactNative extends DemoSharedBase {
   loadBridge() {
-    console.log(
-      NativeModules.RNTestModule.show()
-        .then((result) => {
-          console.log('resolved');
-        })
-        .catch((rej) => {
-          console.log('error', rej);
-        })
-    );
+    console.log(Auth0);
   }
 }
