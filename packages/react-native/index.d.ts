@@ -1,5 +1,4 @@
 /* eslint-disable no-var */
-import { ReactNativeCommon } from './common';
 import JSModulesIOS from './js-modules.ios';
 import DeviceEventEmitter from './device-event-emitter.ios';
 

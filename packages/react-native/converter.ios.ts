@@ -69,11 +69,11 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
         break;
       case RNObjcSerialisableType.nonnullBoolean:
         if (!Utils.isBoolean(data)) throw new Error(`Expected a boolean but got ${data}`);
-        nativeArguments.push(data);
+        nativeArguments.push(data as NativeArg);
         break;
       case RNObjcSerialisableType.nonnullString:
         if (!Utils.isString(data)) throw new Error(`Expected a string but got ${data}`);
-        nativeArguments.push(data);
+        nativeArguments.push(data as NativeArg);
         break;
       case RNObjcSerialisableType.nonnullNumber:
         if (!Utils.isNumber(data)) throw new Error(`Expected a number but got ${data}`);
@@ -91,9 +91,8 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
         break;
       }
       case RNObjcSerialisableType.RCTResponseErrorBlock: {
-        if (typeof data !== 'function') throw new Error(`Expected a function, but got ${data}`);
         nativeArguments.push((value: NSError) => {
-          data(toJSValue(value.userInfo));
+          if (typeof data === 'function') data(toJSValue(value.userInfo));
         });
         break;
       }
