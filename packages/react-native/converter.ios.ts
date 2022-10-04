@@ -39,8 +39,10 @@ type NativeArg = NSObject | BlockTypes;
 export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args: unknown[], resolve?: (value: unknown) => void, reject?: (reason?: unknown) => void): NativeArg[] {
   const nativeArguments: NativeArg[] = [];
 
-  for (let i = 0; i < argumentTypes.length; i++) {
-    const argType = argumentTypes[i];
+  const mappableArguments = argumentTypes[0] === RNObjcSerialisableType.void ? argumentTypes.slice(1) : argumentTypes;
+
+  for (let i = 0; i < mappableArguments.length; i++) {
+    const argType = mappableArguments[i];
     const data = args[i];
     switch (argType) {
       case RNObjcSerialisableType.array: {
