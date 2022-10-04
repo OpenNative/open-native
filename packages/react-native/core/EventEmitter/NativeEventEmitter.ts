@@ -9,7 +9,7 @@
 'use strict';
 
 import { type EventSubscription, type IEventEmitter } from '../vendor/emitter/EventEmitter';
-import Platform from '../Utilities/Platform';
+import { Platform } from '../Utilities/Platform';
 import RCTDeviceEventEmitter from './RCTDeviceEventEmitter';
 
 export interface NativeModule {

@@ -2,6 +2,7 @@ import { getCurrentBridge } from './bridge.ios';
 import { promisify, toNativeArguments } from './converter.ios';
 import RCTDeviceEventEmitter from './core/EventEmitter/RCTDeviceEventEmitter';
 import { getModuleMethods, isPromise, TModuleMethodsType, TNativeModuleMap } from './utils.ios';
+export { Platform, PlatformSelect, PlatformSelectOSType } from './core/Utilities/Platform';
 export { NativeEventEmitter } from './core/EventEmitter/NativeEventEmitter';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

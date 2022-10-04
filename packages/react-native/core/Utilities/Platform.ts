@@ -5,7 +5,7 @@ export type PlatformSelectOSType = keyof typeof platformNames | 'native' | 'elec
 
 export type PlatformSelect = <T>(specifics: { [platform in PlatformSelectOSType]?: T }) => T;
 
-const Platform = {
+export const Platform = {
   /**
    * Denotes the currently running platform.
    * Can be one of ios, android, web.
@@ -28,5 +28,3 @@ const Platform = {
    */
   isDOMAvailable: false,
 };
-
-export default Platform;
