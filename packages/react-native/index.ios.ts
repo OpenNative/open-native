@@ -56,13 +56,13 @@ class NativeModuleHolder {
   }
 }
 
-class NativeModulesConstructor {
-  constructor() {
-    for (const moduleName in NativeModuleMap) {
-      this[moduleName] = new NativeModuleHolder(moduleName);
-    }
+function createNativeModules() {
+  const modules = {};
+  for (const moduleName in NativeModuleMap) {
+    modules[moduleName] = new NativeModuleHolder(moduleName);
   }
+  return modules;
 }
 
-export const NativeModules = new NativeModulesConstructor();
+export const NativeModules = createNativeModules();
 export const DeviceEventEmitter = RCTDeviceEventEmitter;
