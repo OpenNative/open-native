@@ -6,7 +6,8 @@
     "paths": {
       "~/*": ["src/*"],
       "@demo/shared": ["../../tools/demo/index.ts"],
-      "@ammarahm-ed/*": ["../../packages/*"]
+      "@ammarahm-ed/*": ["../../packages/*"],
+      "crypto": ["node_modules/crypto-js"]
     }
   }
 }

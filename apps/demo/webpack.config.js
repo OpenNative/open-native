@@ -9,6 +9,7 @@ module.exports = (env) => {
     // shared demo code
     config.resolve.alias.set('@demo/shared', resolve(__dirname, '..', '..', 'tools', 'demo'));
     config.resolve.alias.set('react-native', '@ammarahm-ed/react-native');
+    config.resolve.alias.set('crypto', require.resolve('crypto-js'));
   });
 
   // Example if you need to share images across demo apps:
