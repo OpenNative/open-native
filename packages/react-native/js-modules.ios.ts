@@ -2,24 +2,22 @@ import { getCurrentBridge } from './bridge.ios';
 import { toJSValue } from './converter.ios';
 
 class JSModules {
-  _bridge: RCTBridge;
-  _modules: { [name: string]: any };
+  private bridge: RCTBridge = getCurrentBridge();
+  private modules: { [name: string]: any } = {};
   constructor() {
-    this._bridge = getCurrentBridge();
-    this._bridge.setJSModuleInvokerCallback(this.jsModuleInvoker);
-    this._modules = {};
+    this.bridge.setJSModuleInvokerCallback(this.jsModuleInvoker);
   }
 
   jsModuleInvoker(moduleName: string, methodName: string, args: NSArray<any>) {
-    this._modules[moduleName]?.[methodName]?.(...toJSValue(args));
+    return this.modules[moduleName]?.[methodName]?.(...(toJSValue(args) as unknown[]));
   }
 
   registerJSModule(name: string, module: any) {
-    this._modules[name] = module;
+    this.modules[name] = module;
   }
 
   unregisterJSModule(name: string) {
-    delete this._modules[name];
+    delete this.modules[name];
   }
 }
 
