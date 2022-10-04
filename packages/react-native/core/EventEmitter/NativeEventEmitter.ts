@@ -30,42 +30,27 @@ export type { EventSubscription };
  * can theoretically listen to `RCTDeviceEventEmitter` (although discouraged).
  */
 export class NativeEventEmitter implements IEventEmitter {
-  _nativeModule: NativeModule;
-
-  constructor(nativeModule: NativeModule) {
-    if (Platform.OS === 'ios') {
-      if (nativeModule === null) {
-        throw new Error('`new NativeEventEmitter()` requires a non-null argument.');
-      }
+  constructor(public nativeModule: NativeModule) {
+    if (Platform.OS === 'ios' && !nativeModule) {
+      throw new Error('`new NativeEventEmitter()` requires a non-null argument.');
     }
 
-    const hasAddListener =
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      !!nativeModule && typeof nativeModule.addListener === 'function';
-    const hasRemoveListeners =
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      !!nativeModule && typeof nativeModule.removeListeners === 'function';
-
-    if (nativeModule && hasAddListener && hasRemoveListeners) {
-      this._nativeModule = nativeModule;
-    } else if (nativeModule != null) {
-      if (!hasAddListener) {
-        console.warn('`new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.');
-      }
-      if (!hasRemoveListeners) {
-        console.warn('`new NativeEventEmitter()` was called with a non-null argument without the required `removeListeners` method.');
-      }
+    if (typeof nativeModule?.addListener !== 'function') {
+      console.warn('`new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.');
+    }
+    if (typeof nativeModule?.removeListeners !== 'function') {
+      console.warn('`new NativeEventEmitter()` was called with a non-null argument without the required `removeListeners ` method.');
     }
   }
 
   addListener(eventType: string, listener: (...args: unknown[]) => unknown, context?: unknown): EventSubscription {
-    this._nativeModule?.addListener(eventType);
+    this.nativeModule?.addListener(eventType);
     let subscription: EventSubscription = RCTDeviceEventEmitter.addListener(eventType, listener, context);
 
     return {
       remove: () => {
         if (subscription != null) {
-          this._nativeModule?.removeListeners(1);
+          this.nativeModule?.removeListeners(1);
           // $FlowFixMe[incompatible-use]
           subscription.remove();
           subscription = null;
@@ -78,7 +63,7 @@ export class NativeEventEmitter implements IEventEmitter {
    * @deprecated Use `remove` on the EventSubscription from `addListener`.
    */
   removeListener(eventType: string, listener: (...args: unknown[]) => unknown): void {
-    this._nativeModule?.removeListeners(1);
+    this.nativeModule?.removeListeners(1);
     // NOTE: This will report a deprecation notice via `console.error`.
     // $FlowFixMe[prop-missing] - `removeListener` exists but is deprecated.
     RCTDeviceEventEmitter.removeListener(eventType, listener);
@@ -94,7 +79,7 @@ export class NativeEventEmitter implements IEventEmitter {
     if (eventType === null) {
       throw new Error('Event type cannot be null');
     }
-    this._nativeModule?.removeListeners(this.listenerCount(eventType));
+    this.nativeModule?.removeListeners(this.listenerCount(eventType));
     RCTDeviceEventEmitter.removeAllListeners(eventType);
   }
 
