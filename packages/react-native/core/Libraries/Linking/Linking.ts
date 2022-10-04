@@ -11,8 +11,10 @@
 import { type EventSubscription } from '../../vendor/emitter/EventEmitter';
 import { NativeEventEmitter } from '../../EventEmitter/NativeEventEmitter';
 import { Platform } from '../../Utilities/Platform';
-import NativeLinkingManager from './NativeLinkingManager';
 //import NativeIntentAndroid from './NativeIntentAndroid';
+import { NativeModules } from '../../..';
+
+const NativeLinkingManager = NativeModules.LinkingManager;
 
 type LinkingEventDefinitions = {
   url: [{ url: string }];
@@ -53,12 +55,14 @@ export class Linking extends NativeEventEmitter {
    * See https://reactnative.dev/docs/linking.html#openurl
    */
   openURL(url: string): Promise<void> {
-    this._validateURL(url);
-    if (Platform.OS === 'android') {
-      //return NativeIntentAndroid.openURL(url);
-    } else {
-      //return NativeIntentAndroid.openURL(url);
-    }
+    console.log(NativeModules);
+
+    // this._validateURL(url);
+    // if (Platform.OS === 'android') {
+    //   //return NativeIntentAndroid.openURL(url);
+    // } else {
+    //   //return NativeIntentAndroid.openURL(url);
+    // }
     return undefined;
   }
 
