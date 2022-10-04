@@ -5,41 +5,60 @@ import { getModuleMethods, isPromise, TModuleMethodsType, TNativeModuleMap } fro
 export { NativeEventEmitter } from './core/EventEmitter/NativeEventEmitter';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const NativemModuleMap = require('@ammarahm-ed/react-native-podspecs/platforms/ios/lib/modulemap.json') as TNativeModuleMap;
+const NativeModuleMap = require('@ammarahm-ed/react-native-podspecs/platforms/ios/lib/modulemap.json') as TNativeModuleMap;
 
 class NativeModuleHolder {
-  module: RCTBridgeModule;
-  moduleName: string;
-  _bridge: RCTBridge;
+  private module: RCTEventEmitter;
+  private bridge: RCTBridge = getCurrentBridge();
   moduleMethods: TModuleMethodsType;
   objcMethodsNames: string[];
 
-  constructor(moduleName: string) {
-    this.moduleName = moduleName;
-    this._bridge = getCurrentBridge();
-    this.moduleMethods = NativemModuleMap[this.moduleName];
+  constructor(public moduleName: string) {
+    this.moduleMethods = NativeModuleMap[this.moduleName];
     this.wrapNativeMethods();
+  }
+
+  get nativeModule(): RCTEventEmitter {
+    return (this.module = this.module || this.bridge.moduleForName(this.moduleName));
+  }
+
+  get moduleNotFound(): boolean {
+    if (!this.nativeModule) {
+      console.warn(`Trying to register a react native module "${this.moduleName}" that could not be found in module registry.`);
+      return true;
+    }
+    return false;
   }
 
   wrapNativeMethods() {
     for (const method in this.moduleMethods) {
       this[method] = (...args: unknown[]) => {
-        this.module = this.module || this._bridge.moduleForName(this.moduleName);
+        if (this.moduleNotFound) return;
         this.objcMethodsNames = this.objcMethodsNames || getModuleMethods(this.module);
         const jsName = this.moduleMethods[method].j;
         if (isPromise(this.moduleMethods, method)) {
-          return promisify(this.module, jsName, this.moduleMethods[method].t, args);
+          return promisify(this.nativeModule, jsName, this.moduleMethods[method].t, args);
         } else {
-          return this.module[jsName]?.(...toNativeArguments(this.moduleMethods[method].t, args));
+          return this.nativeModule[jsName]?.(...toNativeArguments(this.moduleMethods[method].t, args));
         }
       };
     }
+  }
+
+  addListener(eventType: string) {
+    if (this.moduleNotFound) return;
+    this.module.addListener?.(eventType);
+  }
+
+  removeListeners(count: number) {
+    if (this.moduleNotFound) return;
+    this.module.removeListeners?.(count);
   }
 }
 
 class NativeModulesConstructor {
   constructor() {
-    for (const moduleName in NativemModuleMap) {
+    for (const moduleName in NativeModuleMap) {
       this[moduleName] = new NativeModuleHolder(moduleName);
     }
   }
