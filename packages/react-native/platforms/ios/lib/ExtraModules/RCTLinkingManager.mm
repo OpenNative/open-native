@@ -90,17 +90,17 @@ continueUserActivity:(NSUserActivity *)userActivity
   [self sendEventWithName:@"url" body:notification.userInfo];
 }
 
-RCT_EXPORT_METHOD(openURL:(NSURL *)URL
+RCT_EXPORT_METHOD(openURL:(NSString *)URL
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 {
-  [RCTSharedApplication() openURL:URL options:@{} completionHandler:^(BOOL success) {
+  [RCTSharedApplication() openURL:[NSURL URLWithString:URL] options:@{} completionHandler:^(BOOL success) {
     if (success) {
       resolve(@YES);
     } else {
       #if TARGET_OS_SIMULATOR
         // Simulator-specific code
-        if([URL.absoluteString hasPrefix:@"tel:"]){
+        if([URL hasPrefix:@"tel:"]){
           RCTLogWarn(@"Unable to open the Phone app in the simulator for telephone URLs. URL:  %@", URL);
           resolve(@NO);
         } else {
@@ -114,7 +114,7 @@ RCT_EXPORT_METHOD(openURL:(NSURL *)URL
   }];
 }
 
-RCT_EXPORT_METHOD(canOpenURL:(NSURL *)URL
+RCT_EXPORT_METHOD(canOpenURL:(NSString *)URL
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 {

@@ -31,9 +31,9 @@
             (nonnull void (^)(NSArray *_Nullable))restorationHandler;
         #endif
 
-- (void) openURL:(NSURL *)URL resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void) openURL:(NSString *)URL resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 
-- (void) canOpenURL:(NSURL *)URL resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
+- (void) canOpenURL:(NSString *)URL resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject;
 
 - (void) getInitialURL:(RCTPromiseResolveBlock _Nonnull )resolve reject:(RCTPromiseRejectBlock)reject;
 
