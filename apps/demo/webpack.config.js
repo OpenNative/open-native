@@ -10,14 +10,17 @@ module.exports = (env) => {
     config.resolve.alias.set('@demo/shared', resolve(__dirname, '..', '..', 'tools', 'demo'));
     config.resolve.alias.set('react-native', '@ammarahm-ed/react-native');
     config.resolve.alias.set('crypto', require.resolve('crypto-js'));
-  });
 
-  // Example if you need to share images across demo apps:
-  // webpack.Utils.addCopyRule({
-  //   from: '../../../tools/images',
-  // 	to: 'images',
-  //   context: webpack.Utils.project.getProjectFilePath('node_modules')
-  // });
+    config.module
+      .rule('customjs')
+      .test(/\.js$/)
+      .use('babel-loader')
+      .loader('babel-loader')
+      .options({
+        babelrc: false,
+        presets: ['module:metro-react-native-babel-preset'],
+      });
+  });
 
   return webpack.resolveConfig();
 };
