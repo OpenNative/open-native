@@ -10,7 +10,7 @@ export const Platform = {
    * Denotes the currently running platform.
    * Can be one of ios, android, web.
    */
-  OS: isIOS ? 'iOS' : isAndroid ? 'Android' : '<unknown platform>',
+  OS: isIOS ? 'ios' : isAndroid ? 'android' : '<unknown platform>',
   /**
    * Returns the value with the matching platform.
    * Object keys can be any of ios, android, native, web, default.
