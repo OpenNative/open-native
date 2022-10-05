@@ -308,45 +308,27 @@ function extractInterfaces(sourceCode: string) {
     ].map((match) => {
       const [
         ,
-        /** @example 'showWithRemappedName , show : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject) {' */
+        /** @example 'showWithRemappedName , show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject) {' */
         fromMethodName,
       ] = match[0].split(/RCT_REMAP_METHOD\(\s*/);
 
       const [
         /** @example 'showWithRemappedName' */
         methodRemappedName,
-        /** @example ' show : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject) {' */
+        /** @example ' show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject) {' */
         fromUnmappedMethodName,
       ] = fromMethodName.split(/\s*,/);
 
-      /** @example 'show : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject' */
+      /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject' */
       const methodUnmappedNameAndArgs = fromUnmappedMethodName
         .split(')')
         .slice(0, -1)
         .join(')');
 
-      /** @example '- (void)showWithRemappedName:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject' */
-      const signature = `- (void)${methodRemappedName.trim()}${methodUnmappedNameAndArgs
-        .trim()
-        .replace(/\s*:\s*/g, ':')};`;
-
-      /** @example ['showWithRemappedName:(RCTPromiseResolveBlock)resolve', 'withRejecter:(RCTPromiseRejectBlock)reject'] */
-      const params = signature.split('- (void)')[1].split(' ');
-
-      /** @example 'showWithRemappedName:withRejecter:' */
-      const selector =
-        params.map((param) => param.split(':')[0]).join(':') +
-        (signature.includes(':') ? ':' : '');
-
-      /** @example 'showWithRemappedNameWithRejecter' */
-      const jsName = convertObjcSelectorToJsName(selector);
-
-      return {
-        exportedName: methodRemappedName,
-        jsName,
-        selector,
-        signature,
-      };
+      return parseRctExportMethodContents(
+        methodUnmappedNameAndArgs,
+        methodRemappedName.trim()
+      );
     });
 
     /**
@@ -359,38 +341,18 @@ function extractInterfaces(sourceCode: string) {
     ].map((match) => {
       const [
         ,
-        /** @example 'show : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject) {' */
+        /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject) {' */
         fromMethodName,
       ] = match[0].split(/RCT_EXPORT_METHOD\(\s*/);
 
-      /** @example 'show : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject' */
+      /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject' */
       const methodNameAndArgs = fromMethodName
         .split(')')
         .slice(0, -1)
         .join(')');
+      const methodName = methodNameAndArgs.split(':')[0].trim();
 
-      /** @example '- (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject' */
-      const signature = `- (void)${methodNameAndArgs
-        .trim()
-        .replace(/\s*:\s*/g, ':')};`;
-
-      /** @example ['show:(RCTPromiseResolveBlock)resolve', 'withRejecter:(RCTPromiseRejectBlock)reject'] */
-      const params = signature.split('- (void)')[1].split(' ');
-
-      /** @example 'show:withRejecter:' */
-      const selector =
-        params.map((param) => param.split(':')[0]).join(':') +
-        (signature.includes(':') ? ':' : '');
-
-      /** @example 'showWithRejecter' */
-      const jsName = convertObjcSelectorToJsName(selector);
-
-      return {
-        exportedName: signature.replace('- (void)', '').split(':')[0],
-        jsName,
-        selector,
-        signature,
-      };
+      return parseRctExportMethodContents(methodNameAndArgs, methodName);
     });
 
     const allMethods = [...remappedMethods, ...exportedMethods];
@@ -401,25 +363,7 @@ function extractInterfaces(sourceCode: string) {
       );
     }
 
-    acc[jsModuleName] = allMethods.map((method) => {
-      const { exportedName, jsName, selector, signature } = method;
-
-      /**
-       * Everything between brackets in the method signature.
-       * @example ["void", "RCTPromiseResolveBlock", "RCTPromiseRejectBlock"]
-       */
-      const types = [...signature.matchAll(/\(.*?\)/g)].map((match) =>
-        match[0].replace(/[()]/g, '')
-      );
-
-      return {
-        exportedName,
-        jsName,
-        selector,
-        signature,
-        types,
-      };
-    });
+    acc[jsModuleName] = allMethods;
 
     return acc;
   }, {});
@@ -453,6 +397,87 @@ function extractInterfaces(sourceCode: string) {
   };
 }
 
+/**
+ * Parse the contents passed into RCT_EXPORT_METHOD or RCT_REMAP_METHOD.
+ * @param contents The whole string between the macro's brackets.
+ * @param exportedName The name exported to React Native consumers.
+ *   - For RCT_EXPORT_METHOD, this is the portion of the method signature before
+ *     the first colon (not including the return type).
+ *   - For RCT_REMAP_METHOD, this is the text leading up to the comma.
+ */
+function parseRctExportMethodContents(contents: string, remappedName?: string) {
+  /**
+   * The Obj-C method signature, with all unnecessary whitespace removed.
+   * @example '- (void)exportedName:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject'
+   */
+  const signature = `- (void)${contents
+    .trim()
+    .replace(/\s+/g, ' ') // Standardise all whitespace to a single space
+    .replace(/\s?\*\s?/g, '*') // Collapse (NSString *) or similar to (NSString*)
+    .replace(/\s*:\s*/g, ':')};`;
+
+  /**
+   * The fragments of the method signature (excluding the return type), showing
+   * both the external and internal name for the param as well as its type.
+   * @example ['exportedName:(RCTPromiseResolveBlock)resolve', 'withRejecter:(RCTPromiseRejectBlock)reject']
+   */
+  const params = signature.split('- (void)')[1].replace(';', '').split(' ');
+
+  /**
+   * The Obj-C selector.
+   * @example 'exportedName:withRejecter:'
+   */
+  const selector =
+    params.map((param) => param.split(':')[0]).join(':') +
+    (signature.includes(':') ? ':' : '');
+
+  /**
+   * The sanitised method name that NativeScript exposes to JS.
+   * @example 'exportedNameWithRejecter'
+   */
+  const jsName = convertObjcSelectorToJsName(selector);
+
+  /**
+   * Everything between brackets in the method signature.
+   * @example ["void", "RCTPromiseResolveBlock", "RCTPromiseRejectBlock"]
+   */
+  const types = [...signature.matchAll(/\(.*?\)/g)].map((match) =>
+    match[0].replace(/[()]/g, '')
+  );
+
+  const methodName = contents.split(':')[0].trim();
+
+  /**
+   * The method name that would be exposed to React Native. These two macro
+   * calls both give the following output:
+   *
+   * {
+   *   "selector": "executeQuery:parameters:",
+   *   "jsName": "executeQueryParameters",
+   *   "methodName": "executeQuery",
+   * }
+   *
+   * ... but their exportedName differs:
+   *
+   * RCT_EXPORT_METHOD(executeQuery:(NSString *)query parameters:(NSDictionary *)parameters)
+   * { "exportedName": "executeQuery" }
+   *
+   * RCT_REMAP_METHOD(executeQueryWithParameters, executeQuery:(NSString *)query parameters:(NSDictionary *)parameters)
+   * { "exportedName": "executeQueryWithParameters" }
+   *
+   * @example 'executeQueryWithParameters'
+   */
+  const exportedName = remappedName || methodName;
+
+  return {
+    exportedName,
+    jsName,
+    selector,
+    signature,
+    types,
+  };
+}
+
 interface MethodDescription {
   exportedName: string;
   jsName: string;
@@ -473,7 +498,6 @@ interface ModuleNamesToMethodDescriptions {
  */
 function convertObjcSelectorToJsName(selector: string): string {
   const tokens: string[] = selector.split(':').filter((param) => param !== '');
-  console.log(`!! selector: ${selector} -> tokens: ${JSON.stringify(tokens)}`);
   let jsName = tokens[0];
 
   for (let i = 1; i < tokens.length; i++) {
@@ -644,7 +668,7 @@ async function writeModuleMapFile({
 
   return await writeFile(
     outputModuleMapPath,
-    JSON.stringify(moduleNamesToMethodDescriptionsMinimal) + '\n',
+    JSON.stringify(moduleNamesToMethodDescriptionsMinimal, null, 2) + '\n',
     { encoding: 'utf-8' }
   );
 }
