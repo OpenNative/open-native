@@ -14,12 +14,13 @@ export function getJSModules() {
  * implmentation.
  */
 export function getCurrentBridge() {
-  if (global.reactNativeBridgeIOS) return global.reactNativeBridgeIOS;
-  if (RCTBridge.currentBridge()) {
-    global.reactNativeBridgeIOS = RCTBridge.currentBridge();
-  } else {
-    global.reactNativeBridgeIOS = RCTBridge.alloc().init();
-    getJSModules().registerJSModule('RCTDeviceEventEmitter', DeviceEventEmitter);
+  if(!global.reactNativeBridgeIOS){
+    let currentBridge = RCTBridge.currentBridge();
+    if (!currentBridge) {
+      currentBridge = RCTBridge.alloc().init();
+      getJSModules().registerJSModule('RCTDeviceEventEmitter', DeviceEventEmitter);
+    }
+    global.reactNativeBridgeIOS = currentBridge;
   }
   return global.reactNativeBridgeIOS;
 }
