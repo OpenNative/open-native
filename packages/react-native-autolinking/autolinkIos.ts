@@ -613,6 +613,7 @@ async function writeHeaderFile({
 
   const header = [
     '#import <React/RCTBridgeModule.h>',
+    '#import <React/RCTEventEmitter.h>',
     '',
     headerEntries.join('\n\n'),
     '',
