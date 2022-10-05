@@ -88,7 +88,8 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
         }
         if (typeof data !== 'function') throw new Error(`Expected a function, but got ${data}`);
         nativeArguments.push((args: unknown[]) => {
-          data(...(toJSValue(args) as unknown[]));
+          const callbackArguments = args ? toJSValue(args) : [];
+          data(...(callbackArguments as unknown[]));
         });
         break;
       }
