@@ -403,7 +403,13 @@ function extractInterfaces(sourceCode: string) {
       );
     }
 
-    acc[jsModuleName] = allMethods;
+    const exportsConstants =
+      /\s+-\s+\(NSDictionary\s?\*\s?\)constantsToExport\s+{/.test(fullMatch);
+
+    acc[jsModuleName] = {
+      exportsConstants,
+      methods: allMethods,
+    };
 
     return acc;
   }, {});
@@ -422,10 +428,10 @@ function extractInterfaces(sourceCode: string) {
    */
   const interfaceDecl = Object.keys(moduleNamesToMethodDescriptions)
     .map((jsModuleName) => {
-      const methodDescriptions = moduleNamesToMethodDescriptions[jsModuleName];
+      const { methods } = moduleNamesToMethodDescriptions[jsModuleName];
       return [
         `@interface ${jsModuleName} (TNS${jsModuleName})`,
-        methodDescriptions.map((record) => record.signature).join('\n\n'),
+        methods.map((record) => record.signature).join('\n\n'),
         '@end',
       ].join('\n');
     })
@@ -527,7 +533,10 @@ interface MethodDescription {
 }
 
 interface ModuleNamesToMethodDescriptions {
-  [moduleName: string]: MethodDescription[];
+  [moduleName: string]: {
+    exportsConstants: boolean;
+    methods: MethodDescription[];
+  };
 }
 
 /**
@@ -738,19 +747,23 @@ async function writeModuleMapFile({
   const moduleNamesToMethodDescriptionsMinimal = Object.keys(
     moduleNamesToMethodDescriptions
   ).reduce<ModuleNamesToMethodDescriptionsMinimal>((acc, moduleName) => {
-    const methodDescriptions = moduleNamesToMethodDescriptions[moduleName];
+    const { exportsConstants, methods } =
+      moduleNamesToMethodDescriptions[moduleName];
 
-    acc[moduleName] = methodDescriptions.reduce<MethodDescriptionsMinimal>(
-      (innerAcc, methodDescription) => {
-        const { exportedName, jsName, types } = methodDescription;
-        innerAcc[exportedName] = {
-          j: jsName,
-          t: types.map((paramType) => parseObjcTypeToEnum(paramType)),
-        };
-        return innerAcc;
-      },
-      {}
-    );
+    acc[moduleName] = {
+      e: exportsConstants,
+      m: methods.reduce<MethodDescriptionsMinimal>(
+        (innerAcc, methodDescription) => {
+          const { exportedName, jsName, types } = methodDescription;
+          innerAcc[exportedName] = {
+            j: jsName,
+            t: types.map((paramType) => parseObjcTypeToEnum(paramType)),
+          };
+          return innerAcc;
+        },
+        {}
+      ),
+    };
 
     return acc;
   }, {});
@@ -784,7 +797,10 @@ interface MethodDescriptionsMinimal {
 }
 
 interface ModuleNamesToMethodDescriptionsMinimal {
-  [moduleName: string]: MethodDescriptionsMinimal;
+  [moduleName: string]: {
+    e: boolean;
+    m: MethodDescriptionsMinimal;
+  };
 }
 
 function parseObjcTypeToEnum(objcType: string): RNObjcSerialisableType {
