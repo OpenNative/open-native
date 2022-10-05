@@ -424,7 +424,7 @@ function extractInterfaces(sourceCode: string) {
     .map((jsModuleName) => {
       const methodDescriptions = moduleNamesToMethodDescriptions[jsModuleName];
       return [
-        `@interface ${jsModuleName}`,
+        `@interface ${jsModuleName} (TNS${jsModuleName})`,
         methodDescriptions.map((record) => record.signature).join('\n\n'),
         '@end',
       ].join('\n');
