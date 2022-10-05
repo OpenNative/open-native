@@ -26,7 +26,7 @@ type LinkingEventDefinitions = {
  *
  * See https://reactnative.dev/docs/linking.html
  */
-export class Linking extends NativeEventEmitter {
+class _Linking extends NativeEventEmitter {
   constructor() {
     super(Platform.OS === 'ios' ? (NativeLinkingManager as any) : null);
   }
@@ -130,3 +130,5 @@ export class Linking extends NativeEventEmitter {
     }
   }
 }
+
+export const Linking = new _Linking();

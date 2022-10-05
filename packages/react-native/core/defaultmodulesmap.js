@@ -23,6 +23,6 @@ export default {
         t: [RNObjcSerialisableType.string, RNObjcSerialisableType.array, RNObjcSerialisableType.RCTPromiseResolveBlock, RNObjcSerialisableType.RCTPromiseResolveBlock],
       },
     },
-    e: true,
+    e: false,
   },
 };
