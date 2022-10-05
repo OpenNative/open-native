@@ -55,6 +55,10 @@ async function autolinkIosHook(hookArgs: HookArgs) {
     reactNativePodspecsPackageDir,
     'platforms/ios/Podfile'
   );
+  const outputPodspecPath = path.resolve(
+    reactNativePodspecsPackageDir,
+    'platforms/ios/React-Native-Podspecs.podspec'
+  );
   const outputModuleMapPath = path.resolve(
     reactNativePodspecsPackageDir,
     'platforms/ios/lib/modulemap.json'
@@ -66,6 +70,7 @@ async function autolinkIosHook(hookArgs: HookArgs) {
     outputHeaderPath,
     outputPodfilePath,
     outputModuleMapPath,
+    outputPodspecPath,
   });
 
   const green = '\x1b[32m';

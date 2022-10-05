@@ -22,6 +22,7 @@ const logPrefix = '[react-native-autolinking/autolinkIos.js]';
  *   should be resolved).
  * @param args.outputHeaderPath An absolute path to output the header to.
  * @param args.outputPodfilePath An absolute path to output the Podfile to.
+ * @param args.outputPodspecPath An absolute path to output the podspec to.
  * @param args.outputModuleMapPath An absolute path to output the module map to.
  *   (Just a JSON file. Not to be confused with a clang module.modulemap file).
  * @returns a list of package names in which podspecs were found and autolinked.
@@ -31,12 +32,14 @@ export async function autolinkIos({
   projectDir,
   outputHeaderPath,
   outputPodfilePath,
+  outputPodspecPath,
   outputModuleMapPath,
 }: {
   dependencies: string[];
   projectDir: string;
   outputHeaderPath: string;
   outputPodfilePath: string;
+  outputPodspecPath: string;
   outputModuleMapPath: string;
 }) {
   const autolinkingInfo = (
@@ -58,6 +61,7 @@ export async function autolinkIos({
 
   await Promise.all([
     await writeHeaderFile({
+      importDecls: autolinkingInfo.map(({ importDecl }) => importDecl),
       headerEntries: autolinkingInfo.map(({ headerEntry }) => headerEntry),
       outputHeaderPath,
     }),
@@ -65,6 +69,11 @@ export async function autolinkIos({
     await writePodfile({
       autolinkedDeps: autolinkingInfo.map(({ podfileEntry }) => podfileEntry),
       outputPodfilePath,
+    }),
+
+    await writePodspecfile({
+      podspecNames: autolinkingInfo.map(({ podspecName }) => podspecName),
+      outputPodspecPath,
     }),
 
     await writeModuleMapFile({
@@ -121,7 +130,7 @@ async function mapPackageNameToAutolinkingInfo(
 
   // The other platforms are 'osx', 'macos', 'tvos', and 'watchos'.
   const {
-    name: podSpecName = packageName,
+    name: podspecName = packageName,
     source_files: commonSourceFiles = [],
     ios: { source_files: iosSourceFiles } = { source_files: [] },
   } = podspecParsed;
@@ -148,6 +157,34 @@ async function mapPackageNameToAutolinkingInfo(
 
       const interfaces = extractInterfaces(sourceFileContents);
 
+      // We replace hyphens with underscores as per Clang rules:
+      //
+      // > Names of Clang Modules are limited to be C99ext-identifiers. This
+      // > means that they can only contain alphanumeric characters and
+      // > underscores, and cannot begin with a number.
+      // https://blog.cocoapods.org/Pod-Authors-Guide-to-CocoaPods-Frameworks/
+      //
+      // I believe that underscores are enforced when use_frameworks! is on,
+      // though I don't know whether, conversely, hyphens are allowed when it's
+      // off. This is just from my experience making this Cocoapod:
+      // https://github.com/shirakaba/mecab-ko#swift-invocation
+      const clangModuleName = podspecName.replace(/-/g, '_');
+
+      console.log(
+        `!! working out importDecl, given clangModuleName "${clangModuleName}"; sourceFilePath "${sourceFilePath}"`
+      );
+
+      // FIXME: this is a lazy, provisional trick to get the import declaration.
+      // We assume that the source file is a .m file and that it declares its
+      // classes in a file with the same name but a .h extension (and woe betide
+      // us if they declare the class only in the .m file). This is
+      // conventionally a safe assumption, but you just know some packages out
+      // there will do things differently to make life hard for us.
+      const importDecl = `#import <${clangModuleName}/${path.basename(
+        sourceFilePath,
+        '.m'
+      )}.h>`;
+
       const headerEntry = [
         // A comment to write into the header to indicate where the interfaces
         // that we're about to extract came from.
@@ -156,13 +193,16 @@ async function mapPackageNameToAutolinkingInfo(
         `// END: ${packageName}/${podspecFileName}`,
       ].join('\n');
 
-      const podfileEntry = `pod '${podSpecName}', path: "${podspecFilePath}"`;
+      const podfileEntry = `pod '${podspecName}', path: "${podspecFilePath}"`;
       return {
-        packageName,
+        clangModuleName,
         headerEntry,
-        podfileEntry,
+        importDecl,
         moduleNamesToMethodDescriptions:
           interfaces.moduleNamesToMethodDescriptions,
+        packageName,
+        podfileEntry,
+        podspecName,
       };
     })
   );
@@ -593,14 +633,60 @@ async function writePodfile({
 
 /**
  * @param {object} args
+ * @param args.podspecNames the names of each dependency to add to the podspec.
+ * @param args.outputPodspecPath An absolute path to output the podspec to.
+ * @returns A Promise to write the podspec into the specified location.
+ */
+async function writePodspecfile({
+  podspecNames,
+  outputPodspecPath,
+}: {
+  podspecNames: string[];
+  outputPodspecPath: string;
+}) {
+  const podspecContents = [
+    `# This file will be updated automatically by hooks/before-prepareNativeApp.js.`,
+    `require 'json'`,
+    ``,
+    `package = JSON.parse(File.read(File.join(__dir__, '../../package.json')))`,
+    ``,
+    `Pod::Spec.new do |s|`,
+    `  s.name         = "React-Native-Podspecs"`,
+    `  s.header_dir   = "ReactNativePodspecs"`,
+    `  s.version      = package['version']`,
+    `  s.summary      = package['description']`,
+    `  s.license      = package['license']`,
+    ``,
+    `  s.authors      = package['author']`,
+    `  s.homepage     = package['homepage']`,
+    `  s.platforms    = { :ios => "12.4" }`,
+    ``,
+    `  s.source       = { :git => "https://github.com/ammarahm-ed/nativescript-magic-spells.git", :tag => "v#{s.version}" }`,
+    `  s.source_files  = "lib/**/*.{h,m,mm,swift}"`,
+    ``,
+    `  s.dependency 'React-Core'`,
+    ...podspecNames.map((name) => `  s.dependency '${name}'`),
+    `end`,
+    ``,
+  ].join('\n');
+
+  return await writeFile(outputPodspecPath, podspecContents, {
+    encoding: 'utf-8',
+  });
+}
+
+/**
+ * @param {object} args
  * @param args.headerEntries Sections of the header file to be filled in.
  * @param args.outputHeaderPath An absolute path to output the header to.
  * @returns A Promise to write the header file into the specified location.
  */
 async function writeHeaderFile({
+  importDecls,
   headerEntries,
   outputHeaderPath,
 }: {
+  importDecls: string[];
   headerEntries: string[];
   outputHeaderPath: string;
 }) {
@@ -612,8 +698,10 @@ async function writeHeaderFile({
   ].join('\n');
 
   const header = [
+    '// This file will be updated automatically by hooks/before-prepareNativeApp.js.',
     '#import <React/RCTBridgeModule.h>',
     '#import <React/RCTEventEmitter.h>',
+    importDecls.join('\n'),
     '',
     headerEntries.join('\n\n'),
     '',
