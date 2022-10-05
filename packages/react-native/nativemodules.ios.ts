@@ -1,5 +1,5 @@
 import { getCurrentBridge } from './bridge.ios';
-import { promisify, toNativeArguments } from './converter.ios';
+import { promisify, toJSValue, toNativeArguments } from './converter.ios';
 import { getModuleMethods, isPromise, TModuleMethodsType, TNativeModuleMap } from './utils.ios';
 import DefaultModuleMap from './core/defaultmodulesmap';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -11,9 +11,11 @@ class NativeModuleHolder {
   private bridge: RCTBridge = getCurrentBridge();
   moduleMethods: TModuleMethodsType;
   objcMethodsNames: string[];
+  hasExportedConstants: boolean;
 
   constructor(public moduleName: string) {
-    this.moduleMethods = NativeModuleMap[this.moduleName];
+    this.moduleMethods = NativeModuleMap[this.moduleName].m;
+    this.loadConstants();
     this.wrapNativeMethods();
   }
 
@@ -27,6 +29,16 @@ class NativeModuleHolder {
       return true;
     }
     return false;
+  }
+
+  loadConstants() {
+    this.hasExportedConstants = NativeModuleMap[this.moduleName].e;
+    if (!this.hasExportedConstants) return;
+    const constants = toJSValue(this.nativeModule.constantsToExport()) as {};
+    if (!constants) return;
+    for (const key in constants) {
+      this[key] = constants[key];
+    }
   }
 
   wrapNativeMethods() {
