@@ -34,8 +34,11 @@ class NativeModuleHolder {
   loadConstants() {
     this.hasExportedConstants = NativeModuleMap[this.moduleName].e;
     if (!this.hasExportedConstants) return;
-    const constants = toJSValue(this.nativeModule.constantsToExport()) as {};
-    if (!constants) return;
+    const constants = toJSValue(this.nativeModule.constantsToExport?.()) as {};
+    if (!constants) {
+      console.warn(`${this.moduleName} specifies that it has exported constants but has returned ${constants}.`);
+      return;
+    }
     for (const key in constants) {
       this[key] = constants[key];
     }
