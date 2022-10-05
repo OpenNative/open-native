@@ -8,7 +8,8 @@
     "@ammarahm-ed/react-native-autolinking": "file:../../dist/packages/react-native-autolinking",
     "@ammarahm-ed/react-native-module-test": "file:../../dist/packages/react-native-module-test",
     "@ammarahm-ed/react-native-podspecs": "file:../../dist/packages/react-native-podspecs",
-    "@nativescript/core": "file:../../node_modules/@nativescript/core"
+    "@nativescript/core": "file:../../node_modules/@nativescript/core",
+    "react-native-auth0": "2.13.3"
   },
   "devDependencies": {
     "@nativescript/android": "~8.3.0",
