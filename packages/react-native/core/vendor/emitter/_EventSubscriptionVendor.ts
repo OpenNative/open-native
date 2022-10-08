@@ -31,7 +31,10 @@ class EventSubscriptionVendor {
    * @param {string} eventType
    * @param {EventSubscription} subscription
    */
-  addSubscription(eventType: string, subscription: EventSubscription): EventSubscription {
+  addSubscription(
+    eventType: string,
+    subscription: EventSubscription
+  ): EventSubscription {
     if (subscription.subscriber !== this) {
       throw new Error('The subscriber of the subscription is incorrectly set.');
     }

@@ -1,6 +1,22 @@
-declare function RCTAddAssertFunction(assertFunction: (p1: string, p2: string, p3: number, p4: string, p5: string) => void): void;
+declare function RCTAddAssertFunction(
+  assertFunction: (
+    p1: string,
+    p2: string,
+    p3: number,
+    p4: string,
+    p5: string
+  ) => void
+): void;
 
-declare function RCTAddLogFunction(logFunction: (p1: RCTLogLevel, p2: RCTLogSource, p3: string, p4: number, p5: string) => void): void;
+declare function RCTAddLogFunction(
+  logFunction: (
+    p1: RCTLogLevel,
+    p2: RCTLogSource,
+    p3: string,
+    p4: number,
+    p5: string
+  ) => void
+): void;
 
 declare class RCTBridge extends NSObject {
   static alloc(): RCTBridge; // inherited from NSObject
@@ -19,27 +35,46 @@ declare class RCTBridge extends NSObject {
 
   enqueueJSCallArgs(moduleDotMethod: string, args: NSArray<any> | any[]): void;
 
-  enqueueJSCallMethodArgsCompletion(module: string, method: string, args: NSArray<any> | any[], completion: () => void): void;
+  enqueueJSCallMethodArgsCompletion(
+    module: string,
+    method: string,
+    args: NSArray<any> | any[],
+    completion: () => void
+  ): void;
 
   moduleForClass(moduleClass: typeof NSObject): any;
 
   moduleForName(moduleName: string): any;
 
-  moduleForNameLazilyLoadIfNecessary(moduleName: string, lazilyLoad: boolean): any;
+  moduleForNameLazilyLoadIfNecessary(
+    moduleName: string,
+    lazilyLoad: boolean
+  ): any;
 
-  setJSModuleInvokerCallback(callback: (p1: string, p2: string, p3: NSArray<any>, p4: () => void) => void): void;
+  setJSModuleInvokerCallback(
+    callback: (p1: string, p2: string, p3: NSArray<any>, p4: () => void) => void
+  ): void;
 }
 
 interface RCTBridgeDelegate extends NSObjectProtocol {
   bridgeDidNotFindModule?(bridge: RCTBridge, moduleName: string): boolean;
 
-  extraLazyModuleClassesForBridge?(bridge: RCTBridge): NSDictionary<string, typeof NSObject>;
+  extraLazyModuleClassesForBridge?(
+    bridge: RCTBridge
+  ): NSDictionary<string, typeof NSObject>;
 
   extraModulesForBridge?(bridge: RCTBridge): NSArray<RCTBridgeModule>;
 
-  loadSourceForBridgeOnProgressOnComplete?(bridge: RCTBridge, onProgress: (p1: RCTLoadingProgress) => void, loadCallback: (p1: NSError, p2: RCTSource) => void): void;
+  loadSourceForBridgeOnProgressOnComplete?(
+    bridge: RCTBridge,
+    onProgress: (p1: RCTLoadingProgress) => void,
+    loadCallback: (p1: NSError, p2: RCTSource) => void
+  ): void;
 
-  loadSourceForBridgeWithBlock?(bridge: RCTBridge, loadCallback: (p1: NSError, p2: RCTSource) => void): void;
+  loadSourceForBridgeWithBlock?(
+    bridge: RCTBridge,
+    loadCallback: (p1: NSError, p2: RCTSource) => void
+  ): void;
 
   shouldBridgeUseCustomJSC?(bridge: RCTBridge): boolean;
 
@@ -78,7 +113,9 @@ declare var RCTBridgeModule: {
   requiresMainQueueSetup?(): boolean;
 };
 
-declare function RCTBridgeModuleNameForClass(bridgeModuleClass: typeof NSObject): string;
+declare function RCTBridgeModuleNameForClass(
+  bridgeModuleClass: typeof NSObject
+): string;
 
 declare class RCTBundleManager extends NSObject {
   static alloc(): RCTBundleManager; // inherited from NSObject
@@ -93,20 +130,42 @@ declare class RCTCallableJSModules extends NSObject {
 
   static new(): RCTCallableJSModules; // inherited from NSObject
 
-  invokeModuleMethodWithArgs(moduleName: string, methodName: string, args: NSArray<any> | any[]): void;
+  invokeModuleMethodWithArgs(
+    moduleName: string,
+    methodName: string,
+    args: NSArray<any> | any[]
+  ): void;
 
-  invokeModuleMethodWithArgsOnComplete(moduleName: string, methodName: string, args: NSArray<any> | any[], onComplete: () => void): void;
+  invokeModuleMethodWithArgsOnComplete(
+    moduleName: string,
+    methodName: string,
+    args: NSArray<any> | any[],
+    onComplete: () => void
+  ): void;
 
   setBridge(bridge: RCTBridge): void;
 
-  setBridgelessJSModuleMethodInvoker(bridgelessJSModuleMethodInvoker: (p1: string, p2: string, p3: NSArray<any>, p4: () => void) => void): void;
+  setBridgelessJSModuleMethodInvoker(
+    bridgelessJSModuleMethodInvoker: (
+      p1: string,
+      p2: string,
+      p3: NSArray<any>,
+      p4: () => void
+    ) => void
+  ): void;
 }
 
 declare function RCTCeilPixelValue(value: number): number;
 
-declare function RCTClassOverridesClassMethod(cls: typeof NSObject, selector: string): boolean;
+declare function RCTClassOverridesClassMethod(
+  cls: typeof NSObject,
+  selector: string
+): boolean;
 
-declare function RCTClassOverridesInstanceMethod(cls: typeof NSObject, selector: string): boolean;
+declare function RCTClassOverridesInstanceMethod(
+  cls: typeof NSObject,
+  selector: string
+): boolean;
 
 declare function RCTColorToHexString(color: any): string;
 
@@ -126,15 +185,29 @@ declare function RCTCurrentThreadName(): string;
 
 declare function RCTDataURL(mimeType: string, data: NSData): NSURL;
 
-declare var RCTDefaultLogFunction: (p1: RCTLogLevel, p2: RCTLogSource, p3: string, p4: number, p5: string) => void;
+declare var RCTDefaultLogFunction: (
+  p1: RCTLogLevel,
+  p2: RCTLogSource,
+  p3: string,
+  p4: number,
+  p5: string
+) => void;
 
 declare function RCTDropReactPrefixes(s: string): string;
 
-declare function RCTEnforceNewArchitectureValidation(type: RCTNotAllowedValidation, context: any, extra: string): void;
+declare function RCTEnforceNewArchitectureValidation(
+  type: RCTNotAllowedValidation,
+  context: any,
+  extra: string
+): void;
 
 declare var RCTErrorDomain: string;
 
-declare function RCTErrorNewArchitectureValidation(type: RCTNotAllowedValidation, context: any, extra: string): void;
+declare function RCTErrorNewArchitectureValidation(
+  type: RCTNotAllowedValidation,
+  context: any,
+  extra: string
+): void;
 
 declare var RCTErrorUnspecified: string;
 
@@ -142,7 +215,10 @@ declare function RCTErrorWithMessage(message: string): NSError;
 
 declare function RCTErrorWithNSException(exception: NSException): NSError;
 
-declare class RCTEventEmitter extends NSObject implements RCTBridgeModule, RCTInvalidating {
+declare class RCTEventEmitter
+  extends NSObject
+  implements RCTBridgeModule, RCTInvalidating
+{
   static alloc(): RCTEventEmitter; // inherited from NSObject
 
   static moduleName(): string;
@@ -205,7 +281,11 @@ declare class RCTEventEmitter extends NSObject implements RCTBridgeModule, RCTIn
 
   performSelectorWithObject(aSelector: string, object: any): any;
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: any, object2: any): any;
+  performSelectorWithObjectWithObject(
+    aSelector: string,
+    object1: any,
+    object2: any
+  ): any;
 
   removeListeners(count: number): void;
 
@@ -238,15 +318,27 @@ declare function RCTFontSizeMultiplier(): number;
 
 declare function RCTForceTouchAvailable(): boolean;
 
-declare function RCTFormatError(message: string, stacktrace: NSArray<NSDictionary<string, any>> | NSDictionary<string, any>[], maxMessageLength: number): string;
+declare function RCTFormatError(
+  message: string,
+  stacktrace: NSArray<NSDictionary<string, any>> | NSDictionary<string, any>[],
+  maxMessageLength: number
+): string;
 
-declare function RCTFormatLog(timestamp: Date, level: RCTLogLevel, fileName: string, lineNumber: number, message: string): string;
+declare function RCTFormatLog(
+  timestamp: Date,
+  level: RCTLogLevel,
+  fileName: string,
+  lineNumber: number,
+  message: string
+): string;
 
 declare function RCTFormatLogLevel(p1: RCTLogLevel): string;
 
 declare function RCTFormatLogSource(p1: RCTLogSource): string;
 
-declare function RCTFormatStackTrace(stackTrace: NSArray<NSDictionary<string, any>> | NSDictionary<string, any>[]): string;
+declare function RCTFormatStackTrace(
+  stackTrace: NSArray<NSDictionary<string, any>> | NSDictionary<string, any>[]
+): string;
 
 declare class RCTFrameUpdate extends NSObject {
   static alloc(): RCTFrameUpdate; // inherited from NSObject
@@ -273,13 +365,25 @@ declare var RCTFrameUpdateObserver: {
   prototype: RCTFrameUpdateObserver;
 };
 
-declare function RCTGetAssertFunction(): (p1: string, p2: string, p3: number, p4: string, p5: string) => void;
+declare function RCTGetAssertFunction(): (
+  p1: string,
+  p2: string,
+  p3: number,
+  p4: string,
+  p5: string
+) => void;
 
 declare function RCTGetFatalExceptionHandler(): (p1: NSException) => void;
 
 declare function RCTGetFatalHandler(): (p1: NSError) => void;
 
-declare function RCTGetLogFunction(): (p1: RCTLogLevel, p2: RCTLogSource, p3: string, p4: number, p5: string) => void;
+declare function RCTGetLogFunction(): (
+  p1: RCTLogLevel,
+  p2: RCTLogSource,
+  p3: string,
+  p4: number,
+  p5: string
+) => void;
 
 declare function RCTGetLogThreshold(): RCTLogLevel;
 
@@ -287,7 +391,10 @@ declare function RCTGetModuleClassForName(moduleName: string): typeof NSObject;
 
 declare function RCTGetModuleClasses(): NSDictionary<string, typeof NSObject>;
 
-declare function RCTGetRGBAColorComponents(color: any, rgba: interop.Reference<number>): void;
+declare function RCTGetRGBAColorComponents(
+  color: any,
+  rgba: interop.Reference<number>
+): void;
 
 declare function RCTGetURLQueryParam(URL: NSURL, param: string): string;
 
@@ -327,19 +434,34 @@ declare function RCTIsMainQueueExecutionOfConstantsToExportDisabled(): boolean;
 
 declare function RCTIsMainQueueFunction(): boolean;
 
-declare function RCTJSErrorFromCodeMessageAndNSError(code: string, message: string, error: NSError): NSDictionary<string, any>;
+declare function RCTJSErrorFromCodeMessageAndNSError(
+  code: string,
+  message: string,
+  error: NSError
+): NSDictionary<string, any>;
 
-declare function RCTJSErrorFromNSError(error: NSError): NSDictionary<string, any>;
+declare function RCTJSErrorFromNSError(
+  error: NSError
+): NSDictionary<string, any>;
 
 declare var RCTJSExtraDataKey: string;
 
 declare function RCTJSONClean(object: any): any;
 
-declare function RCTJSONParse(jsonString: string, error: interop.Pointer | interop.Reference<NSError>): any;
+declare function RCTJSONParse(
+  jsonString: string,
+  error: interop.Pointer | interop.Reference<NSError>
+): any;
 
-declare function RCTJSONParseMutable(jsonString: string, error: interop.Pointer | interop.Reference<NSError>): any;
+declare function RCTJSONParseMutable(
+  jsonString: string,
+  error: interop.Pointer | interop.Reference<NSError>
+): any;
 
-declare function RCTJSONStringify(jsonObject: any, error: interop.Pointer | interop.Reference<NSError>): string;
+declare function RCTJSONStringify(
+  jsonObject: any,
+  error: interop.Pointer | interop.Reference<NSError>
+): string;
 
 declare var RCTJSRawStackTraceKey: string;
 
@@ -350,9 +472,18 @@ declare var RCTJSThread: NSObject;
 interface RCTJavaScriptExecutor extends RCTBridgeModule, RCTInvalidating {
   valid: boolean;
 
-  callFunctionOnModuleMethodArgumentsCallback(module: string, method: string, args: NSArray<any> | any[], onComplete: (p1: any, p2: NSError) => void): void;
+  callFunctionOnModuleMethodArgumentsCallback(
+    module: string,
+    method: string,
+    args: NSArray<any> | any[],
+    onComplete: (p1: any, p2: NSError) => void
+  ): void;
 
-  executeApplicationScriptSourceURLOnComplete(script: NSData, sourceURL: NSURL, onComplete: (p1: NSError) => void): void;
+  executeApplicationScriptSourceURLOnComplete(
+    script: NSData,
+    sourceURL: NSURL,
+    onComplete: (p1: NSError) => void
+  ): void;
 
   executeAsyncBlockOnJavaScriptQueue(block: () => void): void;
 
@@ -360,9 +491,17 @@ interface RCTJavaScriptExecutor extends RCTBridgeModule, RCTInvalidating {
 
   flushedQueue(onComplete: (p1: any, p2: NSError) => void): void;
 
-  injectJSONTextAsGlobalObjectNamedCallback(script: string, objectName: string, onComplete: (p1: NSError) => void): void;
+  injectJSONTextAsGlobalObjectNamedCallback(
+    script: string,
+    objectName: string,
+    onComplete: (p1: NSError) => void
+  ): void;
 
-  invokeCallbackIDArgumentsCallback(cbID: number, args: NSArray<any> | any[], onComplete: (p1: any, p2: NSError) => void): void;
+  invokeCallbackIDArgumentsCallback(
+    cbID: number,
+    args: NSArray<any> | any[],
+    onComplete: (p1: any, p2: NSError) => void
+  ): void;
 
   setUp(): void;
 }
@@ -377,9 +516,16 @@ declare var RCTJavaScriptExecutor: {
 declare class RCTJavaScriptLoader extends NSObject {
   static alloc(): RCTJavaScriptLoader; // inherited from NSObject
 
-  static attemptSynchronousLoadOfBundleAtURLSourceLengthError(scriptURL: NSURL, sourceLength: interop.Pointer | interop.Reference<number>): NSData;
+  static attemptSynchronousLoadOfBundleAtURLSourceLengthError(
+    scriptURL: NSURL,
+    sourceLength: interop.Pointer | interop.Reference<number>
+  ): NSData;
 
-  static loadBundleAtURLOnProgressOnComplete(scriptURL: NSURL, onProgress: (p1: RCTLoadingProgress) => void, onComplete: (p1: NSError, p2: RCTSource) => void): void;
+  static loadBundleAtURLOnProgressOnComplete(
+    scriptURL: NSURL,
+    onProgress: (p1: RCTLoadingProgress) => void,
+    onComplete: (p1: NSError, p2: RCTSource) => void
+  ): void;
 
   static new(): RCTJavaScriptLoader; // inherited from NSObject
 }
@@ -432,15 +578,27 @@ declare const enum RCTLogLevel {
   Fatal = 4,
 }
 
-declare function RCTLogNewArchitectureValidation(type: RCTNotAllowedValidation, context: any, extra: string): void;
+declare function RCTLogNewArchitectureValidation(
+  type: RCTNotAllowedValidation,
+  context: any,
+  extra: string
+): void;
 
-declare function RCTLogSetBridgeCallableJSModules(callableJSModules: RCTCallableJSModules): void;
+declare function RCTLogSetBridgeCallableJSModules(
+  callableJSModules: RCTCallableJSModules
+): void;
 
-declare function RCTLogSetBridgeModuleRegistry(moduleRegistry: RCTModuleRegistry): void;
+declare function RCTLogSetBridgeModuleRegistry(
+  moduleRegistry: RCTModuleRegistry
+): void;
 
-declare function RCTLogSetBridgelessCallableJSModules(callableJSModules: RCTCallableJSModules): void;
+declare function RCTLogSetBridgelessCallableJSModules(
+  callableJSModules: RCTCallableJSModules
+): void;
 
-declare function RCTLogSetBridgelessModuleRegistry(moduleRegistry: RCTModuleRegistry): void;
+declare function RCTLogSetBridgelessModuleRegistry(
+  moduleRegistry: RCTModuleRegistry
+): void;
 
 declare const enum RCTLogSource {
   Native = 1,
@@ -450,9 +608,17 @@ declare const enum RCTLogSource {
 
 declare function RCTMD5Hash(string: string): string;
 
-declare function RCTMakeAndLogError(message: string, toStringify: any, extraData: NSDictionary<string, any>): NSDictionary<string, any>;
+declare function RCTMakeAndLogError(
+  message: string,
+  toStringify: any,
+  extraData: NSDictionary<string, any>
+): NSDictionary<string, any>;
 
-declare function RCTMakeError(message: string, toStringify: any, extraData: NSDictionary<string, any>): NSDictionary<string, any>;
+declare function RCTMakeError(
+  message: string,
+  toStringify: any,
+  extraData: NSDictionary<string, any>
+): NSDictionary<string, any>;
 
 interface RCTMethodInfo {
   jsName: string;
@@ -498,11 +664,33 @@ declare class RCTModuleData extends NSObject implements RCTInvalidating {
 
   readonly; // inherited from NSObjectProtocol
 
-  constructor(o: { moduleClass: typeof NSObject; bridge: RCTBridge; moduleRegistry: RCTModuleRegistry; viewRegistry_DEPRECATED: RCTViewRegistry; bundleManager: RCTBundleManager; callableJSModules: RCTCallableJSModules });
+  constructor(o: {
+    moduleClass: typeof NSObject;
+    bridge: RCTBridge;
+    moduleRegistry: RCTModuleRegistry;
+    viewRegistry_DEPRECATED: RCTViewRegistry;
+    bundleManager: RCTBundleManager;
+    callableJSModules: RCTCallableJSModules;
+  });
 
-  constructor(o: { moduleClass: typeof NSObject; moduleProvider: () => RCTBridgeModule; bridge: RCTBridge; moduleRegistry: RCTModuleRegistry; viewRegistry_DEPRECATED: RCTViewRegistry; bundleManager: RCTBundleManager; callableJSModules: RCTCallableJSModules });
+  constructor(o: {
+    moduleClass: typeof NSObject;
+    moduleProvider: () => RCTBridgeModule;
+    bridge: RCTBridge;
+    moduleRegistry: RCTModuleRegistry;
+    viewRegistry_DEPRECATED: RCTViewRegistry;
+    bundleManager: RCTBundleManager;
+    callableJSModules: RCTCallableJSModules;
+  });
 
-  constructor(o: { moduleInstance: RCTBridgeModule; bridge: RCTBridge; moduleRegistry: RCTModuleRegistry; viewRegistry_DEPRECATED: RCTViewRegistry; bundleManager: RCTBundleManager; callableJSModules: RCTCallableJSModules });
+  constructor(o: {
+    moduleInstance: RCTBridgeModule;
+    bridge: RCTBridge;
+    moduleRegistry: RCTModuleRegistry;
+    viewRegistry_DEPRECATED: RCTViewRegistry;
+    bundleManager: RCTBundleManager;
+    callableJSModules: RCTCallableJSModules;
+  });
 
   class(): typeof NSObject;
 
@@ -510,11 +698,33 @@ declare class RCTModuleData extends NSObject implements RCTInvalidating {
 
   gatherConstants(): void;
 
-  initWithModuleClassBridgeModuleRegistryViewRegistry_DEPRECATEDBundleManagerCallableJSModules(moduleClass: typeof NSObject, bridge: RCTBridge, moduleRegistry: RCTModuleRegistry, viewRegistry_DEPRECATED: RCTViewRegistry, bundleManager: RCTBundleManager, callableJSModules: RCTCallableJSModules): this;
+  initWithModuleClassBridgeModuleRegistryViewRegistry_DEPRECATEDBundleManagerCallableJSModules(
+    moduleClass: typeof NSObject,
+    bridge: RCTBridge,
+    moduleRegistry: RCTModuleRegistry,
+    viewRegistry_DEPRECATED: RCTViewRegistry,
+    bundleManager: RCTBundleManager,
+    callableJSModules: RCTCallableJSModules
+  ): this;
 
-  initWithModuleClassModuleProviderBridgeModuleRegistryViewRegistry_DEPRECATEDBundleManagerCallableJSModules(moduleClass: typeof NSObject, moduleProvider: () => RCTBridgeModule, bridge: RCTBridge, moduleRegistry: RCTModuleRegistry, viewRegistry_DEPRECATED: RCTViewRegistry, bundleManager: RCTBundleManager, callableJSModules: RCTCallableJSModules): this;
+  initWithModuleClassModuleProviderBridgeModuleRegistryViewRegistry_DEPRECATEDBundleManagerCallableJSModules(
+    moduleClass: typeof NSObject,
+    moduleProvider: () => RCTBridgeModule,
+    bridge: RCTBridge,
+    moduleRegistry: RCTModuleRegistry,
+    viewRegistry_DEPRECATED: RCTViewRegistry,
+    bundleManager: RCTBundleManager,
+    callableJSModules: RCTCallableJSModules
+  ): this;
 
-  initWithModuleInstanceBridgeModuleRegistryViewRegistry_DEPRECATEDBundleManagerCallableJSModules(instance: RCTBridgeModule, bridge: RCTBridge, moduleRegistry: RCTModuleRegistry, viewRegistry_DEPRECATED: RCTViewRegistry, bundleManager: RCTBundleManager, callableJSModules: RCTCallableJSModules): this;
+  initWithModuleInstanceBridgeModuleRegistryViewRegistry_DEPRECATEDBundleManagerCallableJSModules(
+    instance: RCTBridgeModule,
+    bridge: RCTBridge,
+    moduleRegistry: RCTModuleRegistry,
+    viewRegistry_DEPRECATED: RCTViewRegistry,
+    bundleManager: RCTBundleManager,
+    callableJSModules: RCTCallableJSModules
+  ): this;
 
   invalidate(): void;
 
@@ -528,7 +738,11 @@ declare class RCTModuleData extends NSObject implements RCTInvalidating {
 
   performSelectorWithObject(aSelector: string, object: any): any;
 
-  performSelectorWithObjectWithObject(aSelector: string, object1: any, object2: any): any;
+  performSelectorWithObjectWithObject(
+    aSelector: string,
+    object1: any,
+    object2: any
+  ): any;
 
   respondsToSelector(aSelector: string): boolean;
 
@@ -542,18 +756,29 @@ declare class RCTModuleRegistry extends NSObject {
 
   static new(): RCTModuleRegistry; // inherited from NSObject
 
-  moduleForName(moduleName: string | interop.Pointer | interop.Reference<any>): any;
+  moduleForName(
+    moduleName: string | interop.Pointer | interop.Reference<any>
+  ): any;
 
-  moduleForNameLazilyLoadIfNecessary(moduleName: string | interop.Pointer | interop.Reference<any>, lazilyLoad: boolean): any;
+  moduleForNameLazilyLoadIfNecessary(
+    moduleName: string | interop.Pointer | interop.Reference<any>,
+    lazilyLoad: boolean
+  ): any;
 
   setBridge(bridge: RCTBridge): void;
 
   setTurboModuleRegistry(turboModuleRegistry: RCTTurboModuleRegistry): void;
 }
 
-declare function RCTNewArchitectureSetMinValidationLevel(level: RCTNotAllowedValidation): void;
+declare function RCTNewArchitectureSetMinValidationLevel(
+  level: RCTNotAllowedValidation
+): void;
 
-declare function RCTNewArchitectureValidationPlaceholder(type: RCTNotAllowedValidation, context: any, extra: string): void;
+declare function RCTNewArchitectureValidationPlaceholder(
+  type: RCTNotAllowedValidation,
+  context: any,
+  extra: string
+): void;
 
 declare const enum RCTNotAllowedValidation {
   InBridgeless = 1,
@@ -565,11 +790,32 @@ declare const enum RCTNotAllowedValidation {
 
 declare var RCTObjCStackTraceKey: string;
 
-declare function RCTPerformBlockWithAssertFunction(block: () => void, assertFunction: (p1: string, p2: string, p3: number, p4: string, p5: string) => void): void;
+declare function RCTPerformBlockWithAssertFunction(
+  block: () => void,
+  assertFunction: (
+    p1: string,
+    p2: string,
+    p3: number,
+    p4: string,
+    p5: string
+  ) => void
+): void;
 
-declare function RCTPerformBlockWithLogFunction(block: () => void, logFunction: (p1: RCTLogLevel, p2: RCTLogSource, p3: string, p4: number, p5: string) => void): void;
+declare function RCTPerformBlockWithLogFunction(
+  block: () => void,
+  logFunction: (
+    p1: RCTLogLevel,
+    p2: RCTLogSource,
+    p3: string,
+    p4: number,
+    p5: string
+  ) => void
+): void;
 
-declare function RCTPerformBlockWithLogPrefix(block: () => void, prefix: string): void;
+declare function RCTPerformBlockWithLogPrefix(
+  block: () => void,
+  prefix: string
+): void;
 
 declare function RCTPresentedViewController(): UIViewController;
 
@@ -579,7 +825,9 @@ declare function RCTRedBoxSetEnabled(enabled: boolean): void;
 
 declare function RCTRegisterModule(p1: typeof NSObject): void;
 
-declare function RCTRegisterReloadCommandListener(listener: RCTReloadListener): void;
+declare function RCTRegisterReloadCommandListener(
+  listener: RCTReloadListener
+): void;
 
 declare function RCTReloadCommandSetBundleURL(URL: NSURL): void;
 
@@ -602,15 +850,35 @@ declare function RCTScreenScale(): number;
 
 declare function RCTScreenSize(): CGSize;
 
-declare function RCTSetAssertFunction(assertFunction: (p1: string, p2: string, p3: number, p4: string, p5: string) => void): void;
+declare function RCTSetAssertFunction(
+  assertFunction: (
+    p1: string,
+    p2: string,
+    p3: number,
+    p4: string,
+    p5: string
+  ) => void
+): void;
 
-declare function RCTSetFatalExceptionHandler(fatalExceptionHandler: (p1: NSException) => void): void;
+declare function RCTSetFatalExceptionHandler(
+  fatalExceptionHandler: (p1: NSException) => void
+): void;
 
 declare function RCTSetFatalHandler(fatalHandler: (p1: NSError) => void): void;
 
-declare function RCTSetIsMainQueueExecutionOfConstantsToExportDisabled(val: boolean): void;
+declare function RCTSetIsMainQueueExecutionOfConstantsToExportDisabled(
+  val: boolean
+): void;
 
-declare function RCTSetLogFunction(logFunction: (p1: RCTLogLevel, p2: RCTLogSource, p3: string, p4: number, p5: string) => void): void;
+declare function RCTSetLogFunction(
+  logFunction: (
+    p1: RCTLogLevel,
+    p2: RCTLogSource,
+    p3: string,
+    p4: number,
+    p5: string
+  ) => void
+): void;
 
 declare function RCTSetLogThreshold(threshold: RCTLogLevel): void;
 
@@ -636,13 +904,29 @@ declare const RCTSourceFilesChangedCountNotBuiltByBundler: number;
 
 declare const RCTSourceFilesChangedCountRebuiltFromScratch: number;
 
-declare function RCTSwapClassMethods(cls: typeof NSObject, original: string, replacement: string): void;
+declare function RCTSwapClassMethods(
+  cls: typeof NSObject,
+  original: string,
+  replacement: string
+): void;
 
-declare function RCTSwapInstanceMethodWithBlock(cls: typeof NSObject, original: string, replacementBlock: any, replacementSelector: string): void;
+declare function RCTSwapInstanceMethodWithBlock(
+  cls: typeof NSObject,
+  original: string,
+  replacementBlock: any,
+  replacementSelector: string
+): void;
 
-declare function RCTSwapInstanceMethods(cls: typeof NSObject, original: string, replacement: string): void;
+declare function RCTSwapInstanceMethods(
+  cls: typeof NSObject,
+  original: string,
+  replacement: string
+): void;
 
-declare function RCTTempFilePath(extension: string, error: interop.Pointer | interop.Reference<NSError>): string;
+declare function RCTTempFilePath(
+  extension: string,
+  error: interop.Pointer | interop.Reference<NSError>
+): string;
 
 declare var RCTTriggerReloadCommandBundleURLKey: string;
 
@@ -657,11 +941,18 @@ interface RCTTurboModuleRegistry extends NSObjectProtocol {
 
   eagerInitModuleNames(): NSArray<string>;
 
-  moduleForName(moduleName: string | interop.Pointer | interop.Reference<any>): any;
+  moduleForName(
+    moduleName: string | interop.Pointer | interop.Reference<any>
+  ): any;
 
-  moduleForNameWarnOnLookupFailure(moduleName: string | interop.Pointer | interop.Reference<any>, warnOnLookupFailure: boolean): any;
+  moduleForNameWarnOnLookupFailure(
+    moduleName: string | interop.Pointer | interop.Reference<any>,
+    warnOnLookupFailure: boolean
+  ): any;
 
-  moduleIsInitialized(moduleName: string | interop.Pointer | interop.Reference<any>): boolean;
+  moduleIsInitialized(
+    moduleName: string | interop.Pointer | interop.Reference<any>
+  ): boolean;
 }
 declare var RCTTurboModuleRegistry: {
   prototype: RCTTurboModuleRegistry;
@@ -671,7 +962,11 @@ declare function RCTUIKitLocalizedString(string: string): string;
 
 declare function RCTUIManagerTypeForTagIsFabric(reactTag: number): boolean;
 
-declare function RCTURLByReplacingQueryParam(URL: NSURL, param: string, value: string): NSURL;
+declare function RCTURLByReplacingQueryParam(
+  URL: NSURL,
+  param: string,
+  value: string
+): NSURL;
 
 declare function RCTUnsafeExecuteOnMainQueueSync(block: () => void): void;
 
@@ -684,10 +979,19 @@ declare class RCTUtilsUIOverride extends NSObject {
 
   static presentedViewController(): UIViewController;
 
-  static setPresentedViewController(presentedViewController: UIViewController): void;
+  static setPresentedViewController(
+    presentedViewController: UIViewController
+  ): void;
 }
 
-declare function RCTValidateTypeOfViewCommandArgument(obj: NSObject, expectedClass: any, expectedType: string, componentName: string, commandName: string, argPos: string): boolean;
+declare function RCTValidateTypeOfViewCommandArgument(
+  obj: NSObject,
+  expectedClass: any,
+  expectedType: string,
+  componentName: string,
+  commandName: string,
+  argPos: string
+): boolean;
 
 declare class RCTViewRegistry extends NSObject {
   static alloc(): RCTViewRegistry; // inherited from NSObject
@@ -698,7 +1002,9 @@ declare class RCTViewRegistry extends NSObject {
 
   setBridge(bridge: RCTBridge): void;
 
-  setBridgelessComponentViewProvider(bridgelessComponentViewProvider: (p1: number) => UIView): void;
+  setBridgelessComponentViewProvider(
+    bridgelessComponentViewProvider: (p1: number) => UIView
+  ): void;
 
   viewForReactTag(reactTag: number): UIView;
 }

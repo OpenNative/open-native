@@ -1,7 +1,13 @@
-import { RNObjcSerialisableType } from '@ammarahm-ed/react-native-autolinking/RNObjcSerialisableType';
+import { RNObjcSerialisableType } from './common';
 import { Utils } from '@nativescript/core';
 
-type ReactNativePrimitive = Date | string | number | null | ReactNativePrimitive[] | { [key: string]: ReactNativePrimitive };
+type ReactNativePrimitive =
+  | Date
+  | string
+  | number
+  | null
+  | ReactNativePrimitive[]
+  | { [key: string]: ReactNativePrimitive };
 
 // https://github.com/nativescript-community/expo-nativescript/blob/6524b9ff787c635cddf8a19799b2fcadc287e986/packages/expo-nativescript-adapter/NativeModulesProxy.ios.ts#L16
 export function toJSValue(value: unknown): ReactNativePrimitive {
@@ -15,7 +21,9 @@ export function toJSValue(value: unknown): ReactNativePrimitive {
 
   if (value instanceof NSArray) {
     const arr: ReactNativePrimitive[] = [];
-    value.enumerateObjectsUsingBlock((value: unknown) => arr.push(toJSValue(value)));
+    value.enumerateObjectsUsingBlock((value: unknown) =>
+      arr.push(toJSValue(value))
+    );
     return arr;
   }
 
@@ -32,26 +40,44 @@ export function toJSValue(value: unknown): ReactNativePrimitive {
 type RCTResponseSenderBlockType = (...args: unknown[]) => void;
 type RCTResponseErrorBlockType = (value: NSError) => void;
 type RCTPromiseBlockType = (value: unknown) => void;
-type BlockTypes = RCTResponseSenderBlockType | RCTResponseErrorBlockType | RCTPromiseBlockType;
+type BlockTypes =
+  | RCTResponseSenderBlockType
+  | RCTResponseErrorBlockType
+  | RCTPromiseBlockType;
 
 type NativeArg = NSObject | BlockTypes;
 
-export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args: unknown[], resolve?: (value: unknown) => void, reject?: (reason?: unknown) => void): NativeArg[] {
+export function toNativeArguments(
+  argumentTypes: RNObjcSerialisableType[],
+  args: unknown[],
+  resolve?: (value: unknown) => void,
+  reject?: (reason?: unknown) => void
+): NativeArg[] {
   const nativeArguments: NativeArg[] = [];
 
-  const mappableArguments = argumentTypes[0] === RNObjcSerialisableType.void ? argumentTypes.slice(1) : argumentTypes;
+  const mappableArguments =
+    argumentTypes[0] === RNObjcSerialisableType.void
+      ? argumentTypes.slice(1)
+      : argumentTypes;
 
   for (let i = 0; i < mappableArguments.length; i++) {
     const argType = mappableArguments[i];
     const data = args[i];
     switch (argType) {
       case RNObjcSerialisableType.array: {
-        nativeArguments.push(Utils.ios.collections.jsArrayToNSArray(data as unknown[]));
+        nativeArguments.push(
+          Utils.ios.collections.jsArrayToNSArray(data as unknown[])
+        );
         break;
       }
       case RNObjcSerialisableType.nonnullArray: {
-        if (!data) throw new Error(`Argument at index ${i} expects a nonnull Array value`);
-        nativeArguments.push(Utils.ios.collections.jsArrayToNSArray(data as unknown[]));
+        if (!data)
+          throw new Error(
+            `Argument at index ${i} expects a nonnull Array value`
+          );
+        nativeArguments.push(
+          Utils.ios.collections.jsArrayToNSArray(data as unknown[])
+        );
         break;
       }
       case RNObjcSerialisableType.object: {
@@ -59,7 +85,10 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
         break;
       }
       case RNObjcSerialisableType.nonnullObject: {
-        if (data === null) throw new Error(`Argument at index ${i} expects a nonnull Object value`);
+        if (data === null)
+          throw new Error(
+            `Argument at index ${i} expects a nonnull Object value`
+          );
         nativeArguments.push(Utils.dataSerialize(data));
         break;
       }
@@ -70,15 +99,18 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
         nativeArguments.push(Utils.dataSerialize(data));
         break;
       case RNObjcSerialisableType.nonnullBoolean:
-        if (!Utils.isBoolean(data)) throw new Error(`Expected a boolean but got ${data}`);
+        if (!Utils.isBoolean(data))
+          throw new Error(`Expected a boolean but got ${data}`);
         nativeArguments.push(data as NativeArg);
         break;
       case RNObjcSerialisableType.nonnullString:
-        if (!Utils.isString(data)) throw new Error(`Expected a string but got ${data}`);
+        if (!Utils.isString(data))
+          throw new Error(`Expected a string but got ${data}`);
         nativeArguments.push(data as NativeArg);
         break;
       case RNObjcSerialisableType.nonnullNumber:
-        if (!Utils.isNumber(data)) throw new Error(`Expected a number but got ${data}`);
+        if (!Utils.isNumber(data))
+          throw new Error(`Expected a number but got ${data}`);
         nativeArguments.push(Utils.dataSerialize(data));
         break;
       case RNObjcSerialisableType.RCTResponseSenderBlock: {
@@ -86,7 +118,8 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
           nativeArguments.push(null);
           break;
         }
-        if (typeof data !== 'function') throw new Error(`Expected a function, but got ${data}`);
+        if (typeof data !== 'function')
+          throw new Error(`Expected a function, but got ${data}`);
         nativeArguments.push((args: unknown[]) => {
           const callbackArguments = args ? toJSValue(args) : [];
           data(...(callbackArguments as unknown[]));
@@ -118,8 +151,15 @@ export function toNativeArguments(argumentTypes: RNObjcSerialisableType[], args:
   return nativeArguments;
 }
 
-export function promisify(module: RCTBridgeModule, methodName: string, argumentTypes: RNObjcSerialisableType[], args: unknown[]): Promise<unknown> {
+export function promisify(
+  module: RCTBridgeModule,
+  methodName: string,
+  argumentTypes: RNObjcSerialisableType[],
+  args: unknown[]
+): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    module[methodName](...toNativeArguments(argumentTypes, args, resolve, reject));
+    module[methodName](
+      ...toNativeArguments(argumentTypes, args, resolve, reject)
+    );
   });
 }

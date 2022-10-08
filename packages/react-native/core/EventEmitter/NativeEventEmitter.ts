@@ -8,7 +8,10 @@
 
 'use strict';
 
-import { type EventSubscription, type IEventEmitter } from '../vendor/emitter/EventEmitter';
+import {
+  type EventSubscription,
+  type IEventEmitter,
+} from '../vendor/emitter/EventEmitter';
 import { Platform } from '../Utilities/Platform';
 import RCTDeviceEventEmitter from './RCTDeviceEventEmitter';
 
@@ -32,20 +35,34 @@ export type { EventSubscription };
 export class NativeEventEmitter implements IEventEmitter {
   constructor(public nativeModule: NativeModule) {
     if (Platform.OS === 'ios' && !nativeModule) {
-      throw new Error('`new NativeEventEmitter()` requires a non-null argument.');
+      throw new Error(
+        '`new NativeEventEmitter()` requires a non-null argument.'
+      );
     }
 
     if (typeof nativeModule?.addListener !== 'function') {
-      console.warn('`new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.');
+      console.warn(
+        '`new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.'
+      );
     }
     if (typeof nativeModule?.removeListeners !== 'function') {
-      console.warn('`new NativeEventEmitter()` was called with a non-null argument without the required `removeListeners ` method.');
+      console.warn(
+        '`new NativeEventEmitter()` was called with a non-null argument without the required `removeListeners ` method.'
+      );
     }
   }
 
-  addListener(eventType: string, listener: (...args: unknown[]) => unknown, context?: unknown): EventSubscription {
+  addListener(
+    eventType: string,
+    listener: (...args: unknown[]) => unknown,
+    context?: unknown
+  ): EventSubscription {
     this.nativeModule?.addListener(eventType);
-    let subscription: EventSubscription = RCTDeviceEventEmitter.addListener(eventType, listener, context);
+    let subscription: EventSubscription = RCTDeviceEventEmitter.addListener(
+      eventType,
+      listener,
+      context
+    );
 
     return {
       remove: () => {
@@ -62,7 +79,10 @@ export class NativeEventEmitter implements IEventEmitter {
   /**
    * @deprecated Use `remove` on the EventSubscription from `addListener`.
    */
-  removeListener(eventType: string, listener: (...args: unknown[]) => unknown): void {
+  removeListener(
+    eventType: string,
+    listener: (...args: unknown[]) => unknown
+  ): void {
     this.nativeModule?.removeListeners(1);
     // NOTE: This will report a deprecation notice via `console.error`.
     // $FlowFixMe[prop-missing] - `removeListener` exists but is deprecated.

@@ -58,7 +58,10 @@ class EventEmitter {
     listener: (...args: unknown[]) => unknown,
     context: unknown
   ): EventSubscription {
-    return this._subscriber.addSubscription(eventType, new EmitterSubscription(this, this._subscriber, listener, context));
+    return this._subscriber.addSubscription(
+      eventType,
+      new EmitterSubscription(this, this._subscriber, listener, context)
+    );
   }
 
   /**
@@ -76,7 +79,10 @@ class EventEmitter {
    * @deprecated Use `remove` on the EventSubscription from `addListener`.
    */
   removeSubscription(subscription: EmitterSubscription): void {
-    console.warn('EventEmitter.removeSubscription(...): Method has been deprecated. ' + 'Please instead use `remove()` on the subscription itself.');
+    console.warn(
+      'EventEmitter.removeSubscription(...): Method has been deprecated. ' +
+        'Please instead use `remove()` on the subscription itself.'
+    );
     this.__removeSubscription(subscription);
   }
 
@@ -145,7 +151,11 @@ class EventEmitter {
     // FIXME: listeners should return void instead of mixed to prevent issues
     listener: (...args: unknown[]) => unknown
   ): void {
-    console.warn(`EventEmitter.removeListener('${eventType}', ...): Method has been ` + 'deprecated. Please instead use `remove()` on the subscription ' + 'returned by `EventEmitter.addListener`.');
+    console.warn(
+      `EventEmitter.removeListener('${eventType}', ...): Method has been ` +
+        'deprecated. Please instead use `remove()` on the subscription ' +
+        'returned by `EventEmitter.addListener`.'
+    );
     const subscriptions = this._subscriber.getSubscriptionsForType(eventType);
     if (subscriptions) {
       for (let i = 0, l = subscriptions.length; i < l; i++) {

@@ -18,7 +18,10 @@ import { type EventSubscription } from './EventSubscription';
 /**
  * EmitterSubscription represents a subscription with listener and context data.
  */
-class EmitterSubscription extends _EventSubscription implements EventSubscription {
+class EmitterSubscription
+  extends _EventSubscription
+  implements EventSubscription
+{
   emitter: EventEmitter;
   listener: (...args: unknown[]) => unknown;
   context: unknown;
@@ -33,7 +36,12 @@ class EmitterSubscription extends _EventSubscription implements EventSubscriptio
    * @param {*} context - Optional context object to use when invoking the
    *   listener
    */
-  constructor(emitter: EventEmitter, subscriber: EventSubscriptionVendor, listener: (...args: unknown[]) => unknown, context: unknown) {
+  constructor(
+    emitter: EventEmitter,
+    subscriber: EventSubscriptionVendor,
+    listener: (...args: unknown[]) => unknown,
+    context: unknown
+  ) {
     super(subscriber);
     this.emitter = emitter;
     this.listener = listener;

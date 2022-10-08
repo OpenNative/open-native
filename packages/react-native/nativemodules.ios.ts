@@ -1,9 +1,15 @@
 import { getCurrentBridge } from './bridge.ios';
 import { promisify, toJSValue, toNativeArguments } from './converter.ios';
-import { getModuleMethods, isPromise, TModuleMethodsType, TNativeModuleMap } from './utils.ios';
+import {
+  getModuleMethods,
+  isPromise,
+  TModuleMethodsType,
+  TNativeModuleMap,
+} from './utils.ios';
 import DefaultModuleMap from './core/defaultmodulesmap';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const ModuleMap = require('@ammarahm-ed/react-native-podspecs/platforms/ios/lib/modulemap.json') as TNativeModuleMap;
+const ModuleMap =
+  require('./platforms/ios/lib_community/modulemap.json') as TNativeModuleMap;
 const NativeModuleMap = { ...ModuleMap, ...DefaultModuleMap };
 
 class NativeModuleHolder {
@@ -20,12 +26,15 @@ class NativeModuleHolder {
   }
 
   get nativeModule(): RCTEventEmitter {
-    return (this.module = this.module || this.bridge.moduleForName(this.moduleName));
+    return (this.module =
+      this.module || this.bridge.moduleForName(this.moduleName));
   }
 
   get moduleNotFound(): boolean {
     if (!this.nativeModule) {
-      console.warn(`Trying to register a react native module "${this.moduleName}" that could not be found in module registry.`);
+      console.warn(
+        `Trying to register a react native module "${this.moduleName}" that could not be found in module registry.`
+      );
       return true;
     }
     return false;
@@ -36,7 +45,9 @@ class NativeModuleHolder {
     if (!this.hasExportedConstants) return;
     const constants = toJSValue(this.nativeModule.constantsToExport?.()) as {};
     if (!constants) {
-      console.warn(`${this.moduleName} specifies that it has exported constants but has returned ${constants}.`);
+      console.warn(
+        `${this.moduleName} specifies that it has exported constants but has returned ${constants}.`
+      );
       return;
     }
     for (const key in constants) {
@@ -48,12 +59,20 @@ class NativeModuleHolder {
     for (const method in this.moduleMethods) {
       this[method] = (...args: unknown[]) => {
         if (this.moduleNotFound) return;
-        this.objcMethodsNames = this.objcMethodsNames || getModuleMethods(this.module);
+        this.objcMethodsNames =
+          this.objcMethodsNames || getModuleMethods(this.module);
         const jsName = this.moduleMethods[method].j;
         if (isPromise(this.moduleMethods, method)) {
-          return promisify(this.nativeModule, jsName, this.moduleMethods[method].t, args);
+          return promisify(
+            this.nativeModule,
+            jsName,
+            this.moduleMethods[method].t,
+            args
+          );
         } else {
-          return this.nativeModule[jsName]?.(...toNativeArguments(this.moduleMethods[method].t, args));
+          return this.nativeModule[jsName]?.(
+            ...toNativeArguments(this.moduleMethods[method].t, args)
+          );
         }
       };
     }

@@ -12,9 +12,11 @@ module.exports = (env) => {
     config.resolve.alias.set('crypto', require.resolve('crypto-js'));
 
     config.module
-      .rule('customjs')
-      .test(/\.js$/)
+      .rule('rnmodules')
+      .include.add(/node_modules(.*[/\\])+react-native-auth0/)
+      .end()
       .use('babel-loader')
+      .before('ts-loader')
       .loader('babel-loader')
       .options({
         babelrc: false,

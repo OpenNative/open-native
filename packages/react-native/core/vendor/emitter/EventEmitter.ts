@@ -26,7 +26,11 @@ export interface IEventEmitter {
    * Registers a listener that is called when the supplied event is emitted.
    * Returns a subscription that has a `remove` method to undo registration.
    */
-  addListener(eventType: string, listener: (...args: unknown[]) => unknown, context?: unknown): EventSubscription;
+  addListener(
+    eventType: string,
+    listener: (...args: unknown[]) => unknown,
+    context?: unknown
+  ): EventSubscription;
 
   /**
    * Emits the supplied event. Additional arguments supplied to `emit` will be

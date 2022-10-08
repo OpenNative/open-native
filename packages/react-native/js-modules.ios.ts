@@ -9,7 +9,9 @@ class JSModules {
   }
 
   jsModuleInvoker(moduleName: string, methodName: string, args: NSArray<any>) {
-    return this.modules[moduleName]?.[methodName]?.(...(toJSValue(args) as unknown[]));
+    return this.modules[moduleName]?.[methodName]?.(
+      ...(toJSValue(args) as unknown[])
+    );
   }
 
   registerJSModule(name: string, module: any) {

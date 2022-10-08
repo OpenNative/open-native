@@ -14,11 +14,14 @@ export function getJSModules() {
  * implmentation.
  */
 export function getCurrentBridge() {
-  if(!global.reactNativeBridgeIOS){
+  if (!global.reactNativeBridgeIOS) {
     let currentBridge = RCTBridge.currentBridge();
     if (!currentBridge) {
       currentBridge = RCTBridge.alloc().init();
-      getJSModules().registerJSModule('RCTDeviceEventEmitter', DeviceEventEmitter);
+      getJSModules().registerJSModule(
+        'RCTDeviceEventEmitter',
+        DeviceEventEmitter
+      );
     }
     global.reactNativeBridgeIOS = currentBridge;
   }

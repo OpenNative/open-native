@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => "12.4" }
 
   s.source       = { :git => "https://github.com/ammarahm-ed/nativescript-magic-spells.git", :tag => "v#{s.version}" }
-  s.source_files  = "lib/**/*.{h,m,mm,swift}"
+  s.source_files  = "lib_core/**/*.{h,m,mm,swift}"
 
   s.pod_target_xcconfig    = {
     "DEFINES_MODULE" => "YES",

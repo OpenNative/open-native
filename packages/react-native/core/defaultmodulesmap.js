@@ -1,26 +1,46 @@
-import { RNObjcSerialisableType } from '@ammarahm-ed/react-native-autolinking/RNObjcSerialisableType';
+import { RNObjcSerialisableType } from '../common';
+
 export default {
   LinkingManager: {
     m: {
       canOpenURL: {
         j: 'canOpenURLResolveReject',
-        t: [RNObjcSerialisableType.string, RNObjcSerialisableType.RCTPromiseResolveBlock, RNObjcSerialisableType.RCTPromiseRejectBlock],
+        t: [
+          RNObjcSerialisableType.string,
+          RNObjcSerialisableType.RCTPromiseResolveBlock,
+          RNObjcSerialisableType.RCTPromiseRejectBlock,
+        ],
       },
       getInitialURL: {
         j: 'getInitialURLReject',
-        t: [RNObjcSerialisableType.RCTPromiseResolveBlock, RNObjcSerialisableType.RCTPromiseRejectBlock],
+        t: [
+          RNObjcSerialisableType.RCTPromiseResolveBlock,
+          RNObjcSerialisableType.RCTPromiseRejectBlock,
+        ],
       },
       openSettings: {
         j: 'openSettingsReject',
-        t: [RNObjcSerialisableType.RCTPromiseResolveBlock, RNObjcSerialisableType.RCTPromiseRejectBlock],
+        t: [
+          RNObjcSerialisableType.RCTPromiseResolveBlock,
+          RNObjcSerialisableType.RCTPromiseRejectBlock,
+        ],
       },
       openURL: {
         j: 'openURLResolveReject',
-        t: [RNObjcSerialisableType.string, RNObjcSerialisableType.RCTPromiseResolveBlock, RNObjcSerialisableType.RCTPromiseRejectBlock],
+        t: [
+          RNObjcSerialisableType.string,
+          RNObjcSerialisableType.RCTPromiseResolveBlock,
+          RNObjcSerialisableType.RCTPromiseRejectBlock,
+        ],
       },
       sendIntentExtras: {
         j: 'sendIntentExtrasResolveReject',
-        t: [RNObjcSerialisableType.string, RNObjcSerialisableType.array, RNObjcSerialisableType.RCTPromiseResolveBlock, RNObjcSerialisableType.RCTPromiseResolveBlock],
+        t: [
+          RNObjcSerialisableType.string,
+          RNObjcSerialisableType.array,
+          RNObjcSerialisableType.RCTPromiseResolveBlock,
+          RNObjcSerialisableType.RCTPromiseResolveBlock,
+        ],
       },
     },
     e: false,

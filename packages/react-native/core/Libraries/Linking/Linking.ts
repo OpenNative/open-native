@@ -37,14 +37,21 @@ class _Linking extends NativeEventEmitter {
    *
    * See https://reactnative.dev/docs/linking.html#addeventlistener
    */
-  addEventListener(eventType: string, listener: (...args: LinkingEventDefinitions['url']) => unknown, context: unknown): EventSubscription {
+  addEventListener(
+    eventType: string,
+    listener: (...args: LinkingEventDefinitions['url']) => unknown,
+    context: unknown
+  ): EventSubscription {
     return this.addListener(eventType, listener);
   }
 
   /**
    * @deprecated Use `remove` on the EventSubscription from `addEventListener`.
    */
-  removeEventListener(eventType: string, listener: (...args: LinkingEventDefinitions['url']) => unknown): void {
+  removeEventListener(
+    eventType: string,
+    listener: (...args: LinkingEventDefinitions['url']) => unknown
+  ): void {
     // NOTE: This will report a deprecation notice via `console.error`.
     this.removeListener(eventType, listener);
   }

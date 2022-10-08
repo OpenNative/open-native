@@ -4,13 +4,12 @@ import * as glob from 'glob';
 import type { IOptions } from 'glob';
 import * as path from 'path';
 import { promisify } from 'util';
-import { RNObjcSerialisableType } from './RNObjcSerialisableType';
 
 const execFile = promisify(cp.execFile);
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 
-const logPrefix = '[react-native-autolinking/autolinkIos.js]';
+const logPrefix = '[react-native/hooks/prepare-ios.js]';
 
 /**
  * Given a list of dependencies, autolinks any podspecs found within them, using
@@ -605,22 +604,18 @@ async function writePodfile({
 }) {
   /**
    * Depending on React and/or React-Core supports RNPodspecs.h, which imports
-   * the <React/RCTBridgeModule.h> header. I'm not sure whether to include
-   * these two lines (given we know that `@ammarahm-ed/react-native` is going
-   * to include them anyway), but probably including them is better. For now,
-   * though, I'll leave them out until it becomes a clear problem. The main
-   * advantage is that it saves spinning up node wastefully.
+   * the <React/RCTBridgeModule.h> header.
    */
   const reactDeps = [
-    // `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
-    // `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React.podspec")`,
+    `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
+    `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React.podspec")`,
   ];
 
   /**
    * Depending on React-Native-Podspecs allows us to include our RNPodspecs.h
    * file.
    */
-  const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native-podspecs/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
+  const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
 
   const podfileContents = [
     '# This file will be updated automatically by hooks/before-prepareNativeApp.js.',
@@ -671,7 +666,7 @@ async function writePodspecfile({
     `  s.platforms    = { :ios => "12.4" }`,
     ``,
     `  s.source       = { :git => "https://github.com/ammarahm-ed/nativescript-magic-spells.git", :tag => "v#{s.version}" }`,
-    `  s.source_files  = "lib/**/*.{h,m,mm,swift}"`,
+    `  s.source_files  = "lib_community/**/*.{h,m,mm,swift}"`,
     ``,
     `  s.dependency 'React-Core'`,
     ...podspecNames.map((name) => `  s.dependency '${name}'`),
@@ -856,4 +851,28 @@ function parseObjcTypeToEnum(objcType: string): RNObjcSerialisableType {
     default:
       return RNObjcSerialisableType.other;
   }
+}
+
+// FIXME: need to figure out a proper pattern for importing this from its own
+// package (but outside the hooks directory, which has its own tsconfig). For
+// now, we'll just have to maintain an identical copy of this enum within the
+// hook.
+enum RNObjcSerialisableType {
+  other, // Anything we fail to parse!
+  void, // void
+  string, // NSString*
+  nonnullString, // nonnull NSString*
+  boolean, // NSNumber* (bounded between 0 and 1, presumably)
+  nonnullBoolean, // BOOL
+  number, // NSNumber*
+  nonnullNumber, // nonnull NSNumber*, double (and the deprecated float,
+  // CGFloat, and NSInteger)
+  array, // NSArray*
+  nonnullArray, // nonnull NSArray*
+  object, // NSDictionary*
+  nonnullObject, // nonnull NSDictionary*
+  RCTResponseSenderBlock,
+  RCTResponseErrorBlock,
+  RCTPromiseResolveBlock,
+  RCTPromiseRejectBlock,
 }

@@ -1,9 +1,15 @@
 // https://github.com/nativescript-community/expo-nativescript/blob/6524b9ff787c635cddf8a19799b2fcadc287e986/packages/expo-nativescript-adapter/Platform.ts
 import { isIOS, isAndroid, platformNames } from '@nativescript/core';
 
-export type PlatformSelectOSType = keyof typeof platformNames | 'native' | 'electron' | 'default';
+export type PlatformSelectOSType =
+  | keyof typeof platformNames
+  | 'native'
+  | 'electron'
+  | 'default';
 
-export type PlatformSelect = <T>(specifics: { [platform in PlatformSelectOSType]?: T }) => T;
+export type PlatformSelect = <T>(specifics: {
+  [platform in PlatformSelectOSType]?: T;
+}) => T;
 
 export const Platform = {
   /**
@@ -20,7 +26,11 @@ export const Platform = {
    * @web web, default
    */
   select: <T>(specifics: { [platform in PlatformSelectOSType]?: T }): T => {
-    return 'ios' in specifics ? specifics.ios : 'native' in specifics ? specifics.native : specifics.default;
+    return 'ios' in specifics
+      ? specifics.ios
+      : 'native' in specifics
+      ? specifics.native
+      : specifics.default;
   },
   /**
    * Denotes if the DOM API is available in the current environment.

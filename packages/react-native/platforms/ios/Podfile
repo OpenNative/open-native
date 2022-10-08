@@ -2,3 +2,4 @@ platform :ios, '12.4'
 
 pod 'React-Core', path: File.join(File.dirname(`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"`), "platforms/ios/React-Core.podspec")
 pod 'React', path: File.join(File.dirname(`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"`), "platforms/ios/React.podspec")
+pod 'React-Native-Podspecs', path: File.join(File.dirname(`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"`), "platforms/ios/React-Native-Podspecs.podspec")
