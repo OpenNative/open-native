@@ -34,7 +34,7 @@ class EventEmitter {
   /**
    * @constructor
    */
-  constructor(subscriber: EventSubscriptionVendor) {
+  constructor(subscriber?: EventSubscriptionVendor) {
     if (subscriber != null) {
       console.warn('EventEmitter(...): Constructor argument is deprecated.');
       this._subscriber = subscriber;
