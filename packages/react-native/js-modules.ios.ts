@@ -1,6 +1,5 @@
-import { Utils } from '@nativescript/core';
-
 import { getCurrentBridge } from './bridge.ios';
+import { toJSValue, JSValuePassableIntoObjc } from './converter.ios';
 
 export type JSMethodRecord = {
   [methodName: string]: (...args: unknown[]) => unknown;
@@ -34,7 +33,7 @@ export class JSModules {
 
     // Given an NSArray of native args from Obj-C, convert those into JS
     // primitive types and call the JS method with it.
-    return jsMethod(...Utils.dataDeserialize(args));
+    return jsMethod(...(toJSValue(args) as JSValuePassableIntoObjc[]));
   }
 
   registerJSModule(name: string, module: JSMethodRecord) {
