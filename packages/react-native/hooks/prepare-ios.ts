@@ -120,6 +120,8 @@ async function mapPackageNameToAutolinkingInfo(
   /**
    * These are the typings (that we're interested in), assuming a valid podspec.
    * We'll handle it in a failsafe manner.
+   * TODO: Handle subspecs. Can run the following as a test case:
+   * ipc spec pod packages/react-native/platforms/ios/React-Core.podspec
    */
   const podspecParsed: {
     name?: string;
@@ -602,12 +604,9 @@ async function writePodfile({
   autolinkedDeps: string[];
   outputPodfilePath: string;
 }) {
-  /**
-   * Depending on React and/or React-Core supports RNPodspecs.h, which imports
-   * the <React/RCTBridgeModule.h> header.
-   */
   const reactDeps = [
     `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
+    `pod 'React-RCTLinking', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-RCTLinking.podspec")`,
     `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React.podspec")`,
   ];
 
