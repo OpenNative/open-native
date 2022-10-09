@@ -5,7 +5,7 @@ class JSModules {
   private bridge: RCTBridge = getCurrentBridge();
   private modules: { [name: string]: any } = {};
   constructor() {
-    this.bridge.setJSModuleInvokerCallback(this.jsModuleInvoker);
+    this.bridge.setJSModuleInvokerCallback(this.jsModuleInvoker.bind(this));
   }
 
   jsModuleInvoker(moduleName: string, methodName: string, args: NSArray<any>) {
