@@ -1,5 +1,5 @@
 import DeviceEventEmitter from './core/EventEmitter/RCTDeviceEventEmitter';
-import { JSModules } from './js-modules.ios';
+import { JSModules, JSMethodRecord } from './js-modules.ios';
 
 export function getJSModules() {
   if (!global.jsModulesIOS) {
@@ -20,7 +20,7 @@ export function getCurrentBridge() {
       currentBridge = RCTBridge.alloc().init();
       getJSModules().registerJSModule(
         'RCTDeviceEventEmitter',
-        DeviceEventEmitter
+        DeviceEventEmitter as JSMethodRecord
       );
     }
     global.reactNativeBridgeIOS = currentBridge;

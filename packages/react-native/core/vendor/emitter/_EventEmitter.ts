@@ -29,7 +29,17 @@ const sparseFilterPredicate = () => true;
  * more advanced emitter may use an EventHolder and EventFactory.
  */
 class EventEmitter {
-  _subscriber: EventSubscriptionVendor = new EventSubscriptionVendor();
+  /**
+   * The JSModuleInvoker in JSModules() will be indexing into EventEmitter to
+   * call methods upon it, so the class needs an index signature expressing the
+   * union of all possible values for keys on the class.
+   */
+  [methodName: string]:
+    | EventSubscriptionVendor
+    | ((...args: unknown[]) => unknown);
+
+  private readonly _subscriber: EventSubscriptionVendor =
+    new EventSubscriptionVendor();
 
   /**
    * @constructor

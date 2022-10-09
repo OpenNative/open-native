@@ -1,20 +1,43 @@
+import { Utils } from '@nativescript/core';
+
 import { getCurrentBridge } from './bridge.ios';
-import { toJSValue } from './converter.ios';
+
+export type JSMethodRecord = {
+  [methodName: string]: (...args: unknown[]) => unknown;
+};
 
 export class JSModules {
-  private bridge: RCTBridge = getCurrentBridge();
-  private modules: { [name: string]: any } = {};
+  private readonly bridge: RCTBridge = getCurrentBridge();
+  // If the only modules entering this module record are internal ones, we could
+  // type this more strongly with generic typings. But for now, it's loose.
+  private readonly modules: { [moduleName: string]: JSMethodRecord } = {};
+
   constructor() {
     this.bridge.setJSModuleInvokerCallback(this.jsModuleInvoker.bind(this));
   }
 
-  jsModuleInvoker(moduleName: string, methodName: string, args: NSArray<any>) {
-    return this.modules[moduleName]?.[methodName]?.(
-      ...(toJSValue(args) as unknown[])
-    );
+  private jsModuleInvoker(
+    moduleName: string,
+    methodName: string,
+    args: NSArray<NSObject>
+  ): unknown {
+    const jsModule = this.modules[moduleName];
+    if (!jsModule) {
+      throw new Error(`Unrecognized name for JS module, "${moduleName}".`);
+    }
+    const jsMethod = jsModule[methodName];
+    if (!jsMethod) {
+      throw new Error(
+        `Unrecognized method name "${methodName}" for JS module, "${moduleName}".`
+      );
+    }
+
+    // Given an NSArray of native args from Obj-C, convert those into JS
+    // primitive types and call the JS method with it.
+    return jsMethod(...Utils.dataDeserialize(args));
   }
 
-  registerJSModule(name: string, module: any) {
+  registerJSModule(name: string, module: JSMethodRecord) {
     this.modules[name] = module;
   }
 
