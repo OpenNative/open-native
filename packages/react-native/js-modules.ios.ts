@@ -1,7 +1,7 @@
 import { getCurrentBridge } from './bridge.ios';
 import { toJSValue } from './converter.ios';
 
-class JSModules {
+export class JSModules {
   private bridge: RCTBridge = getCurrentBridge();
   private modules: { [name: string]: any } = {};
   constructor() {
@@ -22,5 +22,3 @@ class JSModules {
     delete this.modules[name];
   }
 }
-
-export default JSModules;
