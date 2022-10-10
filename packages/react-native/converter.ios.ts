@@ -29,6 +29,11 @@ export function toNativeArguments(
     const argType = argumentTypes[i];
     const data = args[i];
 
+    assert(
+      typeof data !== 'undefined',
+      `Unexpected \`undefined\` value passed in at index ${i} for argument type "${RNObjcSerialisableType[argType]}". Note that Obj-C does not have an equivalent to undefined.`
+    );
+
     if (
       argType === RNObjcSerialisableType.nonnullArray ||
       argType === RNObjcSerialisableType.nonnullBoolean ||
