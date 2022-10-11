@@ -7,6 +7,12 @@
     "rootDir": ".",
     "allowJs": true
   },
-  "exclude": ["**/*.spec.ts", "**/*.test.ts", "angular", "hooks"],
+  "exclude": [
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "angular",
+    "hooks",
+    "test_hook.js"
+  ],
   "include": ["**/*.ts", "references.d.ts", "**/*.js"]
 }
