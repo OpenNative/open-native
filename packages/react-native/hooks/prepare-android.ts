@@ -23,6 +23,8 @@ const exists = promisify(fs.exists);
  *   should be resolved).
  * @param args.outputModulesJsonPath An absolute path to output the modules.json
  *   to.
+ * @param args.outputModuleMapPath An absolute path to output the modulemap.json
+ *   to.
  * @param args.outputPackagesJavaPath An absolute path to output the
  *   Packages.java to.
  * @returns a list of package names in which podspecs were found and autolinked.
@@ -31,11 +33,13 @@ export async function autolinkAndroid({
   dependencies,
   projectDir,
   outputModulesJsonPath,
+  outputModuleMapPath,
   outputPackagesJavaPath,
 }: {
   dependencies: string[];
   projectDir: string;
   outputModulesJsonPath: string;
+  outputModuleMapPath: string;
   outputPackagesJavaPath: string;
 }) {
   const autolinkingInfo = (
@@ -49,17 +53,27 @@ export async function autolinkAndroid({
     .flat(1)
     .map(
       ({
-        npmPackageName,
-        sourceDir,
         androidProjectName,
+        exportedMethods,
+        exportedModuleName,
+        exportsConstants,
+        moduleClassName,
+        moduleClassNameJs,
+        npmPackageName,
         packageImportPath,
         packageInstance,
+        sourceDir,
       }) => ({
-        packageName: npmPackageName,
         absolutePath: sourceDir,
         androidProjectName,
+        exportedMethods,
+        exportedModuleName,
+        exportsConstants,
+        moduleClassName,
+        moduleClassNameJs,
         packageImportPath,
         packageInstance,
+        packageName: npmPackageName,
       })
     );
 
@@ -78,6 +92,41 @@ export async function autolinkAndroid({
     await writePackagesJavaFile({
       moduleInfo: autolinkingInfo,
       outputPackagesJavaPath,
+    }),
+
+    await writeModuleMapFile({
+      moduleMap: autolinkingInfo.reduce(
+        (
+          acc,
+          {
+            exportedMethods,
+            exportedModuleName,
+            exportsConstants,
+            moduleClassNameJs,
+          }
+        ) => {
+          acc[exportedModuleName] = {
+            e: exportsConstants,
+            j: moduleClassNameJs,
+            m: exportedMethods.reduce(
+              (
+                innerAcc,
+                { exportedMethodName, methodNameJs, methodTypesParsed }
+              ) => {
+                innerAcc[exportedMethodName] = {
+                  j: methodNameJs,
+                  t: methodTypesParsed,
+                };
+                return innerAcc;
+              },
+              {}
+            ),
+          };
+          return acc;
+        },
+        {}
+      ),
+      outputModuleMapPath,
     }),
   ]);
 
@@ -127,10 +176,16 @@ async function mapPackageNameToAutolinkingInfo({
 
   const androidPackageName =
     userConfig.packageName || (await getAndroidPackageName(manifestPath));
-  const packageClassName = await findPackageClassName(sourceDir);
+  const {
+    exportedMethods,
+    exportedModuleName,
+    exportsConstants,
+    moduleClassName,
+    packageClassName,
+  } = await parseSourceFiles(sourceDir);
 
   /**
-   * This module has no package to export
+   * This module has no package to export.
    */
   if (!packageClassName) {
     return null;
@@ -158,28 +213,36 @@ async function mapPackageNameToAutolinkingInfo({
     : path.join(sourceDir, 'build/generated/source/codegen/jni/CMakeLists.txt');
 
   return {
-    /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android' */
-    sourceDir,
+    /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build/generated/source/codegen/jni/Android.mk' */
+    androidMkPath,
+    /** @example 'ammarahm-ed_react-native-module-test' */
+    androidProjectName: makeAndroidProjectName(npmPackageName),
+    /** @example [] */
+    buildTypes,
+    /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build/generated/source/codegen/jni/CMakeLists.txt' */
+    cmakeListsPath,
+    /** @example [] */
+    componentDescriptors,
+    /** @example undefined */
+    dependencyConfiguration,
+    exportedMethods,
+    /** @example 'RNTestModule' - as exported by getName() */
+    exportedModuleName,
+    exportsConstants,
+    /** @example undefined */
+    libraryName,
+    /** @example 'RNTestModule' - the actual name of the Java class in Java */
+    moduleClassName,
+    /** @example 'RNTestModule' - the name of the Java class in NativeScript */
+    moduleClassNameJs: moduleClassName,
+    /** @example '@ammarahm-ed/react-native-module-test' */
+    npmPackageName,
     /** @example 'import com.testmodule.RNTestModulePackage;' */
     packageImportPath,
     /** @example 'new RNTestModulePackage()' */
     packageInstance,
-    /** @example [] */
-    buildTypes,
-    /** @example undefined */
-    dependencyConfiguration,
-    /** @example undefined */
-    libraryName,
-    /** @example [] */
-    componentDescriptors,
-    /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build/generated/source/codegen/jni/Android.mk' */
-    androidMkPath,
-    /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build/generated/source/codegen/jni/CMakeLists.txt' */
-    cmakeListsPath,
-    /** @example '@ammarahm-ed/react-native-module-test' */
-    npmPackageName,
-    /** @example 'ammarahm-ed_react-native-module-test' */
-    androidProjectName: makeAndroidProjectName(npmPackageName),
+    /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android' */
+    sourceDir,
   };
 }
 
@@ -242,19 +305,153 @@ function validateAndroidPackageName(packageName: string) {
   return /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/.test(packageName);
 }
 
-async function findPackageClassName(folder: string) {
+async function parseSourceFiles(folder: string) {
   const filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
 
   const files = await Promise.all(
     filePaths.map((filePath) => readFile(path.join(folder, filePath), 'utf8'))
   );
 
-  const packages = files.map(matchClassName).filter((match) => match);
+  // TODO: We should ideally strip comments before running any Regex.
 
-  return packages.length ? packages[0][1] : null;
+  let packageDeclarationMatch: RegExpMatchArray | null = null;
+  let moduleContents = '';
+  let moduleDeclarationMatch: RegExpMatchArray | null = null;
+  for (const file of files) {
+    if (!packageDeclarationMatch) {
+      packageDeclarationMatch = matchClassDeclarationForPackage(file);
+    }
+    if (!moduleDeclarationMatch) {
+      moduleDeclarationMatch = matchClassDeclarationForModule(file);
+      moduleContents = file;
+    }
+    if (packageDeclarationMatch && moduleDeclarationMatch) {
+      break;
+    }
+  }
+
+  if (!packageDeclarationMatch || !moduleDeclarationMatch) {
+    return null;
+  }
+
+  const [, packageClassName] = packageDeclarationMatch;
+  const [, moduleClassName] = moduleDeclarationMatch;
+
+  /** @example ['@ReactMethod\n@Profile\n   public void testCallback(Callback callback) {'] */
+  const exportedMethodMatches =
+    moduleContents.match(ANDROID_METHOD_REGEX) ?? [];
+  const exportsConstants = /@Override\s+.*\s+getConstants\(\s*\)\s*{/m.test(
+    moduleContents
+  );
+
+  const exportedMethods = exportedMethodMatches
+    .map((raw) => {
+      /**
+       * Standardise to single-space.
+       * @example ['@ReactMethod @Profile public void testCallback(Callback callback) {']
+       */
+      raw = raw.replace(/\s+/g, ' ');
+
+      const isBlockingSynchronousMethod =
+        /isBlockingSynchronousMethod\s*=\s*true/.test(
+          raw.split(/\)/).find((split) => split.includes('@ReactMethod('))
+        );
+
+      /**
+       * Remove annotations.
+       * @example ['public void testCallback(Callback callback) {']
+       */
+      raw = raw.split(/@[a-zA-Z]*\s+/).slice(-1)[0];
+
+      /**
+       * Remove the trailing brace.
+       * @example ['public void testCallback(Callback callback)']
+       */
+      const signature = raw.split(/\s*{/)[0];
+
+      const [
+        /**
+         * The signature leading up to the first bracket.
+         * @example ['public void testCallback']
+         */
+        signatureBeforeParams,
+        /**
+         * The signature following after the first bracket.
+         * @example ['Callback callback)']
+         */
+        signatureFromParams = '',
+      ] = signature.split(/\(/);
+
+      /** @example ['public', 'void', 'testCallback'] */
+      const signatureBeforeParamsSplit = signatureBeforeParams.split(/\s+/);
+      /** @example 'testCallback' */
+      const methodNameJava = signatureBeforeParamsSplit.slice(-1)[0];
+      /** @example 'void' */
+      const returnType = signatureBeforeParamsSplit.slice(-2)[0];
+
+      /**
+       * Erase generic args and then split around commas to get params.
+       * We filter out falsy params because it's possible to get ['void', '']
+       * when the signature has no params.
+       * @example ['void', 'Callback callback', 'ReadableMap', 'ReadableArray']
+       */
+      const methodTypesRaw = [
+        returnType,
+        ...signatureFromParams
+          .replace(/\)$/, '')
+          .trim()
+          .replace(/<.*>/g, '')
+          .split(/\s*,\s*/)
+          .filter((param) => param),
+      ];
+
+      return {
+        exportedMethodName: methodNameJava,
+        isBlockingSynchronousMethod,
+        methodNameJava,
+        methodNameJs: methodNameJava,
+        methodTypesParsed: methodTypesRaw.map((t) => parseJavaTypeToEnum(t)),
+        methodTypesRaw,
+        returnType,
+        signature,
+      };
+    })
+    .filter((obj) => obj.signature);
+
+  /**
+   * We chain together these operations:
+   * @example ['public String getName() {\n    return "RNTestModule";\n  }']
+   * @example ['"RNTestModule"']
+   * @example 'RNTestModule'
+   */
+  const exportedModuleName = moduleContents
+    .match(ANDROID_GET_NAME_FN_REGEX)?.[0]
+    .match(ANDROID_MODULE_NAME_REGEX)?.[0]
+    .replace(/"/g, '');
+
+  return {
+    exportedMethods,
+    /** @example 'RNTestModule' */
+    exportedModuleName,
+    /** @example true */
+    exportsConstants,
+    /** @example 'RNTestModule' */
+    moduleClassName,
+    /** @example 'RNTestModulePackage' */
+    packageClassName,
+  };
 }
 
-function matchClassName(file: string) {
+/**
+ * @param file the contents of the *ModulePackage.java file.
+ * @returns a RegExpArray matching the class declaration.
+ * @example
+ * [
+ *   'class RNTestModulePackage implements ReactPackage',
+ *   'RNTestModulePackage',
+ * ]
+ */
+function matchClassDeclarationForPackage(file: string) {
   const nativeModuleMatch = file.match(
     /class\s+(\w+[^(\s]*)[\s\w():]*(\s+implements\s+|:)[\s\w():,]*[^{]*ReactPackage/
   );
@@ -267,6 +464,21 @@ function matchClassName(file: string) {
       /class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*TurboReactPackage/
     );
   }
+}
+
+/**
+ * @param file the contents of the *Module.java file.
+ * @returns a RegExpArray matching the class declaration.
+ * @example
+ * [
+ *   'class RNTestModule extends ReactContextBaseJavaModule',
+ *   'RNTestModule',
+ * ]
+ */
+function matchClassDeclarationForModule(file: string) {
+  return file.match(
+    /class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ReactContextBaseJavaModule/
+  );
 }
 
 /**
@@ -431,4 +643,119 @@ async function writePackagesJavaFile({
   return await writeFile(outputPackagesJavaPath, contents, {
     encoding: 'utf-8',
   });
+}
+/**
+ * @param {object} args
+ * @param args.moduleMap
+ * @returns A Promise to write the modulemap.json file into the specified
+ *   location.
+ */
+async function writeModuleMapFile({
+  moduleMap,
+  outputModuleMapPath,
+}: {
+  moduleMap: {
+    [exportedModuleName: string]: {
+      /** jsModuleName */
+      j: string;
+      /** exportsConstants */
+      e: boolean;
+      /** methods */
+      m: {
+        [methodName: string]: {
+          /** jsMethodName */
+          j: string;
+          /** types */
+          t: RNJavaSerialisableType[];
+        };
+      };
+    };
+  };
+  outputModuleMapPath: string;
+}) {
+  return await writeFile(
+    outputModuleMapPath,
+    JSON.stringify(moduleMap, null, 2),
+    {
+      encoding: 'utf-8',
+    }
+  );
+}
+
+const ANDROID_METHOD_REGEX = /@ReactMethod+((.|\n)*?) {/gm;
+const ANDROID_GET_NAME_FN_REGEX =
+  /public String getName\(\)[\s\S]*?\{[^}]*\}/gm;
+const ANDROID_MODULE_NAME_REGEX = /(["'])(?:(?=(\\?))\2.)*?\1/gm;
+
+function parseJavaTypeToEnum(javaType: string): RNJavaSerialisableType {
+  // Splitting before the generic should be redundant (we erased them earlier),
+  // but just in case the implementation changes in future.
+  const splitBeforeGeneric = javaType.split('<')[0];
+
+  if (splitBeforeGeneric.includes('String')) {
+    return RNJavaSerialisableType.nonnullString;
+  }
+  if (splitBeforeGeneric.includes('Integer')) {
+    return RNJavaSerialisableType.int;
+  }
+  if (splitBeforeGeneric.includes('int')) {
+    return RNJavaSerialisableType.nonnullInt;
+  }
+  if (splitBeforeGeneric.includes('Boolean')) {
+    return RNJavaSerialisableType.boolean;
+  }
+  if (splitBeforeGeneric.includes('boolean')) {
+    return RNJavaSerialisableType.nonnullBoolean;
+  }
+  if (splitBeforeGeneric.includes('Double')) {
+    return RNJavaSerialisableType.double;
+  }
+  if (splitBeforeGeneric.includes('double')) {
+    return RNJavaSerialisableType.nonnullDouble;
+  }
+  if (splitBeforeGeneric.includes('Float')) {
+    return RNJavaSerialisableType.float;
+  }
+  if (splitBeforeGeneric.includes('float')) {
+    return RNJavaSerialisableType.nonnullFloat;
+  }
+  if (splitBeforeGeneric.includes('Map')) {
+    return RNJavaSerialisableType.nonnullObject;
+  }
+  if (splitBeforeGeneric.includes('Array')) {
+    return RNJavaSerialisableType.nonnullArray;
+  }
+  if (splitBeforeGeneric.includes('Callback')) {
+    return RNJavaSerialisableType.Callback;
+  }
+  if (splitBeforeGeneric.includes('Promise')) {
+    return RNJavaSerialisableType.Promise;
+  }
+  if (splitBeforeGeneric.includes('void')) {
+    return RNJavaSerialisableType.void;
+  }
+
+  return RNJavaSerialisableType.other;
+}
+
+// FIXME: need to figure out a proper pattern for importing this from its own
+// package (but outside the hooks directory, which has its own tsconfig). For
+// now, we'll just have to maintain an identical copy of this enum within the
+// hook.
+enum RNJavaSerialisableType {
+  other, // Anything we fail to parse!
+  void, // void
+  nonnullString, // String
+  boolean, // Boolean
+  nonnullBoolean, // boolean
+  int, // Integer (deprecated)
+  nonnullInt, // int (deprecated)
+  double, // double
+  nonnullDouble, // Double
+  float, // Float (deprecated)
+  nonnullFloat, // float (deprecated)
+  nonnullArray, // ReadableArray
+  nonnullObject, // ReadableMap
+  Callback, // Callback
+  Promise, // Promise
 }

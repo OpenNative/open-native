@@ -49,11 +49,16 @@ export = async function (hookArgs: HookArgs) {
       packageDir,
       'react-android/bridge/src/main/java/com/bridge/Packages.java'
     );
+    const outputModuleMapPath = path.resolve(
+      packageDir,
+      'react-android/bridge/modulemap.json'
+    );
     packageNames = await autolinkAndroid({
       dependencies: depsArr,
       projectDir,
       outputModulesJsonPath,
       outputPackagesJavaPath,
+      outputModuleMapPath,
     });
   } else {
     const outputHeaderPath = path.resolve(
