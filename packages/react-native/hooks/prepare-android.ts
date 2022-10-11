@@ -158,16 +158,27 @@ async function mapPackageNameToAutolinkingInfo({
     : path.join(sourceDir, 'build/generated/source/codegen/jni/CMakeLists.txt');
 
   return {
+    /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android' */
     sourceDir,
+    /** @example 'import com.testmodule.RNTestModulePackage;' */
     packageImportPath,
+    /** @example 'new RNTestModulePackage()' */
     packageInstance,
+    /** @example [] */
     buildTypes,
+    /** @example undefined */
     dependencyConfiguration,
+    /** @example undefined */
     libraryName,
+    /** @example [] */
     componentDescriptors,
+    /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build/generated/source/codegen/jni/Android.mk' */
     androidMkPath,
+    /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build/generated/source/codegen/jni/CMakeLists.txt' */
     cmakeListsPath,
+    /** @example '@ammarahm-ed/react-native-module-test' */
     npmPackageName,
+    /** @example 'ammarahm-ed_react-native-module-test' */
     androidProjectName: makeAndroidProjectName(npmPackageName),
   };
 }
