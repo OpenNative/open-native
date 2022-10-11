@@ -83,9 +83,6 @@ export = async function (hookArgs: HookArgs) {
   packageNames.forEach((packageName) =>
     console.log(`${logPrefix} Autolinked ${green}${packageName}${reset}!`)
   );
-  console.log(
-    `${logPrefix} ... Finished autolinking React Native Android native modules.`
-  );
 
   console.log(
     `${logPrefix} ... Finished autolinking React Native ${normalizedPlatformName} native modules.`
