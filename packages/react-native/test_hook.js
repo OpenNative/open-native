@@ -20,8 +20,8 @@ const nsDemoPackageJson = JSON.parse(
 
 require('../../dist/packages/react-native/hooks/before-prepareNativeApp')({
   platformData: {
-    normalizedPlatformName: 'iOS',
-    platformNameLowerCase: 'ios',
+    normalizedPlatformName: 'Android',
+    platformNameLowerCase: 'android',
   },
   projectData: {
     devDependencies: nsDemoPackageJson.devDependencies,
