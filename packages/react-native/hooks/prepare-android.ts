@@ -59,6 +59,7 @@ export async function autolinkAndroid({
         exportsConstants,
         moduleClassName,
         moduleClassNameJs,
+        moduleImportNameJs,
         npmPackageName,
         packageImportPath,
         packageInstance,
@@ -71,6 +72,7 @@ export async function autolinkAndroid({
         exportsConstants,
         moduleClassName,
         moduleClassNameJs,
+        moduleImportNameJs,
         packageImportPath,
         packageInstance,
         packageName: npmPackageName,
@@ -102,12 +104,12 @@ export async function autolinkAndroid({
             exportedMethods,
             exportedModuleName,
             exportsConstants,
-            moduleClassNameJs,
+            moduleImportNameJs,
           }
         ) => {
           acc[exportedModuleName] = {
             e: exportsConstants,
-            j: moduleClassNameJs,
+            j: moduleImportNameJs,
             m: exportedMethods.reduce(
               (
                 innerAcc,
@@ -212,6 +214,18 @@ async function mapPackageNameToAutolinkingInfo({
     ? path.join(sourceDir, userConfig.cmakeListsPath)
     : path.join(sourceDir, 'build/generated/source/codegen/jni/CMakeLists.txt');
 
+  // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java class
+  // names for JS as far as I know.
+  const moduleClassNameJs = moduleClassName;
+  // I'm assuming that the module import will simply be the same as the package
+  // import, but swapping the package name for the module name. I may be wrong!
+  const moduleImportNameJs = `${packageImportPath
+    .replace(';', '')
+    .replace(/import\s+/, '')
+    .split('.')
+    .slice(0, -1)
+    .join('.')}.${moduleClassNameJs}`;
+
   return {
     /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build/generated/source/codegen/jni/Android.mk' */
     androidMkPath,
@@ -234,7 +248,12 @@ async function mapPackageNameToAutolinkingInfo({
     /** @example 'RNTestModule' - the actual name of the Java class in Java */
     moduleClassName,
     /** @example 'RNTestModule' - the name of the Java class in NativeScript */
-    moduleClassNameJs: moduleClassName,
+    moduleClassNameJs,
+    /**
+     * The name of the Java class in NativeScript, with all namespacing.
+     * @example 'com.test.RNTestModule'
+     */
+    moduleImportNameJs,
     /** @example '@ammarahm-ed/react-native-module-test' */
     npmPackageName,
     /** @example 'import com.testmodule.RNTestModulePackage;' */
