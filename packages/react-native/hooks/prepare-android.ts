@@ -113,9 +113,15 @@ export async function autolinkAndroid({
             m: exportedMethods.reduce(
               (
                 innerAcc,
-                { exportedMethodName, methodNameJs, methodTypesParsed }
+                {
+                  exportedMethodName,
+                  isBlockingSynchronousMethod,
+                  methodNameJs,
+                  methodTypesParsed,
+                }
               ) => {
                 innerAcc[exportedMethodName] = {
+                  b: isBlockingSynchronousMethod,
                   j: methodNameJs,
                   t: methodTypesParsed,
                 };
@@ -682,6 +688,8 @@ async function writeModuleMapFile({
       /** methods */
       m: {
         [methodName: string]: {
+          /** isBlockingSynchronousMethod */
+          b: boolean;
           /** jsMethodName */
           j: string;
           /** types */
