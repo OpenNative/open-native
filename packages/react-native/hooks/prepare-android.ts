@@ -628,7 +628,10 @@ async function writeModulesJsonFile({
  * @param args.moduleInfo An array of module information, with fields as such:
  *   [{
  *       packageImportPath: 'import com.testmodule.RNTestModulePackage;',
- *       packageInstance: 'new RNTestModulePackage()'
+ *       packageInstance: 'new RNTestModulePackage()',
+ *       moduleImportNameJs: "RNTestModule",
+ *       moduleImportName: "RNTestModule",
+ *       moduleImportNameJs: "import com.testmodule.RNTestModule"
  *   }]
  * @returns A Promise to write the Packages.java file into the specified
  *   location.
@@ -637,29 +640,50 @@ async function writePackagesJavaFile({
   moduleInfo,
   outputPackagesJavaPath,
 }: {
-  moduleInfo: { packageImportPath: string; packageInstance: string }[];
+  moduleInfo: {
+    packageImportPath: string;
+    packageInstance: string;
+    moduleImportNameJs: string;
+    moduleClassName: string;
+    moduleClassNameJs: string;
+  }[];
   outputPackagesJavaPath: string;
 }) {
   const contents = [
     'package com.bridge;',
     '',
     'import com.facebook.react.ReactPackage;',
-    'import com.facebook.react.bridge.ReactApplicationContext;',
     '',
-    '// Add all imports here:',
+    '// Import all module packages',
     ...moduleInfo.map(({ packageImportPath }) => packageImportPath),
+    '',
+    '// Import all module classes',
+    ...moduleInfo.map(({ moduleImportNameJs }) => moduleImportNameJs),
     '',
     'import java.util.ArrayList;',
     'import java.util.Collections;',
     'import java.util.List;',
+    'import java.util.HashMap;',
     '',
     'public class Packages {',
     '  public static List<ReactPackage> list = new ArrayList<>();',
+    '  public static HashMap<String, Class> moduleClasses = new HashMap<>();',
+    '',
     '  public static void init() {',
-    '    // Register each package.',
+    "    // Register each package, we hopefully won't be",
+    '    // using this for loading modules as it breaks lazy loading',
+    '    // logic',
     '    Collections.addAll(list,',
     ...moduleInfo.map(({ packageInstance }) => `      ${packageInstance},`),
     '    );',
+    '',
+    '    // Register each module class so that we can lazily access',
+    '    // modules upon first function call',
+    ...moduleInfo.map(
+      ({ moduleClassNameJs, moduleClassName }) =>
+        `    moduleClasses.put("${moduleClassNameJs}", ${moduleClassName}.class)`
+    ),
+    '',
     '  }',
     '}',
     '',
