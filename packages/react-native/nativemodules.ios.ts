@@ -8,64 +8,92 @@ import {
   ObjcJSONEquivalent,
 } from './converter.ios';
 import {
-  getModuleMethods,
   isPromise,
-  TModuleMethodsType,
+  RNNativeModuleMetadata,
   TNativeModuleMap,
+  TModuleMethodsType,
 } from './utils.ios';
 import { CoreModuleMap } from './core/CoreModuleMap';
+import { NativeModule } from './core/EventEmitter/NativeEventEmitter';
+
 const CommunityModuleMap =
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('./platforms/ios/lib_community/modulemap.json') as TNativeModuleMap;
+
 const NativeModuleMap = Object.assign({}, CommunityModuleMap, CoreModuleMap);
 
-class NativeModuleHolder {
-  private module: RCTEventEmitter;
-  private bridge: RCTBridge = getCurrentBridge();
-  moduleMethods: TModuleMethodsType;
-  objcMethodsNames: string[];
-  hasExportedConstants: boolean;
+class NativeModuleHolder implements Partial<NativeModule> {
+  /**
+   * The JSModuleInvoker in JSModules() will be indexing into NativeModuleHolder
+   * to call methods upon it, so the class needs an index signature expressing
+   * the union of all possible values for keys on the class.
+   */
+  [key: string]: typeof key extends keyof NativeModuleHolder
+    ? { [P in keyof NativeModuleHolder]: NativeModuleHolder[P] }
+    : ((...args: unknown[]) => number) | JSONSerialisable;
+
+  private readonly nativeModule: RCTBridgeModule | null;
+  private readonly bridge: RCTBridge = getCurrentBridge();
+  private readonly moduleMetadata: RNNativeModuleMetadata | undefined;
 
   constructor(public moduleName: string) {
-    this.moduleMethods = NativeModuleMap[this.moduleName].m;
-    this.loadConstants();
-    this.wrapNativeMethods();
-  }
-
-  get nativeModule(): RCTEventEmitter {
-    return (this.module =
-      this.module || this.bridge.moduleForName(this.moduleName));
-  }
-
-  get moduleNotFound(): boolean {
+    this.nativeModule = this.bridge.moduleForName(this.moduleName);
     if (!this.nativeModule) {
       console.warn(
-        `Trying to register a react native module "${this.moduleName}" that could not be found in module registry.`
+        `Trying to register a React Native native module "${this.moduleName}" that could not be found in the module registry.`
       );
-      return true;
     }
-    return false;
+
+    this.moduleMetadata = NativeModuleMap[this.moduleName];
+    if (!this.moduleMetadata) {
+      console.warn(
+        `Trying to register a React Native native module "${this.moduleName}" that was unable to be parsed by the autolinker.`
+      );
+    }
+
+    if (this.moduleMetadata?.e) {
+      this.loadConstants();
+    }
+
+    if (this.moduleMetadata?.m) {
+      this.wrapNativeMethods(this.moduleMetadata?.m);
+    }
+
+    // This is uncomfortably dynamic, but it's in line with NativeEventEmitter's
+    // expectations that you can technically instantiate a NativeEventEmitter
+    // that's missing these methods. Not sure exactly what they had in mind.
+    if (this.nativeModule instanceof RCTEventEmitter) {
+      // Holding a reference avoids reasserting the type inside each closure.
+      const nativeModule = this.nativeModule;
+
+      this.addListener = (eventType: string) => {
+        nativeModule.addListener(eventType);
+      };
+      this.removeListeners = (count: number) => {
+        nativeModule.removeListeners(count);
+      };
+    }
   }
 
-  loadConstants() {
-    this.hasExportedConstants = NativeModuleMap[this.moduleName].e;
-    if (!this.hasExportedConstants) return;
-
-    const exportedConstants = this.nativeModule.constantsToExport?.();
+  private loadConstants(): void {
+    const exportedConstants:
+      | NSDictionary<NSString, ObjcJSONEquivalent>
+      | undefined = this.nativeModule.constantsToExport?.();
     if (!exportedConstants) {
       console.warn(
-        `${this.moduleName} specifies that it has exported constants but has returned ${exportedConstants}.`
+        `${this.moduleName} specifies that it has exported constants, but has returned ${exportedConstants}.`
       );
       return;
     }
 
     // Convert the constants from Obj-C to JS.
-    const constantsAsJs = toJSValue(
-      exportedConstants as NSDictionary<NSString, ObjcJSONEquivalent>
-    ) as Record<string, JSONSerialisable>;
+    const constantsAsJs = toJSValue(exportedConstants) as Record<
+      string,
+      JSONSerialisable
+    >;
     if (!constantsAsJs) {
       console.warn(
-        `${this.moduleName} specifies that it has exported constants but they weren't serialisable.`
+        `${this.moduleName} specifies that it has exported constants, but they weren't serialisable.`
       );
       return;
     }
@@ -75,48 +103,35 @@ class NativeModuleHolder {
     }
   }
 
-  wrapNativeMethods() {
-    for (const method in this.moduleMethods) {
-      this[method] = (...args: RNNativeModuleArgType[]) => {
-        if (this.moduleNotFound) return;
-
-        this.objcMethodsNames =
-          this.objcMethodsNames || getModuleMethods(this.module);
-        const jsName = this.moduleMethods[method].j;
-
-        if (isPromise(this.moduleMethods, method)) {
-          return promisify(
-            this.nativeModule,
-            jsName,
-            this.moduleMethods[method].t,
-            args
+  private wrapNativeMethods(moduleMethods: TModuleMethodsType): void {
+    for (const exportedMethodName in moduleMethods) {
+      const { j: jsName, t: methodTypes } = moduleMethods[exportedMethodName];
+      this[exportedMethodName] = (...args: RNNativeModuleArgType[]) => {
+        if (!this.nativeModule) {
+          throw new Error(
+            `Unable to wrap method "${exportedMethodName}" on module "${this.moduleName}" as the module was not found in the bridge.`
           );
         }
 
+        if (isPromise(moduleMethods, exportedMethodName)) {
+          return promisify(this.nativeModule, jsName, methodTypes, args);
+        }
+
         return this.nativeModule[jsName]?.(
-          ...toNativeArguments(this.moduleMethods[method].t, args)
+          ...toNativeArguments(methodTypes, args)
         );
       };
     }
   }
 
-  addListener(eventType: string) {
-    if (this.moduleNotFound) return;
-    this.module.addListener?.(eventType);
-  }
-
-  removeListeners(count: number) {
-    if (this.moduleNotFound) return;
-    this.module.removeListeners?.(count);
-  }
+  addListener?(eventType: string): void;
+  removeListeners?(count: number): void;
 }
 
-function createNativeModules() {
-  const modules = {};
-  for (const moduleName in NativeModuleMap) {
-    modules[moduleName] = new NativeModuleHolder(moduleName);
-  }
-  return modules;
-}
-
-export const NativeModules = createNativeModules();
+export const NativeModules = Object.keys(NativeModuleMap).reduce(
+  (acc, moduleName) => {
+    acc[moduleName] = new NativeModuleHolder(moduleName);
+    return acc;
+  },
+  {}
+);

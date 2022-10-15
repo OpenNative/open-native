@@ -24,25 +24,20 @@ export interface TModuleMethodsType {
 }
 
 export interface TNativeModuleMap {
-  [exportedModuleName: string]: {
-    e: boolean;
-    m: TModuleMethodsType;
-  };
+  [exportedModuleName: string]: RNNativeModuleMetadata;
 }
 
-/**
- * Returns all the keys (automatically sanitised by NativeScript for JS) on a
- * given React Native native module's Obj-C class. A subset of these keys will
- * be the Obj-C method names (again, sanitised for JS).
- */
-export function getModuleMethods(module: RCTBridgeModule): string[] {
-  const keys: string[] = [];
-
-  // The for...in loop is important here as NativeScript does not necessarily
-  // return native keys by other means like Object.keys(module).
-  for (const key in module) keys.push(key);
-
-  return keys;
+export interface RNNativeModuleMetadata {
+  /**
+   * Whether the module exports any constants.
+   * @example true
+   */
+  e: boolean;
+  /**
+   * A record of methods exported by the module, indexed by exported method
+   * name.
+   */
+  m: TModuleMethodsType;
 }
 
 /**
