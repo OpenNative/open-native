@@ -705,7 +705,10 @@ async function writePackagesJavaFile({
     "    // Register each package - we hopefully won't be using this for loading",
     '    // modules, as it breaks lazy loading logic',
     '    Collections.addAll(list,',
-    ...packages.map(({ packageInstance }) => `      ${packageInstance},`),
+    ...packages.map(
+      ({ packageInstance }, index) =>
+        `      ${packageInstance}${index === packages.length - 1 ? '' : ','}`
+    ),
     '    );',
     '',
     '    // Register each module class so that we can lazily access modules upon',
@@ -713,7 +716,7 @@ async function writePackagesJavaFile({
     ...packages.flatMap(({ modules }) =>
       modules.map(
         (m) =>
-          `    moduleClasses.put("${m.exportedModuleName}", ${m.moduleClassName}.class)`
+          `    moduleClasses.put("${m.exportedModuleName}", ${m.moduleClassName}.class);`
       )
     ),
     '',
