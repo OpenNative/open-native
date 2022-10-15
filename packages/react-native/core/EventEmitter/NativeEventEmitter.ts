@@ -32,7 +32,7 @@ export type { EventSubscription };
  * This means event names must be globally unique, and it means that call sites
  * can theoretically listen to `RCTDeviceEventEmitter` (although discouraged).
  */
-export class NativeEventEmitter implements IEventEmitter {
+export default class NativeEventEmitter implements IEventEmitter {
   constructor(public nativeModule: NativeModule) {
     if (Platform.OS === 'ios' && !nativeModule) {
       throw new Error(

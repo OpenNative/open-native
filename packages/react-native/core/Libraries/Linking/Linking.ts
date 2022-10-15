@@ -9,7 +9,7 @@
  */
 
 import { type EventSubscription } from '../../vendor/emitter/EventEmitter';
-import { NativeEventEmitter } from '../../EventEmitter/NativeEventEmitter';
+import NativeEventEmitter from '../../EventEmitter/NativeEventEmitter';
 import { Platform } from '../../Utilities/Platform';
 //import NativeIntentAndroid from './NativeIntentAndroid';
 import { NativeModules } from '../../..';
