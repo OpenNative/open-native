@@ -35,12 +35,14 @@ export async function autolinkAndroid({
   outputModulesJsonPath,
   outputModuleMapPath,
   outputPackagesJavaPath,
+  outputIncludeGradlePath,
 }: {
   dependencies: string[];
   projectDir: string;
   outputModulesJsonPath: string;
   outputModuleMapPath: string;
   outputPackagesJavaPath: string;
+  outputIncludeGradlePath: string;
 }) {
   const autolinkingInfo = (
     await Promise.all(
@@ -70,6 +72,7 @@ export async function autolinkAndroid({
     );
 
   await Promise.all([
+    await writeSettingsGradleFile(projectDir),
     await writeModulesJsonFile({
       modules: autolinkingInfo.map(
         ({ packageName, absolutePath, androidProjectName }) => ({
@@ -84,6 +87,13 @@ export async function autolinkAndroid({
     await writePackagesJavaFile({
       packages: autolinkingInfo,
       outputPackagesJavaPath,
+    }),
+
+    await writeIncludeGradleFile({
+      projectNames: autolinkingInfo.map(
+        ({ androidProjectName }) => androidProjectName
+      ),
+      outputIncludeGradlePath,
     }),
 
     await writeModuleMapFile({
@@ -729,6 +739,64 @@ async function writePackagesJavaFile({
     encoding: 'utf-8',
   });
 }
+
+/**
+ * @param {object} args
+ * @param args.projectNames An array of android project names
+ * @returns A Promise to write the include.gradle file into the specified
+ * location.
+ */
+async function writeIncludeGradleFile({
+  projectNames,
+  outputIncludeGradlePath,
+}: {
+  projectNames: string[];
+  outputIncludeGradlePath: string;
+}) {
+  const contents = [
+    'dependencies {',
+    'implementation project(":bridge")',
+    ...projectNames.map(
+      (projectName) => `implementation project(":${projectName}")`
+    ),
+    '}',
+  ].join('\n');
+  return await writeFile(outputIncludeGradlePath, contents, {
+    encoding: 'utf-8',
+  });
+}
+
+async function writeSettingsGradleFile(projectDir: string) {
+  const settingsGradlePath = projectDir + '/platforms/android/settings.gradle';
+  const settingsGradlePatch = `// Mark react-native patch
+def reactNativePkgJson = new File(["node", "--print", "require.resolve('@ammarahm-ed/react-native/package.json')"].execute(null, rootDir).text.trim())
+def reactNativeDir = reactNativePkgJson.getParentFile().absolutePath
+import groovy.json.JsonSlurper
+def modules = new JsonSlurper().parse(new File(reactNativeDir, "react-android/bridge/modules.json"));
+
+include ':react'
+project(":react").projectDir = new File(reactNativeDir, "react-android/react/")
+include ':bridge'
+project(":bridge").projectDir = new File(reactNativeDir, "react-android/bridge/")
+
+modules.each {
+  include ":\${it.androidProjectName}"
+  project(":\${it.androidProjectName}").projectDir = new File(it.absolutePath)
+}`;
+
+  const currentSettingsGradle = await readFile(settingsGradlePath, {
+    encoding: 'utf-8',
+  });
+  if (currentSettingsGradle.includes('Mark react-native patch')) return;
+  return await writeFile(
+    settingsGradlePath,
+    [currentSettingsGradle, settingsGradlePatch].join('\n'),
+    {
+      encoding: 'utf-8',
+    }
+  );
+}
+
 /**
  * @param {object} args
  * @param args.moduleMap
