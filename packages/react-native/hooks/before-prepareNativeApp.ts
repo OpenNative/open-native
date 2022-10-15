@@ -2,6 +2,10 @@ import * as path from 'path';
 import type { HookArgs } from './hookArgs';
 import { autolinkAndroid } from './prepare-android';
 import { autolinkIos } from './prepare-ios';
+import * as child_process from 'child_process';
+import * as util from 'util';
+
+const exec = util.promisify(child_process.exec);
 
 const logPrefix = '[react-native/hooks/before-prepareNativeApp.js]';
 const green = '\x1b[32m';
@@ -92,4 +96,18 @@ export = async function (hookArgs: HookArgs) {
   console.log(
     `${logPrefix} ... Finished autolinking React Native ${normalizedPlatformName} native modules.`
   );
+
+  if (normalizedPlatformName === 'Android') {
+    console.log(
+      `${logPrefix} ... Start building react native aar in ${packageDir}/react-android.`
+    );
+    const { stderr, stdout } = await exec(
+      `cd react-android && ./gradlew exportAar`,
+      {
+        cwd: packageDir,
+      }
+    );
+    console.log(stderr);
+    console.log(stdout);
+  }
 };
