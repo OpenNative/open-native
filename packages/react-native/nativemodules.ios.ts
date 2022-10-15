@@ -13,11 +13,11 @@ import {
   TModuleMethodsType,
   TNativeModuleMap,
 } from './utils.ios';
-import DefaultModuleMap from './core/defaultmodulesmap';
-const ModuleMap =
+import { CoreModuleMap } from './core/CoreModuleMap';
+const CommunityModuleMap =
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('./platforms/ios/lib_community/modulemap.json') as TNativeModuleMap;
-const NativeModuleMap = { ...ModuleMap, ...DefaultModuleMap };
+const NativeModuleMap = Object.assign({}, CommunityModuleMap, CoreModuleMap);
 
 class NativeModuleHolder {
   private module: RCTEventEmitter;

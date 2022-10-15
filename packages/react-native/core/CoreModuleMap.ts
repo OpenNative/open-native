@@ -1,7 +1,8 @@
 import { RNObjcSerialisableType } from '../common';
 
-export default {
+export const CoreModuleMap = {
   LinkingManager: {
+    e: false,
     m: {
       canOpenURL: {
         j: 'canOpenURLResolveReject',
@@ -43,6 +44,5 @@ export default {
         ],
       },
     },
-    e: false,
   },
 };
