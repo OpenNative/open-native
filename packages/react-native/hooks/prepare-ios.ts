@@ -792,7 +792,14 @@ interface MethodDescriptionsMinimal {
 
 interface ModuleNamesToMethodDescriptionsMinimal {
   [moduleName: string]: {
+    /**
+     * Whether the module exports any constants.
+     * @example true
+     */
     e: boolean;
+    /**
+     * The methods exported by the module.
+     */
     m: MethodDescriptionsMinimal;
   };
 }
