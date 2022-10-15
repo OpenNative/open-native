@@ -54,12 +54,7 @@ export async function autolinkAndroid({
     .map(
       ({
         androidProjectName,
-        exportedMethods,
-        exportedModuleName,
-        exportsConstants,
-        moduleClassName,
-        moduleClassNameJs,
-        moduleImportNameJs,
+        modules,
         npmPackageName,
         packageImportPath,
         packageInstance,
@@ -67,12 +62,7 @@ export async function autolinkAndroid({
       }) => ({
         absolutePath: sourceDir,
         androidProjectName,
-        exportedMethods,
-        exportedModuleName,
-        exportsConstants,
-        moduleClassName,
-        moduleClassNameJs,
-        moduleImportNameJs,
+        modules,
         packageImportPath,
         packageInstance,
         packageName: npmPackageName,
@@ -81,7 +71,7 @@ export async function autolinkAndroid({
 
   await Promise.all([
     await writeModulesJsonFile({
-      moduleInfo: autolinkingInfo.map(
+      modules: autolinkingInfo.map(
         ({ packageName, absolutePath, androidProjectName }) => ({
           packageName,
           absolutePath,
@@ -92,48 +82,51 @@ export async function autolinkAndroid({
     }),
 
     await writePackagesJavaFile({
-      moduleInfo: autolinkingInfo,
+      packages: autolinkingInfo,
       outputPackagesJavaPath,
     }),
 
     await writeModuleMapFile({
-      moduleMap: autolinkingInfo.reduce(
-        (
-          acc,
-          {
+      // The autolinking info is essentially an array where each member
+      // describes a package. Each package can have several modules, so we
+      // reduce all the modules across all the packages into a single module
+      // map.
+      moduleMap: autolinkingInfo.reduce((acc, { modules }) => {
+        modules.forEach(
+          ({
             exportedMethods,
             exportedModuleName,
             exportsConstants,
             moduleImportNameJs,
+          }) => {
+            acc[exportedModuleName] = {
+              e: exportsConstants,
+              j: moduleImportNameJs,
+              m: exportedMethods.reduce(
+                (
+                  innerAcc,
+                  {
+                    exportedMethodName,
+                    isBlockingSynchronousMethod,
+                    methodNameJs,
+                    methodTypesParsed,
+                  }
+                ) => {
+                  innerAcc[exportedMethodName] = {
+                    b: isBlockingSynchronousMethod,
+                    j: methodNameJs,
+                    t: methodTypesParsed,
+                  };
+                  return innerAcc;
+                },
+                {}
+              ),
+            };
           }
-        ) => {
-          acc[exportedModuleName] = {
-            e: exportsConstants,
-            j: moduleImportNameJs,
-            m: exportedMethods.reduce(
-              (
-                innerAcc,
-                {
-                  exportedMethodName,
-                  isBlockingSynchronousMethod,
-                  methodNameJs,
-                  methodTypesParsed,
-                }
-              ) => {
-                innerAcc[exportedMethodName] = {
-                  b: isBlockingSynchronousMethod,
-                  j: methodNameJs,
-                  t: methodTypesParsed,
-                };
-                return innerAcc;
-              },
-              {}
-            ),
-          };
-          return acc;
-        },
-        {}
-      ),
+        );
+
+        return acc;
+      }, {}),
       outputModuleMapPath,
     }),
   ]);
@@ -184,13 +177,7 @@ async function mapPackageNameToAutolinkingInfo({
 
   const androidPackageName =
     userConfig.packageName || (await getAndroidPackageName(manifestPath));
-  const {
-    exportedMethods,
-    exportedModuleName,
-    exportsConstants,
-    moduleClassName,
-    packageClassName,
-  } = await parseSourceFiles(sourceDir);
+  const { modules, packageClassName } = await parseSourceFiles(sourceDir);
 
   /**
    * This module has no package to export.
@@ -220,17 +207,55 @@ async function mapPackageNameToAutolinkingInfo({
     ? path.join(sourceDir, userConfig.cmakeListsPath)
     : path.join(sourceDir, 'build/generated/source/codegen/jni/CMakeLists.txt');
 
-  // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java class
-  // names for JS as far as I know.
-  const moduleClassNameJs = moduleClassName;
-  // I'm assuming that the module import will simply be the same as the package
-  // import, but swapping the package name for the module name. I may be wrong!
-  const moduleImportNameJs = `${packageImportPath
-    .replace(';', '')
-    .replace(/import\s+/, '')
-    .split('.')
-    .slice(0, -1)
-    .join('.')}.${moduleClassNameJs}`;
+  const modulesWithImportNames = modules.map(
+    ({
+      moduleClassName,
+      exportedMethods,
+      exportedModuleName,
+      exportsConstants,
+    }) => {
+      // I'm assuming that the module import will simply be the same as the package
+      // import, but swapping the package name for the module name. I may be wrong!
+      const moduleImportName = `${packageImportPath
+        .replace(';', '')
+        .replace(/import\s+/, '')
+        .split('.')
+        .slice(0, -1)
+        .join('.')}.${moduleClassName}`;
+
+      // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java class
+      // names for JS as far as I know.
+      const moduleClassNameJs = moduleClassName;
+      const moduleImportNameJs = `${packageImportPath
+        .replace(';', '')
+        .replace(/import\s+/, '')
+        .split('.')
+        .slice(0, -1)
+        .join('.')}.${moduleClassNameJs}`;
+
+      return {
+        exportedMethods,
+        /** @example 'RNTestModule' - as exported by getName() */
+        exportedModuleName,
+        /** @example false - whether the module exports constants or not. */
+        exportsConstants,
+        /** @example 'RNTestModule' - the name of the Java class in Java */
+        moduleClassName,
+        /** @example 'RNTestModule' - the name of the Java class in NativeScript */
+        moduleClassNameJs,
+        /**
+         * The name of the Java class in Java, with all namespacing.
+         * @example 'com.test.RNTestModule'
+         */
+        moduleImportName,
+        /**
+         * The name of the Java class in NativeScript, with all namespacing.
+         * @example 'com.test.RNTestModule'
+         */
+        moduleImportNameJs,
+      };
+    }
+  );
 
   return {
     /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build/generated/source/codegen/jni/Android.mk' */
@@ -245,21 +270,9 @@ async function mapPackageNameToAutolinkingInfo({
     componentDescriptors,
     /** @example undefined */
     dependencyConfiguration,
-    exportedMethods,
-    /** @example 'RNTestModule' - as exported by getName() */
-    exportedModuleName,
-    exportsConstants,
     /** @example undefined */
     libraryName,
-    /** @example 'RNTestModule' - the actual name of the Java class in Java */
-    moduleClassName,
-    /** @example 'RNTestModule' - the name of the Java class in NativeScript */
-    moduleClassNameJs,
-    /**
-     * The name of the Java class in NativeScript, with all namespacing.
-     * @example 'com.test.RNTestModule'
-     */
-    moduleImportNameJs,
+    modules: modulesWithImportNames,
     /** @example '@ammarahm-ed/react-native-module-test' */
     npmPackageName,
     /** @example 'import com.testmodule.RNTestModulePackage;' */
@@ -340,129 +353,142 @@ async function parseSourceFiles(folder: string) {
   // TODO: We should ideally strip comments before running any Regex.
 
   let packageDeclarationMatch: RegExpMatchArray | null = null;
-  let moduleContents = '';
-  let moduleDeclarationMatch: RegExpMatchArray | null = null;
+  const moduleDeclarationMatches: {
+    contents: string;
+    match: RegExpMatchArray;
+  }[] = [];
+
   for (const file of files) {
     if (!packageDeclarationMatch) {
       packageDeclarationMatch = matchClassDeclarationForPackage(file);
     }
-    if (!moduleDeclarationMatch) {
-      moduleDeclarationMatch = matchClassDeclarationForModule(file);
-      moduleContents = file;
-    }
-    if (packageDeclarationMatch && moduleDeclarationMatch) {
-      break;
+    const moduleDeclarationMatch = matchClassDeclarationForModule(file);
+    if (moduleDeclarationMatch) {
+      moduleDeclarationMatches.push({
+        contents: file,
+        match: moduleDeclarationMatch,
+      });
     }
   }
 
-  if (!packageDeclarationMatch || !moduleDeclarationMatch) {
+  if (!packageDeclarationMatch) {
     return null;
   }
 
   const [, packageClassName] = packageDeclarationMatch;
-  const [, moduleClassName] = moduleDeclarationMatch;
 
-  /** @example ['@ReactMethod\n@Profile\n   public void testCallback(Callback callback) {'] */
-  const exportedMethodMatches =
-    moduleContents.match(ANDROID_METHOD_REGEX) ?? [];
-  const exportsConstants = /@Override\s+.*\s+getConstants\(\s*\)\s*{/m.test(
-    moduleContents
-  );
+  const modules = moduleDeclarationMatches.map(
+    ({ contents: moduleContents, match: moduleDeclarationMatch }) => {
+      const [, moduleClassName] = moduleDeclarationMatch;
 
-  const exportedMethods = exportedMethodMatches
-    .map((raw) => {
+      /** @example ['@ReactMethod\n@Profile\n   public void testCallback(Callback callback) {'] */
+      const exportedMethodMatches =
+        moduleContents.match(ANDROID_METHOD_REGEX) ?? [];
+      const exportsConstants = /@Override\s+.*\s+getConstants\(\s*\)\s*{/m.test(
+        moduleContents
+      );
+
+      const exportedMethods = exportedMethodMatches
+        .map((raw) => {
+          /**
+           * Standardise to single-space.
+           * @example ['@ReactMethod @Profile public void testCallback(Callback callback) {']
+           */
+          raw = raw.replace(/\s+/g, ' ');
+
+          const isBlockingSynchronousMethod =
+            /isBlockingSynchronousMethod\s*=\s*true/.test(
+              raw.split(/\)/).find((split) => split.includes('@ReactMethod('))
+            );
+
+          /**
+           * Remove annotations.
+           * @example ['public void testCallback(Callback callback) {']
+           */
+          raw = raw.split(/@[a-zA-Z]*\s+/).slice(-1)[0];
+
+          /**
+           * Remove the trailing brace.
+           * @example ['public void testCallback(Callback callback)']
+           */
+          const signature = raw.split(/\s*{/)[0];
+
+          const [
+            /**
+             * The signature leading up to the first bracket.
+             * @example ['public void testCallback']
+             */
+            signatureBeforeParams,
+            /**
+             * The signature following after the first bracket.
+             * @example ['Callback callback)']
+             */
+            signatureFromParams = '',
+          ] = signature.split(/\(/);
+
+          /** @example ['public', 'void', 'testCallback'] */
+          const signatureBeforeParamsSplit = signatureBeforeParams.split(/\s+/);
+          /** @example 'testCallback' */
+          const methodNameJava = signatureBeforeParamsSplit.slice(-1)[0];
+          /** @example 'void' */
+          const returnType = signatureBeforeParamsSplit.slice(-2)[0];
+
+          /**
+           * Erase generic args and then split around commas to get params.
+           * We filter out falsy params because it's possible to get ['void', '']
+           * when the signature has no params.
+           * @example ['void', 'Callback callback', 'ReadableMap', 'ReadableArray']
+           */
+          const methodTypesRaw = [
+            returnType,
+            ...signatureFromParams
+              .replace(/\)$/, '')
+              .trim()
+              .replace(/<.*>/g, '')
+              .split(/\s*,\s*/)
+              .filter((param) => param),
+          ];
+
+          return {
+            exportedMethodName: methodNameJava,
+            isBlockingSynchronousMethod,
+            methodNameJava,
+            methodNameJs: methodNameJava,
+            methodTypesParsed: methodTypesRaw.map((t) =>
+              parseJavaTypeToEnum(t)
+            ),
+            methodTypesRaw,
+            returnType,
+            signature,
+          };
+        })
+        .filter((obj) => obj.signature);
+
       /**
-       * Standardise to single-space.
-       * @example ['@ReactMethod @Profile public void testCallback(Callback callback) {']
+       * We chain together these operations:
+       * @example ['public String getName() {\n    return "RNTestModule";\n  }']
+       * @example ['"RNTestModule"']
+       * @example 'RNTestModule'
        */
-      raw = raw.replace(/\s+/g, ' ');
-
-      const isBlockingSynchronousMethod =
-        /isBlockingSynchronousMethod\s*=\s*true/.test(
-          raw.split(/\)/).find((split) => split.includes('@ReactMethod('))
-        );
-
-      /**
-       * Remove annotations.
-       * @example ['public void testCallback(Callback callback) {']
-       */
-      raw = raw.split(/@[a-zA-Z]*\s+/).slice(-1)[0];
-
-      /**
-       * Remove the trailing brace.
-       * @example ['public void testCallback(Callback callback)']
-       */
-      const signature = raw.split(/\s*{/)[0];
-
-      const [
-        /**
-         * The signature leading up to the first bracket.
-         * @example ['public void testCallback']
-         */
-        signatureBeforeParams,
-        /**
-         * The signature following after the first bracket.
-         * @example ['Callback callback)']
-         */
-        signatureFromParams = '',
-      ] = signature.split(/\(/);
-
-      /** @example ['public', 'void', 'testCallback'] */
-      const signatureBeforeParamsSplit = signatureBeforeParams.split(/\s+/);
-      /** @example 'testCallback' */
-      const methodNameJava = signatureBeforeParamsSplit.slice(-1)[0];
-      /** @example 'void' */
-      const returnType = signatureBeforeParamsSplit.slice(-2)[0];
-
-      /**
-       * Erase generic args and then split around commas to get params.
-       * We filter out falsy params because it's possible to get ['void', '']
-       * when the signature has no params.
-       * @example ['void', 'Callback callback', 'ReadableMap', 'ReadableArray']
-       */
-      const methodTypesRaw = [
-        returnType,
-        ...signatureFromParams
-          .replace(/\)$/, '')
-          .trim()
-          .replace(/<.*>/g, '')
-          .split(/\s*,\s*/)
-          .filter((param) => param),
-      ];
+      const exportedModuleName = moduleContents
+        .match(ANDROID_GET_NAME_FN_REGEX)?.[0]
+        .match(ANDROID_MODULE_NAME_REGEX)?.[0]
+        .replace(/"/g, '');
 
       return {
-        exportedMethodName: methodNameJava,
-        isBlockingSynchronousMethod,
-        methodNameJava,
-        methodNameJs: methodNameJava,
-        methodTypesParsed: methodTypesRaw.map((t) => parseJavaTypeToEnum(t)),
-        methodTypesRaw,
-        returnType,
-        signature,
+        exportedMethods,
+        /** @example 'RNTestModule' */
+        exportedModuleName,
+        /** @example true */
+        exportsConstants,
+        /** @example 'RNTestModule' */
+        moduleClassName,
       };
-    })
-    .filter((obj) => obj.signature);
-
-  /**
-   * We chain together these operations:
-   * @example ['public String getName() {\n    return "RNTestModule";\n  }']
-   * @example ['"RNTestModule"']
-   * @example 'RNTestModule'
-   */
-  const exportedModuleName = moduleContents
-    .match(ANDROID_GET_NAME_FN_REGEX)?.[0]
-    .match(ANDROID_MODULE_NAME_REGEX)?.[0]
-    .replace(/"/g, '');
+    }
+  );
 
   return {
-    exportedMethods,
-    /** @example 'RNTestModule' */
-    exportedModuleName,
-    /** @example true */
-    exportsConstants,
-    /** @example 'RNTestModule' */
-    moduleClassName,
-    /** @example 'RNTestModulePackage' */
+    modules,
     packageClassName,
   };
 }
@@ -606,10 +632,10 @@ export function extractComponentDescriptors(contents: string): string {
  *   location.
  */
 async function writeModulesJsonFile({
-  moduleInfo,
+  modules,
   outputModulesJsonPath,
 }: {
-  moduleInfo: {
+  modules: {
     packageName: string;
     absolutePath: string;
     androidProjectName: string;
@@ -618,34 +644,38 @@ async function writeModulesJsonFile({
 }) {
   return await writeFile(
     outputModulesJsonPath,
-    JSON.stringify(moduleInfo, null, 2),
+    JSON.stringify(modules, null, 2),
     { encoding: 'utf-8' }
   );
 }
 
 /**
  * @param {object} args
- * @param args.moduleInfo An array of module information, with fields as such:
+ * @param args.packages An array of package information, with fields as such:
  *   [{
  *       packageImportPath: 'import com.testmodule.RNTestModulePackage;',
  *       packageInstance: 'new RNTestModulePackage()',
- *       moduleImportNameJs: "RNTestModule",
- *       moduleImportName: "RNTestModule",
- *       moduleImportNameJs: "import com.testmodule.RNTestModule"
+ *       modules: [{
+ *         exportedModuleName: "RNTestModule",
+ *         moduleClassName: "RNTestModule",
+ *         moduleImportName: "com.testmodule.RNTestModule"
+ *       }]
  *   }]
  * @returns A Promise to write the Packages.java file into the specified
  *   location.
  */
 async function writePackagesJavaFile({
-  moduleInfo,
+  packages,
   outputPackagesJavaPath,
 }: {
-  moduleInfo: {
+  packages: {
     packageImportPath: string;
     packageInstance: string;
-    moduleImportNameJs: string;
-    moduleClassName: string;
-    moduleClassNameJs: string;
+    modules: {
+      exportedModuleName: string;
+      moduleImportName: string;
+      moduleClassName: string;
+    }[];
   }[];
   outputPackagesJavaPath: string;
 }) {
@@ -655,33 +685,36 @@ async function writePackagesJavaFile({
     'import com.facebook.react.ReactPackage;',
     '',
     '// Import all module packages',
-    ...moduleInfo.map(({ packageImportPath }) => packageImportPath),
+    ...packages.map(({ packageImportPath }) => packageImportPath),
     '',
     '// Import all module classes',
-    ...moduleInfo.map(({ moduleImportNameJs }) => moduleImportNameJs),
+    ...packages.flatMap(({ modules }) =>
+      modules.map((m) => `import ${m.moduleImportName};`)
+    ),
     '',
     'import java.util.ArrayList;',
     'import java.util.Collections;',
-    'import java.util.List;',
     'import java.util.HashMap;',
+    'import java.util.List;',
     '',
     'public class Packages {',
     '  public static List<ReactPackage> list = new ArrayList<>();',
     '  public static HashMap<String, Class> moduleClasses = new HashMap<>();',
     '',
     '  public static void init() {',
-    "    // Register each package, we hopefully won't be",
-    '    // using this for loading modules as it breaks lazy loading',
-    '    // logic',
+    "    // Register each package - we hopefully won't be using this for loading",
+    '    // modules, as it breaks lazy loading logic',
     '    Collections.addAll(list,',
-    ...moduleInfo.map(({ packageInstance }) => `      ${packageInstance},`),
+    ...packages.map(({ packageInstance }) => `      ${packageInstance},`),
     '    );',
     '',
-    '    // Register each module class so that we can lazily access',
-    '    // modules upon first function call',
-    ...moduleInfo.map(
-      ({ moduleClassNameJs, moduleClassName }) =>
-        `    moduleClasses.put("${moduleClassNameJs}", ${moduleClassName}.class)`
+    '    // Register each module class so that we can lazily access modules upon',
+    '    // first function call',
+    ...packages.flatMap(({ modules }) =>
+      modules.map(
+        (m) =>
+          `    moduleClasses.put("${m.exportedModuleName}", ${m.moduleClassName}.class)`
+      )
     ),
     '',
     '  }',

@@ -18,15 +18,14 @@ public class Packages {
   public static HashMap<String, Class> moduleClasses = new HashMap<>();
 
   public static void init() {
-    // Register each package, we hopefully won't be
-    // using this for loading modules as it breaks lazy loading
-    // logic
+    // Register each package - we hopefully won't be using this for loading
+    // modules, as it breaks lazy loading logic
     Collections.addAll(list, 
     new RNTestModulePackage()
     );
 
-    // Register each module class so that we can lazily access
-    // modules upon first function call
+    // Register each module class so that we can lazily access modules upon
+    // first function call
     moduleClasses.put("RNTestModule",RNTestModule.class);
   }
 }
