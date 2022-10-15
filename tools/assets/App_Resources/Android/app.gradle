@@ -11,6 +11,7 @@ android {
     minSdkVersion 21
     targetSdkVersion 31
     generatedDensities = []
+    manifestPlaceholders = [auth0Domain: "YOUR_AUTH0_DOMAIN", auth0Scheme: "${applicationId}"]
   }
   aaptOptions {
     additionalParameters "--no-version-vectors"
