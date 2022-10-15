@@ -33,7 +33,7 @@ export type { EventSubscription };
  * can theoretically listen to `RCTDeviceEventEmitter` (although discouraged).
  */
 export default class NativeEventEmitter implements IEventEmitter {
-  constructor(public nativeModule: NativeModule) {
+  constructor(public nativeModule?: NativeModule) {
     if (Platform.OS === 'ios' && !nativeModule) {
       throw new Error(
         '`new NativeEventEmitter()` requires a non-null argument.'
