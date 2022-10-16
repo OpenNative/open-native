@@ -6,10 +6,10 @@
 //}
 
 android {
-  compileSdkVersion 31
+  compileSdkVersion 32
   defaultConfig {
     minSdkVersion 21
-    targetSdkVersion 31
+    targetSdkVersion 32
     generatedDensities = []
     manifestPlaceholders = [auth0Domain: "YOUR_AUTH0_DOMAIN", auth0Scheme: "${applicationId}"]
   }
