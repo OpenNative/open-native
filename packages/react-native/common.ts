@@ -17,3 +17,21 @@ export enum RNObjcSerialisableType {
   RCTPromiseResolveBlock,
   RCTPromiseRejectBlock,
 }
+
+export enum RNJavaSerialisableType {
+  other, // Anything we fail to parse!
+  void, // void
+  nonnullString, // String
+  boolean, // Boolean
+  nonnullBoolean, // boolean
+  int, // Integer (deprecated)
+  nonnullInt, // int (deprecated)
+  double, // double
+  nonnullDouble, // Double
+  float, // Float (deprecated)
+  nonnullFloat, // float (deprecated)
+  nonnullArray, // ReadableArray
+  nonnullObject, // ReadableMap
+  Callback, // Callback
+  Promise, // Promise
+}

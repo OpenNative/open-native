@@ -35,7 +35,6 @@ export = async function (hookArgs: HookArgs) {
    * @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native'
    */
   const packageDir = path.dirname(__dirname);
-
   console.log(
     `${logPrefix} Autolinking React Native ${normalizedPlatformName} native modules...`
   );
@@ -49,11 +48,23 @@ export = async function (hookArgs: HookArgs) {
       packageDir,
       'react-android/bridge/src/main/java/com/bridge/Packages.java'
     );
+    const outputModuleMapPath = path.resolve(
+      packageDir,
+      'react-android/bridge/modulemap.json'
+    );
+
+    const outputIncludeGradlePath = path.resolve(
+      packageDir,
+      'platforms/android/include.gradle'
+    );
+
     packageNames = await autolinkAndroid({
       dependencies: depsArr,
       projectDir,
       outputModulesJsonPath,
       outputPackagesJavaPath,
+      outputModuleMapPath,
+      outputIncludeGradlePath,
     });
   } else {
     const outputHeaderPath = path.resolve(
