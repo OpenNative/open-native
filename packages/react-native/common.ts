@@ -21,6 +21,7 @@ export enum RNObjcSerialisableType {
 export enum RNJavaSerialisableType {
   other, // Anything we fail to parse!
   void, // void
+  string, // @Nullable String
   nonnullString, // String
   boolean, // Boolean
   nonnullBoolean, // boolean
@@ -30,8 +31,11 @@ export enum RNJavaSerialisableType {
   nonnullDouble, // Double
   float, // Float (deprecated)
   nonnullFloat, // float (deprecated)
-  nonnullArray, // ReadableArray
   nonnullObject, // ReadableMap
-  Callback, // Callback
+  object, // @Nullable ReadableMap
+  array, // @Nullable ReadableArray
+  nonnullArray, // ReadableArray
+  Callback, // @Nullable Callback
+  nonnullCallback, // Callback
   Promise, // Promise
 }

@@ -847,6 +847,9 @@ function parseJavaTypeToEnum(javaType: string): RNJavaSerialisableType {
   // but just in case the implementation changes in future.
   const splitBeforeGeneric = javaType.split('<')[0];
 
+  if (splitBeforeGeneric.includes('@Nullable String')) {
+    return RNJavaSerialisableType.string;
+  }
   if (splitBeforeGeneric.includes('String')) {
     return RNJavaSerialisableType.nonnullString;
   }
@@ -874,14 +877,23 @@ function parseJavaTypeToEnum(javaType: string): RNJavaSerialisableType {
   if (splitBeforeGeneric.includes('float')) {
     return RNJavaSerialisableType.nonnullFloat;
   }
-  if (splitBeforeGeneric.includes('Map')) {
+  if (splitBeforeGeneric.includes('@Nullable ReadableMap')) {
+    return RNJavaSerialisableType.object;
+  }
+  if (splitBeforeGeneric.includes('ReadableMap')) {
     return RNJavaSerialisableType.nonnullObject;
   }
-  if (splitBeforeGeneric.includes('Array')) {
+  if (splitBeforeGeneric.includes('@Nullable ReadableArray')) {
+    return RNJavaSerialisableType.array;
+  }
+  if (splitBeforeGeneric.includes('ReadableArray')) {
     return RNJavaSerialisableType.nonnullArray;
   }
-  if (splitBeforeGeneric.includes('Callback')) {
+  if (splitBeforeGeneric.includes('@Nullable Callback')) {
     return RNJavaSerialisableType.Callback;
+  }
+  if (splitBeforeGeneric.includes('Callback')) {
+    return RNJavaSerialisableType.nonnullCallback;
   }
   if (splitBeforeGeneric.includes('Promise')) {
     return RNJavaSerialisableType.Promise;
@@ -900,6 +912,7 @@ function parseJavaTypeToEnum(javaType: string): RNJavaSerialisableType {
 enum RNJavaSerialisableType {
   other, // Anything we fail to parse!
   void, // void
+  string, // @Nullable String
   nonnullString, // String
   boolean, // Boolean
   nonnullBoolean, // boolean
@@ -909,8 +922,11 @@ enum RNJavaSerialisableType {
   nonnullDouble, // Double
   float, // Float (deprecated)
   nonnullFloat, // float (deprecated)
-  nonnullArray, // ReadableArray
   nonnullObject, // ReadableMap
-  Callback, // Callback
+  object, // @Nullable ReadableMap
+  array, // @Nullable ReadableArray
+  nonnullArray, // ReadableArray
+  Callback, // @Nullable Callback
+  nonnullCallback, // Callback
   Promise, // Promise
 }

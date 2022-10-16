@@ -11,10 +11,10 @@
 import { type EventSubscription } from '../../vendor/emitter/EventEmitter';
 import NativeEventEmitter from '../../EventEmitter/NativeEventEmitter';
 import { Platform } from '../../Utilities/Platform';
-//import NativeIntentAndroid from './NativeIntentAndroid';
 import { NativeModules } from '../../..';
 
 const NativeLinkingManager = NativeModules.LinkingManager;
+const NativeIntentAndroid = NativeModules.IntentAndroid;
 
 type LinkingEventDefinitions = {
   url: [{ url: string }];
@@ -62,15 +62,12 @@ class _Linking extends NativeEventEmitter {
    * See https://reactnative.dev/docs/linking.html#openurl
    */
   openURL(url: string): Promise<void> {
-    console.log(NativeModules);
-
-    // this._validateURL(url);
-    // if (Platform.OS === 'android') {
-    //   //return NativeIntentAndroid.openURL(url);
-    // } else {
-    //   //return NativeIntentAndroid.openURL(url);
-    // }
-    return undefined;
+    this._validateURL(url);
+    if (Platform.OS === 'android') {
+      return NativeIntentAndroid.openURL(url);
+    } else {
+      return NativeLinkingManager.openURL(url);
+    }
   }
 
   /**
@@ -81,7 +78,7 @@ class _Linking extends NativeEventEmitter {
   canOpenURL(url: string): Promise<boolean> {
     this._validateURL(url);
     if (Platform.OS === 'android') {
-      //return NativeIntentAndroid.canOpenURL(url);
+      return NativeIntentAndroid.canOpenURL(url);
     } else {
       return NativeLinkingManager.canOpenURL(url);
     }
@@ -94,7 +91,7 @@ class _Linking extends NativeEventEmitter {
    */
   openSettings(): Promise<void> {
     if (Platform.OS === 'android') {
-      //return NativeIntentAndroid.openSettings();
+      return NativeIntentAndroid.openSettings();
     } else {
       return NativeLinkingManager.openSettings();
     }
@@ -125,7 +122,7 @@ class _Linking extends NativeEventEmitter {
     }>
   ): Promise<void> {
     if (Platform.OS === 'android') {
-      //return NativeIntentAndroid.sendIntent(action, extras);
+      return NativeIntentAndroid.sendIntent(action, extras);
     } else {
       return new Promise((resolve, reject) => reject(new Error('Unsupported')));
     }
