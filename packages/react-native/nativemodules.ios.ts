@@ -13,7 +13,7 @@ import {
   TNativeModuleMap,
   TModuleMethodsType,
 } from './utils.ios';
-import { CoreModuleMap } from './core/CoreModuleMap';
+import { CoreModuleMap } from './core/CoreModuleMap.ios';
 import { NativeModule } from './core/EventEmitter/NativeEventEmitter';
 
 const CommunityModuleMap =
