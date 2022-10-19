@@ -495,10 +495,11 @@ function extractInterfaces(sourceCode: string) {
    * @end
    */
   const interfaceDecl = Object.keys(moduleNamesToMethodDescriptions)
-    .map((jsModuleName) => {
-      const { methods } = moduleNamesToMethodDescriptions[jsModuleName];
+    .map((exportedModuleName) => {
+      const { jsName, methods } =
+        moduleNamesToMethodDescriptions[exportedModuleName];
       return [
-        `@interface ${jsModuleName} (TNS${jsModuleName})`,
+        `@interface ${jsName} (TNS${jsName})`,
         methods.map((record) => record.signature).join('\n\n'),
         '@end',
       ].join('\n');

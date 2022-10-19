@@ -2,7 +2,7 @@
 
 @implementation RNTestModule
 
-RCT_EXPORT_MODULE()
+RCT_EXPORT_MODULE(RCTRNTestModuleAliased)
 
 RCT_EXPORT_METHOD(show : (RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject)
 

@@ -35,7 +35,16 @@ class NativeModuleHolder implements Partial<NativeModule> {
 
   constructor(public moduleName: string) {
     this.moduleMetadata = NativeModuleMap[this.moduleName];
-    this.nativeModule = this.bridge.moduleForName(this.moduleMetadata.j);
+    // I'm unclear whether we need to look up via the Obj-C name or the exported
+    // name. Looking up 'RCTLinkingManager' (the Obj-C and JS name) fails, but
+    // 'LinkingManager' (the exported name, or perhaps just the Obj-C name with
+    // 'RCT' stripped) succeeds.
+    //
+    // If we ever find that this fails to find modules with aliased names, then
+    // I think we can conclude that it's instead the Obj-C name (which is
+    // identical to the jsName exposed in the modulemap) with 'RCT' removed.
+    // We'll know it's failed because we'll see the warning.
+    this.nativeModule = this.bridge.moduleForName(this.moduleName);
 
     if (!this.nativeModule) {
       console.warn(
