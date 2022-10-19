@@ -29,6 +29,13 @@ export interface TNativeModuleMap {
 
 export interface RNNativeModuleMetadata {
   /**
+   * The Obj-C class name for the module, mapped into a JS-friendly name for
+   * access from NativeScript. As I'm unclear NativeScript does any remapping
+   * of classnames, it's simply the same as the Obj-C name.
+   * @example 'RCTLinkingManager', given the exported name 'LinkingManager'
+   */
+  j: string;
+  /**
    * Whether the module exports any constants.
    * @example true
    */

@@ -13,14 +13,11 @@ import {
   TNativeModuleMap,
   TModuleMethodsType,
 } from './utils.ios';
-import { CoreModuleMap } from './core/CoreModuleMap.ios';
 import { NativeModule } from './core/EventEmitter/NativeEventEmitter';
 
-const CommunityModuleMap =
+const NativeModuleMap =
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('./platforms/ios/lib_community/modulemap.json') as TNativeModuleMap;
-
-const NativeModuleMap = Object.assign({}, CommunityModuleMap, CoreModuleMap);
 
 class NativeModuleHolder implements Partial<NativeModule> {
   /**
@@ -37,14 +34,15 @@ class NativeModuleHolder implements Partial<NativeModule> {
   private readonly moduleMetadata: RNNativeModuleMetadata | undefined;
 
   constructor(public moduleName: string) {
-    this.nativeModule = this.bridge.moduleForName(this.moduleName);
+    this.moduleMetadata = NativeModuleMap[this.moduleName];
+    this.nativeModule = this.bridge.moduleForName(this.moduleMetadata.j);
+
     if (!this.nativeModule) {
       console.warn(
         `Trying to register a React Native native module "${this.moduleName}" that could not be found in the module registry.`
       );
     }
 
-    this.moduleMetadata = NativeModuleMap[this.moduleName];
     if (!this.moduleMetadata) {
       console.warn(
         `Trying to register a React Native native module "${this.moduleName}" that was unable to be parsed by the autolinker.`
