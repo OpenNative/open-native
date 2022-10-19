@@ -373,9 +373,10 @@ function extractInterfaces(sourceCode: string) {
       return acc;
     }
 
-    const jsModuleName =
-      extractBridgeModuleAliasedName(fullMatch) || objcClassName;
-    if (!jsModuleName) {
+    const exportedModuleName = (
+      extractBridgeModuleAliasedName(fullMatch) || objcClassName
+    ).replace(/^RCT/, '');
+    if (!exportedModuleName) {
       return acc;
     }
 
@@ -440,14 +441,15 @@ function extractInterfaces(sourceCode: string) {
 
     if (!allMethods.length) {
       console.warn(
-        `${logPrefix} Unable to extract any methods from RCTBridgeModule named "${jsModuleName}".`
+        `${logPrefix} Unable to extract any methods from RCTBridgeModule named "${exportedModuleName}".`
       );
     }
 
     const exportsConstants =
       /\s+-\s+\(NSDictionary\s?\*\s?\)constantsToExport\s+{/.test(fullMatch);
 
-    acc[jsModuleName] = {
+    acc[exportedModuleName] = {
+      jsName: objcClassName,
       exportsConstants,
       methods: allMethods,
     };
@@ -575,6 +577,7 @@ interface MethodDescription {
 
 interface ModuleNamesToMethodDescriptions {
   [moduleName: string]: {
+    jsName: string;
     exportsConstants: boolean;
     methods: MethodDescription[];
   };
@@ -780,27 +783,31 @@ async function writeModuleMapFile({
 }) {
   const moduleNamesToMethodDescriptionsMinimal = Object.keys(
     moduleNamesToMethodDescriptions
-  ).reduce<ModuleNamesToMethodDescriptionsMinimal>((acc, moduleName) => {
-    const { exportsConstants, methods } =
-      moduleNamesToMethodDescriptions[moduleName];
+  ).reduce<ModuleNamesToMethodDescriptionsMinimal>(
+    (acc, exportedModuleName) => {
+      const { exportsConstants, methods, jsName } =
+        moduleNamesToMethodDescriptions[exportedModuleName];
 
-    acc[moduleName] = {
-      e: exportsConstants,
-      m: methods.reduce<MethodDescriptionsMinimal>(
-        (innerAcc, methodDescription) => {
-          const { exportedName, jsName, types } = methodDescription;
-          innerAcc[exportedName] = {
-            j: jsName,
-            t: types.map((paramType) => parseObjcTypeToEnum(paramType)),
-          };
-          return innerAcc;
-        },
-        {}
-      ),
-    };
+      acc[exportedModuleName] = {
+        j: jsName,
+        e: exportsConstants,
+        m: methods.reduce<MethodDescriptionsMinimal>(
+          (innerAcc, methodDescription) => {
+            const { exportedName, jsName, types } = methodDescription;
+            innerAcc[exportedName] = {
+              j: jsName,
+              t: types.map((paramType) => parseObjcTypeToEnum(paramType)),
+            };
+            return innerAcc;
+          },
+          {}
+        ),
+      };
 
-    return acc;
-  }, {});
+      return acc;
+    },
+    {}
+  );
 
   return await writeFile(
     outputModuleMapPath,
@@ -831,7 +838,14 @@ interface MethodDescriptionsMinimal {
 }
 
 interface ModuleNamesToMethodDescriptionsMinimal {
-  [moduleName: string]: {
+  [exportedModuleName: string]: {
+    /**
+     * The Obj-C class name for the module, mapped into a JS-friendly name for
+     * access from NativeScript. As I'm unclear NativeScript does any remapping
+     * of classnames, it's simply the same as the Obj-C name.
+     * @example 'RCTLinkingManager', given the exported name 'LinkingManager'
+     */
+    j: string;
     /**
      * Whether the module exports any constants.
      * @example true
