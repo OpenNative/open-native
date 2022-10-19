@@ -480,10 +480,7 @@ async function parseSourceFiles(folder: string) {
        * @example ['"RNTestModule"']
        * @example 'RNTestModule'
        */
-      const exportedModuleName = moduleContents
-        .match(ANDROID_GET_NAME_FN_REGEX)?.[0]
-        .match(ANDROID_MODULE_NAME_REGEX)?.[0]
-        .replace(/"/g, '');
+      const exportedModuleName = getModuleName(moduleContents);
 
       return {
         exportedMethods,
@@ -501,6 +498,20 @@ async function parseSourceFiles(folder: string) {
     modules,
     packageClassName,
   };
+}
+
+function getModuleName(moduleContents: string) {
+  const getNameFunctionReturnValue = moduleContents
+    .match(ANDROID_GET_NAME_FN_REGEX)?.[0]
+    .match(ANDROID_MODULE_NAME_REGEX)?.[0]
+    .trim();
+  if (getNameFunctionReturnValue.startsWith(`"`))
+    return getNameFunctionReturnValue.replace(/"/g, '');
+
+  const variableDefinitionLine = moduleContents
+    .split('\n')
+    .find((line) => line.includes(`String ${getNameFunctionReturnValue}`));
+  return variableDefinitionLine.split(`"`)[1];
 }
 
 /**
@@ -840,7 +851,7 @@ async function writeModuleMapFile({
 const ANDROID_METHOD_REGEX = /@ReactMethod+((.|\n)*?) {/gm;
 const ANDROID_GET_NAME_FN_REGEX =
   /public String getName\(\)[\s\S]*?\{[^}]*\}/gm;
-const ANDROID_MODULE_NAME_REGEX = /(["'])(?:(?=(\\?))\2.)*?\1/gm;
+const ANDROID_MODULE_NAME_REGEX = /(?<=return ).*(?=;)/gm;
 
 function parseJavaTypeToEnum(javaType: string): RNJavaSerialisableType {
   // Splitting before the generic should be redundant (we erased them earlier),
