@@ -41,10 +41,20 @@ export async function autolinkIos({
   outputPodspecPath: string;
   outputModuleMapPath: string;
 }) {
+  const packageJson = JSON.parse(
+    await readFile(path.resolve(__dirname, '../package.json'), {
+      encoding: 'utf8',
+    })
+  );
+
   const autolinkingInfo = (
     await Promise.all(
       dependencies.map((packageName) =>
-        mapPackageNameToAutolinkingInfo(packageName, projectDir)
+        mapPackageNameToAutolinkingInfo({
+          ownPackageName: packageJson.name,
+          packageName,
+          projectDir,
+        })
       )
     )
   )
@@ -85,22 +95,37 @@ export async function autolinkIos({
 }
 
 /**
- * @param packageName The package name, e.g. 'react-native-module-test'.
- * @param projectDir The project directory (relative to which the package should
- *   be resolved).
+ * @param {object} args
+ * @param args.ownPackageName The name for the package holding this hook,
+ *   e.g. '@ammarahm-ed/react-native', which holds core modules rather than
+ *   community modules. It'll look for the podspecs for core by a special path.
+ * @param args.packageName The package name, e.g. 'react-native-module-test'.
+ * @param args.projectDir The project directory (relative to which the package
+ *   should be resolved). In other words, the directory holding your app's
+ *   node_modules.
  */
-async function mapPackageNameToAutolinkingInfo(
-  packageName: string,
-  projectDir: string
-) {
+async function mapPackageNameToAutolinkingInfo({
+  ownPackageName,
+  packageName,
+  projectDir,
+}: {
+  ownPackageName: string;
+  packageName: string;
+  projectDir: string;
+}) {
   const packagePath = path.dirname(
     require.resolve(`${packageName}/package.json`, { paths: [projectDir] })
   );
 
-  const podspecs = await globProm('*.podspec', {
-    cwd: packagePath,
-    absolute: true,
-  });
+  const podspecs = await globProm(
+    packageName === ownPackageName
+      ? 'platforms/ios/React-RCTLinking.podspec'
+      : '*.podspec',
+    {
+      cwd: packagePath,
+      absolute: true,
+    }
+  );
   if (podspecs.length === 0) {
     return null;
   }
@@ -145,31 +170,35 @@ async function mapPackageNameToAutolinkingInfo(
   const sourceFilePaths = await getSourceFilePaths({
     commonSourceFiles,
     iosSourceFiles,
-    packagePath,
+    cwd: path.dirname(podspecFilePath),
   });
 
-  return await Promise.all(
+  // We replace hyphens with underscores as per Clang rules:
+  //
+  // > Names of Clang Modules are limited to be C99ext-identifiers. This
+  // > means that they can only contain alphanumeric characters and
+  // > underscores, and cannot begin with a number.
+  // https://blog.cocoapods.org/Pod-Authors-Guide-to-CocoaPods-Frameworks/
+  //
+  // I believe that underscores are enforced when use_frameworks! is on,
+  // though I don't know whether, conversely, hyphens are allowed when it's
+  // off. This is just from my experience making this Cocoapod:
+  // https://github.com/shirakaba/mecab-ko#swift-invocation
+  const clangModuleName = podspecName.replace(/-/g, '_');
+  const commentIdentifyingPodspec = `package: ${packageName}; podspec: ${podspecFileName}`;
+  const podfileEntry = `pod '${podspecName}', path: "${podspecFilePath}"`;
+
+  const sourceFileInfoArr = await Promise.all(
     sourceFilePaths.map(async (sourceFilePath) => {
       const sourceFileContents = await readFile(sourceFilePath, {
         encoding: 'utf8',
       });
+      const sourceFileName = path.basename(sourceFilePath);
 
       // TODO: We should ideally strip comments before running any Regex.
 
-      const interfaces = extractInterfaces(sourceFileContents);
-
-      // We replace hyphens with underscores as per Clang rules:
-      //
-      // > Names of Clang Modules are limited to be C99ext-identifiers. This
-      // > means that they can only contain alphanumeric characters and
-      // > underscores, and cannot begin with a number.
-      // https://blog.cocoapods.org/Pod-Authors-Guide-to-CocoaPods-Frameworks/
-      //
-      // I believe that underscores are enforced when use_frameworks! is on,
-      // though I don't know whether, conversely, hyphens are allowed when it's
-      // off. This is just from my experience making this Cocoapod:
-      // https://github.com/shirakaba/mecab-ko#swift-invocation
-      const clangModuleName = podspecName.replace(/-/g, '_');
+      const { interfaceDecl, moduleNamesToMethodDescriptions } =
+        extractInterfaces(sourceFileContents);
 
       console.log(
         `!! working out importDecl, given clangModuleName "${clangModuleName}"; sourceFilePath "${sourceFilePath}"`
@@ -181,32 +210,44 @@ async function mapPackageNameToAutolinkingInfo(
       // us if they declare the class only in the .m file). This is
       // conventionally a safe assumption, but you just know some packages out
       // there will do things differently to make life hard for us.
-      const importDecl = `#import <${clangModuleName}/${path.basename(
-        sourceFilePath,
-        '.m'
-      )}.h>`;
+      const headerFileName = sourceFileName.replace(/\.mm?$/, '');
+      const importDecl = `#import <${clangModuleName}/${headerFileName}.h>`;
 
-      const headerEntry = [
-        // A comment to write into the header to indicate where the interfaces
-        // that we're about to extract came from.
-        `// START: ${packageName}/${podspecFileName}`,
-        interfaces.interfaceDecl,
-        `// END: ${packageName}/${podspecFileName}`,
-      ].join('\n');
-
-      const podfileEntry = `pod '${podspecName}', path: "${podspecFilePath}"`;
       return {
-        clangModuleName,
-        headerEntry,
+        interfaceDecl,
+        sourceFileName,
         importDecl,
-        moduleNamesToMethodDescriptions:
-          interfaces.moduleNamesToMethodDescriptions,
-        packageName,
-        podfileEntry,
-        podspecName,
+        moduleNamesToMethodDescriptions,
       };
     })
   );
+
+  const headerEntry = [
+    // A comment to write into the header to indicate where the interfaces that
+    // we're about to extract came from.
+    `// START: ${commentIdentifyingPodspec}`,
+    ...sourceFileInfoArr.map((x) => {
+      return [`// ${x.sourceFileName}`, x.interfaceDecl].join('\n');
+    }),
+    `// END: ${commentIdentifyingPodspec}`,
+  ].join('\n');
+
+  return {
+    clangModuleName,
+    headerEntry,
+    importDecl: sourceFileInfoArr
+      .map(({ importDecl }) => importDecl)
+      .join('\n'),
+    moduleNamesToMethodDescriptions:
+      sourceFileInfoArr.reduce<ModuleNamesToMethodDescriptions>(
+        (acc, { moduleNamesToMethodDescriptions }) =>
+          Object.assign(acc, moduleNamesToMethodDescriptions),
+        {}
+      ),
+    packageName,
+    podfileEntry,
+    podspecName,
+  };
 }
 
 /**
@@ -245,17 +286,17 @@ function resolvePodspecFilePath({
  * @param {object} args
  * @param args.commonSourceFiles The `source_files` value from the podspec.
  * @param args.iosSourceFiles The `ios.source_files` from the podspec.
- * @param args.packagePath The absolute path to the package, e.g.
- *   '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test'
+ * @param args.packagePath The cwd to search for source file paths relative to.
+ *   Should be the path to the directory containing the podspec.
  */
 async function getSourceFilePaths({
   commonSourceFiles,
   iosSourceFiles,
-  packagePath,
+  cwd,
 }: {
   commonSourceFiles: string | string[];
   iosSourceFiles: string | string[];
-  packagePath: string;
+  cwd: string;
 }) {
   // Normalise to an array, treating empty-string as an empty array.
   const commonSourceFilesArr = commonSourceFiles
@@ -276,8 +317,7 @@ async function getSourceFilePaths({
 
   const sourceFilePathsArrays = await Promise.all(
     platformSourceFilesArr.map(
-      async (pattern) =>
-        await globProm(pattern, { cwd: packagePath, absolute: true })
+      async (pattern) => await globProm(pattern, { cwd, absolute: true })
     )
   );
 
