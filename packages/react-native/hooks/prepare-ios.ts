@@ -119,7 +119,9 @@ async function mapPackageNameToAutolinkingInfo({
 
   const podspecs = await globProm(
     packageName === ownPackageName
-      ? 'platforms/ios/React-RCTLinking.podspec'
+      ? // This glob will include the podspecs of any RN core modules, which for
+        // now is just one.
+        'platforms/ios/React-RCTLinking.podspec'
       : '*.podspec',
     {
       cwd: packagePath,
@@ -173,6 +175,20 @@ async function mapPackageNameToAutolinkingInfo({
     cwd: path.dirname(podspecFilePath),
   });
 
+  // In a complicated pod setup, e.g. with subspecs, there may be special cases
+  // to handle. In practice, this is redundant for core modules (we don't
+  // augment the header at present), but it's good to be prepared for a future
+  // change (e.g. if we stopped manually writing out the headers).
+  const clangModuleNameSpecialCases = {
+    // Change:
+    //   #import <React_RCTLinking/RCTLinkingManager.h>
+    // ... to:
+    //   #import <React/RCTLinkingManager.h>
+    // I'm not sure whether both technically work, but the RN codebase seems to
+    // use the latter, and I can't deny that it looks prettier.
+    'React-RCTLinking': 'React',
+  };
+
   // We replace hyphens with underscores as per Clang rules:
   //
   // > Names of Clang Modules are limited to be C99ext-identifiers. This
@@ -184,7 +200,8 @@ async function mapPackageNameToAutolinkingInfo({
   // though I don't know whether, conversely, hyphens are allowed when it's
   // off. This is just from my experience making this Cocoapod:
   // https://github.com/shirakaba/mecab-ko#swift-invocation
-  const clangModuleName = podspecName.replace(/-/g, '_');
+  const clangModuleName =
+    clangModuleNameSpecialCases[podspecName] || podspecName.replace(/-/g, '_');
   const commentIdentifyingPodspec = `package: ${packageName}; podspec: ${podspecFileName}`;
   const podfileEntry = `pod '${podspecName}', path: "${podspecFilePath}"`;
 
@@ -226,18 +243,26 @@ async function mapPackageNameToAutolinkingInfo({
     // A comment to write into the header to indicate where the interfaces that
     // we're about to extract came from.
     `// START: ${commentIdentifyingPodspec}`,
-    ...sourceFileInfoArr.map((x) => {
-      return [`// ${x.sourceFileName}`, x.interfaceDecl].join('\n');
-    }),
+    ...sourceFileInfoArr
+      // Filter only the source files that had some interfaces to write out.
+      .filter((x) => x.interfaceDecl)
+      .map((x) => {
+        return [`// ${x.sourceFileName}`, x.interfaceDecl].join('\n');
+      }),
     `// END: ${commentIdentifyingPodspec}`,
   ].join('\n');
 
+  // For core modules, we've already manually written out the interfaces and
+  // they're already being included, so we only need the
+  // moduleNamesToMethodDescriptions.
+  const isCoreModule = packageName === ownPackageName;
+
   return {
     clangModuleName,
-    headerEntry,
-    importDecl: sourceFileInfoArr
-      .map(({ importDecl }) => importDecl)
-      .join('\n'),
+    headerEntry: isCoreModule ? '' : headerEntry,
+    importDecl: isCoreModule
+      ? ''
+      : sourceFileInfoArr.map(({ importDecl }) => importDecl).join('\n'),
     moduleNamesToMethodDescriptions:
       sourceFileInfoArr.reduce<ModuleNamesToMethodDescriptions>(
         (acc, { moduleNamesToMethodDescriptions }) =>
@@ -743,13 +768,15 @@ async function writeHeaderFile({
     '// END: react-native-podspecs placeholder interface',
   ].join('\n');
 
+  // The core modules will return empty headerEntries and importDecls, so we
+  // filter them out for neatness.
   const header = [
     '// This file will be updated automatically by hooks/before-prepareNativeApp.js.',
     '#import <React/RCTBridgeModule.h>',
     '#import <React/RCTEventEmitter.h>',
-    importDecls.join('\n'),
+    importDecls.filter((importDecl) => importDecl).join('\n'),
     '',
-    headerEntries.join('\n\n'),
+    headerEntries.filter((headerEntry) => headerEntry).join('\n\n'),
     '',
     RNPodspecsInterface,
     '',
@@ -859,13 +886,19 @@ interface ModuleNamesToMethodDescriptionsMinimal {
 }
 
 function parseObjcTypeToEnum(objcType: string): RNObjcSerialisableType {
-  // Crudely search for nullability annotations. We don't bother searching for
-  // nullable annotations, because that's our default nullability for each type
-  // that supports nullability.
-  const splitOnWhitespace = objcType.split(/\s+/);
-  const nonnull = splitOnWhitespace
-    .map((split) => split.trim().toLowerCase())
-    .includes('nonnull');
+  // Search for nullability annotations as per:
+  // https://developer.apple.com/swift/blog/?id=25:
+  // We'll accordingly search for:
+  // 1) When 'nonnull' immediately follows the opening bracket for the arg;
+  // 2) If there's a '_Nonnull' token anywhere within the type.
+  // We won't bother distinguishing params that have a name that includes the
+  // text '_Nonnull'. Hopefully that never comes up.
+  //
+  // We don't bother searching for nullable annotations, because that's our
+  // default nullability for each type that supports nullability.
+  const nonnull =
+    /^nonnull\s+/.test(objcType.trim()) ||
+    objcType.toLowerCase().includes('_Nonnull');
 
   const splitBeforeGeneric = objcType.split('<')[0];
 
