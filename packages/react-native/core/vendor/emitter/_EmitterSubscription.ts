@@ -2,14 +2,8 @@
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- * @flow strict
+ * LICENSE-react-native file in the root directory of this source tree.
  */
-
-'use strict';
-
 import EventEmitter from './EventEmitter';
 import _EventSubscription from './_EventSubscription';
 import type EventSubscriptionVendor from './_EventSubscriptionVendor';
@@ -17,35 +11,25 @@ import { type EventSubscription } from './EventSubscription';
 
 /**
  * EmitterSubscription represents a subscription with listener and context data.
+ * @see https://github.com/facebook/react-native/blob/b788b6e1c9cf8cfbba6f3e720612555696132e4b/Libraries/vendor/emitter/EventEmitter.d.ts#L76
  */
-class EmitterSubscription
+export default class EmitterSubscription
   extends _EventSubscription
   implements EventSubscription
 {
-  emitter: EventEmitter;
-  listener: (...args: unknown[]) => unknown;
-  context: unknown;
-
   /**
-   * @param {EventEmitter} emitter - The event emitter that registered this
-   *   subscription
-   * @param {EventSubscriptionVendor} subscriber - The subscriber that controls
-   *   this subscription
-   * @param {function} listener - Function to invoke when the specified event is
-   *   emitted
-   * @param {*} context - Optional context object to use when invoking the
-   *   listener
+   * @param emitter - The event emitter that registered this subscription
+   * @param subscriber - The subscriber that controls this subscription
+   * @param listener - Function to invoke when the specified event is emitted
+   * @param context - Optional context object to use when invoking the listener
    */
   constructor(
-    emitter: EventEmitter,
+    public emitter: EventEmitter,
     subscriber: EventSubscriptionVendor,
-    listener: (...args: unknown[]) => unknown,
-    context: unknown
+    public listener: (...args: unknown[]) => unknown,
+    public context: unknown
   ) {
     super(subscriber);
-    this.emitter = emitter;
-    this.listener = listener;
-    this.context = context;
   }
 
   /**
@@ -58,5 +42,3 @@ class EmitterSubscription
     this.emitter.__removeSubscription(this);
   }
 }
-
-export default EmitterSubscription;

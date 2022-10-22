@@ -2,18 +2,11 @@
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- * @flow strict
- * @typecheck
+ * LICENSE-react-native file in the root directory of this source tree.
  */
-
 import EmitterSubscription from './_EmitterSubscription';
 import { type EventSubscription } from './EventSubscription';
 import EventSubscriptionVendor from './_EventSubscriptionVendor';
-
-const sparseFilterPredicate = () => true;
 
 /**
  * @class EventEmitter
@@ -28,7 +21,7 @@ const sparseFilterPredicate = () => true;
  * mechanism on top of which extra functionality can be composed. For example, a
  * more advanced emitter may use an EventHolder and EventFactory.
  */
-class EventEmitter {
+export default class EventEmitter {
   /**
    * The JSModuleInvoker in JSModules() will be indexing into EventEmitter to
    * call methods upon it, so the class needs an index signature expressing the
@@ -56,11 +49,9 @@ class EventEmitter {
    * emitted. An optional calling context may be provided. The data arguments
    * emitted will be passed to the listener function.
    *
-   * @param {string} eventType - Name of the event to listen to
-   * @param {function} listener - Function to invoke when the specified event is
-   *   emitted
-   * @param {*} context - Optional context object to use when invoking the
-   *   listener
+   * @param eventType - Name of the event to listen to
+   * @param listener - Function to invoke when the specified event is emitted
+   * @param context - Optional context object to use when invoking the listener
    */
   addListener(
     eventType: string,
@@ -78,10 +69,10 @@ class EventEmitter {
    * Removes all of the registered listeners, including those registered as
    * listener maps.
    *
-   * @param {?string} eventType - Optional name of the event whose registered
-   *   listeners to remove
+   * @param eventType - Optional name of the event whose registered listeners to
+   *   remove
    */
-  removeAllListeners(eventType: string): void {
+  removeAllListeners(eventType?: string): void {
     this._subscriber.removeAllSubscriptions(eventType);
   }
 
@@ -111,26 +102,26 @@ class EventEmitter {
    * Returns the number of listeners that are currently registered for the given
    * event.
    *
-   * @param {string} eventType - Name of the event to query
-   * @returns {number}
+   * @param eventType - Name of the event to query
    */
   listenerCount(eventType: string): number {
-    const subscriptions = this._subscriber.getSubscriptionsForType(eventType);
-    return subscriptions
-      ? // We filter out missing entries because the array is sparse.
-        // "callbackfn is called only for elements of the array which actually
-        // exist; it is not called for missing elements of the array."
-        // https://www.ecma-international.org/ecma-262/9.0/index.html#sec-array.prototype.filter
-        subscriptions.filter(sparseFilterPredicate).length
-      : 0;
+    const sparseFilterPredicate = () => true;
+
+    // We filter out missing entries because the array is sparse.
+    // "callbackfn is called only for elements of the array which actually
+    // exist; it is not called for missing elements of the array."
+    // https://www.ecma-international.org/ecma-262/9.0/index.html#sec-array.prototype.filter
+    return this._subscriber
+      .getSubscriptionsForType(eventType)
+      .filter(sparseFilterPredicate).length;
   }
 
   /**
    * Emits an event of the given type with the given data. All handlers of that
    * particular type will be notified.
    *
-   * @param {string} eventType - Name of the event to emit
-   * @param {...*} Arbitrary arguments to be passed to each registered listener
+   * @param eventType - Name of the event to emit
+   * @param args - arguments to be passed to each registered listener
    *
    * @example
    *   emitter.addListener('someEvent', function(message) {
@@ -140,17 +131,12 @@ class EventEmitter {
    *   emitter.emit('someEvent', 'abc'); // logs 'abc'
    */
   emit(eventType: string, ...args: unknown[]): void {
-    const subscriptions = this._subscriber.getSubscriptionsForType(eventType);
-    if (subscriptions) {
-      for (let i = 0, l = subscriptions.length; i < l; i++) {
-        const subscription = subscriptions[i];
-
+    this._subscriber
+      .getSubscriptionsForType(eventType)
+      .forEach((subscription) =>
         // The subscription may have been removed during this event loop.
-        if (subscription && subscription.listener) {
-          subscription.listener.apply(subscription.context, args);
-        }
-      }
-    }
+        subscription?.listener.apply(subscription.context, args)
+      );
   }
 
   /**
@@ -166,19 +152,15 @@ class EventEmitter {
         'deprecated. Please instead use `remove()` on the subscription ' +
         'returned by `EventEmitter.addListener`.'
     );
-    const subscriptions = this._subscriber.getSubscriptionsForType(eventType);
-    if (subscriptions) {
-      for (let i = 0, l = subscriptions.length; i < l; i++) {
-        const subscription = subscriptions[i];
 
+    this._subscriber
+      .getSubscriptionsForType(eventType)
+      .forEach((subscription) => {
         // The subscription may have been removed during this event loop.
-        // its listener matches the listener in method parameters
-        if (subscription && subscription.listener === listener) {
+        // Its listener matches the listener in method parameters
+        if (subscription?.listener === listener) {
           subscription.remove();
         }
-      }
-    }
+      });
   }
 }
-
-export default EventEmitter;
