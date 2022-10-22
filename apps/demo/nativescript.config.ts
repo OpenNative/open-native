@@ -14,7 +14,7 @@ export default {
   hooks: [
     {
       type: 'before-prepareNativeApp',
-      script: 'scripts/index.js',
+      script: './scripts/before-prepareNativeApp.js',
     },
   ],
 } as NativeScriptConfig;

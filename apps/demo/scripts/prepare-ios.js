@@ -11,11 +11,12 @@ const readFile = (0, util_1.promisify)(fs.readFile);
 const writeFile = (0, util_1.promisify)(fs.writeFile);
 const logPrefix = '[react-native/hooks/prepare-ios.js]';
 async function autolinkIos({ dependencies, projectDir, outputHeaderPath, outputPodfilePath, outputPodspecPath, outputModuleMapPath }) {
-  const packageJson = JSON.parse(
-    await readFile(path.resolve(__dirname, '../package.json'), {
-      encoding: 'utf8',
-    })
-  );
+  // when used as standard hook in plugin:
+  // const packageJson = JSON.parse(await readFile(path.resolve(__dirname, '../package.json'), {
+  //     encoding: 'utf8',
+  // }));
+  // when used for improved local development:
+  const packageJson = require('@ammarahm-ed/react-native/package.json');
   const autolinkingInfo = (
     await Promise.all(
       dependencies.map((packageName) =>

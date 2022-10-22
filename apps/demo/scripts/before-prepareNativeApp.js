@@ -16,7 +16,8 @@ module.exports = async function (hookArgs) {
   const ignoredDepsSet = new Set(ignoredDependencies);
   const depsArr = Object.keys(Object.assign(Object.assign({}, devDependencies), dependencies)).filter((key) => !ignoredDepsSet.has(key));
   let packageNames;
-  const packageDir = path.dirname(__dirname);
+  const packageDir = path.resolve(__dirname, '..', 'node_modules', '@ammarahm-ed/react-native');
+  //   console.log('packageDir:', packageDir);
   console.log(`${logPrefix} Autolinking React Native ${normalizedPlatformName} native modules...`);
   if (normalizedPlatformName === 'Android') {
     const outputModulesJsonPath = path.resolve(packageDir, 'react-android/bridge/modules.json');
