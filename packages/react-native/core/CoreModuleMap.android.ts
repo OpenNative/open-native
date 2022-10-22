@@ -26,8 +26,8 @@ export const CoreModuleMap = {
           RNJavaSerialisableType.Promise,
         ],
       },
-      sendIntentExtras: {
-        j: 'sendIntentExtras',
+      sendIntent: {
+        j: 'sendIntent',
         t: [
           RNJavaSerialisableType.nonnullString,
           RNJavaSerialisableType.nonnullArray,
