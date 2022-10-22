@@ -7,6 +7,7 @@ platforms/
 *.js.map
 *.js
 !webpack.config.js
+!scripts/*.js
 
 # Logs
 logs
