@@ -262,16 +262,10 @@ async function mapPackageNameToAutolinkingInfo({
       exportedMethods,
       exportedModuleName,
       exportsConstants,
+      moduleImportPath,
     }) => {
-      // I'm assuming that the module import will simply be the same as the package
-      // import, but swapping the package name for the module name. I may be wrong!
-      const moduleImportName = `${packageImportPath
-        .replace(';', '')
-        .replace(/import\s+/, '')
-        .split('.')
-        .slice(0, -1)
-        .join('.')}.${moduleClassName}`;
-
+      const moduleImportName = `${moduleImportPath}.${moduleClassName}`;
+      console.log(moduleImportName);
       // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java class
       // names for JS as far as I know.
       const moduleClassNameJs = moduleClassName;
@@ -609,6 +603,8 @@ async function parseSourceFiles(folder: string) {
          */
         const exportedModuleName = getModuleName(moduleContents);
 
+        const moduleImportPath = getModuleImportPath(moduleContents);
+
         return {
           exportedMethods,
           /** @example 'RNTestModule' or `null` if missing, e.g. for specs */
@@ -617,6 +613,8 @@ async function parseSourceFiles(folder: string) {
           exportsConstants,
           /** @example 'RNTestModule' */
           moduleClassName,
+          /** @example 'com.facebook.react.modules.intent' */
+          moduleImportPath,
         };
       }
     )
@@ -631,6 +629,16 @@ async function parseSourceFiles(folder: string) {
     modules,
     packageClassName,
   };
+}
+
+const MODULE_IMPORT_PATH_REGEX = /(?<=package ).*(?=;)/gm;
+/**
+ * Get the module's import path from module file contents.
+ * @param moduleContents
+ * @returns
+ */
+function getModuleImportPath(moduleContents: string) {
+  return moduleContents.match(MODULE_IMPORT_PATH_REGEX)?.[0];
 }
 
 /**
@@ -957,9 +965,9 @@ async function writeIncludeGradleFile({
   const contents = [
     'dependencies {',
     'implementation project(":bridge")',
-    ...projectNames.map(
-      (projectName) => `implementation project(":${projectName}")`
-    ),
+    ...projectNames
+      .filter((projectName) => projectName !== 'ammarahm-ed_react-native')
+      .map((projectName) => `implementation project(":${projectName}")`),
     '}',
   ].join('\n');
   return await writeFile(outputIncludeGradlePath, contents, {
@@ -980,10 +988,14 @@ project(":react").projectDir = new File(reactNativeDir, "react-android/react/")
 include ':bridge'
 project(":bridge").projectDir = new File(reactNativeDir, "react-android/bridge/")
 
+def selfModuleName = "ammarahm-ed_react-native"
 modules.each {
-  include ":\${it.androidProjectName}"
-  project(":\${it.androidProjectName}").projectDir = new File(it.absolutePath)
-}`;
+  if (!it.androidProjectName.equals(selfModuleName)) {
+    include ":\${it.androidProjectName}"
+    project(":\${it.androidProjectName}").projectDir = new File(it.absolutePath)
+  }
+}
+`;
 
   const currentSettingsGradle = await readFile(settingsGradlePath, {
     encoding: 'utf-8',
