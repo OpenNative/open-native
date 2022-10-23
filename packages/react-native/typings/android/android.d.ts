@@ -1,6 +1,103 @@
 /// <reference path="android-declarations.d.ts"/>
 
 declare module com {
+  export module auth0 {
+    export module react {
+      export class A0Auth0Module
+        extends com.facebook.react.bridge.ReactContextBaseJavaModule
+        implements com.facebook.react.bridge.ActivityEventListener
+      {
+        public static class: java.lang.Class<com.auth0.react.A0Auth0Module>;
+        public getConstants(): java.util.Map<string, any>;
+        public constructor(
+          param0: com.facebook.react.bridge.ReactApplicationContext
+        );
+        public getName(): string;
+        public onCatalystInstanceDestroy(): void;
+        public oauthParameters(
+          param0: com.facebook.react.bridge.Callback
+        ): void;
+        public constructor();
+        public showUrl(
+          param0: string,
+          param1: boolean,
+          param2: com.facebook.react.bridge.Callback
+        ): void;
+        public hide(): void;
+        public initialize(): void;
+        public canOverrideExistingModule(): boolean;
+        public onNewIntent(param0: globalAndroid.content.Intent): void;
+        public invalidate(): void;
+        public onActivityResult(
+          param0: globalAndroid.app.Activity,
+          param1: number,
+          param2: number,
+          param3: globalAndroid.content.Intent
+        ): void;
+      }
+    }
+  }
+}
+
+declare module com {
+  export module auth0 {
+    export module react {
+      export class A0Auth0Package extends com.facebook.react.ReactPackage {
+        public static class: java.lang.Class<com.auth0.react.A0Auth0Package>;
+        public createNativeModules(
+          param0: com.facebook.react.bridge.ReactApplicationContext
+        ): java.util.List<com.facebook.react.bridge.NativeModule>;
+        public createViewManagers(
+          param0: com.facebook.react.bridge.ReactApplicationContext
+        ): java.util.List<com.facebook.react.uimanager.ViewManager>;
+        public constructor();
+      }
+    }
+  }
+}
+
+declare module com {
+  export module auth0 {
+    export module react {
+      export class AuthenticationActivity {
+        public static class: java.lang.Class<com.auth0.react.AuthenticationActivity>;
+        public onCreate(param0: globalAndroid.os.Bundle): void;
+        public onResume(): void;
+        public onNewIntent(param0: globalAndroid.content.Intent): void;
+        public onSaveInstanceState(param0: globalAndroid.os.Bundle): void;
+        public constructor();
+      }
+    }
+  }
+}
+
+declare module com {
+  export module auth0 {
+    export module react {
+      export class BuildConfig {
+        public static class: java.lang.Class<com.auth0.react.BuildConfig>;
+        public static DEBUG: boolean;
+        public static LIBRARY_PACKAGE_NAME: string;
+        public static BUILD_TYPE: string;
+        public constructor();
+      }
+    }
+  }
+}
+
+declare module com {
+  export module auth0 {
+    export module react {
+      export class RedirectActivity {
+        public static class: java.lang.Class<com.auth0.react.RedirectActivity>;
+        public onCreate(param0: globalAndroid.os.Bundle): void;
+        public constructor();
+      }
+    }
+  }
+}
+
+declare module com {
   export module bridge {
     export class Bridge {
       public static class: java.lang.Class<com.bridge.Bridge>;
@@ -14,13 +111,13 @@ declare module com {
       public getModuleByName(
         param0: string
       ): com.facebook.react.bridge.NativeModule;
-      public getModuleForClass(
-        param0: java.lang.Class<any>
-      ): com.facebook.react.bridge.NativeModule;
       public hasNativeModule(param0: java.lang.Class<any>): boolean;
       public loadModules(
         param0: com.facebook.react.bridge.ReactApplicationContext
       ): void;
+      public getModuleForClass(
+        param0: java.lang.Class<any>
+      ): com.facebook.react.bridge.NativeModule;
     }
   }
 }
@@ -54,6 +151,47 @@ declare module com {
 
 declare module com {
   export module facebook {
+    export module fbreact {
+      export module specs {
+        export abstract class NativeIntentAndroidSpec
+          extends com.facebook.react.bridge.ReactContextBaseJavaModule
+          implements
+            com.facebook.react.bridge.ReactModuleWithSpec,
+            com.facebook.react.turbomodule.core.interfaces.TurboModule
+        {
+          public static class: java.lang.Class<com.facebook.fbreact.specs.NativeIntentAndroidSpec>;
+          public sendIntent(
+            param0: string,
+            param1: com.facebook.react.bridge.ReadableArray,
+            param2: com.facebook.react.bridge.Promise
+          ): void;
+          public onCatalystInstanceDestroy(): void;
+          public constructor();
+          public getName(): string;
+          public canOverrideExistingModule(): boolean;
+          public constructor(
+            param0: com.facebook.react.bridge.ReactApplicationContext
+          );
+          public canOpenURL(
+            param0: string,
+            param1: com.facebook.react.bridge.Promise
+          ): void;
+          public getInitialURL(param0: com.facebook.react.bridge.Promise): void;
+          public openURL(
+            param0: string,
+            param1: com.facebook.react.bridge.Promise
+          ): void;
+          public openSettings(param0: com.facebook.react.bridge.Promise): void;
+          public initialize(): void;
+          public invalidate(): void;
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
     export module proguard {
       export module annotations {
         export class KeepGettersAndSetters {
@@ -77,6 +215,24 @@ declare module com {
         public static DEBUG: boolean;
         public static LIBRARY_PACKAGE_NAME: string;
         public static BUILD_TYPE: string;
+        public constructor();
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export class RNCoreModulesPackage extends com.facebook.react
+        .ReactPackage {
+        public static class: java.lang.Class<com.facebook.react.RNCoreModulesPackage>;
+        public createNativeModules(
+          param0: com.facebook.react.bridge.ReactApplicationContext
+        ): java.util.List<com.facebook.react.bridge.NativeModule>;
+        public createViewManagers(
+          param0: com.facebook.react.bridge.ReactApplicationContext
+        ): java.util.List<com.facebook.react.uimanager.ViewManager>;
         public constructor();
       }
     }
@@ -408,6 +564,35 @@ declare module com {
           public asArray(): com.facebook.react.bridge.ReadableArray;
           public getType(): com.facebook.react.bridge.ReadableType;
           public asDouble(): number;
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module bridge {
+        export class JSApplicationCausedNativeException {
+          public static class: java.lang.Class<com.facebook.react.bridge.JSApplicationCausedNativeException>;
+          public constructor(param0: string, param1: java.lang.Throwable);
+          public constructor(param0: string);
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module bridge {
+        export class JSApplicationIllegalArgumentException extends com.facebook
+          .react.bridge.JSApplicationCausedNativeException {
+          public static class: java.lang.Class<com.facebook.react.bridge.JSApplicationIllegalArgumentException>;
+          public constructor(param0: string, param1: java.lang.Throwable);
+          public constructor(param0: string);
         }
       }
     }
@@ -764,6 +949,23 @@ declare module com {
           });
           public constructor();
           public isBlockingSynchronousMethod(): boolean;
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module bridge {
+        export class ReactModuleWithSpec {
+          public static class: java.lang.Class<com.facebook.react.bridge.ReactModuleWithSpec>;
+          /**
+           * Constructs a new instance of the com.facebook.react.bridge.ReactModuleWithSpec interface with the provided implementation. An empty constructor exists calling super() when extending the interface class.
+           */
+          public constructor(implementation: {});
+          public constructor();
         }
       }
     }
@@ -1559,6 +1761,76 @@ declare module com {
 declare module com {
   export module facebook {
     export module react {
+      export module modules {
+        export module intent {
+          export class IntentModule extends com.facebook.fbreact.specs
+            .NativeIntentAndroidSpec {
+            public static class: java.lang.Class<com.facebook.react.modules.intent.IntentModule>;
+            public static NAME: string;
+            public constructor();
+            public getInitialURL(
+              param0: com.facebook.react.bridge.Promise
+            ): void;
+            public canOpenURL(
+              param0: string,
+              param1: com.facebook.react.bridge.Promise
+            ): void;
+            public invalidate(): void;
+            public constructor(
+              param0: com.facebook.react.bridge.ReactApplicationContext
+            );
+            public openSettings(
+              param0: com.facebook.react.bridge.Promise
+            ): void;
+            public sendIntent(
+              param0: string,
+              param1: com.facebook.react.bridge.ReadableArray,
+              param2: com.facebook.react.bridge.Promise
+            ): void;
+            public canOverrideExistingModule(): boolean;
+            public initialize(): void;
+            public openURL(
+              param0: string,
+              param1: com.facebook.react.bridge.Promise
+            ): void;
+            public onCatalystInstanceDestroy(): void;
+            public getName(): string;
+          }
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module turbomodule {
+        export module core {
+          export module interfaces {
+            export class TurboModule {
+              public static class: java.lang.Class<com.facebook.react.turbomodule.core.interfaces.TurboModule>;
+              /**
+               * Constructs a new instance of the com.facebook.react.turbomodule.core.interfaces.TurboModule interface with the provided implementation. An empty constructor exists calling super() when extending the interface class.
+               */
+              public constructor(implementation: {
+                initialize(): void;
+                invalidate(): void;
+              });
+              public constructor();
+              public initialize(): void;
+              public invalidate(): void;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
       export module uimanager {
         export class ViewManager {
           public static class: java.lang.Class<com.facebook.react.uimanager.ViewManager>;
@@ -1577,6 +1849,26 @@ declare module com {
       public static LIBRARY_PACKAGE_NAME: string;
       public static BUILD_TYPE: string;
       public constructor();
+    }
+  }
+}
+
+declare module com {
+  export module testmodule {
+    export class RNTestCaseNameVariable extends com.facebook.react.bridge
+      .ReactContextBaseJavaModule {
+      public static class: java.lang.Class<com.testmodule.RNTestCaseNameVariable>;
+      public static NAME: string;
+      public constructor(
+        param0: com.facebook.react.bridge.ReactApplicationContext
+      );
+      public invalidate(): void;
+      public getName(): string;
+      public testCallback(param0: com.facebook.react.bridge.Callback): void;
+      public initialize(): void;
+      public constructor();
+      public onCatalystInstanceDestroy(): void;
+      public canOverrideExistingModule(): boolean;
     }
   }
 }
