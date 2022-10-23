@@ -1,4 +1,4 @@
-import { RNJavaSerialisableType } from '../common';
+import { RNJavaSerialisableType } from '../src/common';
 
 export const CoreModuleMap = {
   LinkingManager: {

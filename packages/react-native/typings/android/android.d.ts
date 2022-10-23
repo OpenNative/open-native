@@ -14,6 +14,10 @@ declare module com {
       public getModuleByName(
         param0: string
       ): com.facebook.react.bridge.NativeModule;
+      public getModuleForClass(
+        param0: java.lang.Class<any>
+      ): com.facebook.react.bridge.NativeModule;
+      public hasNativeModule(param0: java.lang.Class<any>): boolean;
       public loadModules(
         param0: com.facebook.react.bridge.ReactApplicationContext
       ): void;

@@ -1,5 +1,5 @@
-import { getCurrentBridge } from './bridge.ios';
-import { toJSValue, JSValuePassableIntoObjc } from './converter.ios';
+import { getCurrentBridge } from './bridge';
+import { toJSValue, JSValuePassableIntoObjc } from './converter';
 
 export type JSMethodRecord = {
   [methodName: string]: (...args: unknown[]) => unknown;

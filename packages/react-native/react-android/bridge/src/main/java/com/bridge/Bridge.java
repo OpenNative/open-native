@@ -43,10 +43,32 @@ public class Bridge {
     return loadModuleByName(name);
   }
 
+  public NativeModule getModuleForClass(Class clazz) {
+    for (NativeModule module : modules) {
+      if (module.getClass().equals(clazz)) {
+        return module;
+      }
+    }
+
+    return loadModuleForClass(clazz);
+  }
+
+
   NativeModule loadModuleByName(String name) {
-    try {
       Class moduleClass = Packages.moduleClasses.get(name);
       if (moduleClass == null) return null;
+      return loadModuleForClass(moduleClass);
+  }
+
+  public  boolean hasNativeModule(Class clazz) {
+    return !Packages.moduleClasses.containsValue(clazz);
+  }
+  NativeModule loadModuleForClass(Class moduleClass) {
+    try {
+      if (!Packages.moduleClasses.containsValue(moduleClass)) {
+        Log.d(TAG,"Module for class" + moduleClass.getName() + "not found");
+        return null;
+      }
       for(Constructor<?> constructor : moduleClass.getDeclaredConstructors()){
         if(constructor.getParameterTypes().length == 1 &&
           (constructor.getParameterTypes()[0] == ReactContext.class ||
@@ -57,7 +79,7 @@ public class Bridge {
         }
       }
     } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
-      Log.e(TAG,"Failed to load " + name + "module");
+      Log.d(TAG,"Failed to load module for class" + moduleClass.getName());
       e.printStackTrace();
     }
     return  null;

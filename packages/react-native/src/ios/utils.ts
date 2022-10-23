@@ -1,4 +1,4 @@
-import { RNObjcSerialisableType } from './common';
+import { RNObjcSerialisableType } from '../common';
 
 // FIXME: once hooks support ESM, find a way to code-share this interface with
 // prepare-ios.ts rather than just duplicating it.

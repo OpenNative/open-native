@@ -1,5 +1,5 @@
-import DeviceEventEmitter from './core/EventEmitter/RCTDeviceEventEmitter';
-import { JSModules, JSMethodRecord } from './js-modules.ios';
+import DeviceEventEmitter from '../../core/EventEmitter/RCTDeviceEventEmitter';
+import { JSModules, JSMethodRecord } from './js-modules';
 
 export function getJSModules() {
   if (!global.jsModulesIOS) {

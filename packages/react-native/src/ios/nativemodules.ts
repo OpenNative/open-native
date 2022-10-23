@@ -1,4 +1,4 @@
-import { getCurrentBridge } from './bridge.ios';
+import { getCurrentBridge } from './bridge';
 import {
   promisify,
   toNativeArguments,
@@ -6,14 +6,14 @@ import {
   toJSValue,
   JSONSerialisable,
   ObjcJSONEquivalent,
-} from './converter.ios';
+} from './converter';
 import {
   isPromise,
   RNNativeModuleMetadata,
   TNativeModuleMap,
   TModuleMethodsType,
-} from './utils.ios';
-import { NativeModule } from './core/EventEmitter/NativeEventEmitter';
+} from './utils';
+import { NativeModule } from '../../core/EventEmitter/NativeEventEmitter';
 
 const NativeModuleMap =
   // eslint-disable-next-line @typescript-eslint/no-var-requires

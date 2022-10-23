@@ -1,4 +1,4 @@
-import { RNObjcSerialisableType } from './common';
+import { RNObjcSerialisableType } from '../common';
 import { Utils } from '@nativescript/core';
 import {
   getClass,
