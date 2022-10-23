@@ -507,11 +507,15 @@ async function parseSourceFiles(folder: string) {
               );
 
             /**
-             * Remove annotations.
+             * Remove annotations & comments.
+             *
+             * We assume that exported methods start with public &
+             * anything before that is not needed.
+             *
              * @example ['public void testCallback(Callback callback) {']
              * @example ['public abstract void getInitialURL(Promise promise);']
              */
-            raw = raw.split(/@[a-zA-Z]*\s+/).slice(-1)[0];
+            raw = 'public' + raw.split('public')[1];
 
             /**
              * Remove the trailing brace.
@@ -571,10 +575,8 @@ async function parseSourceFiles(folder: string) {
               parseJavaTypeToEnum(t)
             );
 
-            const methodHash = hashMethod(methodNameJava, methodTypesParsed);
-
             if (hasReactMethodAnnotation) {
-              reactMethods[moduleClassName]?.add(methodHash);
+              reactMethods[moduleClassName]?.add(methodNameJava);
             }
             // Discard any @Override methods for which we haven't encountered a
             // corresponding @ReactMethod-annotated one in the superclass. We
@@ -582,7 +584,7 @@ async function parseSourceFiles(folder: string) {
             // them, as the general cases should be either a direct subclass of
             // ReactContextBaseJavaModule or a subclass of a spec (that itself
             // directly subclasses ReactContextBaseJavaModule).
-            else if (!reactMethods[superclassName]?.has(methodHash)) {
+            else if (!reactMethods[superclassName]?.has(methodNameJava)) {
               return null;
             }
 
