@@ -265,7 +265,6 @@ async function mapPackageNameToAutolinkingInfo({
       moduleImportPath,
     }) => {
       const moduleImportName = `${moduleImportPath}.${moduleClassName}`;
-      console.log(moduleImportName);
       // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java class
       // names for JS as far as I know.
       const moduleClassNameJs = moduleClassName;

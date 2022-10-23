@@ -40,15 +40,17 @@ export default class NativeEventEmitter implements IEventEmitter {
       );
     }
 
-    if (typeof nativeModule?.addListener !== 'function') {
-      console.warn(
-        '`new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.'
-      );
-    }
-    if (typeof nativeModule?.removeListeners !== 'function') {
-      console.warn(
-        '`new NativeEventEmitter()` was called with a non-null argument without the required `removeListeners ` method.'
-      );
+    if (Platform.OS === 'ios') {
+      if (typeof nativeModule?.addListener !== 'function') {
+        console.warn(
+          '`new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.'
+        );
+      }
+      if (typeof nativeModule?.removeListeners !== 'function') {
+        console.warn(
+          '`new NativeEventEmitter()` was called with a non-null argument without the required `removeListeners ` method.'
+        );
+      }
     }
   }
 

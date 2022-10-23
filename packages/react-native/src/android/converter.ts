@@ -20,7 +20,13 @@ function createJSCallback(callback: (...args: any[]) => void) {
     invoke: (args: androidNative.Array<any> | null) => {
       // Handle null as an empty array, and coerce an NSArray into JS
       // values.
-      const callbackArgs = args ? (toJSValue(args) as JSONSerialisable[]) : [];
+      const callbackArgs = [];
+      if (args) {
+        for (let i = 0; i < args.length; i++) {
+          const arg = args[i];
+          callbackArgs.push(toJSValue(arg));
+        }
+      }
 
       // Call back to the consumer with an array of JS values.
       callback(...callbackArgs);
@@ -182,19 +188,28 @@ export function toNativeArguments(
   );
 
   const argumentTypes = methodTypes.slice(1);
-  assert(
-    argumentTypes.length === args.length,
-    `Expected ${argumentTypes.length} arguments, but got ${args.length}. Note that Obj-C does not support optional arguments.`
-  );
+
+  // I don't think this check should be added,
+  // arguments will not be equal to argument types as
+  // we create promises later on and append them
+  // to native arguments. Maybe it can check argument length
+  // but after removing Promise/Callback from argumentTypes then
+  // comparing the length or check arguments length before returning
+  // native arguments after generation?
+
+  // assert(
+  //   argumentTypes.length === args.length,
+  //   `Expected ${argumentTypes.length} arguments, but got ${args.length}. Note that Obj-C does not support optional arguments.`
+  // );
 
   for (let i = 0; i < argumentTypes.length; i++) {
     const argType = argumentTypes[i];
     const data = args[i];
 
-    assert(
-      typeof data !== 'undefined',
-      `Unexpected \`undefined\` value passed in at index ${i} for argument type "${RNJavaSerialisableType[argType]}". Note that Obj-C does not have an equivalent to undefined.`
-    );
+    // assert(
+    //   typeof data !== 'undefined',
+    //   `Unexpected \`undefined\` value passed in at index ${i} for argument type "${RNJavaSerialisableType[argType]}". Note that Obj-C does not have an equivalent to undefined.`
+    // );
 
     if (
       argType === RNJavaSerialisableType.nonnullArray ||
@@ -287,6 +302,7 @@ export function toNativeArguments(
         );
         break;
 
+      case RNJavaSerialisableType.nonnullCallback:
       case RNJavaSerialisableType.Callback: {
         assert(
           typeof data === 'function',
@@ -312,9 +328,13 @@ export function promisify(
   args: JSValuePassableIntoJava[]
 ): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    module[methodName](
-      ...toNativeArguments(methodTypes, args, resolve, reject)
-    );
+    try {
+      module[methodName](
+        ...toNativeArguments(methodTypes, args, resolve, reject)
+      );
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 
@@ -444,13 +464,14 @@ export function toJSValue(
 
   if (
     data instanceof com.facebook.react.bridge.ReadableMap ||
-    data instanceof com.facebook.react.bridge.WritableMap
+    data instanceof com.facebook.react.bridge.WritableMap ||
+    data instanceof com.facebook.react.bridge.WritableNativeMap
   ) {
     const obj: { [key: string]: JSValuePassableIntoJava } = {};
 
     const map = data.toHashMap();
     const length = map.size();
-    const keysArray = Utils.dataDeserialize(map.keySet().toArray());
+    const keysArray = map.keySet().toArray();
     for (let i = 0; i < length; i++) {
       const nativeKey = keysArray[i];
       obj[nativeKey] = toJSValue(map.get(nativeKey));
@@ -460,7 +481,8 @@ export function toJSValue(
 
   if (
     data instanceof com.facebook.react.bridge.ReadableArray ||
-    data instanceof com.facebook.react.bridge.WritableArray
+    data instanceof com.facebook.react.bridge.WritableArray ||
+    data instanceof com.facebook.react.bridge.WritableNativeArray
   ) {
     const array = [];
     const len = data.size();
@@ -470,10 +492,10 @@ export function toJSValue(
     }
     return array;
   }
-
-  if (data instanceof NSDate) {
-    return new Date(data.timeIntervalSince1970 * 1000);
-  }
+  // TODO: check if there is an equvilent marshalling needed for android?
+  // if (data instanceof NSDate) {
+  //   return new Date(data.timeIntervalSince1970 * 1000);
+  // }
 
   if (
     data instanceof java.lang.Integer ||
@@ -487,9 +509,13 @@ export function toJSValue(
   if (data === null) return null;
   if (data === undefined) return undefined;
 
-  throw new Error(
-    `Unable to marshal native value to JS: ${getClass(data)}:${data}`
-  );
+  // Instead of throwing, maybe we should let the runtime handle any
+  // other types of data that might be coming through?
+  return Utils.dataDeserialize(data);
+
+  // throw new Error(
+  //   `Unable to marshal native value to JS: ${getClass(data)}:${data}`
+  // );
 }
 
 /**

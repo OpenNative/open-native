@@ -215,9 +215,13 @@ export function promisify(
   args: JSValuePassableIntoObjc[]
 ): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    module[methodName](
-      ...toNativeArguments(methodTypes, args, resolve, reject)
-    );
+    try {
+      module[methodName](
+        ...toNativeArguments(methodTypes, args, resolve, reject)
+      );
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 

@@ -34,14 +34,12 @@ export function getCurrentBridge() {
     global.reactNativeBridgeAndroid = new com.bridge.Bridge(
       reactApplicationContext
     );
-    reactApplicationContext.initializeWithInstance(
-      new CatalystInstance(
-        reactApplicationContext,
-        getJSModules(),
-        global.reactNativeBridgeAndroid
-      )
+    const catalysInstance = new CatalystInstance(
+      reactApplicationContext,
+      getJSModules(),
+      global.reactNativeBridgeAndroid
     );
-
+    reactApplicationContext.initializeWithInstance(catalysInstance.instance);
     getJSModules().registerJSModule(
       'RCTDeviceEventEmitter',
       RCTDeviceEventEmitter()
