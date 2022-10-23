@@ -892,6 +892,7 @@ declare module com {
           public addWindowFocusChangeListener(
             param0: com.facebook.react.bridge.WindowFocusChangeListener
           ): void;
+          public setCurrentActivity(param0: globalAndroid.app.Activity): void;
           public onNewIntent(
             param0: globalAndroid.app.Activity,
             param1: globalAndroid.content.Intent
