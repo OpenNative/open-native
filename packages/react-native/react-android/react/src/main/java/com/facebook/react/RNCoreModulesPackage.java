@@ -1,4 +1,4 @@
-package com.facebook.react.modules;
+package com.facebook.react;
 
 import java.util.Arrays;
 import java.util.Collections;
