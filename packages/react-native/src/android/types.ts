@@ -9,3 +9,10 @@ export type JSIModule = com.facebook.react.bridge.JSIModule;
 export type NativeModule = com.facebook.react.bridge.NativeModule;
 export type JavaScriptContextHolder =
   com.facebook.react.bridge.JavaScriptContextHolder;
+export type ReadableMap = com.facebook.react.bridge.ReadableMap;
+export type ReadableArray = com.facebook.react.bridge.ReadableArray;
+export type WritableMap = com.facebook.react.bridge.WritableMap;
+export type WriteableArray = com.facebook.react.bridge.WritableArray;
+export type Callback = com.facebook.react.bridge.Callback;
+export type RCTPromise = com.facebook.react.bridge.Promise;
+export type BaseJavaModule = com.facebook.react.bridge.BaseJavaModule;

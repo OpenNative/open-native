@@ -17,7 +17,7 @@ import { NativeModule } from '../../core/EventEmitter/NativeEventEmitter';
 
 const NativeModuleMap =
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('./platforms/ios/lib_community/modulemap.json') as TNativeModuleMap;
+  require('../../platforms/ios/lib_community/modulemap.json') as TNativeModuleMap;
 
 class NativeModuleHolder implements Partial<NativeModule> {
   /**
@@ -29,28 +29,12 @@ class NativeModuleHolder implements Partial<NativeModule> {
     ? { [P in keyof NativeModuleHolder]: NativeModuleHolder[P] }
     : ((...args: unknown[]) => number) | JSONSerialisable;
 
-  private readonly nativeModule: RCTBridgeModule | null;
   private readonly bridge: RCTBridge = getCurrentBridge();
   private readonly moduleMetadata: RNNativeModuleMetadata | undefined;
+  private nativeModuleInstance: RCTBridgeModule;
 
   constructor(public moduleName: string) {
     this.moduleMetadata = NativeModuleMap[this.moduleName];
-    // I'm unclear whether we need to look up via the Obj-C name or the exported
-    // name. Looking up 'RCTLinkingManager' (the Obj-C and JS name) fails, but
-    // 'LinkingManager' (the exported name, or perhaps just the Obj-C name with
-    // 'RCT' stripped) succeeds.
-    //
-    // If we ever find that this fails to find modules with aliased names, then
-    // I think we can conclude that it's instead the Obj-C name (which is
-    // identical to the jsName exposed in the modulemap) with 'RCT' removed.
-    // We'll know it's failed because we'll see the warning.
-    this.nativeModule = this.bridge.moduleForName(this.moduleName);
-
-    if (!this.nativeModule) {
-      console.warn(
-        `Trying to register a React Native native module "${this.moduleName}" that could not be found in the module registry.`
-      );
-    }
 
     if (!this.moduleMetadata) {
       console.warn(
@@ -80,6 +64,33 @@ class NativeModuleHolder implements Partial<NativeModule> {
         nativeModule.removeListeners(count);
       };
     }
+  }
+
+  /**
+   * Using a getter to ensure that module is lazily loaded
+   * upon access by a method call.
+   */
+  get nativeModule(): RCTBridgeModule {
+    // I'm unclear whether we need to look up via the Obj-C name or the exported
+    // name. Looking up 'RCTLinkingManager' (the Obj-C and JS name) fails, but
+    // 'LinkingManager' (the exported name, or perhaps just the Obj-C name with
+    // 'RCT' stripped) succeeds.
+    //
+    // If we ever find that this fails to find modules with aliased names, then
+    // I think we can conclude that it's instead the Obj-C name (which is
+    // identical to the jsName exposed in the modulemap) with 'RCT' removed.
+    // We'll know it's failed because we'll see the warning.
+
+    this.nativeModuleInstance =
+      this.nativeModuleInstance || this.bridge.moduleForName(this.moduleName);
+
+    if (!this.nativeModuleInstance) {
+      console.warn(
+        `Trying to register a React Native native module "${this.moduleName}" that could not be found in the module registry.`
+      );
+    }
+
+    return this.nativeModuleInstance;
   }
 
   private loadConstants(): void {
