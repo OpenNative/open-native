@@ -44,10 +44,20 @@ export async function autolinkAndroid({
   outputPackagesJavaPath: string;
   outputIncludeGradlePath: string;
 }) {
+  const packageJson = JSON.parse(
+    await readFile(path.resolve(__dirname, '../package.json'), {
+      encoding: 'utf8',
+    })
+  );
+
   const autolinkingInfo = (
     await Promise.all(
       dependencies.map((npmPackageName) =>
-        mapPackageNameToAutolinkingInfo({ npmPackageName, projectDir })
+        mapPackageNameToAutolinkingInfo({
+          npmPackageName,
+          projectDir,
+          ownPackageName: packageJson.name,
+        })
       )
     )
   )
@@ -147,6 +157,10 @@ export async function autolinkAndroid({
 /**
  * @param {object} args
  * @param args.npmPackageName The package name, e.g. 'react-native-module-test'.
+ * @param args.ownPackageName The name for the package holding this hook,
+ *   e.g. '@ammarahm-ed/react-native', which holds core modules rather than
+ *   community modules. It'll look for the Android native modules for core by a
+ *   special path.
  * @param args.projectDir The project directory (relative to which the package
  *   should be resolved).
  * @param args.userConfig The dependencies[packageName]platforms.android section
@@ -154,10 +168,15 @@ export async function autolinkAndroid({
  */
 async function mapPackageNameToAutolinkingInfo({
   npmPackageName,
+  ownPackageName,
   projectDir,
+  // This empty userConfig is a stub to reduce refactoring if we come to support
+  // react-native.config.js in future.
+  // https://github.com/react-native-community/cli/blob/4a6e64dad57536e4e64eb68471511463269d35d5/docs/dependencies.md#dependency-interface
   userConfig = {},
 }: {
   npmPackageName: string;
+  ownPackageName: string;
   projectDir: string;
   userConfig?: AndroidDependencyParams;
 }) {
@@ -165,20 +184,30 @@ async function mapPackageNameToAutolinkingInfo({
     require.resolve(`${npmPackageName}/package.json`, { paths: [projectDir] })
   );
 
-  // This empty userConfig is a stub to reduce refactoring if we come to support
-  // react-native.config.js in future.
-  // https://github.com/react-native-community/cli/blob/4a6e64dad57536e4e64eb68471511463269d35d5/docs/dependencies.md#dependency-interface
+  /**
+   * Detect whether we're autolinking our own React Native bridge
+   * implementation. If so, we'll adjust a few things because it's not a
+   * standard native module.
+   */
+  const isCore = npmPackageName === ownPackageName;
 
   const sourceDir = path.join(
     npmPackagePath,
-    userConfig.sourceDir || 'android'
+    isCore
+      ? 'react-android/react/src/main/java/com/facebook'
+      : userConfig.sourceDir || 'android'
   );
   if (!(await exists(sourceDir))) {
     // Not an Android native module.
     return;
   }
 
-  const manifestPath = userConfig.manifestPath
+  const manifestPath = isCore
+    ? path.join(
+        npmPackagePath,
+        'react-android/react/src/main/AndroidManifest.xml'
+      )
+    : userConfig.manifestPath
     ? path.join(sourceDir, userConfig.manifestPath)
     : await findManifest(sourceDir);
   if (!manifestPath) {
@@ -187,7 +216,11 @@ async function mapPackageNameToAutolinkingInfo({
 
   const androidPackageName =
     userConfig.packageName || (await getAndroidPackageName(manifestPath));
-  const { modules, packageClassName } = await parseSourceFiles(sourceDir);
+  const parsed = await parseSourceFiles(sourceDir);
+  if (!parsed) {
+    return null;
+  }
+  const { modules, packageClassName } = parsed;
 
   /**
    * This module has no package to export.
@@ -207,9 +240,15 @@ async function mapPackageNameToAutolinkingInfo({
   const dependencyConfiguration = userConfig.dependencyConfiguration;
   const libraryName =
     userConfig.libraryName || findLibraryName(npmPackagePath, sourceDir);
-  const componentDescriptors =
-    userConfig.componentDescriptors ||
-    (await findComponentDescriptors(npmPackagePath));
+
+  /**
+   * At least so far, I'm not aware of us having any React components to export
+   * from our core library, so we can skip this bit.
+   */
+  const componentDescriptors = isCore
+    ? []
+    : userConfig.componentDescriptors ||
+      (await findComponentDescriptors(npmPackagePath));
   const androidMkPath = userConfig.androidMkPath
     ? path.join(sourceDir, userConfig.androidMkPath)
     : path.join(sourceDir, 'build/generated/source/codegen/jni/Android.mk');
@@ -366,17 +405,29 @@ async function parseSourceFiles(folder: string) {
   const moduleDeclarationMatches: {
     contents: string;
     match: RegExpMatchArray;
+    superclassName: string;
   }[] = [];
 
   for (const file of files) {
     if (!packageDeclarationMatch) {
       packageDeclarationMatch = matchClassDeclarationForPackage(file);
     }
+
     const moduleDeclarationMatch = matchClassDeclarationForModule(file);
     if (moduleDeclarationMatch) {
+      const [moduleClassSignature] = moduleDeclarationMatch;
+
+      const superclassName = moduleClassSignature.match(
+        /(?:extends\s+|:)(\w+)/
+      )?.[1];
+      if (!superclassName) {
+        continue;
+      }
+
       moduleDeclarationMatches.push({
         contents: file,
         match: moduleDeclarationMatch,
+        superclassName,
       });
     }
   }
@@ -385,114 +436,196 @@ async function parseSourceFiles(folder: string) {
     return null;
   }
 
-  const [, packageClassName] = packageDeclarationMatch;
+  /**
+   * A record of all method signatures found so far. Allows us to crudely check
+   * whether an method lacking a @ReactMethod annotation is nonetheless
+   * overriding a method that has that same annotation in the superclass.
+   * @example
+   * {
+   *   NativeIntentAndroidSpec: Set { "getInitialURL[1,13]" }
+   * }
+   */
+  const reactMethods: {
+    [moduleClassName: string]: Set<string>;
+  } = {};
 
-  const modules = moduleDeclarationMatches.map(
-    ({ contents: moduleContents, match: moduleDeclarationMatch }) => {
-      const [, moduleClassName] = moduleDeclarationMatch;
+  const modules = moduleDeclarationMatches
+    // Sort all direct extensions of ReactContextBaseJavaModule (base classes)
+    // before subclasses, so that we can look up which overridden methods are
+    // overriding ReactClass.
+    .sort((a, b) => {
+      if (a.superclassName === 'ReactContextBaseJavaModule') {
+        // Sort a before b
+        return -1;
+      }
+      if (b.superclassName === 'ReactContextBaseJavaModule') {
+        // Sort b before a;
+        return 1;
+      }
+      return 0;
+    })
+    .map(
+      ({
+        contents: moduleContents,
+        match: moduleDeclarationMatch,
+        superclassName,
+      }) => {
+        const [, moduleClassName] = moduleDeclarationMatch;
 
-      /** @example ['@ReactMethod\n@Profile\n   public void testCallback(Callback callback) {'] */
-      const exportedMethodMatches =
-        moduleContents.match(ANDROID_METHOD_REGEX) ?? [];
-      const exportsConstants = /@Override\s+.*\s+getConstants\(\s*\)\s*{/m.test(
-        moduleContents
-      );
+        if (!reactMethods[moduleClassName]) {
+          reactMethods[moduleClassName] = new Set();
+        }
 
-      const exportedMethods = exportedMethodMatches
-        .map((raw) => {
-          /**
-           * Standardise to single-space.
-           * @example ['@ReactMethod @Profile public void testCallback(Callback callback) {']
-           */
-          raw = raw.replace(/\s+/g, ' ');
+        /**
+         * @example
+         * A ReactMethod directly declared:
+         * ['@ReactMethod\n@Profile\n   public void testCallback(Callback callback) {']
+         * @example
+         * A method with an @Override annotation - we have to do a second pass to
+         * check whether it's overriding a method that was annotated as a
+         * ReactMethod on the superclass:
+         * ['@Override\n@DoNotStrip\n   public abstract void getInitialURL(Promise promise);']
+         */
+        const potentialMethodMatches: RegExpMatchArray =
+          moduleContents.match(ANDROID_METHOD_REGEX) ?? [];
+        const exportsConstants =
+          /@Override\s+.*\s+getConstants\(\s*\)\s*{/m.test(moduleContents);
 
-          const isBlockingSynchronousMethod =
-            /isBlockingSynchronousMethod\s*=\s*true/.test(
-              raw.split(/\)/).find((split) => split.includes('@ReactMethod('))
+        const exportedMethods = potentialMethodMatches
+          .map((raw) => {
+            /**
+             * Standardise to single-space.
+             * @example ['@ReactMethod @Profile public void testCallback(Callback callback) {']
+             * @example ['@Override @DoNotStrip public abstract void getInitialURL(Promise promise);']
+             */
+            raw = raw.replace(/\s+/g, ' ');
+
+            const hasReactMethodAnnotation = raw.includes('@ReactMethod ');
+            const isBlockingSynchronousMethod =
+              /isBlockingSynchronousMethod\s*=\s*true/.test(
+                raw.split(/\)/).find((split) => split.includes('@ReactMethod('))
+              );
+
+            /**
+             * Remove annotations & comments.
+             *
+             * We assume that exported methods start with public &
+             * anything before that is not needed.
+             *
+             * @example ['public void testCallback(Callback callback) {']
+             * @example ['public abstract void getInitialURL(Promise promise);']
+             */
+            raw = 'public' + raw.split('public')[1];
+
+            /**
+             * Remove the trailing brace.
+             * @example ['public void testCallback(Callback callback)']
+             * @example ['public abstract void getInitialURL(Promise promise)']
+             */
+            const signature = raw.replace(/\s*[{;]$/, '');
+
+            const [
+              /**
+               * The signature leading up to the first bracket.
+               * @example ['public void testCallback']
+               * @example ['public abstract void getInitialURL']
+               */
+              signatureBeforeParams,
+              /**
+               * The signature following after the first bracket.
+               * @example ['Callback callback)']
+               * @example ['Promise promise)']
+               */
+              signatureFromParams = '',
+            ] = signature.split(/\(/);
+
+            /**
+             * @example ['public', 'void', 'testCallback']
+             * @example ['public', 'abstract' 'void', 'getInitialURL']
+             */
+            const signatureBeforeParamsSplit =
+              signatureBeforeParams.split(/\s+/);
+            /**
+             * @example 'testCallback'
+             * @example 'getInitialURL'
+             */
+            const methodNameJava = signatureBeforeParamsSplit.slice(-1)[0];
+            /** @example 'void' */
+            const returnType = signatureBeforeParamsSplit.slice(-2)[0];
+
+            /**
+             * Erase generic args and then split around commas to get params.
+             * We filter out falsy params because it's possible to get ['void', '']
+             * when the signature has no params.
+             * @example ['void', 'Callback callback']
+             * @example ['void', 'Promise promise']
+             * @example ['void', 'ReadableMap', 'ReadableArray', 'Promise promise']
+             */
+            const methodTypesRaw = [
+              returnType,
+              ...signatureFromParams
+                .replace(/\)$/, '')
+                .trim()
+                .replace(/<.*>/g, '')
+                .split(/\s*,\s*/)
+                .filter((param) => param),
+            ];
+
+            const methodTypesParsed = methodTypesRaw.map((t) =>
+              parseJavaTypeToEnum(t)
             );
 
-          /**
-           * Remove annotations.
-           * @example ['public void testCallback(Callback callback) {']
-           */
-          raw = raw.split(/@[a-zA-Z]*\s+/).slice(-1)[0];
+            if (hasReactMethodAnnotation) {
+              reactMethods[moduleClassName]?.add(methodNameJava);
+            }
+            // Discard any @Override methods for which we haven't encountered a
+            // corresponding @ReactMethod-annotated one in the superclass. We
+            // don't bother maintaining a chain of subclasses and digging through
+            // them, as the general cases should be either a direct subclass of
+            // ReactContextBaseJavaModule or a subclass of a spec (that itself
+            // directly subclasses ReactContextBaseJavaModule).
+            else if (!reactMethods[superclassName]?.has(methodNameJava)) {
+              return null;
+            }
 
-          /**
-           * Remove the trailing brace.
-           * @example ['public void testCallback(Callback callback)']
-           */
-          const signature = raw.split(/\s*{/)[0];
+            return {
+              exportedMethodName: methodNameJava,
+              isBlockingSynchronousMethod,
+              methodNameJava,
+              methodNameJs: methodNameJava,
+              methodTypesParsed,
+              methodTypesRaw,
+              returnType,
+              signature,
+            };
+          })
+          .filter((obj) => obj?.signature);
 
-          const [
-            /**
-             * The signature leading up to the first bracket.
-             * @example ['public void testCallback']
-             */
-            signatureBeforeParams,
-            /**
-             * The signature following after the first bracket.
-             * @example ['Callback callback)']
-             */
-            signatureFromParams = '',
-          ] = signature.split(/\(/);
+        /**
+         * We chain together these operations:
+         * @example ['public String getName() {\n    return "RNTestModule";\n  }']
+         * @example ['"RNTestModule"']
+         * @example 'RNTestModule'
+         */
+        const exportedModuleName = getModuleName(moduleContents);
 
-          /** @example ['public', 'void', 'testCallback'] */
-          const signatureBeforeParamsSplit = signatureBeforeParams.split(/\s+/);
-          /** @example 'testCallback' */
-          const methodNameJava = signatureBeforeParamsSplit.slice(-1)[0];
-          /** @example 'void' */
-          const returnType = signatureBeforeParamsSplit.slice(-2)[0];
+        return {
+          exportedMethods,
+          /** @example 'RNTestModule' or `null` if missing, e.g. for specs */
+          exportedModuleName,
+          /** @example true */
+          exportsConstants,
+          /** @example 'RNTestModule' */
+          moduleClassName,
+        };
+      }
+    )
+    // Filter out specs (identified by having `null` for exportedModuleName) now
+    // that they've done their job of informing of any @ReactMethod-annotated
+    // methods to know about in subclasses
+    .filter(({ exportedModuleName }) => exportedModuleName);
 
-          /**
-           * Erase generic args and then split around commas to get params.
-           * We filter out falsy params because it's possible to get ['void', '']
-           * when the signature has no params.
-           * @example ['void', 'Callback callback', 'ReadableMap', 'ReadableArray']
-           */
-          const methodTypesRaw = [
-            returnType,
-            ...signatureFromParams
-              .replace(/\)$/, '')
-              .trim()
-              .replace(/<.*>/g, '')
-              .split(/\s*,\s*/)
-              .filter((param) => param),
-          ];
-
-          return {
-            exportedMethodName: methodNameJava,
-            isBlockingSynchronousMethod,
-            methodNameJava,
-            methodNameJs: methodNameJava,
-            methodTypesParsed: methodTypesRaw.map((t) =>
-              parseJavaTypeToEnum(t)
-            ),
-            methodTypesRaw,
-            returnType,
-            signature,
-          };
-        })
-        .filter((obj) => obj.signature);
-
-      /**
-       * We chain together these operations:
-       * @example ['public String getName() {\n    return "RNTestModule";\n  }']
-       * @example ['"RNTestModule"']
-       * @example 'RNTestModule'
-       */
-      const exportedModuleName = getModuleName(moduleContents);
-
-      return {
-        exportedMethods,
-        /** @example 'RNTestModule' */
-        exportedModuleName,
-        /** @example true */
-        exportsConstants,
-        /** @example 'RNTestModule' */
-        moduleClassName,
-      };
-    }
-  );
+  const [, packageClassName] = packageDeclarationMatch;
 
   return {
     modules,
@@ -500,11 +633,22 @@ async function parseSourceFiles(folder: string) {
   };
 }
 
-function getModuleName(moduleContents: string) {
+/**
+ * Gets the exported name for the module, or null if there's no such match.
+ * @example 'IntentAndroid', for the class named 'IntentModule'.
+ */
+function getModuleName(moduleContents: string): string | null {
   const getNameFunctionReturnValue = moduleContents
     .match(ANDROID_GET_NAME_FN_REGEX)?.[0]
     .match(ANDROID_MODULE_NAME_REGEX)?.[0]
     .trim();
+
+  // The module doesn't have a getName() method at all. It may be a spec, or not
+  // a ReactModule in the first place.
+  if (!getNameFunctionReturnValue) {
+    return null;
+  }
+
   if (getNameFunctionReturnValue.startsWith(`"`))
     return getNameFunctionReturnValue.replace(/"/g, '');
 
@@ -512,6 +656,17 @@ function getModuleName(moduleContents: string) {
     .split('\n')
     .find((line) => line.includes(`String ${getNameFunctionReturnValue}`));
   return variableDefinitionLine.split(`"`)[1];
+}
+
+/**
+ * As Java supports method overloading, we'll make methods comparable using a
+ * hash based on the method's name and types.
+ */
+function hashMethod(
+  methodName: string,
+  methodTypesParsed: RNJavaSerialisableType[]
+) {
+  return `${methodName}${JSON.stringify(methodTypesParsed)}`;
 }
 
 /**
@@ -540,14 +695,49 @@ function matchClassDeclarationForPackage(file: string) {
 
 /**
  * @param file the contents of the *Module.java file.
- * @returns a RegExpArray matching the class declaration.
+ * @returns a RegExpArray matching class declarations of native modules.
  * @example
+ * A ReactModule:
+ * [
+ *    '@ReactModule(name = IntentModule.NAME)\npublic class IntentModule extends NativeIntentAndroidSpec {',
+ *    'IntentModule',
+ * ]
+ * @example
+ * A TurboModule:
+ * [
+ *   'class NativeIntentAndroidSpec extends ReactContextBaseJavaModule implements ReactModuleWithSpec, TurboModule',
+ *   'NativeIntentAndroidSpec',
+ *   ' implements ',
+ * ]
+ * @example
+ * ... or a classic native module:
  * [
  *   'class RNTestModule extends ReactContextBaseJavaModule',
  *   'RNTestModule',
  * ]
  */
 function matchClassDeclarationForModule(file: string) {
+  // Match any class with the @ReactModule annotation.
+  const reactModuleMatch = file.match(
+    /@ReactModule[\s\S]*class\s+(\w+[^(\s]*)[\s\w():]*.*{/
+  );
+  if (reactModuleMatch) {
+    return reactModuleMatch;
+  }
+
+  // Match any class that implements TurboModule.
+  const turboModuleMatch =
+    /import\s+com\.facebook\.react\.turbomodule\.core\.interfaces\.TurboModule\s*;/.test(
+      file
+    ) &&
+    file.match(
+      /class\s+(\w+[^(\s]*)[\s\w():]*(\s+implements\s+|:)[\s\w():,]*[^{]*TurboModule/
+    );
+  if (turboModuleMatch) {
+    return turboModuleMatch;
+  }
+
+  // Match any class that extends ReactContextBaseJavaModule.
   return file.match(
     /class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ReactContextBaseJavaModule/
   );
@@ -623,12 +813,12 @@ export async function findComponentDescriptors(
 
   const codegenComponent = contentsArr
     .map(extractComponentDescriptors)
-    .filter(Boolean);
+    .filter((c): c is string => !!c);
 
   // Filter out duplicates as it happens that libraries contain multiple outputs
   // due to package publishing.
   // TODO: consider using "codegenConfig" to avoid this.
-  return Array.from(new Set(codegenComponent as string[]));
+  return Array.from(new Set(codegenComponent));
 }
 
 const CODEGEN_NATIVE_COMPONENT_REGEX =
@@ -848,7 +1038,7 @@ async function writeModuleMapFile({
   );
 }
 
-const ANDROID_METHOD_REGEX = /@ReactMethod+((.|\n)*?) {/gm;
+const ANDROID_METHOD_REGEX = /(?:@Override|@ReactMethod)[\s\S]*?[{;]/gm;
 const ANDROID_GET_NAME_FN_REGEX =
   /public String getName\(\)[\s\S]*?\{[^}]*\}/gm;
 const ANDROID_MODULE_NAME_REGEX = /(?<=return ).*(?=;)/gm;
