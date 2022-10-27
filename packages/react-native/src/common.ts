@@ -39,3 +39,17 @@ export enum RNJavaSerialisableType {
   nonnullCallback, // Callback
   Promise, // Promise
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function assert(condition: any, message: string): asserts condition {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function warn(condition: any, message: string): asserts condition {
+  if (!condition) {
+    console.warn(message);
+  }
+}

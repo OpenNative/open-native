@@ -1,10 +1,9 @@
-import { RNJavaSerialisableType } from '../common';
 import { Utils } from '@nativescript/core';
 import {
-  getClass,
   numberHasDecimals,
   numberIs64Bit,
 } from '@nativescript/core/utils/types';
+import { assert, RNJavaSerialisableType, warn } from '../common';
 import {
   BaseJavaModule,
   Callback,
@@ -318,6 +317,15 @@ export function toNativeArguments(
       }
     }
   }
+
+  /**
+   * Instead of asserting, we can show a warning here.
+   */
+  warn(
+    argumentTypes.length === nativeArguments.length,
+    `Expected ${argumentTypes.length} arguments, but got ${args.length}.`
+  );
+
   return nativeArguments;
 }
 
@@ -658,13 +666,6 @@ export function toNativeValue<T extends boolean>(
    * we haven't handled above.
    */
   return Utils.dataSerialize(data);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function assert(condition: any, message: string): asserts condition {
-  if (!condition) {
-    throw new Error(message);
-  }
 }
 
 export type JavaJSONEquivalent =

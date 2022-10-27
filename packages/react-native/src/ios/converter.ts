@@ -1,4 +1,4 @@
-import { RNObjcSerialisableType } from '../common';
+import { assert, RNObjcSerialisableType, warn } from '../common';
 import { Utils } from '@nativescript/core';
 import {
   getClass,
@@ -20,19 +20,27 @@ export function toNativeArguments(
   );
 
   const argumentTypes = methodTypes.slice(1);
-  assert(
-    argumentTypes.length === args.length,
-    `Expected ${argumentTypes.length} arguments, but got ${args.length}. Note that Obj-C does not support optional arguments.`
-  );
+  /**
+   * Asserting here breaks promises.
+   */
+  // assert(
+  //   argumentTypes.length === args.length,
+  //   `Expected ${argumentTypes.length} arguments, but got ${args.length}. Note that Obj-C does not support optional arguments.`
+  // );
 
   for (let i = 0; i < argumentTypes.length; i++) {
     const argType = argumentTypes[i];
     const data = args[i];
-
-    assert(
-      typeof data !== 'undefined',
-      `Unexpected \`undefined\` value passed in at index ${i} for argument type "${RNObjcSerialisableType[argType]}". Note that Obj-C does not have an equivalent to undefined.`
-    );
+    /**
+     * Asserting here breaks promises. Maybe we should let the
+     * arguments pass through to native and let it handle the
+     * rest. Also I think it is safe to convert undefined to nil or
+     * NSNull for iOS.
+     */
+    // assert(
+    //   typeof data !== 'undefined',
+    //   `Unexpected \`undefined\` value passed in at index ${i} for argument type "${RNObjcSerialisableType[argType]}". Note that Obj-C does not have an equivalent to undefined.`
+    // );
 
     if (
       argType === RNObjcSerialisableType.nonnullArray ||
@@ -205,6 +213,14 @@ export function toNativeArguments(
       }
     }
   }
+  /**
+   * Instead of asserting, we can show a warning here.
+   */
+  warn(
+    argumentTypes.length === nativeArguments.length,
+    `Expected ${argumentTypes.length} arguments, but got ${args.length}.`
+  );
+
   return nativeArguments;
 }
 
@@ -506,13 +522,6 @@ export function toNativeValue<T extends boolean>(
    * we haven't handled above.
    */
   return Utils.dataSerialize(data);
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function assert(condition: any, message: string): asserts condition {
-  if (!condition) {
-    throw new Error(message);
-  }
 }
 
 export type ObjcJSONEquivalent =
