@@ -33,6 +33,22 @@
         }
       ]
     },
+    "build.hooks.demo": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          "./node_modules/.bin/tsc -p packages/open-native/hooks/tsconfig.demo.json"
+        ],
+        "parallel": false
+      },
+      "outputs": ["apps/demo/scripts"],
+      "dependsOn": [
+        {
+          "target": "build.hooks.demo",
+          "projects": "dependencies"
+        }
+      ]
+    },
     "build.hooks": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
@@ -64,6 +80,32 @@
         {
           "target": "build.all",
           "projects": "dependencies"
+        },
+        {
+          "target": "build.hooks",
+          "projects": "self"
+        },
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
+    },
+    "build.npm": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": ["node tools/scripts/prepare-for-npm.ts open-native"],
+        "parallel": false
+      },
+      "outputs": ["dist/packages/open-native"],
+      "dependsOn": [
+        {
+          "target": "build.npm",
+          "projects": "dependencies"
+        },
+        {
+          "target": "build.all",
+          "projects": "self"
         },
         {
           "target": "build.hooks",
