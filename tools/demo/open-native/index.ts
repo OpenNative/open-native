@@ -2,7 +2,7 @@ import { isAndroid } from '@nativescript/core';
 //@ts-ignore
 //import Auth0 from 'react-native-auth0';
 import { DemoSharedBase } from '../utils';
-import { NativeModules } from '@ammarahm-ed/react-native';
+import { NativeModules } from 'open-native';
 //const auth0 = new Auth0({ domain: 'https://dev-mr5werjm.us.auth0.com', clientId: 'xbUxJUQ5ofi7qoRHn3YjZp6A1f7qdZ5n' });
 
 export class DemoSharedReactNative extends DemoSharedBase {

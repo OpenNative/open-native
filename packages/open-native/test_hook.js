@@ -1,12 +1,12 @@
 // This is a rough-and-ready script for testing
-// react-native/hooks/before-prepareNativeApp.js.
+// open-native/hooks/before-prepareNativeApp.js.
 // It saves running `tns build ios` each time, which is simply slower.
 //
-// I run this in packages/react-native, via:
+// I run this in packages/open-native, via:
 // $ node test_hook.js
 //
 // It spits its output into
-// dist/packages/react-native/platforms/ios/lib.
+// dist/packages/open-native/platforms/ios/lib.
 
 const path = require('path');
 const fs = require('fs');
@@ -18,7 +18,7 @@ const nsDemoPackageJson = JSON.parse(
   fs.readFileSync(path.join(nsDemoProjectDir, 'package.json')).toString()
 );
 
-require('../../dist/packages/react-native/hooks/before-prepareNativeApp')({
+require('../../dist/packages/open-native/hooks/before-prepareNativeApp')({
   platformData: {
     normalizedPlatformName: 'Android',
     platformNameLowerCase: 'android',

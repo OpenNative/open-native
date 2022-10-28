@@ -9,7 +9,7 @@ const execFile = promisify(cp.execFile);
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 
-const logPrefix = '[react-native/hooks/prepare-ios.js]';
+const logPrefix = '[open-native/hooks/prepare-ios.js]';
 
 /**
  * Given a list of dependencies, autolinks any podspecs found within them, using
@@ -97,7 +97,7 @@ export async function autolinkIos({
 /**
  * @param {object} args
  * @param args.ownPackageName The name for the package holding this hook,
- *   e.g. '@ammarahm-ed/react-native', which holds core modules rather than
+ *   e.g. 'open-native', which holds core modules rather than
  *   community modules. It'll look for the podspecs for core by a special path.
  * @param args.packageName The package name, e.g. 'react-native-module-test'.
  * @param args.projectDir The project directory (relative to which the package
@@ -148,7 +148,7 @@ async function mapPackageNameToAutolinkingInfo({
    * These are the typings (that we're interested in), assuming a valid podspec.
    * We'll handle it in a failsafe manner.
    * TODO: Handle subspecs. Can run the following as a test case:
-   * ipc spec pod packages/react-native/platforms/ios/React-Core.podspec
+   * ipc spec pod packages/open-native/platforms/ios/React-Core.podspec
    */
   const podspecParsed: {
     name?: string;
@@ -674,16 +674,16 @@ async function writePodfile({
   outputPodfilePath: string;
 }) {
   const reactDeps = [
-    `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
-    `pod 'React-RCTLinking', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-RCTLinking.podspec")`,
-    `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React.podspec")`,
+    `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
+    `pod 'React-RCTLinking', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React-RCTLinking.podspec")`,
+    `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React.podspec")`,
   ];
 
   /**
    * Depending on React-Native-Podspecs allows us to include our RNPodspecs.h
    * file.
    */
-  const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@ammarahm-ed/react-native/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
+  const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
 
   const podfileContents = [
     '# This file will be updated automatically by hooks/before-prepareNativeApp.js.',

@@ -1,6 +1,6 @@
 # List of plugins in this workspace
 
-- [@ammarahm-ed/react-native](packages/react-native/README.md)
+- [open-native](packages/open-native/README.md)
 
 # Setup workspace
 

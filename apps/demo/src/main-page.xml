@@ -5,7 +5,7 @@
   <StackLayout class="p-20">
     <ScrollView class="h-full">
       <StackLayout>
-        <Button text="react-native" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
+        <Button text="open-native" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
         <Button text="react-native-module-test" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
       </StackLayout>
     </ScrollView>

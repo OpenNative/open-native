@@ -1,27 +1,27 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/react-native",
+  "sourceRoot": "packages/open-native",
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
       "options": {
-        "outputPath": "dist/packages/react-native",
-        "tsConfig": "packages/react-native/tsconfig.json",
-        "packageJson": "packages/react-native/package.json",
-        "main": "packages/react-native/index.d.ts",
+        "outputPath": "dist/packages/open-native",
+        "tsConfig": "packages/open-native/tsconfig.json",
+        "packageJson": "packages/open-native/package.json",
+        "main": "packages/open-native/index.d.ts",
         "assets": [
-          "packages/react-native/*.md",
-          "packages/react-native/index.d.ts",
-          "packages/react-native/postinstall.js",
-          "packages/react-native/preuninstall.js",
-          "packages/react-native/react-android/**/*",
+          "packages/open-native/*.md",
+          "packages/open-native/index.d.ts",
+          "packages/open-native/postinstall.js",
+          "packages/open-native/preuninstall.js",
+          "packages/open-native/react-android/**/*",
           "LICENSE",
           "LICENSE-react-native",
           "LICENSE-react-native-community-cli",
           {
             "glob": "**/*",
-            "input": "packages/react-native/platforms/",
+            "input": "packages/open-native/platforms/",
             "output": "./platforms/"
           }
         ]
@@ -37,11 +37,11 @@
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "commands": [
-          "./node_modules/.bin/tsc -p packages/react-native/hooks/tsconfig.json"
+          "./node_modules/.bin/tsc -p packages/open-native/hooks/tsconfig.json"
         ],
         "parallel": false
       },
-      "outputs": ["dist/packages/react-native/hooks"],
+      "outputs": ["dist/packages/open-native/hooks"],
       "dependsOn": [
         {
           "target": "build.hooks",
@@ -56,10 +56,10 @@
     "build.all": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": ["node tools/scripts/build-finish.ts react-native"],
+        "commands": ["node tools/scripts/build-finish.ts open-native"],
         "parallel": false
       },
-      "outputs": ["dist/packages/react-native"],
+      "outputs": ["dist/packages/open-native"],
       "dependsOn": [
         {
           "target": "build.all",
@@ -79,7 +79,7 @@
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "commands": [
-          "nx g @nativescript/plugin-tools:focus-packages react-native"
+          "nx g @nativescript/plugin-tools:focus-packages open-native"
         ],
         "parallel": false
       }
@@ -87,7 +87,7 @@
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["packages/react-native/**/*.ts"]
+        "lintFilePatterns": ["packages/open-native/**/*.ts"]
       }
     }
   },
