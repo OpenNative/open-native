@@ -33,13 +33,30 @@
         }
       ]
     },
-    "build.all": {
+    "build.hooks": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "commands": [
-          "./node_modules/.bin/tsc -p packages/react-native/hooks/tsconfig.json",
-          "node tools/scripts/build-finish.ts react-native"
+          "./node_modules/.bin/tsc -p packages/react-native/hooks/tsconfig.json"
         ],
+        "parallel": false
+      },
+      "outputs": ["dist/packages/react-native/hooks"],
+      "dependsOn": [
+        {
+          "target": "build.hooks",
+          "projects": "dependencies"
+        },
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
+    },
+    "build.all": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": ["node tools/scripts/build-finish.ts react-native"],
         "parallel": false
       },
       "outputs": ["dist/packages/react-native"],
@@ -47,6 +64,10 @@
         {
           "target": "build.all",
           "projects": "dependencies"
+        },
+        {
+          "target": "build.hooks",
+          "projects": "self"
         },
         {
           "target": "build",

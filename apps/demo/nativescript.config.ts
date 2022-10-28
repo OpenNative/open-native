@@ -11,4 +11,10 @@ export default {
   cli: {
     packageManager: 'npm',
   },
+  hooks: [
+    {
+      type: 'before-prepareNativeApp',
+      script: './scripts/before-prepareNativeApp.js',
+    },
+  ],
 } as NativeScriptConfig;
