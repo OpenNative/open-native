@@ -13,7 +13,7 @@ import com.facebook.react.uimanager.ViewManager;
 public class RNTestModulePackage implements ReactPackage {
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Arrays.<NativeModule>asList(new RNTestModule(reactContext));
+        return Arrays.<NativeModule>asList(new RNTestModule(reactContext), new RNTestCaseNameVariable(reactContext));
     }
 
 //  @Override

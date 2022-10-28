@@ -227,6 +227,12 @@ public class ReactContext extends ContextWrapper {
     }
   }
 
+  public void setCurrentActivity(@Nullable Activity activity) {
+    UiThreadUtil.assertOnUiThread();
+    if (activity == null) return;
+    mCurrentActivity = new WeakReference(activity);
+  }
+
   @ThreadConfined(UI)
   public void onNewIntent(@Nullable Activity activity, Intent intent) {
     UiThreadUtil.assertOnUiThread();

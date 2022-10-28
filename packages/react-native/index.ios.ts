@@ -1,14 +1,11 @@
-import { ReactNativeCommon } from './common';
+import RCTDeviceEventEmitter from './core/EventEmitter/RCTDeviceEventEmitter';
+export { default as NativeEventEmitter } from './core/EventEmitter/NativeEventEmitter';
+export {
+  Platform,
+  PlatformSelect,
+  PlatformSelectOSType,
+} from './core/Utilities/Platform';
+export { NativeModules } from './src/ios/nativemodules';
+export { Linking } from './core/Libraries/Linking/Linking';
 
-export class ReactNative extends ReactNativeCommon {
-  bridge: RCTBridge;
-  init() {
-    if (!this.bridge) {
-      this.bridge = RCTBridge.alloc().init();
-    }
-  }
-
-  getName() {
-    return this.bridge?.moduleForName('RNTestModule')?.class().name;
-  }
-}
+export const DeviceEventEmitter = RCTDeviceEventEmitter;

@@ -116,32 +116,31 @@ public class ReadableNativeArray implements ReadableArray {
 
   @Override
   public @NonNull ArrayList<Object> toArrayList() {
-    ArrayList<Object> arrayList = new ArrayList<>();
-
-    for (int i = 0; i < this.size(); i++) {
-      switch (getType(i)) {
-        case Null:
-          arrayList.add(null);
-          break;
-        case Boolean:
-          arrayList.add(getBoolean(i));
-          break;
-        case Number:
-          arrayList.add(getDouble(i));
-          break;
-        case String:
-          arrayList.add(getString(i));
-          break;
-        case Map:
-          arrayList.add(getMap(i).toHashMap());
-          break;
-        case Array:
-          arrayList.add(getArray(i).toArrayList());
-          break;
-        default:
-          throw new IllegalArgumentException("Could not convert object at index: " + i + ".");
-      }
-    }
-    return arrayList;
+    return mLocalArray;
+//    for (int i = 0; i < this.size(); i++) {
+//      switch (getType(i)) {
+//        case Null:
+//          arrayList.add(null);
+//          break;
+//        case Boolean:
+//          arrayList.add(getBoolean(i));
+//          break;
+//        case Number:
+//          arrayList.add(getDouble(i));
+//          break;
+//        case String:
+//          arrayList.add(getString(i));
+//          break;
+//        case Map:
+//          arrayList.add(getMap(i).toHashMap());
+//          break;
+//        case Array:
+//          arrayList.add(getArray(i).toArrayList());
+//          break;
+//        default:
+//          throw new IllegalArgumentException("Could not convert object at index: " + i + ".");
+//      }
+//    }
+//    return arrayList;
   }
 }

@@ -13,10 +13,13 @@ include ':app'
 include ':react'
 include ':bridge'
 
+def selfModuleName = "ammarahm-ed_react-native"
 modules.each {
-  print(it.androidProjectName);
-  include ":${it.androidProjectName}"
-  project(":${it.androidProjectName}").projectDir = new File(it.absolutePath)
+  if (!it.androidProjectName.equals(selfModuleName)) {
+    include ":${it.androidProjectName}"
+    project(":${it.androidProjectName}").projectDir = new File(it.absolutePath)
+  }
 }
+
 
 

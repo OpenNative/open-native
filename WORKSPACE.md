@@ -13,6 +13,7 @@ npm run setup
 ```
 npm start
 ```
+
 And choose demo.android from the list.
 
 # How to use?

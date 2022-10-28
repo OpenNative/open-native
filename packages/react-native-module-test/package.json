@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Some simple React Native native modules arranged in a format compatible with NativeScript plugins for easy interop.",
   "main": "index.js",
-  "typings": "index.d.ts",
+  "types": "index.d.ts",
   "nativescript": {
     "platforms": {
       "ios": "6.0.0"

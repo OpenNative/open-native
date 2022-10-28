@@ -5,13 +5,13 @@
   "repository": "<fill-your-repository-here>",
   "dependencies": {
     "@ammarahm-ed/react-native": "file:../../dist/packages/react-native",
-    "@ammarahm-ed/react-native-autolinking": "file:../../dist/packages/react-native-autolinking",
     "@ammarahm-ed/react-native-module-test": "file:../../dist/packages/react-native-module-test",
-    "@ammarahm-ed/react-native-podspecs": "file:../../dist/packages/react-native-podspecs",
-    "@nativescript/core": "file:../../node_modules/@nativescript/core"
+    "@nativescript/core": "file:../../node_modules/@nativescript/core",
+    "react-native-auth0": "2.13.3"
   },
   "devDependencies": {
-    "@nativescript/android": "~8.3.0",
-    "@nativescript/ios": "~8.3.3"
+    "@nativescript/android": "~8.4.0-alpha.6",
+    "@nativescript/ios": "~8.3.3",
+    "metro-react-native-babel-preset": "file:../../node_modules/metro-react-native-babel-preset"
   }
 }
