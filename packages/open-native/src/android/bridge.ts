@@ -1,4 +1,12 @@
-import { Application, Utils } from '@nativescript/core';
+import {
+  AndroidActivityBundleEventData,
+  AndroidActivityEventData,
+  AndroidActivityNewIntentEventData,
+  AndroidActivityResultEventData,
+  AndroidApplication,
+  Application,
+  Utils,
+} from '@nativescript/core';
 import DeviceEventEmitter from '../../core/EventEmitter/RCTDeviceEventEmitter';
 import CatalystInstance from './catalyst-instance';
 import { JSModules } from './js-modules';
@@ -51,37 +59,61 @@ export function getCurrentBridge() {
 }
 
 function attachActivityLifecycleListeners(reactContext: ReactContext) {
-  reactContext.setCurrentActivity(
+  reactContext.setCurrentActivity(getActivity());
+  console.log(reactContext.getCurrentActivity());
+  Application.android.on(
+    AndroidApplication.activityNewIntentEvent,
+    (args: AndroidActivityNewIntentEventData) => {
+      console.log('intent event');
+      reactContext.onNewIntent(args.activity, args.intent);
+    }
+  );
+  Application.android.on(
+    AndroidApplication.activityCreatedEvent,
+    (args: AndroidActivityBundleEventData) => {
+      console.log('activity created');
+      reactContext.onHostResume(args.activity);
+    }
+  );
+  Application.android.on(
+    AndroidApplication.activityResumedEvent,
+    (args: AndroidActivityEventData) => {
+      console.log('activity resumed');
+      reactContext.onHostResume(args.activity);
+    }
+  );
+  Application.android.on(
+    AndroidApplication.activityPausedEvent,
+    (args: AndroidActivityEventData) => {
+      console.log('activity paused');
+      reactContext.onHostPause();
+    }
+  );
+  Application.android.on(
+    AndroidApplication.activityDestroyedEvent,
+    (args: AndroidActivityEventData) => {
+      if (reactContext.getCurrentActivity() !== getActivity()) {
+        console.log('activity destroyed');
+        reactContext.onHostDestroy();
+      }
+    }
+  );
+  Application.android.on(
+    AndroidApplication.activityResultEvent,
+    (args: AndroidActivityResultEventData) => {
+      console.log('activity result');
+      reactContext.onActivityResult(
+        args.activity,
+        args.requestCode,
+        args.resultCode,
+        args.intent
+      );
+    }
+  );
+}
+
+function getActivity() {
+  return (
     Application.android.foregroundActivity || Application.android.startActivity
   );
-  console.log(reactContext.getCurrentActivity());
-  Application.android.on('activityNewIntent', (args) => {
-    console.log('intent event');
-    reactContext.onNewIntent(args.activity, args.intent);
-  });
-  Application.android.on('activityCreated', ({ activity }) => {
-    console.log('activity created');
-    reactContext.onHostResume(activity);
-  });
-  Application.android.on('activityResumed', ({ activity }) => {
-    console.log('activity resumed');
-    reactContext.onHostResume(activity);
-  });
-  Application.android.on('activityPaused', () => {
-    console.log('activity paused');
-    reactContext.onHostPause();
-  });
-  Application.android.on('activityDestroyed', () => {
-    console.log('activity destroyed');
-    reactContext.onHostDestroy();
-  });
-  Application.android.on('activityResult', (args) => {
-    console.log('activity result');
-    reactContext.onActivityResult(
-      args.activity,
-      args.requestCode,
-      args.resultCode,
-      args.intent
-    );
-  });
 }
