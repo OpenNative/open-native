@@ -2,6 +2,6 @@ rootProject.name = 'example'
 apply from: file("../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 
 include ':react-native-module-test'
-project(':react-native-module-test').projectDir = new File(rootProject.projectDir, '../../../packages/react-native-module-test/platforms/android')
+project(':react-native-module-test').projectDir = new File(rootProject.projectDir, '../../../packages/react-native-module-test/android')
 
 include ':app'

@@ -10,18 +10,15 @@ const nodeModulesPaths = [
 ]
 module.exports = {
   projectRoot: __dirname,
-  watchFolders: [
-    path.join(__dirname, '../../dist/packages'),
-    path.join(__dirname, '../../node_modules'),
-  ],
+  watchFolders: [path.join(__dirname, '../../node_modules')],
   resolver: {
     sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs'],
     nodeModulesPaths,
     extraNodeModules: {
-      'open-native': path.join(__dirname, '../../dist/packages/open-native'),
+      'open-native': path.join(__dirname, '../../packages/open-native'),
       'react-native-module-test': path.join(
         __dirname,
-        '../../dist/packages/react-native-module-test'
+        '../../packages/react-native-module-test'
       ),
     },
   },

@@ -10,7 +10,6 @@
     "lint": "../../node_modules/.bin/eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
-    "react-native-module-test": "file:../../dist/packages/react-native-module-test",
     "react": "file:../../node_modules/react",
     "react-native": "file:../../node_modules/react-native",
     "@babel/core": "*",
