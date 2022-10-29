@@ -13,7 +13,7 @@ include ':app'
 include ':react'
 include ':bridge'
 
-def selfModuleName = "open-nativereact-native"
+def selfModuleName = "open-native"
 modules.each {
   if (!it.androidProjectName.equals(selfModuleName)) {
     include ":${it.androidProjectName}"

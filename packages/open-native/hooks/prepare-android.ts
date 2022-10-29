@@ -302,7 +302,7 @@ async function mapPackageNameToAutolinkingInfo({
   return {
     /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build/generated/source/codegen/jni/Android.mk' */
     androidMkPath,
-    /** @example 'open-nativereact-native-module-test' */
+    /** @example 'react-native-module-test' */
     androidProjectName: makeAndroidProjectName(npmPackageName),
     /** @example [] */
     buildTypes,

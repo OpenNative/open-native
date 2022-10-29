@@ -29,7 +29,7 @@ android {
 }
 
 def modules = new JsonSlurper().parse(new File(projectDir,"modules.json"));
-def selfModuleName = "open-nativereact-native"
+def selfModuleName = "open-native"
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.5.1'
     embed project(':react')
