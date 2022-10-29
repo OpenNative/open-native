@@ -55,12 +55,12 @@ module.exports = {
       },
     },
     '⚙️': {
-      script: `npx cowsay "@ammarahm-ed/* packages will keep your ⚙️ cranking"`,
-      description: '_____________  @ammarahm-ed/*  _____________',
+      script: `npx cowsay "@open-native/* packages will keep your ⚙️ cranking"`,
+      description: '_____________  @open-native/*  _____________',
     },
     // packages
     // build output is always in dist/packages
-    '@ammarahm-ed': {
+    '@open-native': {
       // open-native
       'open-native': {
         build: {
@@ -68,11 +68,11 @@ module.exports = {
           description: 'open-native: Build',
         },
       },
-      // @ammarahm-ed/react-native-module-test
+      // react-native-module-test
       'react-native-module-test': {
         build: {
           script: 'nx run react-native-module-test:build.all',
-          description: '@ammarahm-ed/react-native-module-test: Build',
+          description: 'react-native-module-test: Build',
         },
       },
       'build-all': {
@@ -91,10 +91,10 @@ module.exports = {
       },
       'react-native-module-test': {
         script: 'nx run react-native-module-test:focus',
-        description: 'Focus on @@ammarahm-ed/react-native-module-test',
+        description: 'Focus on @react-native-module-test',
       },
       reset: {
-        script: 'nx g @ammarahm-ed/plugin-tools:focus-packages',
+        script: 'nx g @open-native/plugin-tools:focus-packages',
         description: 'Reset Focus',
       },
     },

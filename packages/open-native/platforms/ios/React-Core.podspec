@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.authors      = "Facebook, Inc. and its affiliates", "Ammar Ahmed", "Jamie Birch"
   s.homepage     = package['homepage']
   s.platforms    = { :ios => "12.4" }
-  s.source       = { :git => "https://github.com/ammarahm-ed/nativescript-magic-spells.git", :tag => "v#{s.version}" }
+  s.source       = { :git => "https://github.com/OpenNative/open-native.git", :tag => "v#{s.version}" }
 
   s.pod_target_xcconfig    = {
     "DEFINES_MODULE" => "YES",

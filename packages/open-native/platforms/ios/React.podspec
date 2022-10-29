@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.homepage     = package['homepage']
   s.platforms    = { :ios => "12.4" }
 
-  s.source       = { :git => "https://github.com/ammarahm-ed/nativescript-magic-spells.git", :tag => "v#{s.version}" }
+  s.source       = { :git => "https://github.com/OpenNative/open-native.git", :tag => "v#{s.version}" }
   s.preserve_paths         = "package.json", "LICENSE-react-native"
   s.cocoapods_version      = ">= 1.10.1"
   

@@ -18,7 +18,11 @@ module.exports = {
     sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs'],
     nodeModulesPaths,
     extraNodeModules: {
-      '@ammarahm-ed': path.join(__dirname, '../../dist/packages'),
+      'open-native': path.join(__dirname, '../../dist/packages/open-native'),
+      'react-native-module-test': path.join(
+        __dirname,
+        '../../dist/packages/react-native-module-test'
+      ),
     },
   },
   transformer: {

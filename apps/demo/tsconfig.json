@@ -7,7 +7,7 @@
       "~/*": ["src/*"],
       "@demo/shared": ["../../tools/demo/index.ts"],
       "open-native": ["../../packages/open-native/index.d.ts"],
-      "@ammarahm-ed/react-native-module-test": ["../../packages/react-native-module-test/index.ts"],
+      "react-native-module-test": ["../../packages/react-native-module-test/index.ts"],
       "crypto": ["node_modules/crypto-js"]
     }
   }

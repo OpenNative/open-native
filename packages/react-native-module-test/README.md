@@ -1,4 +1,4 @@
-# @ammarahm-ed/react-native-module-test
+# react-native-module-test
 
 Some simple React Native native modules arranged in a format compatible with NativeScript plugins for easy installation, allowing comparison between the two and helping us develop towards full conformance.
 

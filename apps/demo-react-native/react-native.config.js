@@ -12,7 +12,7 @@ module.exports = {
     'open-native': {
       root: path.resolve(builtPackages, 'react-native'),
     },
-    '@ammarahm-ed/react-native-module-test': {
+    'react-native-module-test': {
       root: path.resolve(builtPackages, 'react-native-module-test'),
     },
   },

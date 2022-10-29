@@ -302,7 +302,7 @@ async function mapPackageNameToAutolinkingInfo({
   return {
     /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build/generated/source/codegen/jni/Android.mk' */
     androidMkPath,
-    /** @example 'ammarahm-ed_react-native-module-test' */
+    /** @example 'open-nativereact-native-module-test' */
     androidProjectName: makeAndroidProjectName(npmPackageName),
     /** @example [] */
     buildTypes,
@@ -315,7 +315,7 @@ async function mapPackageNameToAutolinkingInfo({
     /** @example undefined */
     libraryName,
     modules: modulesWithImportNames,
-    /** @example '@ammarahm-ed/react-native-module-test' */
+    /** @example 'react-native-module-test' */
     npmPackageName,
     /** @example 'import com.testmodule.RNTestModulePackage;' */
     packageImportPath,

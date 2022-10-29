@@ -4,12 +4,12 @@
 #import <react_native_module_test/RNTestModule.h>
 #import <A0Auth0/A0Auth0.h>
 
-// START: package: @ammarahm-ed/react-native-module-test; podspec: react-native-module-test.podspec
+// START: package: react-native-module-test; podspec: react-native-module-test.podspec
 // RNTestModule.m
 @interface RNTestModule (TNSRNTestModule)
 - (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject;
 @end
-// END: package: @ammarahm-ed/react-native-module-test; podspec: react-native-module-test.podspec
+// END: package: react-native-module-test; podspec: react-native-module-test.podspec
 
 // START: package: react-native-auth0; podspec: A0Auth0.podspec
 // A0Auth0.m

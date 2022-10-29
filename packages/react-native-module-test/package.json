@@ -1,5 +1,5 @@
 {
-  "name": "@ammarahm-ed/react-native-module-test",
+  "name": "react-native-module-test",
   "version": "1.0.0",
   "description": "Some simple React Native native modules arranged in a format compatible with NativeScript plugins for easy interop.",
   "main": "index.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ammarahm-ed/nativescript-magic-spells.git"
+    "url": "https://github.com/OpenNative/open-native.git"
   },
   "keywords": [
     "NativeScript",
@@ -25,10 +25,10 @@
     "email": "ammarahmed6506@gmail.com"
   },
   "bugs": {
-    "url": "https://github.com/ammarahm-ed/nativescript-magic-spells/issues"
+    "url": "https://github.com/OpenNative/open-native/issues"
   },
   "license": "Apache-2.0",
-  "homepage": "https://github.com/ammarahm-ed/nativescript-magic-spells",
+  "homepage": "https://github.com/OpenNative/open-native",
   "readmeFilename": "README.md",
   "bootstrapper": "@nativescript/plugin-seed"
 }
