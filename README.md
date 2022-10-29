@@ -1,6 +1,6 @@
 # open-native
 
-Open Native an initiative to empower NativeScript by making any native library work directly with an easy to use interfaces written for other frameworks originally.
+Open Native brings drop-in support for native modules & libraries originally written for React Native to NativeScript.
 
 Join the [NativeScript Discord Community](https://discord.com/invite/RgmpGky9GR)
 
