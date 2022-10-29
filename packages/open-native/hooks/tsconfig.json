@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "outDir": "../../../dist/packages/open-native/hooks",
+    "rootDirs": [".", ".."],
+    "module": "commonjs",
+    "target": "es2017",
+    "moduleResolution": "node",
+    "declaration": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noEmitHelpers": false,
+    "noEmitOnError": true,
+    "removeComments": true,
+    "skipLibCheck": true
+  },
+  "include": ["../typings/**/*.d.ts"],
+  "files": ["index.ts"]
+}

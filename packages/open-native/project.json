@@ -1,0 +1,137 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/open-native",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "options": {
+        "outputPath": "dist/packages/open-native",
+        "tsConfig": "packages/open-native/tsconfig.json",
+        "packageJson": "packages/open-native/package.json",
+        "main": "packages/open-native/index.d.ts",
+        "assets": [
+          "packages/open-native/*.md",
+          "packages/open-native/index.d.ts",
+          "packages/open-native/postinstall.js",
+          "packages/open-native/preuninstall.js",
+          "packages/open-native/react-android/**/*",
+          "LICENSE",
+          "LICENSE-react-native",
+          "LICENSE-react-native-community-cli",
+          {
+            "glob": "**/*",
+            "input": "packages/open-native/platforms/",
+            "output": "./platforms/"
+          }
+        ]
+      },
+      "dependsOn": [
+        {
+          "target": "build.all",
+          "projects": "dependencies"
+        }
+      ]
+    },
+    "build.hooks.demo": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          "./node_modules/.bin/tsc -p packages/open-native/hooks/tsconfig.demo.json"
+        ],
+        "parallel": false
+      },
+      "outputs": ["apps/demo/scripts"],
+      "dependsOn": [
+        {
+          "target": "build.hooks.demo",
+          "projects": "dependencies"
+        }
+      ]
+    },
+    "build.hooks": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          "./node_modules/.bin/tsc -p packages/open-native/hooks/tsconfig.json"
+        ],
+        "parallel": false
+      },
+      "outputs": ["dist/packages/open-native/hooks"],
+      "dependsOn": [
+        {
+          "target": "build.hooks",
+          "projects": "dependencies"
+        },
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
+    },
+    "build.all": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": ["node tools/scripts/build-finish.ts open-native"],
+        "parallel": false
+      },
+      "outputs": ["dist/packages/open-native"],
+      "dependsOn": [
+        {
+          "target": "build.all",
+          "projects": "dependencies"
+        },
+        {
+          "target": "build.hooks",
+          "projects": "self"
+        },
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
+    },
+    "build.npm": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": ["node tools/scripts/prepare-for-npm.ts open-native"],
+        "parallel": false
+      },
+      "outputs": ["dist/packages/open-native"],
+      "dependsOn": [
+        {
+          "target": "build.npm",
+          "projects": "dependencies"
+        },
+        {
+          "target": "build.all",
+          "projects": "self"
+        },
+        {
+          "target": "build.hooks",
+          "projects": "self"
+        },
+        {
+          "target": "build",
+          "projects": "self"
+        }
+      ]
+    },
+    "focus": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          "nx g @nativescript/plugin-tools:focus-packages open-native"
+        ],
+        "parallel": false
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["packages/open-native/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

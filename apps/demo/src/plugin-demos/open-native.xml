@@ -1,6 +1,6 @@
 <Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
     <Page.actionBar>
-        <ActionBar title="react-native" icon="" class="action-bar">
+        <ActionBar title="React Native with NativeScript" icon="" class="action-bar">
         </ActionBar>
     </Page.actionBar>
     <StackLayout class="p-20">

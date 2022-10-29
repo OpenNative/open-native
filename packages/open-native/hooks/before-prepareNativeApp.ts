@@ -3,7 +3,7 @@ import type { HookArgs } from './hookArgs';
 import { autolinkAndroid } from './prepare-android';
 import { autolinkIos } from './prepare-ios';
 
-const logPrefix = '[react-native/hooks/before-prepareNativeApp.js]';
+const logPrefix = '[open-native/hooks/before-prepareNativeApp.js]';
 const green = '\x1b[32m';
 const reset = '\x1b[0m';
 
@@ -32,7 +32,7 @@ export = async function (hookArgs: HookArgs) {
   let packageNames: Array<string>;
 
   /**
-   * @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native'
+   * @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/open-native'
    */
   const packageDir = path.dirname(__dirname);
   console.log(

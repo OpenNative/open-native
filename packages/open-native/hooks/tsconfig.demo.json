@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "../../../dist/packages/react-native/hooks",
+    "outDir": "../../../apps/demo/scripts",
     "rootDirs": [".", ".."],
     "module": "commonjs",
     "target": "es2017",

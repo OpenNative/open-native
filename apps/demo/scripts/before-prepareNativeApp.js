@@ -2,7 +2,7 @@
 const path = require('path');
 const prepare_android_1 = require('./prepare-android');
 const prepare_ios_1 = require('./prepare-ios');
-const logPrefix = '[react-native/hooks/before-prepareNativeApp.js]';
+const logPrefix = '[open-native/hooks/before-prepareNativeApp.js]';
 const green = '\x1b[32m';
 const reset = '\x1b[0m';
 module.exports = async function (hookArgs) {
@@ -16,7 +16,7 @@ module.exports = async function (hookArgs) {
   const ignoredDepsSet = new Set(ignoredDependencies);
   const depsArr = Object.keys(Object.assign(Object.assign({}, devDependencies), dependencies)).filter((key) => !ignoredDepsSet.has(key));
   let packageNames;
-  const packageDir = path.resolve(__dirname, '..', 'node_modules', '@ammarahm-ed/react-native');
+  const packageDir = path.resolve(__dirname, '..', 'node_modules', 'open-native');
   //   console.log('packageDir:', packageDir);
   console.log(`${logPrefix} Autolinking React Native ${normalizedPlatformName} native modules...`);
   if (normalizedPlatformName === 'Android') {

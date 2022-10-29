@@ -61,11 +61,11 @@ module.exports = {
     // packages
     // build output is always in dist/packages
     '@ammarahm-ed': {
-      // @ammarahm-ed/react-native
-      'react-native': {
+      // open-native
+      'open-native': {
         build: {
-          script: 'nx run react-native:build.all',
-          description: '@ammarahm-ed/react-native: Build',
+          script: 'nx run open-native:build.all',
+          description: 'open-native: Build',
         },
       },
       // @ammarahm-ed/react-native-module-test
@@ -85,9 +85,9 @@ module.exports = {
       description: '_____________  Focus (VS Code supported)  _____________',
     },
     focus: {
-      'react-native': {
-        script: 'nx run react-native:focus',
-        description: 'Focus on @ammarahm-ed/react-native',
+      'open-native': {
+        script: 'nx run open-native:focus',
+        description: 'Focus on open-native',
       },
       'react-native-module-test': {
         script: 'nx run react-native-module-test:focus',

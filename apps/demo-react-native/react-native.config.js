@@ -9,7 +9,7 @@ const builtPackages = path.resolve(monorepoRoot, 'dist/packages')
 module.exports = {
   // https://github.com/react-native-community/cli/blob/main/docs/dependencies.md
   dependencies: {
-    '@ammarahm-ed/react-native': {
+    'open-native': {
       root: path.resolve(builtPackages, 'react-native'),
     },
     '@ammarahm-ed/react-native-module-test': {

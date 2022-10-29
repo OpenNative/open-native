@@ -9,6 +9,8 @@
     "add": "nx g @nativescript/plugin-tools:add-package",
     "add-angular": "nx g @nativescript/plugin-tools:add-angular",
     "config": "nx g @nativescript/plugin-tools:config",
+    "demo:hooks": "nx run open-native:build.hooks.demo",
+    "build:npm": "nx run open-native:build.npm",
     "build:rnmt": "nx run react-native-module-test:build.all",
     "build:packages": "nx run-many --target=build.all --all",
     "publish-packages": "nx g @nativescript/plugin-tools:publish",
