@@ -1,7 +1,7 @@
 {
   "name": "open-native",
   "version": "1.0.0-alpha.1",
-  "description": "Add a plugin description",
+  "description": "Open Native brings drop-in support for native modules & libraries originally written for React Native to NativeScript.",
   "main": "index",
   "types": "index.d.ts",
   "nativescript": {
@@ -19,7 +19,9 @@
     "JavaScript",
     "TypeScript",
     "iOS",
-    "Android"
+    "Android",
+    "React Native",
+    "Open Native"
   ],
   "author": {
     "name": "Ammar Ahmed",
