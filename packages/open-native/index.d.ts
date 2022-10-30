@@ -1,7 +1,11 @@
 import { JSModules } from './src/ios/js-modules';
 import { JSModules as JSModulesAndroid } from './src/android/js-modules';
-import type DeviceEventEmitter from './device-event-emitter.ios';
-import type Platform from './core/Utilities/Platform';
+import RCTDeviceEventEmitter from './core/EventEmitter/RCTDeviceEventEmitter';
+export type {
+  Platform,
+  PlatformSelect,
+  PlatformSelectOSType,
+} from './core/Utilities/Platform';
 import type { Linking } from './core/Libraries/Linking/Linking';
 
 declare global {
@@ -16,6 +20,5 @@ declare global {
 }
 
 export const NativeModules: { [name: string]: any };
-export const DeviceEventEmitter: DeviceEventEmitter;
-export const Platform: Platform;
+export const DeviceEventEmitter: RCTDeviceEventEmitter;
 export const Linking: Linking;
