@@ -3,7 +3,7 @@ import type { HookArgs } from './hookArgs';
 import { autolinkAndroid } from './prepare-android';
 import { autolinkIos } from './prepare-ios';
 
-const logPrefix = '[open-native/hooks/before-prepareNativeApp.js]';
+const logPrefix = '[@open-native/core/hooks/before-prepareNativeApp.js]';
 const green = '\x1b[32m';
 const reset = '\x1b[0m';
 
@@ -32,10 +32,12 @@ export = async function (hookArgs: HookArgs) {
   let packageNames: Array<string>;
 
   /**
-   * @example '/Users/jamie/Documents/git/open-native/dist/packages/open-native'
+   * @example '/Users/jamie/Documents/git/open-native/dist/packages/core'
    */
 
-  const packageDir = path.dirname(require.resolve('open-native/package.json'));
+  const packageDir = path.dirname(
+    require.resolve('@open-native/core/package.json')
+  );
   console.log(
     `${logPrefix} Autolinking React Native ${normalizedPlatformName} native modules...`
   );

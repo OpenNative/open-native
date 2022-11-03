@@ -1,0 +1,15 @@
+# This file will be updated automatically by hooks/before-prepareNativeApp.js.
+platform :ios, '12.4'
+
+pod 'ReactCommon', path: File.join(File.dirname(`node --print "require.resolve('@open-native/core/package.json')"`), "platforms/ios/ReactCommon.podspec")
+pod 'React-Core', path: File.join(File.dirname(`node --print "require.resolve('@open-native/core/package.json')"`), "platforms/ios/React-Core.podspec")
+pod 'React-RCTLinking', path: File.join(File.dirname(`node --print "require.resolve('@open-native/core/package.json')"`), "platforms/ios/React-RCTLinking.podspec")
+pod 'React', path: File.join(File.dirname(`node --print "require.resolve('@open-native/core/package.json')"`), "platforms/ios/React.podspec")
+pod 'RCTRequired', path: File.join(File.dirname(`node --print "require.resolve('@open-native/core/package.json')"`), "platforms/ios/RCTRequired.podspec")
+pod 'FBReactNativeSpec', path: File.join(File.dirname(`node --print "require.resolve('@open-native/core/package.json')"`), "platforms/ios/FBReactNativeSpec.podspec")
+pod 'FBLazyVector', path: File.join(File.dirname(`node --print "require.resolve('@open-native/core/package.json')"`), "platforms/ios/FBLazyVector.podspec")
+pod 'RCTTypeSafety', path: File.join(File.dirname(`node --print "require.resolve('@open-native/core/package.json')"`), "platforms/ios/RCTTypeSafety.podspec")
+pod 'React-Native-Podspecs', path: File.join(File.dirname(`node --print "require.resolve('@open-native/core/package.json')"`), "platforms/ios/React-Native-Podspecs.podspec")
+pod 'React-RCTLinking', path: "/Users/nstudio/Documents/github/OpenNative/open-native/packages/core/platforms/ios/React-RCTLinking.podspec"
+pod 'react-native-module-test', path: "/Users/nstudio/Documents/github/OpenNative/open-native/packages/react-native-module-test/react-native-module-test.podspec"
+pod 'A0Auth0', path: "/Users/nstudio/Documents/github/OpenNative/open-native/apps/demo/node_modules/react-native-auth0/A0Auth0.podspec"

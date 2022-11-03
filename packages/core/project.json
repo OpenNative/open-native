@@ -1,27 +1,27 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/open-native",
+  "sourceRoot": "packages/core",
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
       "options": {
-        "outputPath": "dist/packages/open-native",
-        "tsConfig": "packages/open-native/tsconfig.json",
-        "packageJson": "packages/open-native/package.json",
-        "main": "packages/open-native/index.d.ts",
+        "outputPath": "dist/packages/core",
+        "tsConfig": "packages/core/tsconfig.json",
+        "packageJson": "packages/core/package.json",
+        "main": "packages/core/index.d.ts",
         "assets": [
-          "packages/open-native/*.md",
-          "packages/open-native/index.d.ts",
-          "packages/open-native/postinstall.js",
-          "packages/open-native/preuninstall.js",
-          "packages/open-native/react-android/**/*",
+          "packages/core/*.md",
+          "packages/core/index.d.ts",
+          "packages/core/postinstall.js",
+          "packages/core/preuninstall.js",
+          "packages/core/react-android/**/*",
           "LICENSE",
           "LICENSE-react-native",
           "LICENSE-react-native-community-cli",
           {
             "glob": "**/*",
-            "input": "packages/open-native/platforms/",
+            "input": "packages/core/platforms/",
             "output": "./platforms/"
           }
         ]
@@ -37,7 +37,7 @@
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "commands": [
-          "./node_modules/.bin/tsc -p packages/open-native/hooks/tsconfig.demo.json"
+          "./node_modules/.bin/tsc -p packages/core/hooks/tsconfig.demo.json"
         ],
         "parallel": false
       },
@@ -53,11 +53,11 @@
       "executor": "@nrwl/workspace:run-commands",
       "options": {
         "commands": [
-          "./node_modules/.bin/tsc -p packages/open-native/hooks/tsconfig.json"
+          "./node_modules/.bin/tsc -p packages/core/hooks/tsconfig.json"
         ],
         "parallel": false
       },
-      "outputs": ["dist/packages/open-native/hooks"],
+      "outputs": ["dist/packages/core/hooks"],
       "dependsOn": [
         {
           "target": "build.hooks",
@@ -72,10 +72,10 @@
     "build.all": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": ["node tools/scripts/build-finish.ts open-native"],
+        "commands": ["node tools/scripts/build-finish.ts core"],
         "parallel": false
       },
-      "outputs": ["dist/packages/open-native"],
+      "outputs": ["dist/packages/core"],
       "dependsOn": [
         {
           "target": "build.all",
@@ -94,10 +94,10 @@
     "build.npm": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": ["node tools/scripts/prepare-for-npm.ts open-native"],
+        "commands": ["node tools/scripts/prepare-for-npm.ts core"],
         "parallel": false
       },
-      "outputs": ["dist/packages/open-native"],
+      "outputs": ["dist/packages/core"],
       "dependsOn": [
         {
           "target": "build.npm",
@@ -120,16 +120,14 @@
     "focus": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": [
-          "nx g @nativescript/plugin-tools:focus-packages open-native"
-        ],
+        "commands": ["nx g @nativescript/plugin-tools:focus-packages core"],
         "parallel": false
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "options": {
-        "lintFilePatterns": ["packages/open-native/**/*.ts"]
+        "lintFilePatterns": ["packages/core/**/*.ts"]
       }
     }
   },

@@ -1,6 +1,6 @@
 # List of plugins in this workspace
 
-- [open-native](packages/open-native/README.md)
+- [core](packages/core/README.md)
 
 # Setup workspace
 

@@ -9,7 +9,7 @@ const execFile = promisify(cp.execFile);
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 
-const logPrefix = '[open-native/hooks/prepare-ios.js]';
+const logPrefix = '[@open-native/core/hooks/prepare-ios.js]';
 
 /**
  * Given a list of dependencies, autolinks any podspecs found within them, using
@@ -148,7 +148,7 @@ async function mapPackageNameToAutolinkingInfo({
    * These are the typings (that we're interested in), assuming a valid podspec.
    * We'll handle it in a failsafe manner.
    * TODO: Handle subspecs. Can run the following as a test case:
-   * ipc spec pod packages/open-native/platforms/ios/React-Core.podspec
+   * ipc spec pod packages/core/platforms/ios/React-Core.podspec
    */
   const podspecParsed: {
     name?: string;
@@ -678,21 +678,21 @@ async function writePodfile({
   outputPodfilePath: string;
 }) {
   const reactDeps = [
-    `pod 'ReactCommon', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/ReactCommon.podspec")`,
-    `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
-    `pod 'React-RCTLinking', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React-RCTLinking.podspec")`,
-    `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React.podspec")`,
-    `pod 'RCTRequired', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/RCTRequired.podspec")`,
-    `pod 'FBReactNativeSpec', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/FBReactNativeSpec.podspec")`,
-    `pod 'FBLazyVector', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/FBLazyVector.podspec")`,
-    `pod 'RCTTypeSafety', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/RCTTypeSafety.podspec")`,
+    `pod 'ReactCommon', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/ReactCommon.podspec")`,
+    `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/React-Core.podspec")`,
+    `pod 'React-RCTLinking', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/React-RCTLinking.podspec")`,
+    `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/React.podspec")`,
+    `pod 'RCTRequired', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/RCTRequired.podspec")`,
+    `pod 'FBReactNativeSpec', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/FBReactNativeSpec.podspec")`,
+    `pod 'FBLazyVector', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/FBLazyVector.podspec")`,
+    `pod 'RCTTypeSafety', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/RCTTypeSafety.podspec")`,
   ];
 
   /**
    * Depending on React-Native-Podspecs allows us to include our RNPodspecs.h
    * file.
    */
-  const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
+  const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
 
   const podfileContents = [
     '# This file will be updated automatically by hooks/before-prepareNativeApp.js.',

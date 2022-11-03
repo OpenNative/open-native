@@ -158,7 +158,7 @@ export async function autolinkAndroid({
  * @param {object} args
  * @param args.npmPackageName The package name, e.g. 'react-native-module-test'.
  * @param args.ownPackageName The name for the package holding this hook,
- *   e.g. 'open-native', which holds core modules rather than
+ *   e.g. 'open-native_core', which holds core modules rather than
  *   community modules. It'll look for the Android native modules for core by a
  *   special path.
  * @param args.projectDir The project directory (relative to which the package
@@ -965,7 +965,7 @@ async function writeIncludeGradleFile({
     'dependencies {',
     'implementation project(":bridge")',
     ...projectNames
-      .filter((projectName) => projectName !== 'open-native')
+      .filter((projectName) => projectName !== 'open-native_core')
       .map((projectName) => `implementation project(":${projectName}")`),
     '}',
   ].join('\n');
@@ -976,8 +976,8 @@ async function writeIncludeGradleFile({
 
 async function writeSettingsGradleFile(projectDir: string) {
   const settingsGradlePath = projectDir + '/platforms/android/settings.gradle';
-  const settingsGradlePatch = `// Mark open-native patch
-def reactNativePkgJson = new File(["node", "--print", "require.resolve('open-native/package.json')"].execute(null, rootDir).text.trim())
+  const settingsGradlePatch = `// Mark open-native_core patch
+def reactNativePkgJson = new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim())
 def reactNativeDir = reactNativePkgJson.getParentFile().absolutePath
 import groovy.json.JsonSlurper
 def modules = new JsonSlurper().parse(new File(reactNativeDir, "react-android/bridge/modules.json"));
@@ -987,7 +987,7 @@ project(":react").projectDir = new File(reactNativeDir, "react-android/react/")
 include ':bridge'
 project(":bridge").projectDir = new File(reactNativeDir, "react-android/bridge/")
 
-def selfModuleName = "open-native"
+def selfModuleName = "open-native_core"
 modules.each {
   if (!it.androidProjectName.equals(selfModuleName)) {
     include ":\${it.androidProjectName}"
@@ -999,7 +999,7 @@ modules.each {
   const currentSettingsGradle = await readFile(settingsGradlePath, {
     encoding: 'utf-8',
   });
-  if (currentSettingsGradle.includes('Mark open-native patch')) return;
+  if (currentSettingsGradle.includes('Mark open-native_core patch')) return;
   return await writeFile(
     settingsGradlePath,
     [currentSettingsGradle, settingsGradlePatch].join('\n'),

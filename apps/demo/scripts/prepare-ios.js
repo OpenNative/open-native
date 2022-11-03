@@ -9,13 +9,14 @@ const util_1 = require('util');
 const execFile = (0, util_1.promisify)(cp.execFile);
 const readFile = (0, util_1.promisify)(fs.readFile);
 const writeFile = (0, util_1.promisify)(fs.writeFile);
-const logPrefix = '[open-native/hooks/prepare-ios.js]';
+const logPrefix = '[@open-native/core/hooks/prepare-ios.js]';
 async function autolinkIos({ dependencies, projectDir, outputHeaderPath, outputPodfilePath, outputPodspecPath, outputModuleMapPath }) {
-  const packageJson = JSON.parse(
-    await readFile(path.resolve(__dirname, '../package.json'), {
-      encoding: 'utf8',
-    })
-  );
+  // when used as standard hook in plugin:
+  // const packageJson = JSON.parse(await readFile(path.resolve(__dirname, '../package.json'), {
+  //     encoding: 'utf8',
+  // }));
+  // when used for improved local development:
+  const packageJson = require('@open-native/core/package.json');
   const autolinkingInfo = (
     await Promise.all(
       dependencies.map((packageName) =>
@@ -230,16 +231,16 @@ function extractBridgeModuleAliasedName(classImplementation) {
 }
 async function writePodfile({ autolinkedDeps, outputPodfilePath }) {
   const reactDeps = [
-    `pod 'ReactCommon', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/ReactCommon.podspec")`,
-    `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
-    `pod 'React-RCTLinking', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React-RCTLinking.podspec")`,
-    `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React.podspec")`,
-    `pod 'RCTRequired', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/RCTRequired.podspec")`,
-    `pod 'FBReactNativeSpec', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/FBReactNativeSpec.podspec")`,
-    `pod 'FBLazyVector', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/FBLazyVector.podspec")`,
-    `pod 'RCTTypeSafety', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/RCTTypeSafety.podspec")`,
+    `pod 'ReactCommon', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/ReactCommon.podspec")`,
+    `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/React-Core.podspec")`,
+    `pod 'React-RCTLinking', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/React-RCTLinking.podspec")`,
+    `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/React.podspec")`,
+    `pod 'RCTRequired', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/RCTRequired.podspec")`,
+    `pod 'FBReactNativeSpec', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/FBReactNativeSpec.podspec")`,
+    `pod 'FBLazyVector', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/FBLazyVector.podspec")`,
+    `pod 'RCTTypeSafety', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/RCTTypeSafety.podspec")`,
   ];
-  const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
+  const reactNativePodspecsDep = `pod 'React-Native-Podspecs', path: File.join(File.dirname(\`node --print "require.resolve('@open-native/core/package.json')"\`), "platforms/ios/React-Native-Podspecs.podspec")`;
   const podfileContents = ['# This file will be updated automatically by hooks/before-prepareNativeApp.js.', "platform :ios, '12.4'", '', ...reactDeps, reactNativePodspecsDep, ...autolinkedDeps].join('\n');
   return await writeFile(outputPodfilePath, podfileContents, {
     encoding: 'utf-8',

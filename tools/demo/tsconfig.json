@@ -3,7 +3,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "open-native": ["../../packages/open-native/index.d.ts"],
+      "@open-native/core": ["../../packages/core/index.d.ts"],
       "react-native-module-test": ["../../packages/react-native-module-test/index.ts"]
     }
   }

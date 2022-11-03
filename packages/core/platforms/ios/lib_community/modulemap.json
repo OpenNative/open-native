@@ -1,0 +1,56 @@
+{
+  "LinkingManager": {
+    "j": "RCTLinkingManager",
+    "e": false,
+    "m": {
+      "openURL": {
+        "j": "openURLResolveReject",
+        "t": [1, 2, 14, 15]
+      },
+      "canOpenURL": {
+        "j": "canOpenURLResolveReject",
+        "t": [1, 2, 14, 15]
+      },
+      "getInitialURL": {
+        "j": "getInitialURLReject",
+        "t": [1, 14, 15]
+      },
+      "openSettings": {
+        "j": "openSettingsReject",
+        "t": [1, 14, 15]
+      },
+      "sendIntent": {
+        "j": "sendIntentExtrasResolveReject",
+        "t": [1, 2, 8, 14, 15]
+      }
+    }
+  },
+  "RNTestModuleAliased": {
+    "j": "RNTestModule",
+    "e": false,
+    "m": {
+      "show": {
+        "j": "showWithRejecter",
+        "t": [1, 14, 15]
+      }
+    }
+  },
+  "A0Auth0": {
+    "j": "A0Auth0",
+    "e": true,
+    "m": {
+      "hide": {
+        "j": "hide",
+        "t": [1]
+      },
+      "showUrl": {
+        "j": "showUrlUsingEphemeralSessionCloseOnLoadCallback",
+        "t": [1, 2, 5, 5, 12]
+      },
+      "oauthParameters": {
+        "j": "oauthParameters",
+        "t": [1, 12]
+      }
+    }
+  }
+}

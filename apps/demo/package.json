@@ -4,7 +4,7 @@
   "license": "SEE LICENSE IN <your-license-filename>",
   "repository": "<fill-your-repository-here>",
   "dependencies": {
-    "open-native": "file:../../packages/open-native",
+    "@open-native/core": "file:../../packages/core",
     "react-native-module-test": "file:../../packages/react-native-module-test",
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
     "react-native-auth0": "2.13.3"

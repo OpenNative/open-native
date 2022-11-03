@@ -2,7 +2,7 @@
 const path = require('path');
 const prepare_android_1 = require('./prepare-android');
 const prepare_ios_1 = require('./prepare-ios');
-const logPrefix = '[open-native/hooks/before-prepareNativeApp.js]';
+const logPrefix = '[@open-native/core/hooks/before-prepareNativeApp.js]';
 const green = '\x1b[32m';
 const reset = '\x1b[0m';
 module.exports = async function (hookArgs) {
@@ -16,7 +16,7 @@ module.exports = async function (hookArgs) {
   const ignoredDepsSet = new Set(ignoredDependencies);
   const depsArr = Object.keys(Object.assign(Object.assign({}, devDependencies), dependencies)).filter((key) => !ignoredDepsSet.has(key));
   let packageNames;
-  const packageDir = path.dirname(require.resolve('open-native/package.json'));
+  const packageDir = path.dirname(require.resolve('@open-native/core/package.json'));
   console.log(`${logPrefix} Autolinking React Native ${normalizedPlatformName} native modules...`);
   if (normalizedPlatformName === 'Android') {
     const outputModulesJsonPath = path.resolve(packageDir, 'react-android/bridge/modules.json');

@@ -45,7 +45,7 @@ implementation project(':react-native-module-test')
 
 5. When teh app launches, all native modules are loaded and there methods can then be accessed from JS Runtime.
 
-![How the bridge works on android](https://raw.githubusercontent.com/OpenNative/open-native/main/packages/open-native/assets/bridge.svg)
+![How the bridge works on android](https://raw.githubusercontent.com/OpenNative/open-native/main/packages/core/assets/bridge.svg)
 
 So now that we know how native modules function in React Native, let's look into how we are going to achieve the same in NativeScript. You will also be able to understand how this plugin is working on android. Some design decisions here might contradict with the usual NativeScript plugins, but that's expected in building unusual things.
 

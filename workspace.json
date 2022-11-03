@@ -3,7 +3,7 @@
   "projects": {
     "demo": "apps/demo",
     "demo-react-native": "apps/demo-react-native",
-    "open-native": "packages/open-native",
+    "core": "packages/core",
     "react-native-module-test": "packages/react-native-module-test"
   },
   "$schema": "./node_modules/nx/schemas/workspace-schema.json"

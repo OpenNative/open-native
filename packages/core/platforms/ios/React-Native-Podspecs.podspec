@@ -18,6 +18,7 @@ Pod::Spec.new do |s|
   s.source_files  = "lib_community/**/*.{h,m,mm,swift}"
 
   s.dependency 'React-Core'
+  s.dependency 'React-RCTLinking'
   s.dependency 'react-native-module-test'
   s.dependency 'A0Auth0'
 end

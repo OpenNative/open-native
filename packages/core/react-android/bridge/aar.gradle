@@ -1,15 +1,18 @@
 plugins {
   id 'com.android.library'
 }
-
+apply plugin: 'com.kezong.fat-aar'
 import groovy.json.JsonSlurper
 android {
-    compileSdk 31
+    compileSdk 32
 
     defaultConfig {
         minSdk 21
-        targetSdk 31
+        targetSdk 32
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
+        manifestPlaceholders = [auth0Domain: "YOUR_AUTH0_DOMAIN", auth0Scheme: "${applicationId}"]
     }
 
     buildTypes {
@@ -26,13 +29,26 @@ android {
 }
 
 def modules = new JsonSlurper().parse(new File(projectDir,"modules.json"));
-def selfModuleName = "open-native"
+def selfModuleName = "open-native_core"
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.facebook.react:react-native:+'
+    embed project(':react')
     modules.each {
       if (!it.androidProjectName.equals(selfModuleName)) {
-        implementation project(":${it.androidProjectName}")
+        embed project(":${it.androidProjectName}")
       }
     }
 }
+
+task deleteOldAar(type: Delete) {
+  delete '../../platforms/android/react.aar'
+}
+
+task exportAar(type: Copy) {
+  from('build/outputs/aar')
+  into('../../platforms/android')
+  include('bridge-release.aar')
+  rename('bridge-release.aar','react.aar')
+}
+
+exportAar.dependsOn(deleteOldAar, build)

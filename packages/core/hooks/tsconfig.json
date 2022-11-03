@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "../../../dist/packages/open-native/hooks",
+    "outDir": "../../../dist/packages/core/hooks",
     "rootDirs": [".", ".."],
     "module": "commonjs",
     "target": "es2017",

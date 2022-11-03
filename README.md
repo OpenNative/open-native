@@ -5,13 +5,13 @@ Open Native brings drop-in support for native modules & libraries originally wri
 ## Installation
 
 ```
-npm install open-native
+npm install @open-native/core
 ```
 
 or
 
 ```
-yarn add open-native
+yarn add @open-native/core
 ```
 
 ## Android Setup
@@ -42,11 +42,11 @@ allprojects {
 
 ## Configure Webpack
 
-Alias `react-native` with `open-native`.
+Alias `react-native` with `@open-native/core`.
 
 ```js
 webpack.chainWebpack((config) => {
-  config.resolve.alias.set('react-native', 'open-native');
+  config.resolve.alias.set('react-native', '@open-native/core');
 });
 ```
 
@@ -60,7 +60,7 @@ add the following preset to your webpack config.
 
 ```js
 webpack.chainWebpack((config) => {
-  config.resolve.alias.set('react-native', 'open-native');
+  config.resolve.alias.set('react-native', '@open-native/core');
   config.module
     .rule('rnmodules')
     // Add each react-native module that gives errors in webpack build here

@@ -15,7 +15,7 @@ module.exports = {
     sourceExts: ['jsx', 'js', 'ts', 'tsx', 'cjs'],
     nodeModulesPaths,
     extraNodeModules: {
-      'open-native': path.join(__dirname, '../../packages/open-native'),
+      '@open-native/core': path.join(__dirname, '../../packages/core'),
       'react-native-module-test': path.join(
         __dirname,
         '../../packages/react-native-module-test'

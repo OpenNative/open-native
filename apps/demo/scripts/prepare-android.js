@@ -9,11 +9,12 @@ const readFile = (0, util_1.promisify)(fs.readFile);
 const writeFile = (0, util_1.promisify)(fs.writeFile);
 const exists = (0, util_1.promisify)(fs.exists);
 async function autolinkAndroid({ dependencies, projectDir, outputModulesJsonPath, outputModuleMapPath, outputPackagesJavaPath, outputIncludeGradlePath }) {
-  const packageJson = JSON.parse(
-    await readFile(path.resolve(__dirname, '../package.json'), {
-      encoding: 'utf8',
-    })
-  );
+  // when used as standard hook in plugin:
+  // const packageJson = JSON.parse(await readFile(path.resolve(__dirname, '../package.json'), {
+  //     encoding: 'utf8',
+  // }));
+  // when used for improved local development:
+  const packageJson = require('@open-native/core/package.json');
   const autolinkingInfo = (
     await Promise.all(
       dependencies.map((npmPackageName) =>
@@ -407,15 +408,15 @@ async function writePackagesJavaFile({ packages, outputPackagesJavaPath }) {
   });
 }
 async function writeIncludeGradleFile({ projectNames, outputIncludeGradlePath }) {
-  const contents = ['dependencies {', 'implementation project(":bridge")', ...projectNames.filter((projectName) => projectName !== 'open-native').map((projectName) => `implementation project(":${projectName}")`), '}'].join('\n');
+  const contents = ['dependencies {', 'implementation project(":bridge")', ...projectNames.filter((projectName) => projectName !== 'open-native_core').map((projectName) => `implementation project(":${projectName}")`), '}'].join('\n');
   return await writeFile(outputIncludeGradlePath, contents, {
     encoding: 'utf-8',
   });
 }
 async function writeSettingsGradleFile(projectDir) {
   const settingsGradlePath = projectDir + '/platforms/android/settings.gradle';
-  const settingsGradlePatch = `// Mark open-native patch
-def reactNativePkgJson = new File(["node", "--print", "require.resolve('open-native/package.json')"].execute(null, rootDir).text.trim())
+  const settingsGradlePatch = `// Mark open-native_core patch
+def reactNativePkgJson = new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim())
 def reactNativeDir = reactNativePkgJson.getParentFile().absolutePath
 import groovy.json.JsonSlurper
 def modules = new JsonSlurper().parse(new File(reactNativeDir, "react-android/bridge/modules.json"));
@@ -425,7 +426,7 @@ project(":react").projectDir = new File(reactNativeDir, "react-android/react/")
 include ':bridge'
 project(":bridge").projectDir = new File(reactNativeDir, "react-android/bridge/")
 
-def selfModuleName = "open-native"
+def selfModuleName = "open-native_core"
 modules.each {
   if (!it.androidProjectName.equals(selfModuleName)) {
     include ":\${it.androidProjectName}"
@@ -436,7 +437,7 @@ modules.each {
   const currentSettingsGradle = await readFile(settingsGradlePath, {
     encoding: 'utf-8',
   });
-  if (currentSettingsGradle.includes('Mark open-native patch')) return;
+  if (currentSettingsGradle.includes('Mark open-native_core patch')) return;
   return await writeFile(settingsGradlePath, [currentSettingsGradle, settingsGradlePatch].join('\n'), {
     encoding: 'utf-8',
   });
