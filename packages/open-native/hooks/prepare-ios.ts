@@ -154,6 +154,7 @@ async function mapPackageNameToAutolinkingInfo({
     name?: string;
     source_files?: string | string[];
     ios?: { source_files?: string | string[] };
+    header_dir?: string;
   } = JSON.parse(podspecContents);
 
   // The other platforms are 'osx', 'macos', 'tvos', and 'watchos'.
@@ -200,8 +201,11 @@ async function mapPackageNameToAutolinkingInfo({
   // though I don't know whether, conversely, hyphens are allowed when it's
   // off. This is just from my experience making this Cocoapod:
   // https://github.com/shirakaba/mecab-ko#swift-invocation
+
   const clangModuleName =
-    clangModuleNameSpecialCases[podspecName] || podspecName.replace(/-/g, '_');
+    clangModuleNameSpecialCases[podspecName] ||
+    podspecParsed.header_dir ||
+    podspecName.replace(/-/g, '_');
   const commentIdentifyingPodspec = `package: ${packageName}; podspec: ${podspecFileName}`;
   const podfileEntry = `pod '${podspecName}', path: "${podspecFilePath}"`;
 
@@ -674,9 +678,14 @@ async function writePodfile({
   outputPodfilePath: string;
 }) {
   const reactDeps = [
+    `pod 'ReactCommon', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/ReactCommon.podspec")`,
     `pod 'React-Core', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React-Core.podspec")`,
     `pod 'React-RCTLinking', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React-RCTLinking.podspec")`,
     `pod 'React', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/React.podspec")`,
+    `pod 'RCTRequired', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/RCTRequired.podspec")`,
+    `pod 'FBReactNativeSpec', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/FBReactNativeSpec.podspec")`,
+    `pod 'FBLazyVector', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/FBLazyVector.podspec")`,
+    `pod 'RCTTypeSafety', path: File.join(File.dirname(\`node --print "require.resolve('open-native/package.json')"\`), "platforms/ios/RCTTypeSafety.podspec")`,
   ];
 
   /**

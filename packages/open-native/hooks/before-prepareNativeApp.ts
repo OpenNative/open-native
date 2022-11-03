@@ -32,9 +32,10 @@ export = async function (hookArgs: HookArgs) {
   let packageNames: Array<string>;
 
   /**
-   * @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/open-native'
+   * @example '/Users/jamie/Documents/git/open-native/dist/packages/open-native'
    */
-  const packageDir = path.dirname(__dirname);
+
+  const packageDir = path.dirname(require.resolve('open-native/package.json'));
   console.log(
     `${logPrefix} Autolinking React Native ${normalizedPlatformName} native modules...`
   );

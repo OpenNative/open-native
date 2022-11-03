@@ -1,3 +1,4 @@
+# This file will be updated automatically by hooks/before-prepareNativeApp.js.
 require 'json'
 
 package = JSON.parse(File.read(File.join(__dir__, '../../package.json')))
@@ -17,4 +18,6 @@ Pod::Spec.new do |s|
   s.source_files  = "lib_community/**/*.{h,m,mm,swift}"
 
   s.dependency 'React-Core'
+  s.dependency 'react-native-module-test'
+  s.dependency 'A0Auth0'
 end

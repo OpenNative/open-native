@@ -9,7 +9,22 @@ const readFile = (0, util_1.promisify)(fs.readFile);
 const writeFile = (0, util_1.promisify)(fs.writeFile);
 const exists = (0, util_1.promisify)(fs.exists);
 async function autolinkAndroid({ dependencies, projectDir, outputModulesJsonPath, outputModuleMapPath, outputPackagesJavaPath, outputIncludeGradlePath }) {
-  const autolinkingInfo = (await Promise.all(dependencies.map((npmPackageName) => mapPackageNameToAutolinkingInfo({ npmPackageName, projectDir }))))
+  const packageJson = JSON.parse(
+    await readFile(path.resolve(__dirname, '../package.json'), {
+      encoding: 'utf8',
+    })
+  );
+  const autolinkingInfo = (
+    await Promise.all(
+      dependencies.map((npmPackageName) =>
+        mapPackageNameToAutolinkingInfo({
+          npmPackageName,
+          projectDir,
+          ownPackageName: packageJson.name,
+        })
+      )
+    )
+  )
     .filter((p) => !!p)
     .flat(1)
     .map(({ androidProjectName, modules, npmPackageName, packageImportPath, packageInstance, sourceDir }) => ({
@@ -62,18 +77,23 @@ async function autolinkAndroid({ dependencies, projectDir, outputModulesJsonPath
   return autolinkingInfo.map(({ packageName }) => packageName);
 }
 exports.autolinkAndroid = autolinkAndroid;
-async function mapPackageNameToAutolinkingInfo({ npmPackageName, projectDir, userConfig = {} }) {
+async function mapPackageNameToAutolinkingInfo({ npmPackageName, ownPackageName, projectDir, userConfig = {} }) {
   const npmPackagePath = path.dirname(require.resolve(`${npmPackageName}/package.json`, { paths: [projectDir] }));
-  const sourceDir = path.join(npmPackagePath, userConfig.sourceDir || 'android');
+  const isCore = npmPackageName === ownPackageName;
+  const sourceDir = path.join(npmPackagePath, isCore ? 'react-android/react/src/main/java/com/facebook' : userConfig.sourceDir || 'android');
   if (!(await exists(sourceDir))) {
     return;
   }
-  const manifestPath = userConfig.manifestPath ? path.join(sourceDir, userConfig.manifestPath) : await findManifest(sourceDir);
+  const manifestPath = isCore ? path.join(npmPackagePath, 'react-android/react/src/main/AndroidManifest.xml') : userConfig.manifestPath ? path.join(sourceDir, userConfig.manifestPath) : await findManifest(sourceDir);
   if (!manifestPath) {
     return;
   }
   const androidPackageName = userConfig.packageName || (await getAndroidPackageName(manifestPath));
-  const { modules, packageClassName } = await parseSourceFiles(sourceDir);
+  const parsed = await parseSourceFiles(sourceDir);
+  if (!parsed) {
+    return null;
+  }
+  const { modules, packageClassName } = parsed;
   if (!packageClassName) {
     return null;
   }
@@ -82,16 +102,11 @@ async function mapPackageNameToAutolinkingInfo({ npmPackageName, projectDir, use
   const buildTypes = userConfig.buildTypes || [];
   const dependencyConfiguration = userConfig.dependencyConfiguration;
   const libraryName = userConfig.libraryName || findLibraryName(npmPackagePath, sourceDir);
-  const componentDescriptors = userConfig.componentDescriptors || (await findComponentDescriptors(npmPackagePath));
+  const componentDescriptors = isCore ? [] : userConfig.componentDescriptors || (await findComponentDescriptors(npmPackagePath));
   const androidMkPath = userConfig.androidMkPath ? path.join(sourceDir, userConfig.androidMkPath) : path.join(sourceDir, 'build/generated/source/codegen/jni/Android.mk');
   const cmakeListsPath = userConfig.cmakeListsPath ? path.join(sourceDir, userConfig.cmakeListsPath) : path.join(sourceDir, 'build/generated/source/codegen/jni/CMakeLists.txt');
-  const modulesWithImportNames = modules.map(({ moduleClassName, exportedMethods, exportedModuleName, exportsConstants }) => {
-    const moduleImportName = `${packageImportPath
-      .replace(';', '')
-      .replace(/import\s+/, '')
-      .split('.')
-      .slice(0, -1)
-      .join('.')}.${moduleClassName}`;
+  const modulesWithImportNames = modules.map(({ moduleClassName, exportedMethods, exportedModuleName, exportsConstants, moduleImportPath }) => {
+    const moduleImportName = `${moduleImportPath}.${moduleClassName}`;
     const moduleClassNameJs = moduleClassName;
     const moduleImportNameJs = `${packageImportPath
       .replace(';', '')
@@ -162,6 +177,7 @@ function validateAndroidPackageName(packageName) {
   return /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/.test(packageName);
 }
 async function parseSourceFiles(folder) {
+  var _a;
   const filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
   const files = await Promise.all(filePaths.map((filePath) => readFile(path.join(folder, filePath), 'utf8')));
   let packageDeclarationMatch = null;
@@ -172,71 +188,113 @@ async function parseSourceFiles(folder) {
     }
     const moduleDeclarationMatch = matchClassDeclarationForModule(file);
     if (moduleDeclarationMatch) {
+      const [moduleClassSignature] = moduleDeclarationMatch;
+      const superclassName = (_a = moduleClassSignature.match(/(?:extends\s+|:)(\w+)/)) === null || _a === void 0 ? void 0 : _a[1];
+      if (!superclassName) {
+        continue;
+      }
       moduleDeclarationMatches.push({
         contents: file,
         match: moduleDeclarationMatch,
+        superclassName,
       });
     }
   }
   if (!packageDeclarationMatch) {
     return null;
   }
+  const reactMethods = {};
+  const modules = moduleDeclarationMatches
+    .sort((a, b) => {
+      if (a.superclassName === 'ReactContextBaseJavaModule') {
+        return -1;
+      }
+      if (b.superclassName === 'ReactContextBaseJavaModule') {
+        return 1;
+      }
+      return 0;
+    })
+    .map(({ contents: moduleContents, match: moduleDeclarationMatch, superclassName }) => {
+      var _a;
+      const [, moduleClassName] = moduleDeclarationMatch;
+      if (!reactMethods[moduleClassName]) {
+        reactMethods[moduleClassName] = new Set();
+      }
+      const potentialMethodMatches = (_a = moduleContents.match(ANDROID_METHOD_REGEX)) !== null && _a !== void 0 ? _a : [];
+      const exportsConstants = /@Override\s+.*\s+getConstants\(\s*\)\s*{/m.test(moduleContents);
+      const exportedMethods = potentialMethodMatches
+        .map((raw) => {
+          var _a, _b;
+          raw = raw.replace(/\s+/g, ' ');
+          const hasReactMethodAnnotation = raw.includes('@ReactMethod ');
+          const isBlockingSynchronousMethod = /isBlockingSynchronousMethod\s*=\s*true/.test(raw.split(/\)/).find((split) => split.includes('@ReactMethod(')));
+          raw = 'public' + raw.split('public')[1];
+          const signature = raw.replace(/\s*[{;]$/, '');
+          const [signatureBeforeParams, signatureFromParams = ''] = signature.split(/\(/);
+          const signatureBeforeParamsSplit = signatureBeforeParams.split(/\s+/);
+          const methodNameJava = signatureBeforeParamsSplit.slice(-1)[0];
+          const returnType = signatureBeforeParamsSplit.slice(-2)[0];
+          const methodTypesRaw = [
+            returnType,
+            ...signatureFromParams
+              .replace(/\)$/, '')
+              .trim()
+              .replace(/<.*>/g, '')
+              .split(/\s*,\s*/)
+              .filter((param) => param),
+          ];
+          const methodTypesParsed = methodTypesRaw.map((t) => parseJavaTypeToEnum(t));
+          if (hasReactMethodAnnotation) {
+            (_a = reactMethods[moduleClassName]) === null || _a === void 0 ? void 0 : _a.add(methodNameJava);
+          } else if (!((_b = reactMethods[superclassName]) === null || _b === void 0 ? void 0 : _b.has(methodNameJava))) {
+            return null;
+          }
+          return {
+            exportedMethodName: methodNameJava,
+            isBlockingSynchronousMethod,
+            methodNameJava,
+            methodNameJs: methodNameJava,
+            methodTypesParsed,
+            methodTypesRaw,
+            returnType,
+            signature,
+          };
+        })
+        .filter((obj) => (obj === null || obj === void 0 ? void 0 : obj.signature));
+      const exportedModuleName = getModuleName(moduleContents);
+      const moduleImportPath = getModuleImportPath(moduleContents);
+      return {
+        exportedMethods,
+        exportedModuleName,
+        exportsConstants,
+        moduleClassName,
+        moduleImportPath,
+      };
+    })
+    .filter(({ exportedModuleName }) => exportedModuleName);
   const [, packageClassName] = packageDeclarationMatch;
-  const modules = moduleDeclarationMatches.map(({ contents: moduleContents, match: moduleDeclarationMatch }) => {
-    var _a;
-    const [, moduleClassName] = moduleDeclarationMatch;
-    const exportedMethodMatches = (_a = moduleContents.match(ANDROID_METHOD_REGEX)) !== null && _a !== void 0 ? _a : [];
-    const exportsConstants = /@Override\s+.*\s+getConstants\(\s*\)\s*{/m.test(moduleContents);
-    const exportedMethods = exportedMethodMatches
-      .map((raw) => {
-        raw = raw.replace(/\s+/g, ' ');
-        const isBlockingSynchronousMethod = /isBlockingSynchronousMethod\s*=\s*true/.test(raw.split(/\)/).find((split) => split.includes('@ReactMethod(')));
-        raw = raw.split(/@[a-zA-Z]*\s+/).slice(-1)[0];
-        const signature = raw.split(/\s*{/)[0];
-        const [signatureBeforeParams, signatureFromParams = ''] = signature.split(/\(/);
-        const signatureBeforeParamsSplit = signatureBeforeParams.split(/\s+/);
-        const methodNameJava = signatureBeforeParamsSplit.slice(-1)[0];
-        const returnType = signatureBeforeParamsSplit.slice(-2)[0];
-        const methodTypesRaw = [
-          returnType,
-          ...signatureFromParams
-            .replace(/\)$/, '')
-            .trim()
-            .replace(/<.*>/g, '')
-            .split(/\s*,\s*/)
-            .filter((param) => param),
-        ];
-        return {
-          exportedMethodName: methodNameJava,
-          isBlockingSynchronousMethod,
-          methodNameJava,
-          methodNameJs: methodNameJava,
-          methodTypesParsed: methodTypesRaw.map((t) => parseJavaTypeToEnum(t)),
-          methodTypesRaw,
-          returnType,
-          signature,
-        };
-      })
-      .filter((obj) => obj.signature);
-    const exportedModuleName = getModuleName(moduleContents);
-    return {
-      exportedMethods,
-      exportedModuleName,
-      exportsConstants,
-      moduleClassName,
-    };
-  });
   return {
     modules,
     packageClassName,
   };
 }
+const MODULE_IMPORT_PATH_REGEX = /(?<=package ).*(?=;)/gm;
+function getModuleImportPath(moduleContents) {
+  var _a;
+  return (_a = moduleContents.match(MODULE_IMPORT_PATH_REGEX)) === null || _a === void 0 ? void 0 : _a[0];
+}
 function getModuleName(moduleContents) {
   var _a, _b;
   const getNameFunctionReturnValue = (_b = (_a = moduleContents.match(ANDROID_GET_NAME_FN_REGEX)) === null || _a === void 0 ? void 0 : _a[0].match(ANDROID_MODULE_NAME_REGEX)) === null || _b === void 0 ? void 0 : _b[0].trim();
+  if (!getNameFunctionReturnValue) {
+    return null;
+  }
   if (getNameFunctionReturnValue.startsWith(`"`)) return getNameFunctionReturnValue.replace(/"/g, '');
   const variableDefinitionLine = moduleContents.split('\n').find((line) => line.includes(`String ${getNameFunctionReturnValue}`));
   return variableDefinitionLine.split(`"`)[1];
+}
+function hashMethod(methodName, methodTypesParsed) {
+  return `${methodName}${JSON.stringify(methodTypesParsed)}`;
 }
 function matchClassDeclarationForPackage(file) {
   const nativeModuleMatch = file.match(/class\s+(\w+[^(\s]*)[\s\w():]*(\s+implements\s+|:)[\s\w():,]*[^{]*ReactPackage/);
@@ -247,6 +305,14 @@ function matchClassDeclarationForPackage(file) {
   }
 }
 function matchClassDeclarationForModule(file) {
+  const reactModuleMatch = file.match(/@ReactModule[\s\S]*class\s+(\w+[^(\s]*)[\s\w():]*.*{/);
+  if (reactModuleMatch) {
+    return reactModuleMatch;
+  }
+  const turboModuleMatch = /import\s+com\.facebook\.react\.turbomodule\.core\.interfaces\.TurboModule\s*;/.test(file) && file.match(/class\s+(\w+[^(\s]*)[\s\w():]*(\s+implements\s+|:)[\s\w():,]*[^{]*TurboModule/);
+  if (turboModuleMatch) {
+    return turboModuleMatch;
+  }
   return file.match(/class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ReactContextBaseJavaModule/);
 }
 function makeAndroidProjectName(npmPackageName) {
@@ -284,7 +350,7 @@ async function findComponentDescriptors(packageRoot) {
     nodir: true,
   });
   const contentsArr = await Promise.all(filepaths.map((filePath) => readFile(path.join(packageRoot, filePath), 'utf8')));
-  const codegenComponent = contentsArr.map(extractComponentDescriptors).filter(Boolean);
+  const codegenComponent = contentsArr.map(extractComponentDescriptors).filter((c) => !!c);
   return Array.from(new Set(codegenComponent));
 }
 exports.findComponentDescriptors = findComponentDescriptors;
@@ -341,7 +407,7 @@ async function writePackagesJavaFile({ packages, outputPackagesJavaPath }) {
   });
 }
 async function writeIncludeGradleFile({ projectNames, outputIncludeGradlePath }) {
-  const contents = ['dependencies {', 'implementation project(":bridge")', ...projectNames.map((projectName) => `implementation project(":${projectName}")`), '}'].join('\n');
+  const contents = ['dependencies {', 'implementation project(":bridge")', ...projectNames.filter((projectName) => projectName !== 'open-native').map((projectName) => `implementation project(":${projectName}")`), '}'].join('\n');
   return await writeFile(outputIncludeGradlePath, contents, {
     encoding: 'utf-8',
   });
@@ -359,10 +425,14 @@ project(":react").projectDir = new File(reactNativeDir, "react-android/react/")
 include ':bridge'
 project(":bridge").projectDir = new File(reactNativeDir, "react-android/bridge/")
 
+def selfModuleName = "open-native"
 modules.each {
-  include ":\${it.androidProjectName}"
-  project(":\${it.androidProjectName}").projectDir = new File(it.absolutePath)
-}`;
+  if (!it.androidProjectName.equals(selfModuleName)) {
+    include ":\${it.androidProjectName}"
+    project(":\${it.androidProjectName}").projectDir = new File(it.absolutePath)
+  }
+}
+`;
   const currentSettingsGradle = await readFile(settingsGradlePath, {
     encoding: 'utf-8',
   });
@@ -376,7 +446,7 @@ async function writeModuleMapFile({ moduleMap, outputModuleMapPath }) {
     encoding: 'utf-8',
   });
 }
-const ANDROID_METHOD_REGEX = /@ReactMethod+((.|\n)*?) {/gm;
+const ANDROID_METHOD_REGEX = /(?:@Override|@ReactMethod)[\s\S]*?[{;]/gm;
 const ANDROID_GET_NAME_FN_REGEX = /public String getName\(\)[\s\S]*?\{[^}]*\}/gm;
 const ANDROID_MODULE_NAME_REGEX = /(?<=return ).*(?=;)/gm;
 function parseJavaTypeToEnum(javaType) {

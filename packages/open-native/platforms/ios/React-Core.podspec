@@ -1,7 +1,7 @@
 require 'json'
 
 package = JSON.parse(File.read(File.join(__dir__, '../../package.json')))
-
+version = package['version']
 header_subspecs = {
   'RCTLinkingHeaders'           => 'lib_core/Libraries/LinkingIOS/*.h',
 }
@@ -16,9 +16,12 @@ Pod::Spec.new do |s|
   s.homepage     = package['homepage']
   s.platforms    = { :ios => "12.4" }
   s.source       = { :git => "https://github.com/OpenNative/open-native.git", :tag => "v#{s.version}" }
+  
+  s.dependency "ReactCommon", version
 
   s.pod_target_xcconfig    = {
     "DEFINES_MODULE" => "YES",
+    "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
   }
   s.user_target_xcconfig   = {
     "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/Headers/Private/React-Core\"",

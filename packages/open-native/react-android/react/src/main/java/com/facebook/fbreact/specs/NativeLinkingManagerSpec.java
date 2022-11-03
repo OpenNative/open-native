@@ -18,11 +18,10 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReactModuleWithSpec;
-import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.turbomodule.core.interfaces.TurboModule;
 
-public abstract class NativeIntentAndroidSpec extends ReactContextBaseJavaModule implements ReactModuleWithSpec, TurboModule {
-  public NativeIntentAndroidSpec(ReactApplicationContext reactContext) {
+public abstract class NativeLinkingManagerSpec extends ReactContextBaseJavaModule implements ReactModuleWithSpec, TurboModule {
+  public NativeLinkingManagerSpec(ReactApplicationContext reactContext) {
     super(reactContext);
   }
 
@@ -44,5 +43,9 @@ public abstract class NativeIntentAndroidSpec extends ReactContextBaseJavaModule
 
   @ReactMethod
   @DoNotStrip
-  public abstract void sendIntent(String action, ReadableArray extras, Promise promise);
+  public abstract void addListener(String eventName);
+
+  @ReactMethod
+  @DoNotStrip
+  public abstract void removeListeners(double count);
 }
