@@ -58,42 +58,61 @@ export function getCurrentBridge() {
   return global.reactNativeBridgeAndroid;
 }
 
+function getActivtyName(activity: android.app.Activity) {
+  return activity.getClass().getSimpleName();
+}
+
+let mMainActivityName: string;
 function attachActivityLifecycleListeners(reactContext: ReactContext) {
   reactContext.setCurrentActivity(getActivity());
-  console.log(reactContext.getCurrentActivity());
   Application.android.on(
     AndroidApplication.activityNewIntentEvent,
     (args: AndroidActivityNewIntentEventData) => {
-      console.log('intent event');
-      reactContext.onNewIntent(args.activity, args.intent);
+      if (
+        !mMainActivityName ||
+        mMainActivityName === getActivtyName(args.activity)
+      ) {
+        mMainActivityName = getActivtyName(args.activity);
+        reactContext.onNewIntent(args.activity, args.intent);
+      }
     }
   );
   Application.android.on(
     AndroidApplication.activityCreatedEvent,
     (args: AndroidActivityBundleEventData) => {
-      console.log('activity created');
-      reactContext.onHostResume(args.activity);
+      console.log('activity created', args.activity);
+      const activityName = getActivtyName(args.activity);
+      if (!mMainActivityName || mMainActivityName === activityName) {
+        mMainActivityName = activityName;
+        reactContext.onHostResume(args.activity);
+      }
     }
   );
   Application.android.on(
     AndroidApplication.activityResumedEvent,
     (args: AndroidActivityEventData) => {
-      console.log('activity resumed');
-      reactContext.onHostResume(args.activity);
+      console.log('activity resumed', args.activity);
+      const activityName = getActivtyName(args.activity);
+      if (!mMainActivityName || mMainActivityName === activityName) {
+        mMainActivityName = activityName;
+        reactContext.onHostResume(args.activity);
+      }
     }
   );
   Application.android.on(
     AndroidApplication.activityPausedEvent,
     (args: AndroidActivityEventData) => {
-      console.log('activity paused');
-      reactContext.onHostPause();
+      console.log('activity paused', args.activity);
+      if (mMainActivityName === getActivtyName(args.activity)) {
+        reactContext.onHostPause();
+      }
     }
   );
   Application.android.on(
     AndroidApplication.activityDestroyedEvent,
     (args: AndroidActivityEventData) => {
-      if (reactContext.getCurrentActivity() !== getActivity()) {
-        console.log('activity destroyed');
+      console.log('activity destroy', args.activity);
+      if (mMainActivityName === getActivtyName(args.activity)) {
         reactContext.onHostDestroy();
       }
     }
@@ -101,13 +120,38 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
   Application.android.on(
     AndroidApplication.activityResultEvent,
     (args: AndroidActivityResultEventData) => {
-      console.log('activity result');
-      reactContext.onActivityResult(
-        args.activity,
-        args.requestCode,
-        args.resultCode,
-        args.intent
+      if (args.activity.getIntent().getData()) {
+        reactContext.onActivityResult(
+          args.activity,
+          args.requestCode,
+          args.resultCode,
+          args.activity.getIntent()
+        );
+        return;
+      }
+      const callback = (_args: Partial<AndroidActivityNewIntentEventData>) => {
+        reactContext.onActivityResult(
+          args.activity,
+          args.requestCode,
+          _args.intent.getData() ? -1 : args.resultCode,
+          _args.intent
+        );
+        Application.android.off(
+          AndroidApplication.activityNewIntentEvent,
+          callback
+        );
+      };
+      Application.android.on(
+        AndroidApplication.activityNewIntentEvent,
+        callback
       );
+      setTimeout(() => {
+        Application.android.off(
+          AndroidApplication.activityNewIntentEvent,
+          callback
+        );
+        callback({ intent: args.activity.getIntent() });
+      }, 1000);
     }
   );
 }
