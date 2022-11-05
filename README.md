@@ -1,5 +1,3 @@
-# open-native
-
 Open Native brings drop-in support for native modules & libraries originally written for React Native to NativeScript.
 
 ## Installation
@@ -50,10 +48,10 @@ webpack.chainWebpack((config) => {
 });
 ```
 
-If you install a react-natie module & get errors in webpack, install `module:metro-react-native-babel-preset` via npm/yarn.
+If you install a react-natie module & get errors in webpack, install `metro-react-native-babel-preset` via npm/yarn.
 
 ```
-npm install module:metro-react-native-babel-preset
+npm install -D metro-react-native-babel-preset
 ```
 
 add the following preset to your webpack config.

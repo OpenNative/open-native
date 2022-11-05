@@ -58,7 +58,7 @@ export function getCurrentBridge() {
   return global.reactNativeBridgeAndroid;
 }
 
-function getActivtyName(activity: android.app.Activity) {
+function getActivityName(activity: android.app.Activity) {
   return activity.getClass().getSimpleName();
 }
 
@@ -70,9 +70,9 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
     (args: AndroidActivityNewIntentEventData) => {
       if (
         !mMainActivityName ||
-        mMainActivityName === getActivtyName(args.activity)
+        mMainActivityName === getActivityName(args.activity)
       ) {
-        mMainActivityName = getActivtyName(args.activity);
+        mMainActivityName = getActivityName(args.activity);
         reactContext.onNewIntent(args.activity, args.intent);
       }
     }
@@ -81,7 +81,7 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
     AndroidApplication.activityCreatedEvent,
     (args: AndroidActivityBundleEventData) => {
       console.log('activity created', args.activity);
-      const activityName = getActivtyName(args.activity);
+      const activityName = getActivityName(args.activity);
       if (!mMainActivityName || mMainActivityName === activityName) {
         mMainActivityName = activityName;
         reactContext.onHostResume(args.activity);
@@ -92,7 +92,7 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
     AndroidApplication.activityResumedEvent,
     (args: AndroidActivityEventData) => {
       console.log('activity resumed', args.activity);
-      const activityName = getActivtyName(args.activity);
+      const activityName = getActivityName(args.activity);
       if (!mMainActivityName || mMainActivityName === activityName) {
         mMainActivityName = activityName;
         reactContext.onHostResume(args.activity);
@@ -103,7 +103,7 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
     AndroidApplication.activityPausedEvent,
     (args: AndroidActivityEventData) => {
       console.log('activity paused', args.activity);
-      if (mMainActivityName === getActivtyName(args.activity)) {
+      if (mMainActivityName === getActivityName(args.activity)) {
         reactContext.onHostPause();
       }
     }
@@ -112,7 +112,7 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
     AndroidApplication.activityDestroyedEvent,
     (args: AndroidActivityEventData) => {
       console.log('activity destroy', args.activity);
-      if (mMainActivityName === getActivtyName(args.activity)) {
+      if (mMainActivityName === getActivityName(args.activity)) {
         reactContext.onHostDestroy();
       }
     }
