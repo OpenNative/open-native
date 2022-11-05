@@ -1,7 +1,7 @@
 {
   "name": "@open-native/core",
-  "version": "1.0.0-alpha.1",
-  "description": "Open Native brings drop-in support for native modules & libraries originally written for React Native to NativeScript.",
+  "version": "1.0.0-alpha.2",
+  "description": "Open Native helps cross platform communities work better together.",
   "main": "index",
   "types": "index.d.ts",
   "scripts": {

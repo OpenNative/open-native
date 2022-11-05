@@ -1,15 +1,9 @@
-Open Native brings drop-in support for native modules & libraries originally written for React Native to NativeScript.
+Open Native is an effort to bring cross platform communities together & help them collaborate and share work.
 
 ## Installation
 
 ```
 npm install @open-native/core
-```
-
-or
-
-```
-yarn add @open-native/core
 ```
 
 ## Android Setup
