@@ -1,7 +1,7 @@
 {
   "name": "@open-native/core",
-  "version": "1.0.0-alpha.1",
-  "description": "Open Native brings drop-in support for native modules & libraries originally written for React Native to NativeScript.",
+  "version": "1.0.0-alpha.0",
+  "description": "Open Native helps cross platform communities work better together.",
   "main": "index",
   "types": "index.d.ts",
   "nativescript": {
@@ -15,11 +15,11 @@
     "url": "https://github.com/OpenNative/open-native.git"
   },
   "keywords": [
-    "NativeScript",
     "JavaScript",
     "TypeScript",
     "iOS",
     "Android",
+    "NativeScript",
     "React Native",
     "Open Native"
   ],
@@ -32,6 +32,5 @@
   },
   "license": "MIT",
   "homepage": "https://github.com/OpenNative/open-native",
-  "readmeFilename": "README.md",
-  "bootstrapper": "@nativescript/plugin-seed"
+  "readmeFilename": "README.md"
 }
