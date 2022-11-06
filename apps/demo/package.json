@@ -4,10 +4,11 @@
   "license": "SEE LICENSE IN <your-license-filename>",
   "repository": "<fill-your-repository-here>",
   "dependencies": {
-    "@open-native/core": "file:../../packages/core",
-    "react-native-module-test": "file:../../packages/react-native-module-test",
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
-    "react-native-auth0": "2.13.3"
+    "@open-native/core": "file:../../packages/core",
+    "@react-native-community/geolocation": "^3.0.3",
+    "react-native-auth0": "2.13.3",
+    "react-native-module-test": "file:../../packages/react-native-module-test"
   },
   "devDependencies": {
     "@nativescript/android": "~8.4.0-alpha.6",
