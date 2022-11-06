@@ -1,0 +1,28 @@
+const path = require('path');
+const fs = require('fs');
+
+// For ease of development (e.g. to facilitate watch mode and hot reloading) in
+// the monorepo, and due to the current limitations of hooks, we settled on a
+// workflow that involves generating certain files into source directories
+// (rather than dist).
+//
+// The downside of this workflow is that, rather than committing these files in
+// their ready-to-publish placeholder state into the repo, we must instruct any
+// contributors to run this script upon repo setup (and/or checking out a
+// branch) to initialises them into their 'empty' (i.e. no native modules found)
+// state. They may be subsequently overwritten if doing local development in the
+// monorepo.
+//
+// At publishing time, the contributor must be sure to restore them to their
+// placeholder state by running this script again (or ensure to use the command
+// `nx run core:build.npm` as part of the publishing flow, as it runs the
+// script for you).
+const monorepoRoot = path.resolve(__dirname, '../..');
+
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/android/include.gradle'), '', 'utf-8');
+
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/react-android/bridge/src/main/java/com/bridge/Packages.java'), '', 'utf-8');
+
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/react-android/bridge/modules.json'), '[]\n', 'utf-8');
+
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/react-android/bridge/modulemap.json'), '{}\n', 'utf-8');

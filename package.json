@@ -4,7 +4,10 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "husky install && npx ts-patch install && patch-package",
-    "setup": "npx rimraf node_modules package-lock.json dist tmp yarn.lock && yarn config set ignore-engines true && yarn",
+    "setup": "setup:clean && setup:install && setup:regen",
+    "setup:clean": "npx rimraf node_modules package-lock.json dist tmp yarn.lock",
+    "setup:regen": "node tools/scripts/reset-generated-files.js",
+    "setup:install": "yarn config set ignore-engines true && yarn",
     "start": "nps",
     "add": "nx g @nativescript/plugin-tools:add-package",
     "add-angular": "nx g @nativescript/plugin-tools:add-angular",
