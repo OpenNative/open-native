@@ -44,5 +44,8 @@
   "license": "MIT",
   "homepage": "https://github.com/OpenNative/open-native",
   "readmeFilename": "README.md",
+  "dependencies": {
+    "ts-morph": "^16.0.0"
+  },
   "bootstrapper": "@nativescript/plugin-seed"
 }
