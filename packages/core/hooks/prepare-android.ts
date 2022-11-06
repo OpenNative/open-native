@@ -441,7 +441,7 @@ async function parseSourceFiles(folder: string) {
     [moduleClassName: string]: Set<string>;
   } = {};
 
-  const modules = moduleDeclarationMatches
+  let modules = moduleDeclarationMatches
     // Sort all direct extensions of ReactContextBaseJavaModule (base classes)
     // before subclasses, so that we can look up which overridden methods are
     // overriding ReactClass.
@@ -614,26 +614,42 @@ async function parseSourceFiles(folder: string) {
           moduleImportPath,
         };
       }
-    )
-    // Filter out specs (identified by having `null` for exportedModuleName) now
-    // that they've done their job of informing of any @ReactMethod-annotated
-    // methods to know about in subclasses
-    .filter(({ exportedModuleName }) => exportedModuleName);
-  const [, packageClassName] = packageDeclarationMatch;
-  const filteredModules = [];
-  for (const mod of modules) {
-    const matchingIndex = filteredModules.findIndex(
-      (m) => m.exportedModuleName == mod.exportedModuleName
     );
-    if (
-      matchingIndex > -1 &&
-      filteredModules[matchingIndex].exportedMethods.length === 0
-    ) {
-      filteredModules.splice(matchingIndex, 1, mod);
-    } else {
-      filteredModules.push(mod);
+
+  // We reassign modules (rather than continuing to chain it) here purely so
+  // that we can refer to `typeof modules` to express the complex type through
+  // inference.
+  modules = modules.reduce<typeof modules>((acc, mod) => {
+    if (!mod.exportedModuleName) {
+      // Filter out specs (identified by having `null` for exportedModuleName)
+      // now that they've done their job of informing of any
+      // @ReactMethod-annotated methods to know about in subclasses.
+      return acc;
     }
-  }
+
+    const matchingIndex = acc.findIndex(
+      (m) => m.exportedModuleName === mod.exportedModuleName
+    );
+
+    // If there's no previous module bearing this exportedModuleName, simply
+    // include it.
+    if (matchingIndex === -1) {
+      acc.push(mod);
+      return acc;
+    }
+
+    // If there *is* a previous module bearing this exportedModuleName, but it
+    // has no exportedMethods (because it holds the implementation but not the
+    // @ReactMethod annotations), then swap it for the one that does.
+    if (!acc[matchingIndex].exportedMethods.length) {
+      acc.splice(matchingIndex, 1, mod);
+    }
+
+    return acc;
+  }, []);
+
+  const [, packageClassName] = packageDeclarationMatch;
+
   return {
     modules,
     packageClassName,
