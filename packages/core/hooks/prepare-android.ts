@@ -645,7 +645,7 @@ function getModuleImportPath(moduleContents: string) {
  * @example 'IntentAndroid', for the class named 'IntentModule'.
  */
 function getModuleName(moduleContents: string): string | null {
-  const getNameFunctionReturnValue = moduleContents
+  let getNameFunctionReturnValue = moduleContents
     .match(ANDROID_GET_NAME_FN_REGEX)?.[0]
     .match(ANDROID_MODULE_NAME_REGEX)?.[0]
     .trim();
@@ -658,6 +658,10 @@ function getModuleName(moduleContents: string): string | null {
 
   if (getNameFunctionReturnValue.startsWith(`"`))
     return getNameFunctionReturnValue.replace(/"/g, '');
+
+  // Handle scoped variables such as RNTestCaseScopedNameVariable.NAME;
+  if (getNameFunctionReturnValue.includes('.'))
+    getNameFunctionReturnValue = getNameFunctionReturnValue.split('.')[1];
 
   const variableDefinitionLine = moduleContents
     .split('\n')
