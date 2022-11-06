@@ -264,8 +264,8 @@ async function mapPackageNameToAutolinkingInfo({
       moduleImportPath,
     }) => {
       const moduleImportName = `${moduleImportPath}.${moduleClassName}`;
-      // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java class
-      // names for JS as far as I know.
+      // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java
+      // class names for JS as far as I know.
       const moduleClassNameJs = moduleClassName;
       const moduleImportNameJs = `${packageImportPath
         .replace(';', '')
@@ -282,7 +282,9 @@ async function mapPackageNameToAutolinkingInfo({
         exportsConstants,
         /** @example 'RNTestModule' - the name of the Java class in Java */
         moduleClassName,
-        /** @example 'RNTestModule' - the name of the Java class in NativeScript */
+        /**
+         * @example 'RNTestModule' - the name of the Java class in NativeScript.
+         */
         moduleClassNameJs,
         /**
          * The name of the Java class in Java, with all namespacing.
@@ -473,7 +475,7 @@ async function parseSourceFiles(folder: string) {
          * A ReactMethod directly declared:
          * ['@ReactMethod\n@Profile\n   public void testCallback(Callback callback) {']
          * @example
-         * A method with an @Override annotation - we have to do a second pass to
+         * A method with an `@Override` annotation - we have to do a second pass to
          * check whether it's overriding a method that was annotated as a
          * ReactMethod on the superclass:
          * ['@Override\n@DoNotStrip\n   public abstract void getInitialURL(Promise promise);']
@@ -547,8 +549,8 @@ async function parseSourceFiles(folder: string) {
 
             /**
              * Erase generic args and then split around commas to get params.
-             * We filter out falsy params because it's possible to get ['void', '']
-             * when the signature has no params.
+             * We filter out falsy params because it's possible to get
+             * ['void', ''] when the signature has no params.
              * @example ['void', 'Callback callback']
              * @example ['void', 'Promise promise']
              * @example ['void', 'ReadableMap', 'ReadableArray', 'Promise promise']
@@ -572,10 +574,10 @@ async function parseSourceFiles(folder: string) {
             }
             // Discard any @Override methods for which we haven't encountered a
             // corresponding @ReactMethod-annotated one in the superclass. We
-            // don't bother maintaining a chain of subclasses and digging through
-            // them, as the general cases should be either a direct subclass of
-            // ReactContextBaseJavaModule or a subclass of a spec (that itself
-            // directly subclasses ReactContextBaseJavaModule).
+            // don't bother maintaining a chain of subclasses and digging
+            // through them, as the general cases should be either a direct
+            // subclass of ReactContextBaseJavaModule or a subclass of a spec
+            // (that itself directly subclasses ReactContextBaseJavaModule).
             else if (!reactMethods[superclassName]?.has(methodNameJava)) {
               return null;
             }
