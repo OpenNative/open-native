@@ -504,11 +504,14 @@ function extractInterfaces(sourceCode: string) {
     .map((exportedModuleName) => {
       const { jsName, methods } =
         moduleNamesToMethodDescriptions[exportedModuleName];
-      return [
-        `@interface ${jsName} (TNS${jsName})`,
-        methods.map((record) => record.signature).join('\n\n'),
-        '@end',
-      ].join('\n');
+
+      return !methods || methods.length === 0
+        ? ''
+        : [
+            `@interface ${jsName} (TNS${jsName})`,
+            methods.map((record) => record.signature).join('\n\n'),
+            '@end',
+          ].join('\n');
     })
     .join('\n\n');
 
