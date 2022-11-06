@@ -30,6 +30,7 @@ const exists = promisify(fs.exists);
  * @returns a list of package names in which podspecs were found and autolinked.
  */
 export async function autolinkAndroid({
+  packageDir,
   dependencies,
   projectDir,
   outputModulesJsonPath,
@@ -37,6 +38,7 @@ export async function autolinkAndroid({
   outputPackagesJavaPath,
   outputIncludeGradlePath,
 }: {
+  packageDir: string;
   dependencies: string[];
   projectDir: string;
   outputModulesJsonPath: string;
@@ -45,11 +47,10 @@ export async function autolinkAndroid({
   outputIncludeGradlePath: string;
 }) {
   const packageJson = JSON.parse(
-    await readFile(path.resolve(__dirname, '../package.json'), {
+    await readFile(path.join(packageDir, '/package.json'), {
       encoding: 'utf8',
     })
   );
-
   const autolinkingInfo = (
     await Promise.all(
       dependencies.map((npmPackageName) =>
@@ -80,7 +81,6 @@ export async function autolinkAndroid({
         packageName: npmPackageName,
       })
     );
-
   await Promise.all([
     await writeSettingsGradleFile(projectDir),
     await writeModulesJsonFile({
@@ -190,7 +190,6 @@ async function mapPackageNameToAutolinkingInfo({
    * standard native module.
    */
   const isCore = npmPackageName === ownPackageName;
-
   const sourceDir = path.join(
     npmPackagePath,
     isCore

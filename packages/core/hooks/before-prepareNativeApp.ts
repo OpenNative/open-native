@@ -62,6 +62,7 @@ export = async function (hookArgs: HookArgs) {
     );
 
     packageNames = await autolinkAndroid({
+      packageDir,
       dependencies: depsArr,
       projectDir,
       outputModulesJsonPath,
@@ -85,6 +86,7 @@ export = async function (hookArgs: HookArgs) {
     );
 
     packageNames = await autolinkIos({
+      packageDir,
       dependencies: depsArr,
       projectDir,
       outputHeaderPath,
