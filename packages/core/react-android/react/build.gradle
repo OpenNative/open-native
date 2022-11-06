@@ -40,6 +40,7 @@ dependencies {
     api("com.squareup.okio:okio:2.9.0")
     api("com.squareup.okio:okio:2.9.0")
     api("androidx.core:core:1.8.0")
+    api("com.facebook.fresco:fresco:2.5.0")
 }
 
 

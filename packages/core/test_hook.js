@@ -18,7 +18,7 @@ const nsDemoPackageJson = JSON.parse(
   fs.readFileSync(path.join(nsDemoProjectDir, 'package.json')).toString()
 );
 
-require('../../dist/packages/core/hooks/before-prepareNativeApp')({
+require('../../apps/demo/scripts/before-prepareNativeApp')({
   platformData: {
     normalizedPlatformName: 'Android',
     platformNameLowerCase: 'android',

@@ -19,7 +19,8 @@
     "add-demo": "nx g @nativescript/plugin-tools:add-demo",
     "start:metro": "nx run demo-react-native:start",
     "start:rna": "nx run demo-react-native:run-android",
-    "start:rni": "nx run demo-react-native:run-ios"
+    "start:rni": "nx run demo-react-native:run-ios",
+    "test:hooks": "yarn demo:hooks && node ./packages/core/test_hook.js"
   },
   "private": true,
   "dependencies": {

@@ -386,10 +386,10 @@ function validateAndroidPackageName(packageName: string) {
 }
 
 async function parseSourceFiles(folder: string) {
-  const filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
-
+  let filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
+  filePaths = filePaths.map((filePath) => path.join(folder, filePath));
   const files = await Promise.all(
-    filePaths.map((filePath) => readFile(path.join(folder, filePath), 'utf8'))
+    filePaths.map((filePath) => readFile(filePath, 'utf8'))
   );
 
   // TODO: We should ideally strip comments before running any Regex.
@@ -600,8 +600,7 @@ async function parseSourceFiles(folder: string) {
          * @example ['"RNTestModule"']
          * @example 'RNTestModule'
          */
-        const exportedModuleName = getModuleName(moduleContents);
-
+        const exportedModuleName = getModuleName(moduleContents, filePaths);
         const moduleImportPath = getModuleImportPath(moduleContents);
 
         return {
@@ -621,9 +620,21 @@ async function parseSourceFiles(folder: string) {
     // that they've done their job of informing of any @ReactMethod-annotated
     // methods to know about in subclasses
     .filter(({ exportedModuleName }) => exportedModuleName);
-
   const [, packageClassName] = packageDeclarationMatch;
-
+  const filteredModules = [];
+  for (const mod of modules) {
+    const matchingIndex = filteredModules.findIndex(
+      (m) => m.exportedModuleName == mod.exportedModuleName
+    );
+    if (
+      matchingIndex > -1 &&
+      filteredModules[matchingIndex].exportedMethods.length === 0
+    ) {
+      filteredModules.splice(matchingIndex, 1, mod);
+    } else {
+      filteredModules.push(mod);
+    }
+  }
   return {
     modules,
     packageClassName,
@@ -644,28 +655,45 @@ function getModuleImportPath(moduleContents: string) {
  * Gets the exported name for the module, or null if there's no such match.
  * @example 'IntentAndroid', for the class named 'IntentModule'.
  */
-function getModuleName(moduleContents: string): string | null {
+function getModuleName(moduleContents: string, files: string[]): string | null {
   let getNameFunctionReturnValue = moduleContents
     .match(ANDROID_GET_NAME_FN_REGEX)?.[0]
     .match(ANDROID_MODULE_NAME_REGEX)?.[0]
     .trim();
-
   // The module doesn't have a getName() method at all. It may be a spec, or not
   // a ReactModule in the first place.
   if (!getNameFunctionReturnValue) {
     return null;
   }
-
+  let variableDefinitionLine;
   if (getNameFunctionReturnValue.startsWith(`"`))
     return getNameFunctionReturnValue.replace(/"/g, '');
 
   // Handle scoped variables such as RNTestCaseScopedNameVariable.NAME;
-  if (getNameFunctionReturnValue.includes('.'))
-    getNameFunctionReturnValue = getNameFunctionReturnValue.split('.')[1];
+  // This will extract moduleName from the correct class by searching
+  // the classes in the Package.
+  if (getNameFunctionReturnValue.indexOf('.') > -1) {
+    const split = getNameFunctionReturnValue.split('.');
+    const className = split[0] + '.java';
+    getNameFunctionReturnValue = split[1];
+    for (const file of files) {
+      if (file.includes(`/${className}`)) {
+        variableDefinitionLine = fs
+          .readFileSync(file, { encoding: 'utf-8' })
+          .split('\n')
+          .find((line) =>
+            line.includes(`String ${getNameFunctionReturnValue}`)
+          );
+      }
+    }
+  }
 
-  const variableDefinitionLine = moduleContents
-    .split('\n')
-    .find((line) => line.includes(`String ${getNameFunctionReturnValue}`));
+  if (!variableDefinitionLine) {
+    variableDefinitionLine = moduleContents
+      .split('\n')
+      .find((line) => line.includes(`String ${getNameFunctionReturnValue}`));
+  }
+
   return variableDefinitionLine.split(`"`)[1];
 }
 
