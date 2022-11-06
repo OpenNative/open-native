@@ -8,7 +8,9 @@ import * as fs from 'fs';
 import * as glob from 'glob';
 import type { IOptions } from 'glob';
 import * as path from 'path';
+import { Project } from 'ts-morph';
 import { promisify } from 'util';
+
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
 const exists = promisify(fs.exists);
@@ -64,25 +66,32 @@ export async function autolinkAndroid({
   )
     .filter((p) => !!p)
     .flat(1)
-    .map(
-      ({
-        androidProjectName,
-        modules,
-        npmPackageName,
-        packageImportPath,
-        packageInstance,
-        sourceDir,
-      }) => ({
-        absolutePath: sourceDir,
-        androidProjectName,
-        modules,
-        packageImportPath,
-        packageInstance,
-        packageName: npmPackageName,
-      })
-    );
+    .map(({ npmPackageName, sourceDir, ...rest }) => ({
+      sourceDir,
+      npmPackageName,
+      absolutePath: sourceDir,
+      packageName: npmPackageName,
+      ...rest,
+    }));
+
   await Promise.all([
+    ...autolinkingInfo.map(async ({ npmPackageName, specRecipes }) => {
+      // console.log(
+      //   `!! Fulfilling specRecipes for '${npmPackageName}':\n${JSON.stringify(
+      //     specRecipes,
+      //     null,
+      //     2
+      //   )}`
+      // );
+      return await Promise.all(
+        specRecipes.map(({ spec, outputPath }) =>
+          writeFile(outputPath, spec, 'utf-8')
+        )
+      );
+    }),
+
     await writeSettingsGradleFile(projectDir),
+
     await writeModulesJsonFile({
       modules: autolinkingInfo.map(
         ({ packageName, absolutePath, androidProjectName }) => ({
@@ -300,6 +309,10 @@ async function mapPackageNameToAutolinkingInfo({
     }
   );
 
+  const specRecipes = (
+    await getSpecRecipesForModules({ modules, npmPackagePath })
+  ).filter((spec) => spec);
+
   return {
     /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build/generated/source/codegen/jni/Android.mk' */
     androidMkPath,
@@ -324,6 +337,17 @@ async function mapPackageNameToAutolinkingInfo({
     packageInstance,
     /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android' */
     sourceDir,
+    /**
+     * Recipes (output location and file contents) for forming Java Spec files
+     * corresponding to the modules in this npm package: the output location,
+     * and the file contents.
+     * @example
+     * [{
+     *   spec: 'public abstract class NativeRNCGeolocationSpec {\n  @ReactMethod\n  public void stopObserving();\n}',
+     *   filePath: '/Users/jamie/Documents/git/nativescript-magic-spells/apps/demo/node_modules/@react-native-community/geolocation/android/src/legacy/NativeRNCGeolocationSpec.java',
+     * }]
+     */
+    specRecipes,
   };
 }
 
@@ -387,10 +411,8 @@ function validateAndroidPackageName(packageName: string) {
 }
 
 async function parseSourceFiles(folder: string) {
-  let filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
-  filePaths = filePaths.map((filePath) => path.join(folder, filePath));
-  const files = await Promise.all(
-    filePaths.map((filePath) => readFile(filePath, 'utf8'))
+  const filePaths = (await globProm('**/+(*.java|*.kt)', { cwd: folder })).map(
+    (filePath) => path.join(folder, filePath)
   );
 
   // TODO: We should ideally strip comments before running any Regex.
@@ -398,11 +420,13 @@ async function parseSourceFiles(folder: string) {
   let packageDeclarationMatch: RegExpMatchArray | null = null;
   const moduleDeclarationMatches: {
     contents: string;
+    filePath: string;
     match: RegExpMatchArray;
     superclassName: string;
   }[] = [];
 
-  for (const file of files) {
+  for (const filePath of filePaths) {
+    const file = await readFile(filePath, 'utf8');
     if (!packageDeclarationMatch) {
       packageDeclarationMatch = matchClassDeclarationForPackage(file);
     }
@@ -420,6 +444,7 @@ async function parseSourceFiles(folder: string) {
 
       moduleDeclarationMatches.push({
         contents: file,
+        filePath,
         match: moduleDeclarationMatch,
         superclassName,
       });
@@ -463,6 +488,7 @@ async function parseSourceFiles(folder: string) {
         contents: moduleContents,
         match: moduleDeclarationMatch,
         superclassName,
+        filePath,
       }) => {
         const [, moduleClassName] = moduleDeclarationMatch;
 
@@ -495,6 +521,7 @@ async function parseSourceFiles(folder: string) {
             raw = raw.replace(/\s+/g, ' ');
 
             const hasReactMethodAnnotation = raw.includes('@ReactMethod ');
+            const hasOverrideAnnotation = raw.includes('@Override ');
             const isBlockingSynchronousMethod =
               /isBlockingSynchronousMethod\s*=\s*true/.test(
                 raw.split(/\)/).find((split) => split.includes('@ReactMethod('))
@@ -584,6 +611,7 @@ async function parseSourceFiles(folder: string) {
 
             return {
               exportedMethodName: methodNameJava,
+              hasOverrideAnnotation,
               isBlockingSynchronousMethod,
               methodNameJava,
               methodNameJs: methodNameJava,
@@ -614,6 +642,11 @@ async function parseSourceFiles(folder: string) {
           moduleClassName,
           /** @example 'com.facebook.react.modules.intent' */
           moduleImportPath,
+          /**
+           * @example '/Users/jamie/Documents/git/nativescript-magic-spells/apps/demo/node_modules/@react-native-community/geolocation/android/src/legacy/RNCGeolocationModule.java'
+           * @example '/Users/jamie/Documents/git/nativescript-magic-spells/apps/demo/node_modules/@open-native/core/react-android/react/src/main/java/com/facebook/fbreact/specs/NativeAppStateSpec.java'
+           */
+          filePath,
         };
       }
     );
@@ -1190,4 +1223,144 @@ enum RNJavaSerialisableType {
   Callback, // @Nullable Callback
   nonnullCallback, // Callback
   Promise, // Promise
+}
+
+/**
+ * Given an exportedModuleName, e.g. 'RNCGeolocation', finds any TypeScript
+ * files following the conventional spec name, e.g. `NativeRNCGeolocation.ts`.
+ */
+async function findTypeScriptSpecFiles({
+  exportedModuleName,
+  cwd,
+}: {
+  exportedModuleName: string;
+  cwd: string;
+}) {
+  const relativePaths = await globProm(`**/Native${exportedModuleName}.ts`, {
+    cwd,
+  });
+  return relativePaths.map((relativePath) => path.resolve(cwd, relativePath));
+}
+
+/**
+ * Gene
+ */
+function generateJavaSpec(exportedModuleName: string, signatures: string[]) {
+  return [
+    `public abstract class Native${exportedModuleName}Spec {`,
+    ...signatures.map((signature) => {
+      return ['  @ReactMethod', `  ${signature};`, ''].join('\n');
+    }),
+    '}',
+    '',
+  ].join('\n');
+}
+
+/**
+ * Given a list of modules for a given npm package, returns a recipe for forming
+ * a spec: the output location, and the file contents.
+ */
+async function getSpecRecipesForModules({
+  modules,
+  npmPackagePath,
+}: {
+  modules: {
+    exportedModuleName: string;
+    exportedMethods: {
+      exportedMethodName: string;
+      hasOverrideAnnotation: boolean;
+      signature: string;
+    }[];
+    filePath: string;
+  }[];
+  npmPackagePath: string;
+}) {
+  return await Promise.all(
+    modules.map(async ({ exportedModuleName, exportedMethods, filePath }) => {
+      // If the module has no methods with an `@Override` annotation at all,
+      // then don't bother generating a spec.
+      //
+      // FIXME: Have to disable this guard for now, because Regex captures the
+      // `@Override` annotation when the method signature is written as
+      // `@ReactMethod @Override`, it doesn't capture it when written as
+      // `@Override ReactMethod` due to needing to be a non-greedy match.
+      // if (
+      //   !exportedMethods.some(
+      //     ({ hasOverrideAnnotation }) => hasOverrideAnnotation
+      //   )
+      // ) {
+      //   return null;
+      // }
+
+      // Search for the TypeScript spec file corresponding to this module.
+      const specTypeScriptFilePaths = await findTypeScriptSpecFiles({
+        exportedModuleName,
+        cwd: npmPackagePath,
+      });
+      if (!specTypeScriptFilePaths.length) {
+        return null;
+      }
+
+      console.assert(
+        specTypeScriptFilePaths.length === 1,
+        `Unexpectedly got multiple specTypeScriptFilePaths for '${exportedModuleName}'.`
+      );
+
+      // Read the AST for the first matching TypeScript file.
+      const specTypeScriptInterfaceFilePath = specTypeScriptFilePaths[0];
+      const project = new Project();
+      project.addSourceFilesAtPaths(specTypeScriptInterfaceFilePath);
+      const sourceFile = project.getSourceFile(specTypeScriptInterfaceFilePath);
+
+      // Find the relevant interface within the file. We expect it to be named
+      // `interface Spec extends TurboModule` by convention.
+      const specInterface = sourceFile
+        .getInterfaces()
+        .find(
+          (i) =>
+            i.getName() === 'Spec' &&
+            i
+              .getExtends()
+              .some((expression) => expression.getText() === 'TurboModule')
+        );
+
+      // Gather all Java methods that have an `@Override` annotation that have a
+      // corresponding method on the TypeScript interface.
+      const interfaceMethods = new Set(
+        specInterface.getMethods().map((method) => method.getName())
+      );
+      const javaOverrideMethodsFoundOnTypeScriptInterface =
+        exportedMethods.filter(
+          ({
+            exportedMethodName,
+            // hasOverrideAnnotation
+          }) => {
+            // FIXME: I have to disable the hasOverrideAnnotation until we can
+            // implement it correctly, as specified above.
+            return interfaceMethods.has(exportedMethodName); // && hasOverrideAnnotation;
+          }
+        );
+
+      const spec = generateJavaSpec(
+        exportedModuleName,
+        javaOverrideMethodsFoundOnTypeScriptInterface.map(
+          ({ signature }) => signature
+        )
+      );
+
+      // Write the spec straight into the native module, alongside the module we
+      // found. This is mainly a provisional solution out of laziness - we could
+      // write them into a dedicated directory under the open-native package
+      // with a bit more work.
+      const outputPath = path.resolve(
+        path.dirname(filePath),
+        `Native${exportedModuleName}Spec.java`
+      );
+
+      return {
+        outputPath,
+        spec,
+      };
+    })
+  );
 }
