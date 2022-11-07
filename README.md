@@ -72,4 +72,11 @@ To keep updated on future developments and the blog posts to come, you can follo
 - **Ammar Ahmed**: [Twitter](https://twitter.com/ammarahm_ed), [GitHub](https://github.com/ammarahm-ed)
 - **Jamie Birch**: [Twitter](https://twitter.com/LinguaBrowse), [GitHub](https://github.com/shirakaba)
 
+## Thanks to
+
+- **[Nathan Walker](https://github.com/NathanWalker/)**: For helping us time to time around the NativeScript CLI, Hooks & project setup.
+- **[Igor Randjelovic](https://github.com/rigor789)**: For the project logo.
+- **[NativeScript Community](https://discord.com/invite/RgmpGky9GR)**: For being awesome day after day. It's hard to name everyone who helped us & encouraged us to accomplish this.
+- **[React Native](https://github.com/facebook/react-native)**: Me & Jamie both have a React Native background, we have learned a lot from them. This wouldn't have been possible without React Native & the communities around it.
+
 [^webpack]: See [packages/core/README.md](packages/core/README.md) for instructions.
