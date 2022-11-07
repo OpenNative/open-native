@@ -80,3 +80,5 @@ To keep updated on future developments and the blog posts to come, you can follo
 - **[React Native](https://github.com/facebook/react-native)**: Me & Jamie both have a React Native background, we have learned a lot from them. This wouldn't have been possible without React Native & the communities around it.
 
 [^webpack]: See [packages/core/README.md](packages/core/README.md) for instructions.
+
+## MIT License
