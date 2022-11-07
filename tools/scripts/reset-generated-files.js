@@ -26,3 +26,11 @@ fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/react-android/bridge/
 fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/react-android/bridge/modules.json'), '[]\n', 'utf-8');
 
 fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/react-android/bridge/modulemap.json'), '{}\n', 'utf-8');
+
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/Podfile'), '', 'utf-8');
+
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_community/modulemap.json'), '{}\n', 'utf-8');
+
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_community/RNPodspecs.h'), '{}\n', 'utf-8');
+
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_community/React-Native-Podspecs.podspec.h'), '{}\n', 'utf-8');
