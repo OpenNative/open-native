@@ -4,7 +4,7 @@ We all want to build apps in a way that's approachable to us, regardless of the 
 
 Each of these projects have a way to map platform APIs into their idiom (e.g. React Native has "native modules"), but none are completely mutually compatible. That is to say, a React Native native module cannot be used in a Flutter app as-is, and vice versa. This situation has led to a great amount of duplicated effort, and an isolation of communities.
 
-[Open Native](https://github.com/OpenNative/open-native) to the rescue.
+**Open Native** to the rescue.
 
 <p align="center">
   <img src="open-native-logo.png" width="270">
