@@ -33,4 +33,4 @@ fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_com
 
 fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_community/RNPodspecs.h'), '{}\n', 'utf-8');
 
-fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_community/React-Native-Podspecs.podspec.h'), '{}\n', 'utf-8');
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/React-Native-Podspecs.podspec'), '{}\n', 'utf-8');
