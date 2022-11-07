@@ -14,15 +14,68 @@ Each of these projects has a way to map platform APIs into their idiom (e.g. Rea
 
 Open Native is the long overdue Rosetta Stone that **allows native modules to be used cross-ecosystem**. It handles all the necessary autolinking, type marshalling and API-binding to allow you to choose the highest quality native module for your project, no matter what ecosystem it comes from.
 
-For our first integration, we've **enabled NativeScript to use React Native native modules**. Any NativeScript app, new or existing, can start using React Native native modules simply by running `npm install @open-native/core` and adding a few lines to their Webpack config[^webpack]. From there, just `npm install` the native module (autolinking is handled under-the-hood). The module can then be used **almost exactly as documented for React Native**.
+For our first integration, we've **enabled NativeScript to use React Native native modules** simply by running `npm install @open-native/core` and adding a few lines to their Webpack config[^webpack]. From there, just `npm install` the native module (autolinking is handled under-the-hood). The module can then be used **exactly as documented for React Native**.
+
+## How do you use it?
+
+Here's a real example using [react-native-auth0](https://github.com/auth0/react-native-auth0).
+
+### Installation
+
+Install both Open Native and the React Native native module of interest:
+
+```sh
+npm install --save @open-native/core react-native-auth0
+```
+
+### Webpack configuration
+
+Alter your NativeScript app's webpack config (see [webpack-chain](https://github.com/neutrinojs/webpack-chain) if this looks unfamiliar) to:
+
+1. alias `react-native` to `@open-native/core`;
+2. process `react-native-auth0` with `metro-react-native-babel-preset` via `babel-loader`.
+
+```js
+webpack.chainWebpack((config) => {
+  config.resolve.alias.set('react-native', '@open-native/core');
+  config.module
+    .rule('rnmodules')
+    .include.add(/node_modules(.*[/\\])+react-native-auth0/)
+    .end()
+    .use('babel-loader')
+    .before('ts-loader')
+    .loader('babel-loader')
+    .options({
+      babelrc: false,
+      presets: ['module:metro-react-native-babel-preset'],
+    });
+});
+```
+
+Step 2 may be optional in many cases, as not all React Native native modules need Babel processing - this is frequently encountered in React Native Web projects (due to using Webpack too), and their [documentation](https://necolas.github.io/react-native-web/docs/multi-platform/) gives some guidance on the topic.
+
+### Code
+
+Now write the same code in your NativeScript app as you'd write in a React Native app:
+
+```js
+import Auth0 from 'react-native-auth0';
+
+const auth0 = new Auth0({ domain: 'domain', clientId: 'client_id' });
+
+auth0.webAuth
+  .authorize({ scope: 'openid profile email' })
+  .then((credentials) => console.log(credentials))
+  .catch((error) => console.error(error));
+```
 
 ## How feature-complete is it?
 
-Rather than a ground-up rewrite, we actually implemented the React Native native module APIs and autolinking process using **the very same code** from the React Native and React Native Community CLI codebases. This ensures excellent consistency and also gives us broad feature coverage. So it comes down to which slices we've taken so far.
+Rather than a ground-up rewrite, we actually implemented the React Native native module APIs and autolinking process using **the very same code** from the React Native and React Native Community CLI codebases. This ensures excellent consistency and also gives us broad feature coverage. For example, here's how [react-native-auth0](https://github.com/auth0/react-native-auth0) is used:
 
-At the time of writing, we **fully support bridge-based non-UI modules**. TurboModules are supported, but not ones making use of JSI, as we haven't looked into that yet.
+We are still testing out different native modules and filling in any gaps left. Broadly, we **fully support bridge-based non-UI modules**, and support for TurboModules, codegen, and JSI is under development (and going well!).
 
-UI module support, although exciting in concept, may be out of scope. As React Native UI modules are distributed as React components, they could only practically be consumed by React-based apps, which would greatly diminish the value of the effort to implement it. At best, we could **decouple the underlying native UI element from React** and expose it for non-React wrappers to be (manually) built around them. Layout could also be delegated to a view component from the consuming ecosystem - e.g. [taffy](https://github.com/DioxusLabs/taffy) could be used, rather than [yoga](https://yogalayout.com).
+UI modules pose some challenges, as they are distributed ultimately as React components and so could only practically be consumed by React-based apps. If there is interest, we may expose the underlying native UI module for non-React frameworks to create components with.
 
 ## How is the performance?
 
@@ -36,28 +89,7 @@ As for size, we've taken **just the core code we need**, which is only a small s
 
 ## Is it production-ready?
 
-Open Native is already in use in production apps, so it had better be!
-
-For example, running the auth0 module in a NativeScript app is as simple as:
-
-```js
-npm install react-native-auth0
-```
-
-And then you can use the module same as you would in a React Native app:
-
-```js
-import Auth0 from 'react-native-auth0';
-
-const auth0 = new Auth0({ domain: 'domain', clientId: 'client_id' });
-
-auth0.webAuth
-  .authorize({ scope: 'openid profile email' })
-  .then((credentials) => console.log(credentials))
-  .catch((error) => console.log(error));
-```
-
-We are still testing out different native modules and filling in any gaps left. We'll have more news on that in a follow-up blog post.
+Open Native is **already in use in production** by [nStudio](https://nstudio.io) - it has enabled them to use [react-native-auth0](https://github.com/auth0/react-native-auth0) in their NativeScript apps off-the-shelf to fill in some key Auth0 functionality that would otherwise have needed to be written for two platforms from scratch.
 
 ## What's next?
 
@@ -74,10 +106,12 @@ To keep updated on future developments and the blog posts to come, you can follo
 
 ## Thanks to
 
-- **[Nathan Walker](https://github.com/NathanWalker/)**: For helping us time to time around the NativeScript CLI, Hooks & project setup.
-- **[Igor Randjelovic](https://github.com/rigor789)**: For the project logo.
-- **[NativeScript Community](https://discord.com/invite/RgmpGky9GR)**: For being awesome day after day. It's hard to name everyone who helped us & encouraged us to accomplish this.
-- **[React Native](https://github.com/facebook/react-native)**: Me & Jamie both have a React Native background, we have learned a lot from them. This wouldn't have been possible without React Native & the communities around it.
+- **[Nathan Walker](https://github.com/NathanWalker/)**: For helping us time and time again with the NativeScript CLI, hooks, and project setup.
+- **[Igor Randjelovic](https://github.com/rigor789)**: For the stunning project logo.
+- **[Osei Fortune](https://github.com/triniwiz)**: For his expert help with the NativeScript Android runtime.
+- **[Eduardo Speroni](https://github.com/edusperoni/)**: For his expert help with v8 as we take on JSI.
+- **[NativeScript Community](https://discord.com/invite/RgmpGky9GR)**: For being awesome day after day. It's hard to name everyone who helped us and encouraged us to accomplish this.
+- **[React Native](https://github.com/facebook/react-native)**: We both have a background in React Native and were able to learn a lot from it. This wouldn't have been possible without React Native and the communities around it.
 
 [^webpack]: See [packages/core/README.md](packages/core/README.md) for instructions.
 
