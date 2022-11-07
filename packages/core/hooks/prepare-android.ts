@@ -30,6 +30,7 @@ const exists = promisify(fs.exists);
  * @returns a list of package names in which podspecs were found and autolinked.
  */
 export async function autolinkAndroid({
+  packageDir,
   dependencies,
   projectDir,
   outputModulesJsonPath,
@@ -37,6 +38,7 @@ export async function autolinkAndroid({
   outputPackagesJavaPath,
   outputIncludeGradlePath,
 }: {
+  packageDir: string;
   dependencies: string[];
   projectDir: string;
   outputModulesJsonPath: string;
@@ -45,11 +47,10 @@ export async function autolinkAndroid({
   outputIncludeGradlePath: string;
 }) {
   const packageJson = JSON.parse(
-    await readFile(path.resolve(__dirname, '../package.json'), {
+    await readFile(path.join(packageDir, '/package.json'), {
       encoding: 'utf8',
     })
   );
-
   const autolinkingInfo = (
     await Promise.all(
       dependencies.map((npmPackageName) =>
@@ -80,7 +81,6 @@ export async function autolinkAndroid({
         packageName: npmPackageName,
       })
     );
-
   await Promise.all([
     await writeSettingsGradleFile(projectDir),
     await writeModulesJsonFile({
@@ -190,7 +190,6 @@ async function mapPackageNameToAutolinkingInfo({
    * standard native module.
    */
   const isCore = npmPackageName === ownPackageName;
-
   const sourceDir = path.join(
     npmPackagePath,
     isCore
@@ -265,8 +264,8 @@ async function mapPackageNameToAutolinkingInfo({
       moduleImportPath,
     }) => {
       const moduleImportName = `${moduleImportPath}.${moduleClassName}`;
-      // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java class
-      // names for JS as far as I know.
+      // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java
+      // class names for JS as far as I know.
       const moduleClassNameJs = moduleClassName;
       const moduleImportNameJs = `${packageImportPath
         .replace(';', '')
@@ -283,7 +282,9 @@ async function mapPackageNameToAutolinkingInfo({
         exportsConstants,
         /** @example 'RNTestModule' - the name of the Java class in Java */
         moduleClassName,
-        /** @example 'RNTestModule' - the name of the Java class in NativeScript */
+        /**
+         * @example 'RNTestModule' - the name of the Java class in NativeScript.
+         */
         moduleClassNameJs,
         /**
          * The name of the Java class in Java, with all namespacing.
@@ -386,10 +387,10 @@ function validateAndroidPackageName(packageName: string) {
 }
 
 async function parseSourceFiles(folder: string) {
-  const filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
-
+  let filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
+  filePaths = filePaths.map((filePath) => path.join(folder, filePath));
   const files = await Promise.all(
-    filePaths.map((filePath) => readFile(path.join(folder, filePath), 'utf8'))
+    filePaths.map((filePath) => readFile(filePath, 'utf8'))
   );
 
   // TODO: We should ideally strip comments before running any Regex.
@@ -442,7 +443,7 @@ async function parseSourceFiles(folder: string) {
     [moduleClassName: string]: Set<string>;
   } = {};
 
-  const modules = moduleDeclarationMatches
+  let modules = moduleDeclarationMatches
     // Sort all direct extensions of ReactContextBaseJavaModule (base classes)
     // before subclasses, so that we can look up which overridden methods are
     // overriding ReactClass.
@@ -474,7 +475,7 @@ async function parseSourceFiles(folder: string) {
          * A ReactMethod directly declared:
          * ['@ReactMethod\n@Profile\n   public void testCallback(Callback callback) {']
          * @example
-         * A method with an @Override annotation - we have to do a second pass to
+         * A method with an `@Override` annotation - we have to do a second pass to
          * check whether it's overriding a method that was annotated as a
          * ReactMethod on the superclass:
          * ['@Override\n@DoNotStrip\n   public abstract void getInitialURL(Promise promise);']
@@ -548,8 +549,8 @@ async function parseSourceFiles(folder: string) {
 
             /**
              * Erase generic args and then split around commas to get params.
-             * We filter out falsy params because it's possible to get ['void', '']
-             * when the signature has no params.
+             * We filter out falsy params because it's possible to get
+             * ['void', ''] when the signature has no params.
              * @example ['void', 'Callback callback']
              * @example ['void', 'Promise promise']
              * @example ['void', 'ReadableMap', 'ReadableArray', 'Promise promise']
@@ -573,10 +574,10 @@ async function parseSourceFiles(folder: string) {
             }
             // Discard any @Override methods for which we haven't encountered a
             // corresponding @ReactMethod-annotated one in the superclass. We
-            // don't bother maintaining a chain of subclasses and digging through
-            // them, as the general cases should be either a direct subclass of
-            // ReactContextBaseJavaModule or a subclass of a spec (that itself
-            // directly subclasses ReactContextBaseJavaModule).
+            // don't bother maintaining a chain of subclasses and digging
+            // through them, as the general cases should be either a direct
+            // subclass of ReactContextBaseJavaModule or a subclass of a spec
+            // (that itself directly subclasses ReactContextBaseJavaModule).
             else if (!reactMethods[superclassName]?.has(methodNameJava)) {
               return null;
             }
@@ -600,8 +601,7 @@ async function parseSourceFiles(folder: string) {
          * @example ['"RNTestModule"']
          * @example 'RNTestModule'
          */
-        const exportedModuleName = getModuleName(moduleContents);
-
+        const exportedModuleName = getModuleName(moduleContents, filePaths);
         const moduleImportPath = getModuleImportPath(moduleContents);
 
         return {
@@ -616,11 +616,39 @@ async function parseSourceFiles(folder: string) {
           moduleImportPath,
         };
       }
-    )
-    // Filter out specs (identified by having `null` for exportedModuleName) now
-    // that they've done their job of informing of any @ReactMethod-annotated
-    // methods to know about in subclasses
-    .filter(({ exportedModuleName }) => exportedModuleName);
+    );
+
+  // We reassign modules (rather than continuing to chain it) here purely so
+  // that we can refer to `typeof modules` to express the complex type through
+  // inference.
+  modules = modules.reduce<typeof modules>((acc, mod) => {
+    if (!mod.exportedModuleName) {
+      // Filter out specs (identified by having `null` for exportedModuleName)
+      // now that they've done their job of informing of any
+      // @ReactMethod-annotated methods to know about in subclasses.
+      return acc;
+    }
+
+    const matchingIndex = acc.findIndex(
+      (m) => m.exportedModuleName === mod.exportedModuleName
+    );
+
+    // If there's no previous module bearing this exportedModuleName, simply
+    // include it.
+    if (matchingIndex === -1) {
+      acc.push(mod);
+      return acc;
+    }
+
+    // If there *is* a previous module bearing this exportedModuleName, but it
+    // has no exportedMethods (because it holds the implementation but not the
+    // @ReactMethod annotations), then swap it for the one that does.
+    if (!acc[matchingIndex].exportedMethods.length) {
+      acc.splice(matchingIndex, 1, mod);
+    }
+
+    return acc;
+  }, []);
 
   const [, packageClassName] = packageDeclarationMatch;
 
@@ -644,28 +672,45 @@ function getModuleImportPath(moduleContents: string) {
  * Gets the exported name for the module, or null if there's no such match.
  * @example 'IntentAndroid', for the class named 'IntentModule'.
  */
-function getModuleName(moduleContents: string): string | null {
+function getModuleName(moduleContents: string, files: string[]): string | null {
   let getNameFunctionReturnValue = moduleContents
     .match(ANDROID_GET_NAME_FN_REGEX)?.[0]
     .match(ANDROID_MODULE_NAME_REGEX)?.[0]
     .trim();
-
   // The module doesn't have a getName() method at all. It may be a spec, or not
   // a ReactModule in the first place.
   if (!getNameFunctionReturnValue) {
     return null;
   }
-
+  let variableDefinitionLine;
   if (getNameFunctionReturnValue.startsWith(`"`))
     return getNameFunctionReturnValue.replace(/"/g, '');
 
   // Handle scoped variables such as RNTestCaseScopedNameVariable.NAME;
-  if (getNameFunctionReturnValue.includes('.'))
-    getNameFunctionReturnValue = getNameFunctionReturnValue.split('.')[1];
+  // This will extract moduleName from the correct class by searching
+  // the classes in the Package.
+  if (getNameFunctionReturnValue.indexOf('.') > -1) {
+    const split = getNameFunctionReturnValue.split('.');
+    const className = split[0] + '.java';
+    getNameFunctionReturnValue = split[1];
+    for (const file of files) {
+      if (file.includes(`/${className}`)) {
+        variableDefinitionLine = fs
+          .readFileSync(file, { encoding: 'utf-8' })
+          .split('\n')
+          .find((line) =>
+            line.includes(`String ${getNameFunctionReturnValue}`)
+          );
+      }
+    }
+  }
 
-  const variableDefinitionLine = moduleContents
-    .split('\n')
-    .find((line) => line.includes(`String ${getNameFunctionReturnValue}`));
+  if (!variableDefinitionLine) {
+    variableDefinitionLine = moduleContents
+      .split('\n')
+      .find((line) => line.includes(`String ${getNameFunctionReturnValue}`));
+  }
+
   return variableDefinitionLine.split(`"`)[1];
 }
 

@@ -27,6 +27,7 @@ const logPrefix = '[@open-native/core/hooks/prepare-ios.js]';
  * @returns a list of package names in which podspecs were found and autolinked.
  */
 export async function autolinkIos({
+  packageDir,
   dependencies,
   projectDir,
   outputHeaderPath,
@@ -34,6 +35,7 @@ export async function autolinkIos({
   outputPodspecPath,
   outputModuleMapPath,
 }: {
+  packageDir: string;
   dependencies: string[];
   projectDir: string;
   outputHeaderPath: string;
@@ -42,7 +44,7 @@ export async function autolinkIos({
   outputModuleMapPath: string;
 }) {
   const packageJson = JSON.parse(
-    await readFile(path.resolve(__dirname, '../package.json'), {
+    await readFile(path.join(packageDir, '/package.json'), {
       encoding: 'utf8',
     })
   );
@@ -502,11 +504,14 @@ function extractInterfaces(sourceCode: string) {
     .map((exportedModuleName) => {
       const { jsName, methods } =
         moduleNamesToMethodDescriptions[exportedModuleName];
-      return [
-        `@interface ${jsName} (TNS${jsName})`,
-        methods.map((record) => record.signature).join('\n\n'),
-        '@end',
-      ].join('\n');
+
+      return !methods || methods.length === 0
+        ? ''
+        : [
+            `@interface ${jsName} (TNS${jsName})`,
+            methods.map((record) => record.signature).join('\n\n'),
+            '@end',
+          ].join('\n');
     })
     .join('\n\n');
 

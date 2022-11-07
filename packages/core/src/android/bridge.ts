@@ -7,7 +7,7 @@ import {
   Application,
   Utils,
 } from '@nativescript/core';
-import DeviceEventEmitter from '../../core/EventEmitter/RCTDeviceEventEmitter';
+import DeviceEventEmitter from '../../Libraries/EventEmitter/RCTDeviceEventEmitter';
 import CatalystInstance from './catalyst-instance';
 import { JSModules } from './js-modules';
 import { ReactContext } from './types';

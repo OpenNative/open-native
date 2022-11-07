@@ -17,11 +17,12 @@ const nsDemoProjectDir = path.resolve(monorepoRoot, 'apps/demo');
 const nsDemoPackageJson = JSON.parse(
   fs.readFileSync(path.join(nsDemoProjectDir, 'package.json')).toString()
 );
+const platform = process.argv[2] ? process.argv[2].split('=')[1] : 'android';
 
-require('../../dist/packages/core/hooks/before-prepareNativeApp')({
+require('../../apps/demo/scripts/before-prepareNativeApp')({
   platformData: {
-    normalizedPlatformName: 'Android',
-    platformNameLowerCase: 'android',
+    normalizedPlatformName: platform === 'android' ? 'Android' : 'iOS',
+    platformNameLowerCase: platform,
   },
   projectData: {
     devDependencies: nsDemoPackageJson.devDependencies,
