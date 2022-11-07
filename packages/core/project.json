@@ -94,7 +94,10 @@
     "build.npm": {
       "executor": "@nrwl/workspace:run-commands",
       "options": {
-        "commands": ["node tools/scripts/prepare-for-npm.ts core"],
+        "commands": [
+          "node tools/scripts/reset-generated-files.js",
+          "node tools/scripts/prepare-for-npm.ts core"
+        ],
         "parallel": false
       },
       "outputs": ["dist/packages/core"],

@@ -4,6 +4,21 @@
 /dist
 /tmp
 /out-tsc
+
+# Files that get clobbered by hooks (for full details, see
+# `tools/scripts/reset-generated-files.js`).
+apps/demo/scripts/*
+!/apps/demo/scripts/.gitkeep
+packages/core/platforms/android/include.gradle
+packages/core/react-android/bridge/src/main/java/com/bridge/Packages.java
+packages/core/react-android/bridge/modules.json
+packages/core/react-android/bridge/modulemap.json
+
+packages/core/platforms/ios/Podfile
+packages/core/platforms/ios/React-Native-Podspecs.podspec
+packages/core/platforms/ios/lib_community/RNPodspecs.h
+packages/core/platforms/ios/lib_community/modulemap.json
+
 # dependencies
 node_modules
 
