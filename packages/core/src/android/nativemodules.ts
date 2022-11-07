@@ -1,4 +1,4 @@
-import { NativeModule } from '../../core/EventEmitter/NativeEventEmitter';
+import { NativeModule } from '../../Libraries/EventEmitter/NativeEventEmitter';
 import { getCurrentBridge } from './bridge';
 import {
   JavaJSONEquivalent,

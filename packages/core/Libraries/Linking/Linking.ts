@@ -8,10 +8,10 @@
  * @flow strict-local
  */
 
-import { type EventSubscription } from '../../vendor/emitter/EventEmitter';
-import NativeEventEmitter from '../../EventEmitter/NativeEventEmitter';
-import { Platform } from '../../Utilities/Platform';
-import { NativeModules } from '../../..';
+import { type EventSubscription } from '../vendor/emitter/EventEmitter';
+import NativeEventEmitter from '../EventEmitter/NativeEventEmitter';
+import { Platform } from '../Utilities/Platform';
+import { NativeModules } from '../..';
 
 const NativeLinkingManager = NativeModules.LinkingManager;
 const NativeIntentAndroid = NativeModules.IntentAndroid;
