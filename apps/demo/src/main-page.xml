@@ -6,7 +6,6 @@
     <ScrollView class="h-full">
       <StackLayout>
         <Button text="core" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
-        <Button text="react-native-module-test" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
       </StackLayout>
     </ScrollView>
   </StackLayout>
