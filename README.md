@@ -1,82 +1,67 @@
-Open Native is an effort to bring cross platform communities together & help them collaborate and share work.
+# Introducing Open Native: Native Modules, for all
 
-## Installation
+We all want to build apps in a way that's approachable to us, regardless of the target platform. Projects like React Native, Flutter, Capacitor, and NativeScript enable us to build native (e.g. iOS and Android) apps using alternative idioms such as JavaScript, Web tech, or platform-agnostic UI.
 
-```
-npm install @open-native/core
-```
+Each of these projects have a way to map platform APIs into their idiom (e.g. React Native has "native modules"), but none are completely mutually compatible. That is to say, a React Native native module cannot be used in a Flutter app as-is, and vice versa. This situation has led to a great amount of duplicated effort, and an isolation of communities.
 
-## Android Setup
+[Open Native](https://github.com/OpenNative/open-native) to the rescue.
 
-Create `App_Resources/Android/before-plugins.gradle with the following contents
+<p align="center">
+  <img src="open-native-logo.png" width="270">
+</p>
 
-```groovy
-allprojects {
+<p align="center">
+  <a href="https://www.npmjs.com/package/@open-native/core">
+    <img src="https://badge.fury.io/js/@open-native%2Fcore.svg" alt="npm version" height="18">
+  </a>
+  <a href="https://opensource.org/licenses/mit-license.php" alt="MIT licence">
+    <img src="https://badges.frapsoft.com/os/mit/mit.png?v=103"/>
+  </a>
+  <a href="https://twitter.com/intent/follow?screen_name=ammarahm_ed" alt="Follow Ammar Ahmed on Twitter">
+    <img src="https://img.shields.io/twitter/follow/ammarahm_ed.svg?style=social&logo=twitter"/>
+  </a>
+  <a href="https://twitter.com/intent/follow?screen_name=LinguaBrowse" alt="Follow Jamie Birch on Twitter">
+    <img src="https://img.shields.io/twitter/follow/LinguaBrowse.svg?style=social&logo=twitter"/>
+  </a>
+</p>
 
-  // Nativescript by default runs this hook for all plugin builds,
-  // but we want to run it only when the main app builds.
-  if (!rootProject.projectDir.absolutePath.contains("tempPlugin")) {
-    // We are replacing com.facebook.react:react-native with our local :react library in all linked libraries.
-    // We could do this inside the module itself but we want the module to work in both
-    // react-native & nativescript
-    configurations {
-      all {
-        resolutionStrategy {
-          dependencySubstitution {
-            substitute module("com.facebook.react:react-native") using project(":react") because "we will replace this with our local react"
-          }
-        }
-      }
-    }
-  }
-}
-```
+## What is Open Native?
 
-## Configure Webpack
+Open Native is the long overdue Rosetta Stone that **allows native modules to be used cross-ecosystem**. It handles all the necessary autolinking, type marshalling and API-binding to allow you to choose the highest quality native module for your project, no matter what ecosystem it comes from.
 
-Alias `react-native` with `@open-native/core`.
+For our first integration, we've **enabled NativeScript to use React Native native modules**. Any NativeScript app, new or existing, can start using React Native native modules simply by running `npm install @open-native/core` and adding a few lines to their Webpack config. From there, just `npm install` the native module (autolinking is handled under-the-hood). The module can then be used **exactly as documented for React Native**.
 
-```js
-webpack.chainWebpack((config) => {
-  config.resolve.alias.set('react-native', '@open-native/core');
-});
-```
+## How feature-complete is it?
 
-If you install a react-natie module & get errors in webpack, install `metro-react-native-babel-preset` via npm/yarn.
+Rather than a ground-up rewrite, we actually implemented the React Native native module APIs and autolinking process using **the very same code** from the React Native and React Native Community CLI codebases. This ensures excellent consistency and also gives us broad feature coverage. So it comes down to which slices we've taken so far.
 
-```
-npm install -D metro-react-native-babel-preset
-```
+At the time of writing, we **fully support bridge-based non-UI modules**. TurboModules are supported, but not ones making use of JSI, as we haven't looked into that yet.
 
-add the following preset to your webpack config.
+UI module support, although exciting in concept, may be out of scope. As React Native UI modules are distributed as React components, they could only practically be consumed by React-based apps, which would greatly diminish the value of the effort to implement it. At best, we could **decouple the underlying native UI element from React** and expose it for non-React wrappers to be (manually) built around them. Layout could also be delegated to a view component from the consuming ecosystem - e.g. [taffy](https://github.com/DioxusLabs/taffy) could be used, rather than [yoga](https://yogalayout.com).
 
-```js
-webpack.chainWebpack((config) => {
-  config.resolve.alias.set('react-native', '@open-native/core');
-  config.module
-    .rule('rnmodules')
-    // Add each react-native module that gives errors in webpack build here
-    // like this:
-    .include.add(/node_modules(.*[/\\])+react-native-module/)
-    .end()
-    .use('babel-loader')
-    .before('ts-loader')
-    .loader('babel-loader')
-    .options({
-      babelrc: false,
-      presets: ['module:metro-react-native-babel-preset'],
-    });
-});
-```
+## How is the performance?
 
-That's all, try out some react-native modules & feel free to open and issue if you face a problem.
+Broadly, **the same or better**. This is because we can implement the native module API using exactly the same code as the original implementation and even make optimisations with careful consideration.
 
-Join the [NativeScript Discord Community](https://discord.com/invite/RgmpGky9GR)
+For example, in the case of the React Native integration, we've bypassed the JSON bridge to make **all bridge-based native modules run synchronously under-the-hood** (though we still return their final result as a Promise for compatibility with the user-facing API).
 
-## Contributing
+We've also treated all native modules as TurboModules, lazy-loading until the first API call, so **startup time should be the same or better**.
 
-If you want to contribute, feel free to open an issue or join our discord community to discuss your ideas.
+As for size, we've taken **just the core code we need**, which comes down to a small number of Obj-C and Java files. We're not shipping all of React Native!
 
-# MIT License
+## Is it production-ready?
 
-Copyright (c) 2022 Ammar Ahmed
+Open Native is already in use in production, so it had better be! We'll have more news on that in a follow-up blog post.
+
+## What's next?
+
+Allowing React Native native modules to be used in additional ecosystems would be a relatively small task from here, as we've done most of the groundwork (implementing autolinking and the bridge module API in an ecosystem-agnostic manner) already. Other ecosystems would mainly just need to contribute adapters for the final step, namely invoking APIs on the native modules from a non-native context.
+
+Additional integrations can also be tackled in time, e.g. allowing Flutter platform channels, Capacitor plugins, and NativeScript plugins to be used in other ecosystems. Please do get in touch if you think you could be of help, as there's only so much we can tackle on our own!
+
+For now, we're happy just to have pushed the first domino in allowing communities to work together on solving the same problems.
+
+To keep updated on developments and the blog posts to come, you can follow the [Open Native](https://github.com/OpenNative/open-native) repo (a star would be nice, too!) and, humbly, ourselves:
+
+* **Ammar Ahmed**: [Twitter](https://twitter.com/ammarahm_ed), [GitHub](https://github.com/ammarahm-ed)
+* **Jamie Birch**: [Twitter](https://twitter.com/LinguaBrowse), [GitHub](https://github.com/shirakaba)
