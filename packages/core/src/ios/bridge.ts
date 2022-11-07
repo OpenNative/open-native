@@ -1,4 +1,4 @@
-import DeviceEventEmitter from '../../core/EventEmitter/RCTDeviceEventEmitter';
+import DeviceEventEmitter from '../../Libraries/EventEmitter/RCTDeviceEventEmitter';
 import { JSModules, JSMethodRecord } from './js-modules';
 
 export function getJSModules() {

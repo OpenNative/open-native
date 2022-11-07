@@ -13,7 +13,7 @@ import {
   TNativeModuleMap,
   TModuleMethodsType,
 } from './utils';
-import { NativeModule } from '../../core/EventEmitter/NativeEventEmitter';
+import { NativeModule } from '../../Libraries/EventEmitter/NativeEventEmitter';
 
 const NativeModuleMap =
   // eslint-disable-next-line @typescript-eslint/no-var-requires
