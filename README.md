@@ -14,7 +14,7 @@ Each of these projects have a way to map platform APIs into their idiom (e.g. Re
 
 Open Native is the long overdue Rosetta Stone that **allows native modules to be used cross-ecosystem**. It handles all the necessary autolinking, type marshalling and API-binding to allow you to choose the highest quality native module for your project, no matter what ecosystem it comes from.
 
-For our first integration, we've **enabled NativeScript to use React Native native modules**. Any NativeScript app, new or existing, can start using React Native native modules simply by running `npm install @open-native/core` and adding a few lines to their Webpack config. From there, just `npm install` the native module (autolinking is handled under-the-hood). The module can then be used **exactly as documented for React Native**.
+For our first integration, we've **enabled NativeScript to use React Native native modules**. Any NativeScript app, new or existing, can start using React Native native modules simply by running `npm install @open-native/core` and adding a few lines to their Webpack config[^webpack]. From there, just `npm install` the native module (autolinking is handled under-the-hood). The module can then be used **exactly as documented for React Native**.
 
 ## How feature-complete is it?
 
@@ -50,3 +50,5 @@ To keep updated on developments and the blog posts to come, you can follow the [
 
 * **Ammar Ahmed**: [Twitter](https://twitter.com/ammarahm_ed), [GitHub](https://github.com/ammarahm-ed)
 * **Jamie Birch**: [Twitter](https://twitter.com/LinguaBrowse), [GitHub](https://github.com/shirakaba)
+
+[^webpack]: See [packages/core/README.md](packages/core/README.md) for instructions.
