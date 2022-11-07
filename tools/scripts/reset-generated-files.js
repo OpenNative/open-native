@@ -19,7 +19,9 @@ const fs = require('fs');
 // script for you).
 const monorepoRoot = path.resolve(__dirname, '../..');
 
-fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/android/include.gradle'), '', 'utf-8');
+const includeGradlePath = path.resolve(monorepoRoot, 'packages/core/platforms/android');
+if (!fs.existsSync(includeGradlePath)) fs.mkdirSync(includeGradlePath);
+fs.writeFileSync(path.join(includeGradlePath, 'include.gradle'), '', 'utf-8');
 
 fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/react-android/bridge/src/main/java/com/bridge/Packages.java'), '', 'utf-8');
 
