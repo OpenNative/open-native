@@ -10,21 +10,6 @@ Each of these projects have a way to map platform APIs into their idiom (e.g. Re
   <img src="open-native-logo.png" width="270">
 </p>
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/@open-native/core">
-    <img src="https://badge.fury.io/js/@open-native%2Fcore.svg" alt="npm version" height="18">
-  </a>
-  <a href="https://opensource.org/licenses/mit-license.php" alt="MIT licence">
-    <img src="https://badges.frapsoft.com/os/mit/mit.png?v=103"/>
-  </a>
-  <a href="https://twitter.com/intent/follow?screen_name=ammarahm_ed" alt="Follow Ammar Ahmed on Twitter">
-    <img src="https://img.shields.io/twitter/follow/ammarahm_ed.svg?style=social&logo=twitter"/>
-  </a>
-  <a href="https://twitter.com/intent/follow?screen_name=LinguaBrowse" alt="Follow Jamie Birch on Twitter">
-    <img src="https://img.shields.io/twitter/follow/LinguaBrowse.svg?style=social&logo=twitter"/>
-  </a>
-</p>
-
 ## What is Open Native?
 
 Open Native is the long overdue Rosetta Stone that **allows native modules to be used cross-ecosystem**. It handles all the necessary autolinking, type marshalling and API-binding to allow you to choose the highest quality native module for your project, no matter what ecosystem it comes from.
