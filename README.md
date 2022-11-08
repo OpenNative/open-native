@@ -92,9 +92,9 @@ UI modules pose some challenges, as they are distributed ultimately as React com
 
 Performance of native modules running with Open Native mainly depend on the host runtime's performance. The implementation of native module API uses exactly the same code as the original implementation, however we have made some optimisations with careful consideration for even better performance.
 
-In our first integration with NativeScript, bridge based native modules perform almost **7-8 times faster** compared to React Native on iOS. The difference is large due to the fact that NativeScript is able to call native APIs directly by default without a bridge unlike React Native.
+In our first integration with NativeScript, bridge-based native modules perform almost **7-8 times faster** compared to React Native on iOS. The difference is large due to the fact that NativeScript is able to call native APIs directly by default without a bridge unlike React Native.
 
-We've also treated all bridge based native modules as TurboModules, lazy-loading them until the first API call, so **startup time should not be affected for NativeScript apps**.
+We've also treated all bridge-based native modules as TurboModules, lazy-loading them until the first API call, so **startup time should not be affected for NativeScript apps**.
 
 As for size, we've taken **just the core code we need**, which is only a small subset of React Native code that is sufficient to run native modules.
 
