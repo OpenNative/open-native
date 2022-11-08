@@ -110,7 +110,7 @@ Additional integrations can also be tackled in time, e.g. allowing Flutter platf
 
 For now, we're happy just to have pushed the first domino in allowing communities to work together on solving the same problems.
 
-To keep updated on future developments and the blog posts to come, you can follow the [Open Native](https://github.com/OpenNative/open-native) repo (a star would be nice, too!) and, humbly, ourselves:
+To keep updated on future developments and the blog posts to come, you can follow this repo (a star would be nice, too!) and, humbly, ourselves:
 
 - **Ammar Ahmed**: [Twitter](https://twitter.com/ammarahm_ed), [GitHub](https://github.com/ammarahm-ed)
 - **Jamie Birch**: [Twitter](https://twitter.com/LinguaBrowse), [GitHub](https://github.com/shirakaba)
@@ -121,7 +121,7 @@ To keep updated on future developments and the blog posts to come, you can follo
 - **[Igor Randjelovic](https://github.com/rigor789)**: For the stunning project logo.
 - **[Osei Fortune](https://github.com/triniwiz)**: For his expert help with the NativeScript Android runtime.
 - **[Eduardo Speroni](https://github.com/edusperoni/)**: For his expert help with v8 as we take on JSI.
-- **[NativeScript Community](https://discord.com/invite/RgmpGky9GR)**: For being awesome day after day. It's hard to name everyone who helped us and encouraged us to accomplish this.
+- **[The NativeScript Community](https://discord.com/invite/RgmpGky9GR)**: For being awesome day after day. It's hard to name everyone who helped us and encouraged us to accomplish this.
 - **[React Native](https://github.com/facebook/react-native)**: We both have a background in React Native and were able to learn a lot from it. This wouldn't have been possible without React Native and the communities around it.
 
 ## MIT License
