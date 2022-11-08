@@ -14,7 +14,7 @@ Each of these projects has a way to map platform APIs into their idiom (e.g. Rea
 
 Open Native is the long overdue Rosetta Stone that **allows native modules to be used cross-ecosystem**. It handles all the necessary autolinking, type marshalling and API-binding to allow you to choose the highest quality native module for your project, no matter what ecosystem it comes from.
 
-For our first integration, we've **enabled NativeScript to use React Native native modules** simply by running `npm install @open-native/core` and adding a few lines to their Webpack config[^webpack]. From there, just `npm install` the native module (autolinking is handled under-the-hood). The module can then be used **exactly as documented for React Native**.
+For our first integration, we've **enabled NativeScript to use React Native native modules** simply by running `npm install @open-native/core` and adding a few lines to their Webpack config. From there, just `npm install` the native module (autolinking is handled under-the-hood). The module can then be used **exactly as documented for React Native**.
 
 ## How do you use it?
 
@@ -30,16 +30,19 @@ npm install --save @open-native/core react-native-auth0
 
 ### Webpack configuration
 
-Alter your NativeScript app's webpack config (see [webpack-chain](https://github.com/neutrinojs/webpack-chain) if this looks unfamiliar) to:
+Alter your NativeScript app's webpack config (see [webpack-chain](https://github.com/neutrinojs/webpack-chain) if this looks unfamiliar) as follows:
 
-1. alias `react-native` to `@open-native/core`;
-2. process `react-native-auth0` with `metro-react-native-babel-preset` via `babel-loader`.
+1. **Mandatory**: alias `react-native` to `@open-native/core`.
+2. **As required (see below)**: add a rule to process `react-native-auth0` with `metro-react-native-babel-preset` via `babel-loader`.
 
 ```js
 webpack.chainWebpack((config) => {
   config.resolve.alias.set('react-native', '@open-native/core');
+
   config.module
     .rule('rnmodules')
+    // For each React Native native module to be processed with Babel, add an
+    // 'include' rule here that matches the filepath to its npm package.
     .include.add(/node_modules(.*[/\\])+react-native-auth0/)
     .end()
     .use('babel-loader')
@@ -52,11 +55,11 @@ webpack.chainWebpack((config) => {
 });
 ```
 
-Step 2 may be optional in many cases, as not all React Native native modules need Babel processing - this is frequently encountered in React Native Web projects (due to using Webpack too), and their [documentation](https://necolas.github.io/react-native-web/docs/multi-platform/) gives some guidance on the topic.
+For many modules, step 2 can be omitted - only certain React Native native modules, distributed with Metro in mind, actually need Babel processing in practice. Simply try building without the rule first and if Webpack throws an errors, try with the rule instead.
 
 ### Code
 
-Now write the same code in your NativeScript app as you'd write in a React Native app:
+Use the module in NativeScript exactly as you would in React Native:
 
 ```js
 import Auth0 from 'react-native-auth0';
@@ -112,7 +115,5 @@ To keep updated on future developments and the blog posts to come, you can follo
 - **[Eduardo Speroni](https://github.com/edusperoni/)**: For his expert help with v8 as we take on JSI.
 - **[NativeScript Community](https://discord.com/invite/RgmpGky9GR)**: For being awesome day after day. It's hard to name everyone who helped us and encouraged us to accomplish this.
 - **[React Native](https://github.com/facebook/react-native)**: We both have a background in React Native and were able to learn a lot from it. This wouldn't have been possible without React Native and the communities around it.
-
-[^webpack]: See [packages/core/README.md](packages/core/README.md) for instructions.
 
 ## MIT License
