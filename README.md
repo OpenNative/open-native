@@ -7,7 +7,11 @@ Each of these projects has a way to map platform APIs into their idiom (e.g. Rea
 **Open Native** to the rescue.
 
 <p align="center">
-  <img src="open-native-logo.svg" width="270">
+  <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./open-native-logo-inverted.svg">
+  <img alt="open native logo" width="400" src="./open-native-logo.svg">
+</picture>
+  
 </p>
 
 ## What is Open Native?
