@@ -95,7 +95,7 @@ In our first integration with NativeScript, bridge-based native modules perform 
 
 <p align="center">
   <picture>
-    <img alt="Promise performance benchmark" width="400" src="./readme-img/promise-performance.png">
+    <img alt="Promise performance benchmark" width="600" src="./readme-img/promise-performance.png">
   </picture>
 </p>
 
