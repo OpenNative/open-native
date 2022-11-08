@@ -18,7 +18,11 @@ Each of these projects has a way to map platform APIs into their idiom (e.g. Rea
 
 Open Native is the long overdue Rosetta Stone that **allows native modules to be used cross-ecosystem**. It handles all the necessary autolinking, type marshalling and API-binding to allow you to choose the highest quality native module for your project, no matter what ecosystem it comes from.
 
-For our first integration, we've **enabled NativeScript to use React Native native modules** simply by running `npm install @open-native/core` and adding a few lines to their Webpack config. From there, just `npm install` the native module (autolinking is handled under-the-hood). The module can then be used **exactly as documented for React Native**.
+For our first integration, we've **enabled NativeScript to use React Native native modules** exactly as documented for React Native.
+
+### How does it work?
+
+Open Native **implements just the native module API and autolinking** for a given ecosystem (e.g. React Native) without including any unnecessary core code or CLI tooling. It then exposes the native APIs in an ecosystem-agnostic manner that another framework (e.g. NativeScript) can provide a minimal adapter for.
 
 ## How do you use it?
 
@@ -78,7 +82,7 @@ auth0.webAuth
 
 ## How feature-complete is it?
 
-Rather than a ground-up rewrite, we actually implemented the React Native native module APIs and autolinking process using **the very same code** from the React Native and React Native Community CLI codebases. This ensures excellent consistency and also gives us broad feature coverage. For example, here's how [react-native-auth0](https://github.com/auth0/react-native-auth0) is used:
+Rather than a ground-up rewrite, we actually implemented the React Native native module APIs and autolinking process using **the very same code** from the React Native and React Native Community CLI codebases. This ensures excellent consistency and also gives us broad feature coverage.
 
 We are still testing out different native modules and filling in any gaps left. Broadly, we **fully support bridge-based non-UI modules**, and support for TurboModules, codegen, and JSI is under development (and going well!).
 
