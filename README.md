@@ -94,9 +94,9 @@ Performance of native modules running with Open Native mainly depend on the host
 In our first integration with NativeScript, bridge-based native modules perform almost **7-8 times faster** compared to React Native on iOS (see benchmarks below). The difference is large due to the fact that NativeScript is able to call native APIs directly by default without a bridge unlike React Native.
 
 <p align="center">
-  <picture>
-    <img alt="Promise performance benchmark" width="600" src="./readme-img/promise-performance.png">
-  </picture>
+
+<img alt="Promise performance benchmark" width="600" src="https://raw.githubusercontent.com/OpenNative/open-native/main/readme-img/promise-performance.png">
+    
 </p>
 
 We've also treated all bridge-based native modules as TurboModules, lazy-loading them until the first API call, so **startup time should not be affected for NativeScript apps**.
