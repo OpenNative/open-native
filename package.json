@@ -13,7 +13,7 @@
     "add-angular": "nx g @nativescript/plugin-tools:add-angular",
     "config": "nx g @nativescript/plugin-tools:config",
     "demo:hooks": "nx run core:build.hooks.demo",
-    "build:npm": "nx run core:build.npm",
+    "build:npm": "nx run core:build.npm && yarn setup:regen",
     "build:rnmt": "nx run react-native-module-test:build.all",
     "build:packages": "nx run-many --target=build.all --all",
     "publish-packages": "nx g @nativescript/plugin-tools:publish",

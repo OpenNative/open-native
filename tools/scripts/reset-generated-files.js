@@ -36,3 +36,24 @@ fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_com
 fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_community/RNPodspecs.h'), '{}\n', 'utf-8');
 
 fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/React-Native-Podspecs.podspec'), '{}\n', 'utf-8');
+
+const distExists = fs.existsSync(path.resolve(monorepoRoot, 'dist'));
+if (distExists) {
+  const includeGradlePathDist = path.resolve(monorepoRoot, 'dist/packages/core/platforms/android');
+  if (!fs.existsSync(includeGradlePathDist)) fs.mkdirSync(includeGradlePathDist);
+  fs.writeFileSync(path.join(includeGradlePathDist, 'include.gradle'), '', 'utf-8');
+
+  fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/react-android/bridge/src/main/java/com/bridge/Packages.java'), '', 'utf-8');
+
+  fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/react-android/bridge/modules.json'), '[]\n', 'utf-8');
+
+  fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/react-android/bridge/modulemap.json'), '{}\n', 'utf-8');
+
+  fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/platforms/ios/Podfile'), '', 'utf-8');
+
+  fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/platforms/ios/lib_community/modulemap.json'), '{}\n', 'utf-8');
+
+  fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/platforms/ios/lib_community/RNPodspecs.h'), '{}\n', 'utf-8');
+
+  fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/platforms/ios/React-Native-Podspecs.podspec'), '{}\n', 'utf-8');
+}
