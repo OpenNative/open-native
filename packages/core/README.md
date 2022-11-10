@@ -11,6 +11,17 @@ npm install @open-native/core
 Create `App_Resources/Android/before-plugins.gradle with the following contents
 
 ```groovy
+ext {
+        // The version used here should be same as the one's
+        // set in app.gradle file.
+        buildToolsVersion = '33.0.0'
+        minSdkVersion = 23
+        compileSdkVersion = 33
+        targetSdkVersion = 33
+        
+        androidXCoreVersion = "1.8.0"
+        androidXCompatVersion = "1.5.1"
+}
 allprojects {
 
   // Nativescript by default runs this hook for all plugin builds,
