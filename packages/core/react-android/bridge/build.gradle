@@ -1,14 +1,17 @@
 plugins {
   id 'com.android.library'
 }
+def safeExtGet = {prop, fallback ->
+        rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
 
 import groovy.json.JsonSlurper
 android {
-    compileSdk 31
-
+    compileSdk safeExtGet("compileSdkVersion",31)
+    
     defaultConfig {
-        minSdk 21
-        targetSdk 31
+        minSdkVersion safeExtGet('minSdkVersion',21)
+        targetSdkVersion safeExtGet("targetSdkVersion",31)
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -28,7 +31,6 @@ android {
 def modules = new JsonSlurper().parse(new File(projectDir,"modules.json"));
 def selfModuleName = "open-native_core"
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.facebook.react:react-native:+'
     modules.each {
       if (!it.androidProjectName.equals(selfModuleName)) {

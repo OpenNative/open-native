@@ -2,18 +2,20 @@ plugins {
     id 'com.android.library'
 }
 
+def safeExtGet = {prop, fallback ->
+        rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
 repositories {
   google()
   mavenCentral()
 }
 
 android {
-    compileSdk 31
-
+    compileSdk safeExtGet("compileSdkVersion",31)
     defaultConfig {
-        minSdk 21
-        targetSdk 31
-
+        minSdkVersion safeExtGet('minSdkVersion',21)
+        targetSdkVersion safeExtGet("targetSdkVersion",31)
         consumerProguardFiles "consumer-rules.pro"
     }
 
@@ -29,17 +31,21 @@ android {
     }
 }
 
+def androidXCoreVersion = safeExtGet("androidXCoreVersion","1.8.0");
+def androidXCompatVersion = safeExtGet("androidXCompatVersion","1.5.1");
+
 dependencies {
-    api('androidx.appcompat:appcompat:1.5.1')
+    api("androidx.core:core:${androidXCoreVersion}")
+    api("androidx.appcompat:appcompat:${androidXCompatVersion}")
+    api("androidx.appcompat:appcompat-resources:${androidXCompatVersion}")
+
     api('com.facebook.infer.annotation:infer-annotation:0.18.0')
     api("com.facebook.yoga:proguard-annotations:1.19.0")
-    api("androidx.appcompat:appcompat-resources:1.5.1")
     api('com.google.code.findbugs:jsr305:3.0.2')
     api("com.squareup.okhttp3:okhttp:4.9.2")
     api("com.squareup.okhttp3:okhttp-urlconnection:4.9.2")
     api("com.squareup.okio:okio:2.9.0")
     api("com.squareup.okio:okio:2.9.0")
-    api("androidx.core:core:1.8.0")
     api("com.facebook.fresco:fresco:2.5.0")
 }
 
