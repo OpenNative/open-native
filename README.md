@@ -35,34 +35,9 @@ Install both Open Native and the React Native native module of interest:
 npm install --save @open-native/core react-native-auth0
 ```
 
-### Webpack configuration
+### Setup
 
-Alter your NativeScript app's webpack config (see [webpack-chain](https://github.com/neutrinojs/webpack-chain) if this looks unfamiliar) as follows:
-
-1. **Mandatory**: alias `react-native` to `@open-native/core`.
-2. **As required (see below)**: add a rule to process `react-native-auth0` with `metro-react-native-babel-preset` via `babel-loader`.
-
-```js
-webpack.chainWebpack((config) => {
-  config.resolve.alias.set('react-native', '@open-native/core');
-
-  config.module
-    .rule('rnmodules')
-    // For each React Native native module to be processed with Babel, add an
-    // 'include' rule here that matches the filepath to its npm package.
-    .include.add(/node_modules(.*[/\\])+react-native-auth0/)
-    .end()
-    .use('babel-loader')
-    .before('ts-loader')
-    .loader('babel-loader')
-    .options({
-      babelrc: false,
-      presets: ['module:metro-react-native-babel-preset'],
-    });
-});
-```
-
-For many modules, step 2 can be omitted - only certain React Native native modules, distributed with Metro in mind, actually need Babel processing in practice. Simply try building without the rule first and if Webpack throws an errors, try with the rule instead.
+Follow [the guide here](https://github.com/OpenNative/open-native/tree/main/packages/core) to complete the setting up your project. 
 
 ### Code
 
