@@ -938,6 +938,7 @@ async function writePackagesJavaFile({
   packages: {
     packageImportPath: string;
     packageInstance: string;
+    packageName: string;
     modules: {
       exportedModuleName: string;
       moduleImportName: string;
@@ -967,6 +968,7 @@ async function writePackagesJavaFile({
     'public class Packages {',
     '  public static List<ReactPackage> list = new ArrayList<>();',
     '  public static HashMap<String, Class> moduleClasses = new HashMap<>();',
+    '  public static HashMap<String, String> modulePackageMap = new HashMap<>();',
     '',
     '  public static void init() {',
     "    // Register each package - we hopefully won't be using this for loading",
@@ -980,10 +982,15 @@ async function writePackagesJavaFile({
     '',
     '    // Register each module class so that we can lazily access modules upon',
     '    // first function call',
-    ...packages.flatMap(({ modules }) =>
-      modules.map(
-        (m) =>
-          `    moduleClasses.put("${m.exportedModuleName}", ${m.moduleClassName}.class);`
+    ...packages.flatMap(({ modules, packageImportPath }) =>
+      modules.map((m) =>
+        [
+          `    moduleClasses.put("${m.exportedModuleName}", ${m.moduleClassName}.class);`,
+          `    modulePackageMap.put("${m.moduleClassName}", "${packageImportPath
+            .split('.')
+            .pop()
+            .replace(';', '')}");`,
+        ].join('\n')
       )
     ),
     '',

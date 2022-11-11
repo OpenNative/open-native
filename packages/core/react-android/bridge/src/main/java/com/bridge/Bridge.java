@@ -9,13 +9,13 @@ import com.facebook.react.bridge.ReactContext;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Bridge {
   public static String TAG = "RNBridge";
   public static Packages packages = new Packages();
-  public List<NativeModule> modules = new ArrayList<>();
+  public HashMap<String, NativeModule> modules = new HashMap<>();
   public ReactApplicationContext reactContext;
 
   public Bridge(ReactApplicationContext context) {
@@ -23,11 +23,37 @@ public class Bridge {
     Packages.init();
   }
 
-  public void loadModules(ReactApplicationContext context) {
+  /**
+   * We want to avoid using this method as much as possible
+   * as this will load all modules in ReactPackge. However in
+   * certain cases this is the only way to load modules especially
+   * when the ReactPackage is responsible for doing more things
+   * than just loading the module itself with the current ReactContext.
+   *
+   * @param packageName
+   */
+  public void loadModulesForPackage(String packageName) {
+    try {
+      for (ReactPackage pkg : Packages.list) {
+        if (pkg.getClass().getSimpleName().equals(packageName)) {
+          List<NativeModule> modules_chunk = pkg.createNativeModules(reactContext);
+          for (NativeModule module: modules_chunk) {
+            modules.put(module.getName(),module);
+          }
+        }
+      }
+    } catch(Exception e) {
+      Log.d(TAG,"Failed to load package for name: " + packageName + "due to error: " + e.getMessage());
+    }
+  }
+
+  public void loadModules() {
     for (ReactPackage pkg : Packages.list) {
       try {
-        List<NativeModule> modules_chunk = pkg.createNativeModules(context);
-        modules.addAll(modules_chunk);
+        List<NativeModule> modules_chunk = pkg.createNativeModules(reactContext);
+        for (NativeModule module: modules_chunk) {
+          modules.put(module.getName(),module);
+        }
       } catch(Exception e) {
         Log.d(TAG,e.getLocalizedMessage());
       }
@@ -35,34 +61,31 @@ public class Bridge {
   }
 
   public NativeModule getModuleByName(String name) {
-    for (NativeModule module : modules) {
-      if (module.getName().equals(name)) {
-        return module;
-      }
-    }
+    if (modules.containsKey(name)) return modules.get(name);
     return loadModuleByName(name);
   }
 
   public NativeModule getModuleForClass(Class clazz) {
-    for (NativeModule module : modules) {
+    for (String moduleName : modules.keySet()) {
+      NativeModule module = modules.get(moduleName);
       if (module.getClass().equals(clazz)) {
         return module;
       }
     }
-
     return loadModuleForClass(clazz);
   }
 
 
   NativeModule loadModuleByName(String name) {
-      Class moduleClass = Packages.moduleClasses.get(name);
-      if (moduleClass == null) return null;
-      return loadModuleForClass(moduleClass);
+    Class moduleClass = Packages.moduleClasses.get(name);
+    if (moduleClass == null) return null;
+    return loadModuleForClass(moduleClass);
   }
 
   public  boolean hasNativeModule(Class clazz) {
     return !Packages.moduleClasses.containsValue(clazz);
   }
+
   NativeModule loadModuleForClass(Class moduleClass) {
     try {
       if (!Packages.moduleClasses.containsValue(moduleClass)) {
@@ -74,8 +97,21 @@ public class Bridge {
           (constructor.getParameterTypes()[0] == ReactContext.class ||
             constructor.getParameterTypes()[0] == ReactApplicationContext.class)){
           NativeModule module = (NativeModule) constructor.newInstance(reactContext);
-          modules.add(module);
+          modules.put(module.getName(), module);
           return module;
+        } else {
+          /**
+           * Load the package for the module instead if
+           * we are not able to load the module without the
+           * package. This is possible the in following 3 conditions
+           *
+           * 1. the module constructor has no parameters
+           * 2. has greater than 1 parameter
+           * 3. it's only parameter is not ReactContext/ReactApplicationContext or a class that extends it.
+           */
+          String pkgName = Packages.modulePackageMap.get(moduleClass.getSimpleName());
+          loadModulesForPackage(pkgName);
+          return getModuleForClass(moduleClass);
         }
       }
     } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
@@ -84,5 +120,4 @@ public class Bridge {
     }
     return  null;
   }
-
 }
