@@ -9,7 +9,6 @@ export class JSModules {
     if (dollarSignIndex != -1) {
       name = name.substring(dollarSignIndex + 1);
     }
-    console.log('JSModules.getJSModule', name);
     return this.modules[name];
   }
 

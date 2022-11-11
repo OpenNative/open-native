@@ -29,18 +29,18 @@ export default class CatalystInstance {
       },
 
       getJSModule(clazz: java.lang.Class<any>): JavaScriptModule {
-        return this.jsModules.getJSModule(clazz);
+        return jsModules.getJSModule(clazz);
       },
       getNativeModule(param0: unknown): NativeModule {
         if (typeof param0 === 'string') {
-          return this.bridge.getModuleByName(param0 as string);
+          return bridge.getModuleByName(param0 as string);
         } else {
-          return this.bridge.getModuleForClass(param0 as java.lang.Class<any>);
+          return bridge.getModuleForClass(param0 as java.lang.Class<any>);
         }
       },
 
       getNativeModules(): java.util.Collection<NativeModule> {
-        return this.bridge.modules;
+        return bridge.modules;
       },
 
       isDestroyed(): boolean {
@@ -48,7 +48,7 @@ export default class CatalystInstance {
       },
 
       hasNativeModule(param0: java.lang.Class<any>): boolean {
-        return this.bridge.hasNativeModule(param0);
+        return bridge.hasNativeModule(param0);
       },
 
       setTurboModuleManager(param0: JSIModule): void {

@@ -1,17 +1,15 @@
-import { getCurrentBridge } from './bridge';
-import { toJSValue, JSValuePassableIntoObjc } from './converter';
+import { JSValuePassableIntoObjc, toJSValue } from './converter';
 
 export type JSMethodRecord = {
   [methodName: string]: (...args: unknown[]) => unknown;
 };
 
 export class JSModules {
-  private readonly bridge: RCTBridge = getCurrentBridge();
   // If the only modules entering this module record are internal ones, we could
   // type this more strongly with generic typings. But for now, it's loose.
   private readonly modules: { [moduleName: string]: JSMethodRecord } = {};
 
-  constructor() {
+  constructor(public bridge: RCTBridge) {
     this.bridge.setJSModuleInvokerCallback(this.jsModuleInvoker.bind(this));
   }
 
@@ -30,7 +28,13 @@ export class JSModules {
         `Unrecognized method name "${methodName}" for JS module, "${moduleName}".`
       );
     }
-
+    // Run callback on next event loop.
+    if (moduleName === 'RCTDeviceEventEmitter') {
+      setTimeout(() => {
+        jsMethod(...(toJSValue(args) as JSValuePassableIntoObjc[]));
+      }, 1);
+      return;
+    }
     // Given an NSArray of native args from Obj-C, convert those into JS
     // primitive types and call the JS method with it.
     return jsMethod(...(toJSValue(args) as JSValuePassableIntoObjc[]));
