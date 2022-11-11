@@ -57,7 +57,7 @@ export default class EventEmitter {
     eventType: string,
     // FIXME: listeners should return void instead of mixed to prevent issues
     listener: (...args: unknown[]) => unknown,
-    context: unknown
+    context?: unknown
   ): EventSubscription {
     return this._subscriber.addSubscription(
       eventType,

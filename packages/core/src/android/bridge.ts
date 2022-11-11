@@ -23,7 +23,9 @@ function RCTDeviceEventEmitter() {
   return new com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter(
     {
       emit(eventType, params) {
-        DeviceEventEmitter.emit(eventType, params);
+        setTimeout(() => {
+          DeviceEventEmitter.emit(eventType, params);
+        }, 1);
       },
     }
   );
@@ -36,22 +38,23 @@ function RCTDeviceEventEmitter() {
  */
 export function getCurrentBridge() {
   if (!global.reactNativeBridgeAndroid) {
+    getJSModules().registerJSModule(
+      'RCTDeviceEventEmitter',
+      RCTDeviceEventEmitter()
+    );
     const reactApplicationContext =
       new com.facebook.react.bridge.ReactApplicationContext(
         Utils.android.getApplicationContext()
       );
-    global.reactNativeBridgeAndroid = new com.bridge.Bridge(
-      reactApplicationContext
-    );
+
     const catalysInstance = new CatalystInstance(
       reactApplicationContext,
       getJSModules(),
       global.reactNativeBridgeAndroid
     );
     reactApplicationContext.initializeWithInstance(catalysInstance.instance);
-    getJSModules().registerJSModule(
-      'RCTDeviceEventEmitter',
-      RCTDeviceEventEmitter()
+    global.reactNativeBridgeAndroid = new com.bridge.Bridge(
+      reactApplicationContext
     );
     attachActivityLifecycleListeners(reactApplicationContext);
   }

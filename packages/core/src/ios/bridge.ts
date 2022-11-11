@@ -1,9 +1,9 @@
 import DeviceEventEmitter from '../../Libraries/EventEmitter/RCTDeviceEventEmitter';
 import { JSModules, JSMethodRecord } from './js-modules';
 
-export function getJSModules() {
+export function getJSModules(bridge: RCTBridge) {
   if (!global.jsModulesIOS) {
-    global.jsModulesIOS = new JSModules();
+    global.jsModulesIOS = new JSModules(bridge);
   }
   return global.jsModulesIOS;
 }
@@ -18,7 +18,7 @@ export function getCurrentBridge() {
     let currentBridge = RCTBridge.currentBridge();
     if (!currentBridge) {
       currentBridge = RCTBridge.alloc().init();
-      getJSModules().registerJSModule(
+      getJSModules(currentBridge).registerJSModule(
         'RCTDeviceEventEmitter',
         DeviceEventEmitter as JSMethodRecord
       );

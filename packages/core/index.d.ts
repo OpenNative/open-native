@@ -1,12 +1,13 @@
 import { JSModules } from './src/ios/js-modules';
 import { JSModules as JSModulesAndroid } from './src/android/js-modules';
-import RCTDeviceEventEmitter from './Libraries/EventEmitter/RCTDeviceEventEmitter';
+import type EventEmitter from './Libraries/vendor/emitter/EventEmitter';
 export type {
   Platform,
   PlatformSelect,
   PlatformSelectOSType,
 } from './Libraries/Utilities/Platform';
 import type { Linking } from './Libraries/Linking/Linking';
+import EventEmitter from './Libraries/vendor/emitter/EventEmitter';
 
 declare global {
   // eslint-disable-next-line no-var
@@ -18,7 +19,12 @@ declare global {
   // eslint-disable-next-line no-var
   var jsModulesAndroid: JSModulesAndroid;
 }
-
+/**
+ * Loads all modules eagerly in a specific ReactPackage.
+ *
+ * @platform android
+ */
+export function loadModulesForPackage(name: string): void;
 export const NativeModules: { [name: string]: any };
-export const DeviceEventEmitter: RCTDeviceEventEmitter;
+export const DeviceEventEmitter: EventEmitter;
 export const Linking: Linking;

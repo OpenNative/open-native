@@ -108,6 +108,7 @@ declare module com {
       public constructor(
         param0: com.facebook.react.bridge.ReactApplicationContext
       );
+      public loadModulesForPackage(param0: string): void;
       public getModuleByName(
         param0: string
       ): com.facebook.react.bridge.NativeModule;
