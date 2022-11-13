@@ -40,7 +40,7 @@ export default class CatalystInstance {
       },
 
       getNativeModules(): java.util.Collection<NativeModule> {
-        return bridge.modules;
+        return bridge.modules.values();
       },
 
       isDestroyed(): boolean {
