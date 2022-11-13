@@ -88,7 +88,6 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
   Application.android.on(
     AndroidApplication.activityCreatedEvent,
     (args: AndroidActivityBundleEventData) => {
-      console.log('activity created', args.activity);
       const activityName = getActivityName(args.activity);
       if (!mMainActivityName || mMainActivityName === activityName) {
         mMainActivityName = activityName;
@@ -99,7 +98,6 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
   Application.android.on(
     AndroidApplication.activityResumedEvent,
     (args: AndroidActivityEventData) => {
-      console.log('activity resumed', args.activity);
       const activityName = getActivityName(args.activity);
       if (!mMainActivityName || mMainActivityName === activityName) {
         mMainActivityName = activityName;
@@ -110,7 +108,6 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
   Application.android.on(
     AndroidApplication.activityPausedEvent,
     (args: AndroidActivityEventData) => {
-      console.log('activity paused', args.activity);
       if (mMainActivityName === getActivityName(args.activity)) {
         reactContext.onHostPause();
       }
@@ -119,7 +116,6 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
   Application.android.on(
     AndroidApplication.activityDestroyedEvent,
     (args: AndroidActivityEventData) => {
-      console.log('activity destroy', args.activity);
       if (mMainActivityName === getActivityName(args.activity)) {
         reactContext.onHostDestroy();
       }
