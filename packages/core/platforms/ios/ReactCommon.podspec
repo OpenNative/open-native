@@ -17,5 +17,7 @@ Pod::Spec.new do |s|
   s.preserve_paths         = "package.json", "LICENSE-react-native"
   s.cocoapods_version      = ">= 1.10.1"
   s.source_files  = "lib_common/**/*.{h,m,mm,swift}"
+
+  s.dependency "NativeScript"
   
 end

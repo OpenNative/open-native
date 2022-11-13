@@ -1,4 +1,4 @@
-module TestModuleExample {
-    header "TestModuleExample.h"
+module JSIModule {
+    header "JSIModule.h"
     export *
 }

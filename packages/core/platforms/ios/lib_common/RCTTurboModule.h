@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import "CallInvoker.h"
-#import <ReactCommon/jsi.h>
+#import <jsi/jsi.h>
 
 #define RCT_IS_TURBO_MODULE_CLASS(klass) \
   ((RCTTurboModuleEnabled() && [(klass) conformsToProtocol:@protocol(RCTTurboModule)]))

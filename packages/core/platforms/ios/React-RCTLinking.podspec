@@ -37,6 +37,6 @@ Pod::Spec.new do |s|
                                "USE_HEADERMAP" => "YES",
                                "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
                              }
-
+  
   s.dependency "React-Core/RCTLinkingHeaders", version
 end
