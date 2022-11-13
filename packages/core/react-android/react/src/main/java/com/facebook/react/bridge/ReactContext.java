@@ -12,12 +12,15 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import static com.facebook.infer.annotation.ThreadConfined.UI;
 import com.facebook.infer.annotation.ThreadConfined;
 import com.facebook.react.common.LifecycleState;
+import com.facebook.react.common.ReactConstants;
+
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -365,5 +368,54 @@ public class ReactContext extends ContextWrapper {
   public void registerSegment(int segmentId, String path, Callback callback) {
     callback.invoke();
     // In NativeScript we do not require this. Keeping it here for compatibility.
+  }
+
+  private ExceptionHandlerWrapper mExceptionHandlerWrapper;
+  private NativeModuleCallExceptionHandler mNativeModuleCallExceptionHandler;
+
+  public class ExceptionHandlerWrapper implements NativeModuleCallExceptionHandler {
+    @Override
+    public void handleException(Exception e) {
+      ReactContext.this.handleException(e);
+    }
+  }
+
+  public NativeModuleCallExceptionHandler getExceptionHandler() {
+    if (mExceptionHandlerWrapper == null) {
+      mExceptionHandlerWrapper = new ExceptionHandlerWrapper();
+    }
+    return mExceptionHandlerWrapper;
+  }
+
+  public void setNativeModuleCallExceptionHandler(
+    @Nullable NativeModuleCallExceptionHandler nativeModuleCallExceptionHandler) {
+    mNativeModuleCallExceptionHandler = nativeModuleCallExceptionHandler;
+  }
+
+  /**
+   * Passes the given exception to the current {@link
+   * com.facebook.react.bridge.NativeModuleCallExceptionHandler} if one exists, rethrowing
+   * otherwise.
+   */
+  public void handleException(Exception e) {
+    boolean catalystInstanceVariableExists = mCatalystInstance != null;
+    boolean isCatalystInstanceAlive =
+      catalystInstanceVariableExists && !mCatalystInstance.isDestroyed();
+    boolean hasExceptionHandler = mNativeModuleCallExceptionHandler != null;
+
+    if (isCatalystInstanceAlive && hasExceptionHandler) {
+      mNativeModuleCallExceptionHandler.handleException(e);
+    } else {
+      Log.e(
+        ReactConstants.TAG,
+        "Unable to handle Exception - catalystInstanceVariableExists: "
+          + catalystInstanceVariableExists
+          + " - isCatalystInstanceAlive: "
+          + !isCatalystInstanceAlive
+          + " - hasExceptionHandler: "
+          + hasExceptionHandler,
+        e);
+      throw new IllegalStateException(e);
+    }
   }
 }
