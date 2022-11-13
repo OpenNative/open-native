@@ -605,12 +605,42 @@ export function toNativeValue<T extends boolean>(
   }
 
   // Convert array to a ReadableArray
-  // Arguments.fromArray will automatically handle
-  // any nested array values
   if (Array.isArray(data)) {
-    return com.facebook.react.bridge.Arguments.fromArray(
-      Utils.dataSerialize(data)
-    ) as ReadableArray;
+    const writableArray = com.facebook.react.bridge.Arguments.createArray();
+    for (const value of data) {
+      if (value === null || value === undefined) {
+        writableArray.pushNull();
+        continue;
+      }
+      if (Array.isArray(value)) {
+        writableArray.pushArray(
+          toNativeValue(value, false) as unknown as ReadableArray
+        );
+        continue;
+      }
+      switch (typeof value) {
+        case 'object':
+          writableArray.pushMap(
+            toNativeValue(value, false) as unknown as ReadableMap
+          );
+          break;
+        case 'boolean':
+          writableArray.pushBoolean(toNativeValue(value, false) as boolean);
+          break;
+        case 'string':
+          writableArray.pushString(toNativeValue(value, false) as string);
+          break;
+        case 'number':
+          writableArray.pushDouble(toNativeValue(value, false) as number);
+          break;
+        case 'bigint':
+          writableArray.pushDouble(toNativeValue(value, false) as number);
+          break;
+        case 'function':
+          writableArray.pushNull();
+      }
+    }
+    return writableArray;
   }
 
   // Convert array to a ReadableMap
@@ -655,6 +685,11 @@ export function toNativeValue<T extends boolean>(
         case 'number':
           writableMap.putDouble(key, toNativeValue(data[key], false) as number);
           break;
+        case 'bigint':
+          writableMap.putDouble(key, toNativeValue(data[key], false) as number);
+          break;
+        case 'function':
+          writableMap.putNull(key);
       }
     }
     return writableMap as ReadableMap;
