@@ -28,3 +28,9 @@ export function loadModulesForPackage(name: string): void;
 export const NativeModules: { [name: string]: any };
 export const DeviceEventEmitter: EventEmitter;
 export const Linking: Linking;
+export class TurboModule {}
+
+export const TurboModuleRegistry: {
+  get<T extends TurboModule>(name: string): T | null;
+  getEnforcing<T extends TurboModule>(name: string): T;
+};

@@ -147,3 +147,12 @@ export const NativeModules = Object.keys(NativeModuleMap).reduce(
   },
   {}
 );
+
+export const TurboModuleRegistry = {
+  get: (name: string) => {
+    return NativeModules[name];
+  },
+  getEnforcing: (name: string) => {
+    return NativeModules[name];
+  },
+};

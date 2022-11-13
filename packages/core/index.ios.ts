@@ -1,7 +1,7 @@
 import RCTDeviceEventEmitter from './Libraries/EventEmitter/RCTDeviceEventEmitter';
 export { default as NativeEventEmitter } from './Libraries/EventEmitter/NativeEventEmitter';
 export { Platform } from './Libraries/Utilities/Platform';
-export { NativeModules } from './src/ios/nativemodules';
+export { NativeModules, TurboModuleRegistry } from './src/ios/nativemodules';
 export { Linking } from './Libraries/Linking/Linking';
 export const DeviceEventEmitter = RCTDeviceEventEmitter;
 
