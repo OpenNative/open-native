@@ -132,7 +132,21 @@ class NativeModuleHolder implements Partial<NativeModule> {
         }
 
         if (isPromise(moduleMethods, exportedMethodName)) {
-          return promisify(this.nativeModule, jsName, methodTypes, args);
+          if (this.nativeModule.methodQueue) {
+            dispatch_async(this.nativeModule.methodQueue, () =>
+              promisify(this.nativeModule, jsName, methodTypes, args)
+            );
+          } else {
+            promisify(this.nativeModule, jsName, methodTypes, args);
+          }
+          return;
+        }
+
+        if (this.nativeModule.methodQueue) {
+          dispatch_async(this.nativeModule.methodQueue, () =>
+            this.nativeModule[jsName]?.(...toNativeArguments(methodTypes, args))
+          );
+          return;
         }
 
         return this.nativeModule[jsName]?.(
@@ -153,3 +167,12 @@ export const NativeModules = Object.keys(NativeModuleMap).reduce(
   },
   {}
 );
+
+export const TurboModuleRegistry = {
+  get: (name: string) => {
+    return NativeModules[name];
+  },
+  getEnforcing: (name: string) => {
+    return NativeModules[name];
+  },
+};
