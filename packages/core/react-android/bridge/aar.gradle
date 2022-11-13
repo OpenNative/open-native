@@ -31,7 +31,6 @@ android {
 def modules = new JsonSlurper().parse(new File(projectDir,"modules.json"));
 def selfModuleName = "open-native_core"
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.5.1'
     embed project(':react')
     modules.each {
       if (!it.androidProjectName.equals(selfModuleName)) {
