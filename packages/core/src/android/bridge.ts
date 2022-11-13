@@ -8,6 +8,7 @@ import {
   Utils,
 } from '@nativescript/core';
 import DeviceEventEmitter from '../../Libraries/EventEmitter/RCTDeviceEventEmitter';
+import { AppRegistry } from '../../Libraries/ReactNative/AppRegistry';
 import CatalystInstance from './catalyst-instance';
 import { JSModules } from './js-modules';
 import { ReactContext } from './types';
@@ -41,6 +42,10 @@ export function getCurrentBridge() {
     getJSModules().registerJSModule(
       'RCTDeviceEventEmitter',
       RCTDeviceEventEmitter()
+    );
+    getJSModules().registerJSModule(
+      'AppRegistry',
+      AppRegistry.appRegistryJSModule
     );
     const reactApplicationContext =
       new com.facebook.react.bridge.ReactApplicationContext(

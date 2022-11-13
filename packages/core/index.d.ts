@@ -18,6 +18,8 @@ declare global {
   var jsModulesIOS: JSModules;
   // eslint-disable-next-line no-var
   var jsModulesAndroid: JSModulesAndroid;
+  // eslint-disable-next-line no-var
+  var __turboModulesProxy: any;
 }
 /**
  * Loads all modules eagerly in a specific ReactPackage.

@@ -1,7 +1,10 @@
 import RCTDeviceEventEmitter from './Libraries/EventEmitter/RCTDeviceEventEmitter';
+export { TurboModule } from './Libraries/TurboModule/RCTExport';
 export { default as NativeEventEmitter } from './Libraries/EventEmitter/NativeEventEmitter';
 export { Platform } from './Libraries/Utilities/Platform';
-export { NativeModules, TurboModuleRegistry } from './src/ios/nativemodules';
+export { NativeModules } from './src/ios/nativemodules';
+export { AppRegistry } from './Libraries/ReactNative/AppRegistry';
+import * as _TurboModuleRegistry from './Libraries/TurboModule/TurboModuleRegistry';
 export { Linking } from './Libraries/Linking/Linking';
 export const DeviceEventEmitter = RCTDeviceEventEmitter;
 
@@ -11,3 +14,4 @@ export const DeviceEventEmitter = RCTDeviceEventEmitter;
  * @platform android
  */
 export const loadModulesForPackage = (name: string) => undefined;
+export const TurboModuleRegistry = _TurboModuleRegistry;
