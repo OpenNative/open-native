@@ -1,5 +1,5 @@
 import RCTDeviceEventEmitter from './Libraries/EventEmitter/RCTDeviceEventEmitter';
-export { TurboModule } from './Libraries/TurboModule/RCTExport';
+export type { TurboModule } from './Libraries/TurboModule/RCTExport';
 export { default as NativeEventEmitter } from './Libraries/EventEmitter/NativeEventEmitter';
 export { Platform } from './Libraries/Utilities/Platform';
 export { NativeModules } from './src/ios/nativemodules';
