@@ -97,10 +97,15 @@ export = async function (hookArgs: HookArgs) {
   }
 
   packageNames.forEach((packageName) =>
-    console.log(`${logPrefix} Autolinked ${green}${packageName}${reset}!`)
+    console.log(`${logPrefix} ✅ Autolinked ${green}${packageName}${reset}!`)
   );
 
-  console.log(
-    `${logPrefix} ... Finished autolinking React Native ${normalizedPlatformName} native modules.`
-  );
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      console.log(
+        `${logPrefix} ⚡ Finished autolinking React Native ${normalizedPlatformName} modules.`
+      );
+      resolve();
+    }, 2000);
+  });
 };
