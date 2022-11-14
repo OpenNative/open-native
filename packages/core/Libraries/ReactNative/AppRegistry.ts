@@ -1,4 +1,5 @@
 import NativeHeadlessJsTaskSupport from './NativeHeadlessJsTaskSupport';
+import { Platform } from '../Utilities/Platform';
 
 type Task = (taskData: any) => Promise<void>;
 export type TaskProvider = () => Task;
@@ -12,53 +13,59 @@ class _AppRegistry {
   public appRegistryJSModule: com.facebook.react.modules.appregistry.AppRegistry;
   constructor() {
     this.appRegistryJSModule =
-      new com.facebook.react.modules.appregistry.AppRegistry({
-        runApplication(param0, param1) {
-          console.log('AppRegistry.runApplication unimplemented');
-        },
-        startHeadlessTask(taskId, taskKey, data) {
-          // Run on next event loop
-          setTimeout(() => {
-            const taskProvider = taskProviders.get(taskKey);
-            if (!taskProvider) {
-              console.warn(`No task registered for key ${taskKey}`);
-              if (NativeHeadlessJsTaskSupport) {
-                NativeHeadlessJsTaskSupport.notifyTaskFinished(taskId);
-              }
-              return;
-            }
-            taskProvider()(data)
-              .then(() => {
-                if (NativeHeadlessJsTaskSupport) {
-                  NativeHeadlessJsTaskSupport.notifyTaskFinished(taskId);
+      Platform.OS === 'ios'
+        ? null
+        : new com.facebook.react.modules.appregistry.AppRegistry({
+            runApplication(param0, param1) {
+              console.log('AppRegistry.runApplication unimplemented');
+            },
+            startHeadlessTask(taskId, taskKey, data) {
+              // Run on next event loop
+              setTimeout(() => {
+                const taskProvider = taskProviders.get(taskKey);
+                if (!taskProvider) {
+                  console.warn(`No task registered for key ${taskKey}`);
+                  if (NativeHeadlessJsTaskSupport) {
+                    NativeHeadlessJsTaskSupport.notifyTaskFinished(taskId);
+                  }
+                  return;
                 }
-              })
-              .catch((reason) => {
-                console.error(reason);
-                if (NativeHeadlessJsTaskSupport) {
-                  NativeHeadlessJsTaskSupport.notifyTaskRetry(taskId).then(
-                    (retryPosted) => {
-                      if (!retryPosted) {
-                        NativeHeadlessJsTaskSupport.notifyTaskFinished(taskId);
-                      }
+                taskProvider()(data)
+                  .then(() => {
+                    if (NativeHeadlessJsTaskSupport) {
+                      NativeHeadlessJsTaskSupport.notifyTaskFinished(taskId);
                     }
-                  );
-                }
-              });
-          }, 16);
-        },
-        unmountApplicationComponentAtRootTag(param0) {
-          console.log(
-            'AppRegistry.unmountApplicationComponentAtRootTag unimplemented'
-          );
-        },
-      });
+                  })
+                  .catch((reason) => {
+                    console.error(reason);
+                    if (NativeHeadlessJsTaskSupport) {
+                      NativeHeadlessJsTaskSupport.notifyTaskRetry(taskId).then(
+                        (retryPosted) => {
+                          if (!retryPosted) {
+                            NativeHeadlessJsTaskSupport.notifyTaskFinished(
+                              taskId
+                            );
+                          }
+                        }
+                      );
+                    }
+                  });
+              }, 16);
+            },
+            unmountApplicationComponentAtRootTag(param0) {
+              console.log(
+                'AppRegistry.unmountApplicationComponentAtRootTag unimplemented'
+              );
+            },
+          });
   }
 
   /**
    * Register a headless task. A headless task is a bit of code that runs without a UI.
    *
    * See https://reactnative.dev/docs/appregistry#registerheadlesstask
+   *
+   * @platform android
    */
   registerHeadlessTask(taskKey: string, taskProvider: TaskProvider): void {
     this.registerCancellableHeadlessTask(taskKey, taskProvider, () => () => {
@@ -89,6 +96,7 @@ class _AppRegistry {
    * Only called from native code. Cancels a headless task.
    *
    * See https://reactnative.dev/docs/appregistry#cancelheadlesstask
+   * @platform android
    */
   cancelHeadlessTask(taskId: number, taskKey: string): void {
     const taskCancelProvider = taskCancelProviders.get(taskKey);
