@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "husky install && npx ts-patch install && patch-package",
-    "setup": "setup:clean && setup:install && setup:regen",
+    "setup": "yarn setup:clean && yarn setup:install && yarn setup:regen",
     "setup:clean": "npx rimraf node_modules package-lock.json dist tmp yarn.lock",
     "setup:regen": "node tools/scripts/reset-generated-files.js",
     "setup:install": "yarn config set ignore-engines true && yarn",
