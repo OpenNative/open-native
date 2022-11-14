@@ -6,7 +6,7 @@
     <StackLayout class="p-20">
         <ScrollView class="h-full">
           <StackLayout>
-            <Button text="Promise Test" tap="{{ testPromise }}" class="btn btn-primary"/>
+            <Button text="Auth0 Test" tap="{{ tryAuth0 }}" class="btn btn-primary"/>
           </StackLayout>
         </ScrollView>
     </StackLayout>
