@@ -10,6 +10,7 @@ import {
 import DeviceEventEmitter from '../../Libraries/EventEmitter/RCTDeviceEventEmitter';
 import { AppRegistry } from '../../Libraries/ReactNative/AppRegistry';
 import CatalystInstance from './catalyst-instance';
+import { toJSValue } from './converter';
 import { JSModules } from './js-modules';
 import { ReactContext } from './types';
 
@@ -25,7 +26,7 @@ function RCTDeviceEventEmitter() {
     {
       emit(eventType, params) {
         setTimeout(() => {
-          DeviceEventEmitter.emit(eventType, params);
+          DeviceEventEmitter.emit(eventType, toJSValue(params));
         }, 1);
       },
     }
@@ -61,6 +62,19 @@ export function getCurrentBridge() {
     global.reactNativeBridgeAndroid = new com.bridge.Bridge(
       reactApplicationContext
     );
+    if (Utils.android.getApplication().getReactNativeHost) {
+      console.log('React Native Host is installed');
+      const reactNativeHost = Utils.android
+        .getApplication()
+        .getReactNativeHost();
+      reactNativeHost
+        .getReactInstanceManager?.()
+        .setupReactContext?.(reactApplicationContext);
+      console.log(
+        'React Native Host is Ready',
+        reactNativeHost.getReactInstanceManager?.()
+      );
+    }
     attachActivityLifecycleListeners(reactApplicationContext);
   }
   return global.reactNativeBridgeAndroid;
