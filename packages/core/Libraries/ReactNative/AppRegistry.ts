@@ -1,5 +1,6 @@
 import NativeHeadlessJsTaskSupport from './NativeHeadlessJsTaskSupport';
 import { Platform } from '../Utilities/Platform';
+import { toJSValue } from '../../src/android/converter';
 
 type Task = (taskData: any) => Promise<void>;
 export type TaskProvider = () => Task;
@@ -30,7 +31,7 @@ class _AppRegistry {
                   }
                   return;
                 }
-                taskProvider()(data)
+                taskProvider()(toJSValue(data))
                   .then(() => {
                     if (NativeHeadlessJsTaskSupport) {
                       NativeHeadlessJsTaskSupport.notifyTaskFinished(taskId);
