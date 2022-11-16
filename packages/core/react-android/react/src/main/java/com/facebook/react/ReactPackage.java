@@ -56,5 +56,3 @@ public interface ReactPackage {
    @NonNull
    List<ViewManager> createViewManagers(@NonNull ReactApplicationContext reactContext);
 }
-
-// I have commented out anything related to ReactViews.
