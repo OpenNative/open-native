@@ -39,6 +39,7 @@ public class Bridge {
           List<NativeModule> modules_chunk = pkg.createNativeModules(reactContext);
           for (NativeModule module: modules_chunk) {
             modules.put(module.getName(),module);
+            module.initialize();
           }
         }
       }
@@ -53,6 +54,7 @@ public class Bridge {
         List<NativeModule> modules_chunk = pkg.createNativeModules(reactContext);
         for (NativeModule module: modules_chunk) {
           modules.put(module.getName(),module);
+          module.initialize();
         }
       } catch(Exception e) {
         Log.d(TAG,e.getLocalizedMessage());
@@ -98,6 +100,7 @@ public class Bridge {
             constructor.getParameterTypes()[0] == ReactApplicationContext.class)){
           NativeModule module = (NativeModule) constructor.newInstance(reactContext);
           modules.put(module.getName(), module);
+          module.initialize();
           return module;
         } else {
           /**
