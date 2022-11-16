@@ -283,24 +283,35 @@ export function toNativeArguments(
         break;
 
       case RNJavaSerialisableType.int:
-      case RNJavaSerialisableType.nonnullInt:
-      case RNJavaSerialisableType.nonnullFloat:
-      case RNJavaSerialisableType.nonnullDouble:
-      case RNJavaSerialisableType.float:
-      case RNJavaSerialisableType.double:
         assert(
           typeof data === 'number',
           `Argument at index ${i} expected a number, but got ${data}`
         );
-
-        // numbers are auto-marshalled to Double/Float/Integer, but toNativeValue() may
-        // preserve their contents better (it inspects whether they are 64-bit,
-        // etc. and marshals accordingly).
-        nativeArguments.push(
-          toNativeValue(data, false) as java.lang.Integer | number
-        );
+        nativeArguments.push(new java.lang.Integer(data));
         break;
-
+      case RNJavaSerialisableType.nonnullInt:
+        assert(
+          typeof data === 'number',
+          `Argument at index ${i} expected a number, but got ${data}`
+        );
+        nativeArguments.push(data);
+        break;
+      case RNJavaSerialisableType.nonnullFloat:
+      case RNJavaSerialisableType.float:
+        assert(
+          typeof data === 'number',
+          `Argument at index ${i} expected a number, but got ${data}`
+        );
+        nativeArguments.push(float(data));
+        break;
+      case RNJavaSerialisableType.double:
+      case RNJavaSerialisableType.nonnullDouble:
+        assert(
+          typeof data === 'number',
+          `Argument at index ${i} expected a number, but got ${data}`
+        );
+        nativeArguments.push(double(data));
+        break;
       case RNJavaSerialisableType.nonnullCallback:
       case RNJavaSerialisableType.Callback: {
         assert(
@@ -325,7 +336,6 @@ export function toNativeArguments(
     argumentTypes.length === nativeArguments.length,
     `Expected ${argumentTypes.length} arguments, but got ${args.length}.`
   );
-
   return nativeArguments;
 }
 
@@ -594,14 +604,6 @@ export function toNativeValue<T extends boolean>(
     if (typeof data === 'string') {
       return new java.lang.String(data);
     }
-    // Any other kinds of numbers are handled by Utils.dataSerialize().
-    if (
-      typeof data === 'number' &&
-      !numberIs64Bit(data) &&
-      !numberHasDecimals(data)
-    ) {
-      return new java.lang.Integer(data);
-    }
   }
 
   // Convert array to a ReadableArray
@@ -631,8 +633,6 @@ export function toNativeValue<T extends boolean>(
           writableArray.pushString(toNativeValue(value, false) as string);
           break;
         case 'number':
-          writableArray.pushDouble(toNativeValue(value, false) as number);
-          break;
         case 'bigint':
           writableArray.pushDouble(toNativeValue(value, false) as number);
           break;
@@ -683,8 +683,6 @@ export function toNativeValue<T extends boolean>(
           writableMap.putString(key, toNativeValue(data[key], false) as string);
           break;
         case 'number':
-          writableMap.putDouble(key, toNativeValue(data[key], false) as number);
-          break;
         case 'bigint':
           writableMap.putDouble(key, toNativeValue(data[key], false) as number);
           break;
@@ -693,6 +691,10 @@ export function toNativeValue<T extends boolean>(
       }
     }
     return writableMap as ReadableMap;
+  }
+
+  if (!numberHasDecimals(data as number) && !numberIs64Bit(data as number)) {
+    return data as never;
   }
 
   /**
