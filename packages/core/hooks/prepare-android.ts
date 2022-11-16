@@ -1106,8 +1106,7 @@ async function writeModuleMapFile({
 }
 
 const ANDROID_METHOD_REGEX = /(?:@Override|@ReactMethod)[\s\S]*?[{;]/gm;
-const ANDROID_GET_NAME_FN_REGEX =
-  /public String getName\(\)[\s\S]*?\{[^}]*\}/gm;
+const ANDROID_GET_NAME_FN_REGEX = /getName\(\)[\s\S]*?\{[^}]*\}/gm;
 const ANDROID_MODULE_NAME_REGEX = /(?<=return ).*(?=;)/gm;
 
 function parseJavaTypeToEnum(javaType: string): RNJavaSerialisableType {
