@@ -148,3 +148,4 @@ export const NativeModules = Object.keys(NativeModuleMap).reduce(
   {}
 );
 global.__turboModulesProxy = NativeModules;
+export const load = () => null;

@@ -8,7 +8,7 @@ export type {
 } from './Libraries/Utilities/Platform';
 import type { Linking } from './Libraries/Linking/Linking';
 import EventEmitter from './Libraries/vendor/emitter/EventEmitter';
-
+export { AppRegistry } from './Libraries/ReactNative/AppRegistry';
 declare global {
   // eslint-disable-next-line no-var
   var reactNativeBridgeIOS: RCTBridge;
@@ -31,7 +31,7 @@ export const NativeModules: { [name: string]: any };
 export const DeviceEventEmitter: EventEmitter;
 export const Linking: Linking;
 export class TurboModule {}
-
+export function init(): void;
 export const TurboModuleRegistry: {
   get<T extends TurboModule>(name: string): T | null;
   getEnforcing<T extends TurboModule>(name: string): T;
