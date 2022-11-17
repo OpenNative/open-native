@@ -417,7 +417,7 @@ function extractInterfaces(sourceCode: string) {
      * ['- (void)showWithRemappedName:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject']
      */
     const remappedMethods = [
-      ...fullMatch.matchAll(/\s*RCT_REMAP_METHOD\((.|[\r\n])*?\)*?\{/gm),
+      ...fullMatch.matchAll(/^\s*RCT_REMAP_METHOD\((.|[\r\n])*?\)*?\{/gm),
     ].map((match) => {
       const [
         ,
@@ -450,7 +450,7 @@ function extractInterfaces(sourceCode: string) {
      * ['- (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject']
      */
     const exportedMethods = [
-      ...fullMatch.matchAll(/\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{/gm),
+      ...fullMatch.matchAll(/^\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{/gm),
     ].map((match) => {
       const [
         ,
