@@ -23,5 +23,7 @@ export function init() {
 }
 
 export const Image = {
-  resolveAssetSource: (asset: any) => asset,
+  resolveAssetSource: (assetPath: string) => {
+    return { uri: assetPath };
+  },
 };

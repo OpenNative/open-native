@@ -36,3 +36,18 @@ export const TurboModuleRegistry: {
   get<T extends TurboModule>(name: string): T | null;
   getEnforcing<T extends TurboModule>(name: string): T;
 };
+export const Image: {
+  /**
+   * A polyfill function that will return an object with
+   * the `uri` parameter. On iOS you must only pass it the file name,
+   * for example `my-image.png` and it will return the path to the file from main app bundle.
+   *
+   * On android, you have to pass the full path to the asset,
+   * for example `file:///android_asset/folder/file.ext`.
+   * @param assetPath
+   * @returns
+   */
+  resolveAssetSource: (assetPath: string) => {
+    uri: string;
+  };
+};
