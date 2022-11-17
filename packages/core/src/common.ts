@@ -8,6 +8,7 @@ export enum RNObjcSerialisableType {
   number, // NSNumber*
   nonnullNumber, // nonnull NSNumber*, double (and the deprecated float,
   // CGFloat, and NSInteger)
+  int, // Not documented but is used by some modules, just int.
   array, // NSArray*
   nonnullArray, // nonnull NSArray*
   object, // NSDictionary*

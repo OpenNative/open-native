@@ -99,7 +99,15 @@ export function toNativeArguments(
         // booleans are auto-marshalled to BOOL.
         nativeArguments.push(data);
         break;
+      case RNObjcSerialisableType.int:
+        assert(
+          typeof data === 'number',
+          `Argument at index ${i} expected a number, but got ${data}`
+        );
 
+        // numbers are auto marshalled to int.
+        nativeArguments.push(data);
+        break;
       case RNObjcSerialisableType.string:
       case RNObjcSerialisableType.nonnullString:
         assert(

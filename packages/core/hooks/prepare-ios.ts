@@ -417,7 +417,7 @@ function extractInterfaces(sourceCode: string) {
      * ['- (void)showWithRemappedName:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject']
      */
     const remappedMethods = [
-      ...fullMatch.matchAll(/\s*RCT_REMAP_METHOD\((.|[\r\n])*?\)*?\{$/gm),
+      ...fullMatch.matchAll(/\s*RCT_REMAP_METHOD\((.|[\r\n])*?\)*?\{/gm),
     ].map((match) => {
       const [
         ,
@@ -450,7 +450,7 @@ function extractInterfaces(sourceCode: string) {
      * ['- (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject']
      */
     const exportedMethods = [
-      ...fullMatch.matchAll(/\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{$/gm),
+      ...fullMatch.matchAll(/\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{/gm),
     ].map((match) => {
       const [
         ,
@@ -464,7 +464,6 @@ function extractInterfaces(sourceCode: string) {
         .slice(0, -1)
         .join(')');
       const methodName = methodNameAndArgs.split(':')[0].trim();
-
       return parseRctExportMethodContents(methodNameAndArgs, methodName);
     });
 
@@ -475,13 +474,14 @@ function extractInterfaces(sourceCode: string) {
         `${logPrefix} Unable to extract any methods from RCTBridgeModule named "${exportedModuleName}".`
       );
     }
-
     const exportsConstants =
       /\s+-\s+\(NSDictionary\s?\*\s?\)constantsToExport\s+{/.test(fullMatch);
+    const hasMethodQueue = fullMatch.includes('methodQueue');
 
     acc[exportedModuleName] = {
       jsName: objcClassName,
       exportsConstants,
+      hasMethodQueue,
       methods: allMethods,
     };
 
@@ -521,6 +521,8 @@ function extractInterfaces(sourceCode: string) {
   };
 }
 
+const ObjCMethodParamMatches = /:\((.|[\r\n])*?\).*?[a-zA-Z]+/g;
+
 /**
  * Parse the contents passed into RCT_EXPORT_METHOD or RCT_REMAP_METHOD.
  * @param contents The whole string between the macro's brackets.
@@ -541,19 +543,13 @@ function parseRctExportMethodContents(contents: string, remappedName?: string) {
     .replace(/\s*:\s*/g, ':')};`;
 
   /**
-   * The fragments of the method signature (excluding the return type), showing
-   * both the external and internal name for the param as well as its type.
-   * @example ['exportedName:(RCTPromiseResolveBlock)resolve', 'withRejecter:(RCTPromiseRejectBlock)reject']
-   */
-  const params = signature.split('- (void)')[1].replace(';', '').split(' ');
-
-  /**
    * The Obj-C selector.
    * @example 'exportedName:withRejecter:'
    */
-  const selector =
-    params.map((param) => param.split(':')[0]).join(':') +
-    (signature.includes(':') ? ':' : '');
+  const selector = signature
+    .split('- (void)')[1]
+    .replace(ObjCMethodParamMatches, '')
+    .replace(';', '');
 
   /**
    * The sanitised method name that NativeScript exposes to JS.
@@ -614,6 +610,7 @@ interface ModuleNamesToMethodDescriptions {
   [moduleName: string]: {
     jsName: string;
     exportsConstants: boolean;
+    hasMethodQueue: boolean;
     methods: MethodDescription[];
   };
 }
@@ -625,15 +622,13 @@ interface ModuleNamesToMethodDescriptions {
  * @example 'showWithRejecter'
  */
 function convertObjcSelectorToJsName(selector: string): string {
-  const tokens: string[] = selector.split(':').filter((param) => param !== '');
-  let jsName = tokens[0];
-
+  const tokens: string[] = selector.split(' ').filter((param) => param !== '');
+  let jsName = tokens[0].trim();
   for (let i = 1; i < tokens.length; i++) {
-    const token = tokens[i];
+    const token = tokens[i].trim();
     tokens[i] = `${token[0].toUpperCase()}${token.slice(1)}`;
     jsName += tokens[i];
   }
-
   return jsName;
 }
 
@@ -827,12 +822,13 @@ async function writeModuleMapFile({
     moduleNamesToMethodDescriptions
   ).reduce<ModuleNamesToMethodDescriptionsMinimal>(
     (acc, exportedModuleName) => {
-      const { exportsConstants, methods, jsName } =
+      const { exportsConstants, methods, jsName, hasMethodQueue } =
         moduleNamesToMethodDescriptions[exportedModuleName];
 
       acc[exportedModuleName] = {
         j: jsName,
         e: exportsConstants,
+        mq: hasMethodQueue,
         m: methods.reduce<MethodDescriptionsMinimal>(
           (innerAcc, methodDescription) => {
             const { exportedName, jsName, types } = methodDescription;
@@ -853,7 +849,7 @@ async function writeModuleMapFile({
 
   return await writeFile(
     outputModuleMapPath,
-    JSON.stringify(moduleNamesToMethodDescriptionsMinimal, null, 2) + '\n',
+    JSON.stringify(moduleNamesToMethodDescriptionsMinimal, null, 0) + '\n',
     { encoding: 'utf-8' }
   );
 }
@@ -897,6 +893,10 @@ interface ModuleNamesToMethodDescriptionsMinimal {
      * The methods exported by the module.
      */
     m: MethodDescriptionsMinimal;
+    /**
+     * Whether the module defines it's own methodQueue.
+     */
+    mq: boolean;
   };
 }
 
@@ -956,6 +956,8 @@ function parseObjcTypeToEnum(objcType: string): RNObjcSerialisableType {
       return RNObjcSerialisableType.RCTPromiseResolveBlock;
     case 'RCTPromiseRejectBlock':
       return RNObjcSerialisableType.RCTPromiseRejectBlock;
+    case 'int':
+      return RNObjcSerialisableType.int;
     default:
       return RNObjcSerialisableType.other;
   }
@@ -975,6 +977,7 @@ enum RNObjcSerialisableType {
   number, // NSNumber*
   nonnullNumber, // nonnull NSNumber*, double (and the deprecated float,
   // CGFloat, and NSInteger)
+  int, // Not documented but is used by some modules, just int.
   array, // NSArray*
   nonnullArray, // nonnull NSArray*
   object, // NSDictionary*

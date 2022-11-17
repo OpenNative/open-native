@@ -1098,7 +1098,7 @@ async function writeModuleMapFile({
 }) {
   return await writeFile(
     outputModuleMapPath,
-    JSON.stringify(moduleMap, null, 2),
+    JSON.stringify(moduleMap, null, 0),
     {
       encoding: 'utf-8',
     }
