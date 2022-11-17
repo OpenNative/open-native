@@ -132,7 +132,7 @@ class NativeModuleHolder implements Partial<NativeModule> {
         }
 
         if (isPromise(moduleMethods, exportedMethodName)) {
-          if (this.nativeModule.methodQueue) {
+          if (this.moduleMetadata.mq) {
             dispatch_async(this.nativeModule.methodQueue, () =>
               promisify(this.nativeModule, jsName, methodTypes, args)
             );
@@ -142,13 +142,13 @@ class NativeModuleHolder implements Partial<NativeModule> {
           return;
         }
 
-        if (this.nativeModule.methodQueue) {
+        if (this.moduleMetadata.mq) {
           dispatch_async(this.nativeModule.methodQueue, () =>
             this.nativeModule[jsName]?.(...toNativeArguments(methodTypes, args))
           );
           return;
         }
-
+        console.log('making the call', jsName);
         return this.nativeModule[jsName]?.(
           ...toNativeArguments(methodTypes, args)
         );

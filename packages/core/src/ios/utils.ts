@@ -45,6 +45,10 @@ export interface RNNativeModuleMetadata {
    * name.
    */
   m: TModuleMethodsType;
+  /**
+   * Whether the module defines it's own methodQueue.
+   */
+  mq: boolean;
 }
 
 /**
