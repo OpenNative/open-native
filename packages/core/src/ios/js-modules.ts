@@ -22,8 +22,7 @@ export class JSModules {
     if (!jsModule) {
       throw new Error(`Unrecognized name for JS module, "${moduleName}".`);
     }
-    const jsMethod = jsModule[methodName];
-    if (!jsMethod) {
+    if (!jsModule[methodName]) {
       throw new Error(
         `Unrecognized method name "${methodName}" for JS module, "${moduleName}".`
       );
@@ -31,13 +30,15 @@ export class JSModules {
     // Run callback on next event loop.
     if (moduleName === 'RCTDeviceEventEmitter') {
       setTimeout(() => {
-        jsMethod(...(toJSValue(args) as JSValuePassableIntoObjc[]));
+        jsModule[methodName](...(toJSValue(args) as JSValuePassableIntoObjc[]));
       }, 1);
       return;
     }
     // Given an NSArray of native args from Obj-C, convert those into JS
     // primitive types and call the JS method with it.
-    return jsMethod(...(toJSValue(args) as JSValuePassableIntoObjc[]));
+    return jsModule[methodName](
+      ...(toJSValue(args) as JSValuePassableIntoObjc[])
+    );
   }
 
   registerJSModule(name: string, module: JSMethodRecord) {
