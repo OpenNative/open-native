@@ -241,8 +241,11 @@ async function mapPackageNameToAutolinkingInfo({
 
       // TODO: We should ideally strip comments before running any Regex.
 
-      const { interfaceDecl, moduleNamesToMethodDescriptions } =
-        extractInterfaces(sourceFileContents);
+      const {
+        interfaceDecl,
+        moduleNamesToMethodDescriptions,
+        isSwiftModuleInterface,
+      } = extractInterfaces(sourceFileContents, sourceFilePaths);
 
       // console.log(
       //   `!! working out importDecl, given clangModuleName "${clangModuleName}"; sourceFilePath "${sourceFilePath}"`
@@ -255,7 +258,28 @@ async function mapPackageNameToAutolinkingInfo({
       // conventionally a safe assumption, but you just know some packages out
       // there will do things differently to make life hard for us.
       const headerFileName = sourceFileName.replace(/\.mm?$/, '');
-      const importDecl = `#import <${clangModuleName}/${headerFileName}.h>`;
+      const importDecl = sourceFileName.includes('.swift')
+        ? ''
+        : `#import <${clangModuleName}/${headerFileName}.h>`;
+
+      const headerFilePath = path.join(
+        path.dirname(sourceFilePath),
+        `${headerFileName}.h`
+      );
+      /**
+       * Inject the missing header file into the
+       * module for swift modules because I have failed
+       * to find another way to get around this.
+       */
+      if (!fs.existsSync(headerFilePath) && isSwiftModuleInterface) {
+        await writeFile(
+          headerFilePath,
+          `#import <React/RCTBridgeModule.h>
+@interface ${headerFileName} : NSObject <RCTBridgeModule>   
+@end`,
+          { encoding: 'utf-8' }
+        );
+      }
 
       return {
         interfaceDecl,
@@ -374,16 +398,15 @@ async function getSourceFilePaths({
   );
 
   /**
-   * Look just for Obj-C and Obj-C++ implementation files, ignoring headers.
+   * Look just for Obj-C, Swift and Obj-C++ implementation files, ignoring headers.
    * @example
    * [
    *   '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/ios/RNTestModule.m'
    * ]
    */
   const sourceFilePaths = [...new Set(sourceFilePathsArrays.flat(1))].filter(
-    (sourceFilePath) => /\.mm?$/.test(sourceFilePath)
+    (sourceFilePath) => /\.(mm?|swift)$/.test(sourceFilePath)
   );
-
   return sourceFilePaths;
 }
 
@@ -396,10 +419,34 @@ function globProm(pattern: string, options: IOptions): Promise<string[]> {
 }
 
 /**
+ * Finds and returns the swift implementation of an
+ * ObjC interface.
+ */
+function findSwiftInterfaceImplementationContents(
+  objcName: string,
+  files: string[]
+) {
+  for (const file of files) {
+    const contents = fs.readFileSync(file, { encoding: 'utf8' });
+    if (contents.includes(`@objc(${objcName})`)) {
+      return contents;
+    }
+  }
+  return null;
+}
+
+/**
  * Extracts interfaces representing the methods added to any RCTBridgeModule by
  * macros (e.g. RCT_EXPORT_METHOD).
  */
-function extractInterfaces(sourceCode: string) {
+function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
+  /**
+   * Every swift module interface file should have this piece of code.
+   */
+  const isSwiftModuleInterface = sourceCode.includes(
+    `@interface RCT_EXTERN_MODULE`
+  );
+
   /**
    * A record of JS bridge module names to method descriptions.
    * @example
@@ -417,7 +464,9 @@ function extractInterfaces(sourceCode: string) {
    */
   const moduleNamesToMethodDescriptions = [
     ...sourceCode.matchAll(
-      /\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm
+      isSwiftModuleInterface
+        ? /\s*@interface\s+RCT_EXTERN_MODULE\(\s*([A-z0-9$]+),\s+(?:.|[\r\n])*?@end/gm
+        : /\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm
     ),
   ].reduce<ModuleNamesToMethodDescriptions>((acc, matches) => {
     const [fullMatch, objcClassName] = matches;
@@ -425,12 +474,61 @@ function extractInterfaces(sourceCode: string) {
       return acc;
     }
 
-    const exportedModuleName = (
-      extractBridgeModuleAliasedName(fullMatch) || objcClassName
-    ).replace(/^RCT/, '');
+    /**
+     * Extract swift implementation for the interface so we can later
+     * check for things like methodQueu & exportedConstants etc that
+     * only exist in the implementation.
+     */
+    const swiftImplContents = isSwiftModuleInterface
+      ? findSwiftInterfaceImplementationContents(objcClassName, sourceFiles)
+      : undefined;
+
+    /**
+     * In case of swift modules, the objc name is the exported
+     * module name by default.
+     */
+    const exportedModuleName = isSwiftModuleInterface
+      ? objcClassName
+      : (extractBridgeModuleAliasedName(fullMatch) || objcClassName).replace(
+          /^RCT/,
+          ''
+        );
     if (!exportedModuleName) {
       return acc;
     }
+
+    /**
+     * Extract the signatures of any methods registered using RCT_EXTERN_METHOD.
+     * @example
+     * RCT_EXTERN_METHOD(generate:(NSString *)keyTag resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject)
+     */
+    const externMethods = [
+      /**
+       * This is a crazy regex but it works, we start matching methods from
+       * top to bottom of the file. We match from method to method, leaving
+       * the start & end of each so the next match won't overlap with the
+       * previous match and get skipped.
+       */
+      ...fullMatch.matchAll(/ERN_METHOD\((.|[\r\n])*?\)*(RCT_EXT|@end)/gm),
+    ].map((match) => {
+      const [
+        ,
+        /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject) {' */
+        fromMethodName,
+      ] = match[0]
+        //Remove next method's starting RCT_EXT & trim out and whitespace at the end.
+        .replace('RCT_EXT', '')
+        .trim()
+        .split(/ERN_METHOD\(\s*/);
+
+      /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject' */
+      const methodNameAndArgs = fromMethodName
+        .split(')')
+        .slice(0, -1)
+        .join(')');
+      const methodName = methodNameAndArgs.split(':')[0].trim();
+      return parseRctExportMethodContents(methodNameAndArgs, methodName);
+    });
 
     /**
      * Extract the signatures of any methods registered using RCT_REMAP_METHOD.
@@ -488,22 +586,32 @@ function extractInterfaces(sourceCode: string) {
       return parseRctExportMethodContents(methodNameAndArgs, methodName);
     });
 
-    const allMethods = [...remappedMethods, ...exportedMethods];
+    const allMethods = [
+      ...remappedMethods,
+      ...exportedMethods,
+      ...externMethods,
+    ];
 
     if (!allMethods.length) {
       console.warn(
         `${logPrefix} Unable to extract any methods from RCTBridgeModule named "${exportedModuleName}".`
       );
     }
-    const exportsConstants =
-      /\s+-\s+\(NSDictionary\s?\*\s?\)constantsToExport\s+{/.test(fullMatch);
-    const hasMethodQueue = fullMatch.includes('methodQueue');
+
+    const exportsConstants = isSwiftModuleInterface
+      ? swiftImplContents?.includes('func constantsToExport()')
+      : /\s+-\s+\(NSDictionary\s?\*\s?\)constantsToExport\s+{/.test(fullMatch);
+
+    const hasMethodQueue =
+      fullMatch.includes('methodQueue') ||
+      swiftImplContents?.includes('methodQueue');
 
     acc[exportedModuleName] = {
       jsName: objcClassName,
       exportsConstants,
       hasMethodQueue,
       methods: allMethods,
+      isSwiftModule: isSwiftModuleInterface,
     };
 
     return acc;
@@ -539,6 +647,7 @@ function extractInterfaces(sourceCode: string) {
   return {
     interfaceDecl,
     moduleNamesToMethodDescriptions,
+    isSwiftModuleInterface: isSwiftModuleInterface,
   };
 }
 
@@ -632,6 +741,7 @@ interface ModuleNamesToMethodDescriptions {
     exportsConstants: boolean;
     hasMethodQueue: boolean;
     methods: MethodDescription[];
+    isSwiftModule: boolean;
   };
 }
 
