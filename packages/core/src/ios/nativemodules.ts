@@ -148,7 +148,6 @@ class NativeModuleHolder implements Partial<NativeModule> {
           );
           return;
         }
-        console.log('making the call', jsName);
         return this.nativeModule[jsName]?.(
           ...toNativeArguments(methodTypes, args)
         );

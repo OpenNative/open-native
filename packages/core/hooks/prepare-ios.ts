@@ -521,7 +521,7 @@ function extractInterfaces(sourceCode: string) {
   };
 }
 
-const ObjCMethodParamMatches = /:\((.|[\r\n])*?\).*?[a-zA-Z]+/g;
+const ObjCMethodParamMatches = /:\((.|[\r\n])*?\).*?[a-zA-Z0-9]+/g;
 
 /**
  * Parse the contents passed into RCT_EXPORT_METHOD or RCT_REMAP_METHOD.
@@ -550,7 +550,6 @@ function parseRctExportMethodContents(contents: string, remappedName?: string) {
     .split('- (void)')[1]
     .replace(ObjCMethodParamMatches, '')
     .replace(';', '');
-
   /**
    * The sanitised method name that NativeScript exposes to JS.
    * @example 'exportedNameWithRejecter'
