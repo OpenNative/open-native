@@ -49,22 +49,19 @@ class NativeModuleHolder implements Partial<NativeModule> {
     if (this.moduleMetadata?.m) {
       this.wrapNativeMethods(this.moduleMetadata?.m);
     }
-
-    // This is uncomfortably dynamic, but it's in line with NativeEventEmitter's
-    // expectations that you can technically instantiate a NativeEventEmitter
-    // that's missing these methods. Not sure exactly what they had in mind.
-    if (this.nativeModule instanceof RCTEventEmitter) {
-      // Holding a reference avoids reasserting the type inside each closure.
-      const nativeModule = this.nativeModule;
-
-      this.addListener = (eventType: string) => {
-        nativeModule.addListener(eventType);
-      };
-      this.removeListeners = (count: number) => {
-        nativeModule.removeListeners(count);
-      };
-    }
   }
+
+  addListener = (eventType: string) => {
+    (this.nativeModule as RCTEventEmitter)?.addListener?.(eventType);
+  };
+
+  removeListener = (eventType: string) => {
+    //
+  };
+
+  removeListeners = (count: number) => {
+    (this.nativeModule as RCTEventEmitter)?.removeListeners?.(count);
+  };
 
   /**
    * Using a getter to ensure that module is lazily loaded
@@ -154,9 +151,6 @@ class NativeModuleHolder implements Partial<NativeModule> {
       };
     }
   }
-
-  addListener?(eventType: string): void;
-  removeListeners?(count: number): void;
 }
 
 export const NativeModules = Object.keys(NativeModuleMap).reduce(

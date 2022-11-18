@@ -50,14 +50,19 @@ class NativeModuleHolder implements Partial<NativeModule> {
     if (this.moduleMetadata?.m) {
       this.wrapNativeMethods(this.moduleMetadata?.m);
     }
-
-    // this.addListener = (eventType: string) => {
-    //   this.nativeModule.addListener(eventType);
-    // };
-    // this.removeListeners = (count: number) => {
-    //   this.nativeModule.removeListeners(count);
-    // };
   }
+
+  addListener = (eventType: string) => {
+    //
+  };
+
+  removeListener = (eventType: string) => {
+    //
+  };
+
+  removeListeners = (count: number) => {
+    //
+  };
 
   /**
    * Using a getter to ensure that native module is lazily
@@ -135,9 +140,6 @@ class NativeModuleHolder implements Partial<NativeModule> {
       };
     }
   }
-
-  addListener?(eventType: string): void;
-  removeListeners?(count: number): void;
 }
 
 export const NativeModules = Object.keys(NativeModuleMap).reduce(
