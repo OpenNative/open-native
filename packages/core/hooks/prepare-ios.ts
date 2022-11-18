@@ -7,7 +7,28 @@ import { promisify } from 'util';
 
 const execFile = promisify(cp.execFile);
 const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
+const _writeFile = promisify(fs.writeFile);
+
+/**
+ * A writeFile wrapper that only writes the file
+ * if the contents have changed.
+ */
+async function writeFile(
+  output: fs.PathOrFileDescriptor,
+  contents: string | NodeJS.ArrayBufferView,
+  options: fs.WriteFileOptions
+) {
+  if (fs.existsSync(output as fs.PathLike)) {
+    const readContents = await readFile(output, options);
+    if (readContents === contents) return;
+  }
+  console.log(
+    `[@open-native/core/hooks/before-prepareNativeApp.js]: Writing ${path.basename(
+      output as string
+    )}`
+  );
+  return await _writeFile(output, contents, options);
+}
 
 const logPrefix = '[@open-native/core/hooks/prepare-ios.js]';
 
@@ -223,9 +244,9 @@ async function mapPackageNameToAutolinkingInfo({
       const { interfaceDecl, moduleNamesToMethodDescriptions } =
         extractInterfaces(sourceFileContents);
 
-      console.log(
-        `!! working out importDecl, given clangModuleName "${clangModuleName}"; sourceFilePath "${sourceFilePath}"`
-      );
+      // console.log(
+      //   `!! working out importDecl, given clangModuleName "${clangModuleName}"; sourceFilePath "${sourceFilePath}"`
+      // );
 
       // FIXME: this is a lazy, provisional trick to get the import declaration.
       // We assume that the source file is a .m file and that it declares its

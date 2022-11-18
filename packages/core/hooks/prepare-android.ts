@@ -10,8 +10,29 @@ import type { IOptions } from 'glob';
 import * as path from 'path';
 import { promisify } from 'util';
 const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
 const exists = promisify(fs.exists);
+const _writeFile = promisify(fs.writeFile);
+
+/**
+ * A writeFile wrapper that only writes the file
+ * if the contents have changed.
+ */
+async function writeFile(
+  output: fs.PathOrFileDescriptor,
+  contents: string | NodeJS.ArrayBufferView,
+  options: fs.WriteFileOptions
+) {
+  if (fs.existsSync(output as fs.PathLike)) {
+    const readContents = await readFile(output, options);
+    if (readContents === contents) return;
+  }
+  console.log(
+    `[@open-native/core/hooks/before-prepareNativeApp.js]: Writing ${path.basename(
+      output as string
+    )}`
+  );
+  return await _writeFile(output, contents, options);
+}
 
 /**
  * Given a list of dependencies, autolinks any podspecs found within them, using
