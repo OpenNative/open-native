@@ -127,16 +127,14 @@ class NativeModuleHolder implements Partial<NativeModule> {
             `Unable to wrap method "${exportedMethodName}" on module "${this.moduleName}" as the module was not found in the bridge.`
           );
         }
-
         if (isPromise(moduleMethods, exportedMethodName)) {
-          if (this.moduleMetadata.mq) {
-            dispatch_async(this.nativeModule.methodQueue, () =>
-              promisify(this.nativeModule, jsName, methodTypes, args)
-            );
-          } else {
-            promisify(this.nativeModule, jsName, methodTypes, args);
-          }
-          return;
+          return promisify(
+            this.nativeModule,
+            this.moduleMetadata.mq,
+            jsName,
+            methodTypes,
+            args
+          );
         }
 
         if (this.moduleMetadata.mq) {
@@ -145,6 +143,7 @@ class NativeModuleHolder implements Partial<NativeModule> {
           );
           return;
         }
+
         return this.nativeModule[jsName]?.(
           ...toNativeArguments(methodTypes, args)
         );
