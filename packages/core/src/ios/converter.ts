@@ -1,4 +1,9 @@
-import { assert, RNObjcSerialisableType, warn } from '../common';
+import {
+  assert,
+  isNullOrUndefined,
+  RNObjcSerialisableType,
+  warn,
+} from '../common';
 import { Utils } from '@nativescript/core';
 import {
   getClass,
@@ -42,18 +47,18 @@ export function toNativeArguments(
     //   `Unexpected \`undefined\` value passed in at index ${i} for argument type "${RNObjcSerialisableType[argType]}". Note that Obj-C does not have an equivalent to undefined.`
     // );
 
-    if (
-      argType === RNObjcSerialisableType.nonnullArray ||
-      argType === RNObjcSerialisableType.nonnullBoolean ||
-      argType === RNObjcSerialisableType.nonnullNumber ||
-      argType === RNObjcSerialisableType.nonnullObject ||
-      argType === RNObjcSerialisableType.nonnullString
-    ) {
-      assert(
-        data !== null,
-        `Unexpectedly got null for nonnull argument type "${RNObjcSerialisableType[argType]}."`
-      );
-    }
+    //if (
+    //   argType === RNObjcSerialisableType.nonnullArray ||
+    //   argType === RNObjcSerialisableType.nonnullBoolean ||
+    //   argType === RNObjcSerialisableType.nonnullNumber ||
+    //   argType === RNObjcSerialisableType.nonnullObject ||
+    //   argType === RNObjcSerialisableType.nonnullString
+    // ) {
+    //   assert(
+    //     data !== null,
+    //     `Unexpectedly got null for nonnull argument type "${RNObjcSerialisableType[argType]}."`
+    //   );
+    // }
 
     switch (argType) {
       case RNObjcSerialisableType.other: {
@@ -63,9 +68,14 @@ export function toNativeArguments(
       }
 
       case RNObjcSerialisableType.array:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(null);
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullArray: {
         assert(
-          data === null || Array.isArray(data),
+          Array.isArray(data),
           `Argument at index ${i} expected an Array value, but got ${data}`
         );
 
@@ -74,9 +84,14 @@ export function toNativeArguments(
       }
 
       case RNObjcSerialisableType.object:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(null);
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullObject: {
         assert(
-          data === null || data?.constructor === Object,
+          data?.constructor === Object,
           `Argument at index ${i} expected an object value, but got ${data}`
         );
 
@@ -90,6 +105,11 @@ export function toNativeArguments(
       }
 
       case RNObjcSerialisableType.boolean:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(false);
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullBoolean:
         assert(
           typeof data === 'boolean',
@@ -109,6 +129,11 @@ export function toNativeArguments(
         nativeArguments.push(data);
         break;
       case RNObjcSerialisableType.string:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(null);
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullString:
         assert(
           typeof data === 'string',
@@ -120,6 +145,11 @@ export function toNativeArguments(
         break;
 
       case RNObjcSerialisableType.number:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(null);
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullNumber:
         assert(
           typeof data === 'number',
@@ -234,15 +264,24 @@ export function toNativeArguments(
 
 export function promisify(
   module: RCTBridgeModule,
+  methodQueue: boolean,
   methodName: string,
   methodTypes: RNObjcSerialisableType[],
   args: JSValuePassableIntoObjc[]
 ): Promise<unknown> {
   return new Promise((resolve, reject) => {
     try {
-      module[methodName](
-        ...toNativeArguments(methodTypes, args, resolve, reject)
-      );
+      if (methodQueue) {
+        dispatch_async(module.methodQueue, () => {
+          module[methodName](
+            ...toNativeArguments(methodTypes, args, resolve, reject)
+          );
+        });
+      } else {
+        module[methodName](
+          ...toNativeArguments(methodTypes, args, resolve, reject)
+        );
+      }
     } catch (e) {
       reject(e);
     }

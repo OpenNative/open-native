@@ -54,3 +54,7 @@ export function warn(condition: any, message: string): asserts condition {
     console.warn(message);
   }
 }
+
+export function isNullOrUndefined(value: unknown) {
+  return value === null || value === undefined;
+}

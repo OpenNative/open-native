@@ -3,7 +3,12 @@ import {
   numberHasDecimals,
   numberIs64Bit,
 } from '@nativescript/core/utils/types';
-import { assert, RNJavaSerialisableType, warn } from '../common';
+import {
+  assert,
+  isNullOrUndefined,
+  RNJavaSerialisableType,
+  warn,
+} from '../common';
 import {
   BaseJavaModule,
   Callback,
@@ -210,21 +215,21 @@ export function toNativeArguments(
     //   `Unexpected \`undefined\` value passed in at index ${i} for argument type "${RNJavaSerialisableType[argType]}". Note that Obj-C does not have an equivalent to undefined.`
     // );
 
-    if (
-      argType === RNJavaSerialisableType.nonnullArray ||
-      argType === RNJavaSerialisableType.nonnullBoolean ||
-      argType === RNJavaSerialisableType.nonnullDouble ||
-      argType === RNJavaSerialisableType.nonnullFloat ||
-      argType === RNJavaSerialisableType.nonnullInt ||
-      argType === RNJavaSerialisableType.nonnullObject ||
-      argType === RNJavaSerialisableType.nonnullString ||
-      argType === RNJavaSerialisableType.nonnullCallback
-    ) {
-      assert(
-        data !== null,
-        `Unexpectedly got null for nonnull argument type "${RNJavaSerialisableType[argType]}."`
-      );
-    }
+    // if (
+    //   argType === RNJavaSerialisableType.nonnullArray ||
+    //   argType === RNJavaSerialisableType.nonnullBoolean ||
+    //   argType === RNJavaSerialisableType.nonnullDouble ||
+    //   argType === RNJavaSerialisableType.nonnullFloat ||
+    //   argType === RNJavaSerialisableType.nonnullInt ||
+    //   argType === RNJavaSerialisableType.nonnullObject ||
+    //   argType === RNJavaSerialisableType.nonnullString ||
+    //   argType === RNJavaSerialisableType.nonnullCallback
+    // ) {
+    //   assert(
+    //     data !== null,
+    //     `Unexpectedly got null for nonnull argument type "${RNJavaSerialisableType[argType]}."`
+    //   );
+    // }
 
     switch (argType) {
       case RNJavaSerialisableType.other: {
@@ -234,6 +239,11 @@ export function toNativeArguments(
       }
 
       case RNJavaSerialisableType.array:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(null);
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullArray: {
         assert(
           data === null || Array.isArray(data),
@@ -245,6 +255,11 @@ export function toNativeArguments(
       }
 
       case RNJavaSerialisableType.object:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(null);
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullObject: {
         assert(
           data === null || data?.constructor === Object,
@@ -261,6 +276,11 @@ export function toNativeArguments(
       }
 
       case RNJavaSerialisableType.boolean:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(null);
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullBoolean:
         assert(
           typeof data === 'boolean',
@@ -272,6 +292,11 @@ export function toNativeArguments(
         break;
 
       case RNJavaSerialisableType.string:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(null);
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullString:
         assert(
           typeof data === 'string',
@@ -296,8 +321,13 @@ export function toNativeArguments(
         );
         nativeArguments.push(data);
         break;
-      case RNJavaSerialisableType.nonnullFloat:
       case RNJavaSerialisableType.float:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(float(0));
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
+      case RNJavaSerialisableType.nonnullFloat:
         assert(
           typeof data === 'number',
           `Argument at index ${i} expected a number, but got ${data}`
@@ -305,6 +335,11 @@ export function toNativeArguments(
         nativeArguments.push(float(data));
         break;
       case RNJavaSerialisableType.double:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(0);
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullDouble:
         assert(
           typeof data === 'number',
@@ -312,8 +347,13 @@ export function toNativeArguments(
         );
         nativeArguments.push(double(data));
         break;
-      case RNJavaSerialisableType.nonnullCallback:
-      case RNJavaSerialisableType.Callback: {
+      case RNJavaSerialisableType.Callback:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(null);
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
+      case RNJavaSerialisableType.nonnullCallback: {
         assert(
           typeof data === 'function',
           `Argument at index ${i} expected a function, but got ${data}`
