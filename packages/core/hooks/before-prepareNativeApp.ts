@@ -1,7 +1,7 @@
 import * as path from 'path';
 import type { HookArgs } from './hookArgs';
-import { autolinkAndroid } from './prepare-android';
-import { autolinkIos } from './prepare-ios';
+import { autolinkAndroid } from './android/prepare';
+import { autolinkIos } from './ios/prepare';
 
 const logPrefix = '[@open-native/core/hooks/before-prepareNativeApp.js]';
 const green = '\x1b[32m';
