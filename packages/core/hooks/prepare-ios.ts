@@ -238,7 +238,6 @@ async function mapPackageNameToAutolinkingInfo({
         encoding: 'utf8',
       });
       const sourceFileName = path.basename(sourceFilePath);
-
       // TODO: We should ideally strip comments before running any Regex.
 
       const {
@@ -258,26 +257,19 @@ async function mapPackageNameToAutolinkingInfo({
       // conventionally a safe assumption, but you just know some packages out
       // there will do things differently to make life hard for us.
       const headerFileName = sourceFileName.replace(/\.mm?$/, '');
-      const importDecl = sourceFileName.includes('.swift')
-        ? ''
-        : `#import <${clangModuleName}/${headerFileName}.h>`;
+      const importDecl =
+        sourceFileName.includes('.swift') || isSwiftModuleInterface
+          ? ''
+          : `#import <${clangModuleName}/${headerFileName}.h>`;
 
-      const headerFilePath = path.join(
-        path.dirname(sourceFilePath),
-        `${headerFileName}.h`
-      );
       /**
-       * Inject the missing header file into the
-       * module for swift modules because I have failed
-       * to find another way to get around this.
+       * Rewrite the implementation of interface in swift
+       * & make the class & it's methods public.
        */
-      if (!fs.existsSync(headerFilePath) && isSwiftModuleInterface) {
-        await writeFile(
-          headerFilePath,
-          `#import <React/RCTBridgeModule.h>
-@interface ${headerFileName} : NSObject <RCTBridgeModule>   
-@end`,
-          { encoding: 'utf-8' }
+      if (isSwiftModuleInterface) {
+        await writePublicSwiftModule(
+          moduleNamesToMethodDescriptions,
+          sourceFilePaths
         );
       }
 
@@ -286,6 +278,7 @@ async function mapPackageNameToAutolinkingInfo({
         sourceFileName,
         importDecl,
         moduleNamesToMethodDescriptions,
+        isSwiftModuleInterface,
       };
     })
   );
@@ -313,7 +306,9 @@ async function mapPackageNameToAutolinkingInfo({
     headerEntry: isCoreModule ? '' : headerEntry,
     importDecl: isCoreModule
       ? ''
-      : sourceFileInfoArr.map(({ importDecl }) => importDecl).join('\n'),
+      : [
+          ...new Set(sourceFileInfoArr.map(({ importDecl }) => importDecl)),
+        ].join('\n'),
     moduleNamesToMethodDescriptions:
       sourceFileInfoArr.reduce<ModuleNamesToMethodDescriptions>(
         (acc, { moduleNamesToMethodDescriptions }) =>
@@ -416,6 +411,19 @@ function globProm(pattern: string, options: IOptions): Promise<string[]> {
       return err ? reject(err) : resolve(matches);
     });
   });
+}
+
+function findSwiftInterfaceImplementationFile(
+  objcName: string,
+  files: string[]
+) {
+  for (const file of files) {
+    const contents = fs.readFileSync(file, { encoding: 'utf8' });
+    if (contents.includes(`@objc(${objcName})`)) {
+      return file;
+    }
+  }
+  return null;
 }
 
 /**
@@ -631,10 +639,10 @@ function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
    */
   const interfaceDecl = Object.keys(moduleNamesToMethodDescriptions)
     .map((exportedModuleName) => {
-      const { jsName, methods } =
+      const { jsName, methods, isSwiftModule } =
         moduleNamesToMethodDescriptions[exportedModuleName];
 
-      return !methods || methods.length === 0
+      return !methods || methods.length === 0 || isSwiftModule
         ? ''
         : [
             `@interface ${jsName} (TNS${jsName})`,
@@ -790,6 +798,45 @@ function extractBridgeModuleAliasedName(
     exportModuleNoLoadMatches[0]?.[1] ||
     exportPreRegisteredModuleNoLoadMatches[0]?.[1]
   );
+}
+
+/**
+ * Make all methods annotated with @objc public
+ * in swift modules to expose them to the
+ * metadata generator.
+ */
+async function writePublicSwiftModule(
+  moduleNamesToMethodDescriptions: ModuleNamesToMethodDescriptions,
+  files: string[]
+) {
+  for (const key in moduleNamesToMethodDescriptions) {
+    const swiftFile = findSwiftInterfaceImplementationFile(key, files);
+    if (!swiftFile) continue;
+    let contents = await readFile(swiftFile, { encoding: 'utf-8' });
+    // Create a backup file & use it's contents
+    // as a source to rewrite or update the module.
+    if (!fs.existsSync(swiftFile + '.bkp')) {
+      await writeFile(swiftFile + '.bkp', contents, {
+        encoding: 'utf-8',
+      });
+    }
+    contents = await readFile(swiftFile + '.bkp', { encoding: 'utf-8' });
+    contents = contents.replace(/@objc[^!:]*?func/gm, (r) => {
+      r = r.replace(/\n\s*/g, ' ');
+      // Insert "public" after last annotation.
+      const chunks = r.split(' ');
+      for (let i = 0; i < chunks.length; i++) {
+        if (chunks[i].startsWith('@')) continue;
+        chunks.splice(i, 0, 'public');
+        return chunks.join(' ');
+      }
+    });
+    // Insert "public" before class declaration.
+    if (!contents.includes('public class')) {
+      contents = contents.replace('class', 'public class');
+    }
+    await writeFile(swiftFile, contents, { encoding: 'utf-8' });
+  }
 }
 
 /**
