@@ -25,8 +25,9 @@ function RCTDeviceEventEmitter() {
   return new com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter(
     {
       emit(eventType, params) {
+        const data = toJSValue(params);
         setTimeout(() => {
-          DeviceEventEmitter.emit(eventType, toJSValue(params));
+          DeviceEventEmitter.emit(eventType, data);
         }, 1);
       },
     }
@@ -63,17 +64,12 @@ export function getCurrentBridge() {
       reactApplicationContext
     );
     if (Utils.android.getApplication().getReactNativeHost) {
-      console.log('React Native Host is installed');
       const reactNativeHost = Utils.android
         .getApplication()
         .getReactNativeHost();
       reactNativeHost
         .getReactInstanceManager?.()
         .setupReactContext?.(reactApplicationContext);
-      console.log(
-        'React Native Host is Ready',
-        reactNativeHost.getReactInstanceManager?.()
-      );
     }
     attachActivityLifecycleListeners(reactApplicationContext);
   }
@@ -105,7 +101,6 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
       const activityName = getActivityName(args.activity);
       if (!mMainActivityName || mMainActivityName === activityName) {
         mMainActivityName = activityName;
-        reactContext.onHostResume(args.activity);
       }
     }
   );

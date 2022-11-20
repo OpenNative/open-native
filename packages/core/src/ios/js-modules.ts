@@ -29,8 +29,9 @@ export class JSModules {
     }
     // Run callback on next event loop.
     if (moduleName === 'RCTDeviceEventEmitter') {
+      const params = toJSValue(args) as JSValuePassableIntoObjc[];
       setTimeout(() => {
-        jsModule[methodName](...(toJSValue(args) as JSValuePassableIntoObjc[]));
+        jsModule[methodName](...params);
       }, 1);
       return;
     }
