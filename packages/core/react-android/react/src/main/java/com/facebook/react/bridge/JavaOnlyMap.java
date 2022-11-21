@@ -145,7 +145,7 @@ public class JavaOnlyMap implements ReadableMap, WritableMap {
       return ((Dynamic) value).getType();
     } else {
       throw new IllegalArgumentException(
-          "Invalid value " + value.toString() + " for key " + name + "contained in JavaOnlyMap");
+        "Invalid value " + value.toString() + " for key " + name + "contained in JavaOnlyMap");
     }
   }
 

@@ -32,7 +32,7 @@ public class ReadableNativeMap implements ReadableMap {
 
 
   private HashMap<String, Object> getLocalMap() {
-      return mLocalMap;
+    return mLocalMap;
   }
 
   @Override
@@ -77,12 +77,12 @@ public class ReadableNativeMap implements ReadableMap {
   private void checkInstance(String name, Object value, Class type) {
     if (value != null && !type.isInstance(value)) {
       throw new UnexpectedNativeTypeException(
-          "Value for "
-              + name
-              + " cannot be cast from "
-              + value.getClass().getSimpleName()
-              + " to "
-              + type.getSimpleName());
+        "Value for "
+          + name
+          + " cannot be cast from "
+          + value.getClass().getSimpleName()
+          + " to "
+          + type.getSimpleName());
     }
   }
 
@@ -176,7 +176,7 @@ public class ReadableNativeMap implements ReadableMap {
           @Override
           public Object setValue(Object value) {
             throw new UnsupportedOperationException(
-                "Can't set a value while iterating over a ReadableNativeMap");
+              "Can't set a value while iterating over a ReadableNativeMap");
           }
         };
       }
@@ -220,9 +220,20 @@ public class ReadableNativeMap implements ReadableMap {
 
   @Override
   public @NonNull HashMap<String, Object> toHashMap() {
-    // we can almost just return getLocalMap(), but we need to convert nested arrays and maps to the
-    // correct types first
-    return getLocalMap();
+    HashMap<String,Object> localMap = new HashMap<>();
+    for (String key: localMap.keySet()) {
+      Object value = localMap.get(key);
+      if (value instanceof WritableNativeMap) {
+        localMap.put(key,((WritableNativeMap) value).toHashMap());
+        continue;
+      }
+      if (value instanceof WritableNativeArray) {
+        localMap.put(key, ((WritableNativeArray) value).toArrayList());
+        continue;
+      }
+      localMap.put(key,value);
+    }
+    return localMap;
   }
 
   private static class ReadableNativeMapKeySetIterator implements ReadableMapKeySetIterator {

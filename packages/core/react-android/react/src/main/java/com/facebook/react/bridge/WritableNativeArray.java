@@ -46,7 +46,7 @@ public class WritableNativeArray extends ReadableNativeArray implements Writable
   public void pushArray(@Nullable ReadableArray array) {
     Assertions.assertCondition(
       array == null || array instanceof ReadableNativeArray, "Illegal type provided");
-        mLocalArray.add(array);
+    mLocalArray.add(array);
 
   }
 
@@ -55,7 +55,7 @@ public class WritableNativeArray extends ReadableNativeArray implements Writable
   public void pushMap(@Nullable ReadableMap map) {
     Assertions.assertCondition(
       map == null || map instanceof ReadableNativeMap, "Illegal type provided");
-      mLocalArray.add(map);
+    mLocalArray.add(map);
   }
 
 }

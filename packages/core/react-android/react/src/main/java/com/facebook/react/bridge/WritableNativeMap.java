@@ -47,7 +47,7 @@ public class WritableNativeMap extends ReadableNativeMap implements WritableMap 
   @Override
   public void putMap(@NonNull String key, @Nullable ReadableMap value) {
     Assertions.assertCondition(
-        value == null || value instanceof ReadableNativeMap, "Illegal type provided");
+      value == null || value instanceof ReadableNativeMap, "Illegal type provided");
     mLocalMap.put(key, value);
   }
 
@@ -55,7 +55,7 @@ public class WritableNativeMap extends ReadableNativeMap implements WritableMap 
   @Override
   public void putArray(@NonNull String key, @Nullable ReadableArray value) {
     Assertions.assertCondition(
-        value == null || value instanceof ReadableNativeArray, "Illegal type provided");
+      value == null || value instanceof ReadableNativeArray, "Illegal type provided");
     mLocalMap.put(key, value);
   }
 
