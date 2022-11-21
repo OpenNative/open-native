@@ -9,7 +9,6 @@ import groovy.json.JsonSlurper
 def modules = new JsonSlurper().parse(new File(settingsDir,"./bridge/modules.json"));
 
 rootProject.name = "React Example"
-include ':app'
 include ':react'
 include ':bridge'
 
