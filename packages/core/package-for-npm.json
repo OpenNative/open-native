@@ -15,6 +15,11 @@
     },
     "hooks": [
       {
+        "type": "before-prepare",
+        "script": "hooks/before-prepare.js",
+        "inject": true
+      },
+      {
         "type": "before-prepareNativeApp",
         "script": "hooks/before-prepareNativeApp.js",
         "inject": true
