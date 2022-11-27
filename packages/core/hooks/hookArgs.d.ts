@@ -16,7 +16,7 @@ export interface HookArgs {
    */
   projectRoot: string;
   projectData: ProjectData;
-  platformData: PlatformData;
+  prepareData: PlatformData;
   /**
    * Just lists out projectRoot, projectData, and platformData again in an
    * array.
@@ -106,4 +106,5 @@ export interface PlatformData {
   frameworkPackageName: string;
   normalizedPlatformName: 'iOS' | 'Android';
   platformNameLowerCase: 'ios' | 'android';
+  platform: 'ios' | 'android';
 }

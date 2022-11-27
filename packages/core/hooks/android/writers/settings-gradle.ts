@@ -1,4 +1,4 @@
-import { readFile, writeFile } from '../common';
+import { exists, readFile, writeFile } from '../common';
 
 export async function writeSettingsGradleFile(projectDir: string) {
   const settingsGradlePath = projectDir + '/platforms/android/settings.gradle';
@@ -21,7 +21,7 @@ export async function writeSettingsGradleFile(projectDir: string) {
     }
   }
   `;
-
+  if (!(await exists(settingsGradlePath))) return;
   const currentSettingsGradle = await readFile(settingsGradlePath, {
     encoding: 'utf-8',
   });
