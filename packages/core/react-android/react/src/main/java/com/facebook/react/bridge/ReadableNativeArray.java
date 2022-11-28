@@ -117,7 +117,7 @@ public class ReadableNativeArray implements ReadableArray {
   @Override
   public @NonNull ArrayList<Object> toArrayList() {
     ArrayList<Object> localArray = new ArrayList<>();
-    for (Object value: localArray) {
+    for (Object value: mLocalArray) {
       if (value instanceof WritableNativeMap) {
         localArray.add(((WritableNativeMap) value).toHashMap());
         continue;

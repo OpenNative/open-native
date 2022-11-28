@@ -221,8 +221,8 @@ public class ReadableNativeMap implements ReadableMap {
   @Override
   public @NonNull HashMap<String, Object> toHashMap() {
     HashMap<String,Object> localMap = new HashMap<>();
-    for (String key: localMap.keySet()) {
-      Object value = localMap.get(key);
+    for (String key: mLocalMap.keySet()) {
+      Object value = mLocalMap.get(key);
       if (value instanceof WritableNativeMap) {
         localMap.put(key,((WritableNativeMap) value).toHashMap());
         continue;
