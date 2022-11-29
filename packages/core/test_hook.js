@@ -19,7 +19,7 @@ const nsDemoPackageJson = JSON.parse(
 );
 const platform = process.argv[2] ? process.argv[2].split('=')[1] : 'android';
 
-require('../../apps/demo/scripts/before-prepareNativeApp')({
+require('../../apps/demo/scripts/before-prepare')({
   platformData: {
     normalizedPlatformName: platform === 'android' ? 'Android' : 'iOS',
     platformNameLowerCase: platform,
@@ -29,5 +29,9 @@ require('../../apps/demo/scripts/before-prepareNativeApp')({
     dependencies: nsDemoPackageJson.dependencies,
     ignoredDependencies: [],
     projectDir: nsDemoProjectDir,
+    platform,
+  },
+  prepareData: {
+    platform,
   },
 });
