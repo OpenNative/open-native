@@ -6,7 +6,8 @@ import { extractMethodParamTypes } from './module-param-types';
 import { extractClassDeclarationForPackage } from './package-class-declaration';
 import * as path from 'path';
 
-const ANDROID_METHOD_REGEX = /(?:@Override|@ReactMethod)[\s\S]*?[{;]/gm;
+const ANDROID_METHOD_REGEX =
+  /(?:@Override|@ReactMethod)[\s\S]*?public[\s\S]*?[{;]/gm;
 
 export async function extractPackageModules(folder: string) {
   let filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
@@ -105,6 +106,7 @@ export async function extractPackageModules(folder: string) {
         const potentialMethodMatches: RegExpMatchArray =
           (moduleContents.match(ANDROID_METHOD_REGEX) as RegExpMatchArray) ??
           ([] as unknown as RegExpMatchArray);
+        console.log(potentialMethodMatches);
         const exportsConstants =
           /@Override\s+.*\s+getConstants\(\s*\)\s*{/m.test(moduleContents);
 
