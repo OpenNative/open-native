@@ -52,16 +52,16 @@ class NativeModuleHolder implements Partial<NativeModule> {
     }
   }
 
-  addListener = (eventType: string) => {
-    //
+  addListener = (...args: any[]) => {
+    this.nativeModule['addListener']?.(...args);
   };
 
-  removeListener = (eventType: string) => {
-    //
+  removeListener = (...args: any[]) => {
+    this.nativeModule['removeListener']?.(...args);
   };
 
-  removeListeners = (count: number) => {
-    //
+  removeListeners = (...args: any[]) => {
+    this.nativeModule['removeListeners']?.(...args);
   };
 
   /**
