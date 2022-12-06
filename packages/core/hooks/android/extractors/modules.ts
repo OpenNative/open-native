@@ -106,7 +106,7 @@ export async function extractPackageModules(folder: string) {
         const potentialMethodMatches: RegExpMatchArray =
           (moduleContents.match(ANDROID_METHOD_REGEX) as RegExpMatchArray) ??
           ([] as unknown as RegExpMatchArray);
-        console.log(potentialMethodMatches);
+
         const exportsConstants =
           /@Override\s+.*\s+getConstants\(\s*\)\s*{/m.test(moduleContents);
 

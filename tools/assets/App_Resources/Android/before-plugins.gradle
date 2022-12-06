@@ -5,6 +5,7 @@ ext {
         targetSdkVersion = 33
         androidXCoreVersion = "1.8.0"
         androidXCompatVersion = "1.5.1"
+        reactNativeProjects = []
 }
 
 allprojects {

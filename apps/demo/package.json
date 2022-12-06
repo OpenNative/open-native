@@ -5,7 +5,6 @@
   "repository": "<fill-your-repository-here>",
   "dependencies": {
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
-    "@notifee/react-native": "^7.1.0",
     "@open-native/core": "file:../../packages/core",
     "react-native-auth0": "2.13.3",
     "react-native-module-test": "file:../../packages/react-native-module-test"
