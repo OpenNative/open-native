@@ -11,49 +11,28 @@ npm install @open-native/core
 Create `App_Resources/Android/before-plugins.gradle with the following contents
 
 ```groovy
+apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/open-native.gradle");
 ext {
-        // The version used here should be same as the one's
-        // set in app.gradle file.
+        // The versions used here should be same as the one's set in app.gradle file.
         buildToolsVersion = '33.0.0'
         minSdkVersion = 23
         compileSdkVersion = 33
         targetSdkVersion = 33
-        
+        reactNativeProjects = []
+
         androidXCoreVersion = "1.8.0"
         androidXCompatVersion = "1.5.1"
 }
-allprojects {
-
-  // Nativescript by default runs this hook for all plugin builds,
-  // but we want to run it only when the main app builds.
-  if (!rootProject.projectDir.absolutePath.contains("tempPlugin")) {
-    // We are replacing com.facebook.react:react-native with our local :react library in all linked libraries.
-    // We could do this inside the module itself but we want the module to work in both
-    // react-native & nativescript
-    configurations {
-      all {
-        resolutionStrategy {
-          dependencySubstitution {
-            substitute module("com.facebook.react:react-native") using project(":react") because "we will replace this with our local react"
-          }
-        }
-      }
-    }
-  }
-}
 ```
 
-## Configure Webpack
+Create `App_Resources/Android/settings.gradle` and paste the following contents:
 
-Alias `react-native` with `@open-native/core`.
-
-```js
-webpack.chainWebpack((config) => {
-  config.resolve.alias.set('react-native', '@open-native/core');
-});
+```groovy
+apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/native_modules.gradle");
 ```
 
-If you install a react-natie module & get errors in webpack, install `metro-react-native-babel-preset` via npm/yarn.
+## Configure Webpack (Optional)
+If you install a react-native module & get errors during webpack complation, install `metro-react-native-babel-preset` via npm/yarn.
 
 ```
 npm install -D metro-react-native-babel-preset
@@ -63,7 +42,6 @@ add the following preset to your webpack config.
 
 ```js
 webpack.chainWebpack((config) => {
-  config.resolve.alias.set('react-native', '@open-native/core');
   config.module
     .rule('rnmodules')
     // Add each react-native module that gives errors in webpack build here
