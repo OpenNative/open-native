@@ -1,3 +1,4 @@
+apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/open-native.gradle");
 ext {
         buildToolsVersion = '33.0.0'
         minSdkVersion = 23
@@ -6,24 +7,4 @@ ext {
         androidXCoreVersion = "1.8.0"
         androidXCompatVersion = "1.5.1"
         reactNativeProjects = []
-}
-
-allprojects {
-  
-  // Nativescript by default runs this hook for all plugin builds,
-  // but we want to run it only when the main app builds.
-  if (!rootProject.projectDir.absolutePath.contains("tempPlugin")) {
-    // We are replacing com.facebook.react:react-native with our local :react library in all linked libraries.
-    // We could do this inside the module itself but we want the module to work in both
-    // react-native & nativescript
-    configurations {
-      all {
-        resolutionStrategy {
-          dependencySubstitution {
-            substitute module("com.facebook.react:react-native") using project(":react") because "we will replace this with our local react"
-          }
-        }
-      }
-    }
-  }
 }

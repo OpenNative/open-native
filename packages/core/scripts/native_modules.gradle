@@ -1,0 +1,16 @@
+def reactNativePkgJson = new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim())
+def reactNativeDir = reactNativePkgJson.getParentFile().absolutePath
+import groovy.json.JsonSlurper
+def modules = new JsonSlurper().parse(new File(reactNativeDir, "react-android/bridge/modules.json"));
+
+include ':react'
+project(":react").projectDir = new File(reactNativeDir, "react-android/react/")
+include ':bridge'
+project(":bridge").projectDir = new File(reactNativeDir, "react-android/bridge/")
+
+def selfModuleName = "open-native_core"
+modules.each {
+  if (it.androidProjectName.equals(selfModuleName)) return
+  include ":${it.androidProjectName}"
+  project(":${it.androidProjectName}").projectDir = new File(it.absolutePath)
+}

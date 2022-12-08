@@ -1,16 +1,1 @@
-// This is not working currently & has no affect. However it should work once the PR
-// https://github.com/NativeScript/nativescript-cli/pull/5693 gets merged.
-def reactNativePkgJson = new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim())
-def reactNativeDir = reactNativePkgJson.getParentFile().absolutePath
-import groovy.json.JsonSlurper
-def modules = new JsonSlurper().parse(new File(reactNativeDir, "react-android/bridge/modules.json"));
-
-include ':react'
-project(":react").projectDir = new File(reactNativeDir, "react-android/react/")
-include ':bridge'
-project(":bridge").projectDir = new File(reactNativeDir, "react-android/bridge/")
-
-modules.each {
-  include ":${it.androidProjectName}"
-  project(":${it.androidProjectName}").projectDir = new File(it.absolutePath)
-}
+apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/native_modules.gradle");
