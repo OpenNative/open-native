@@ -15,6 +15,7 @@ export async function writeIncludeGradleFile({
 }) {
   const contents = [
     'dependencies {',
+    'implementation project(":react")',
     'implementation project(":bridge")',
     ...projectNames
       .filter((projectName) => projectName !== 'open-native_core')

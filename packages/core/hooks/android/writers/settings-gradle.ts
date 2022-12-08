@@ -25,7 +25,12 @@ export async function writeSettingsGradleFile(projectDir: string) {
   const currentSettingsGradle = await readFile(settingsGradlePath, {
     encoding: 'utf-8',
   });
-  if (currentSettingsGradle.includes('Mark open-native_core patch')) return;
+  if (
+    currentSettingsGradle.includes('Mark open-native_core patch') ||
+    currentSettingsGradle.includes('applySettingsGradleConfiguration')
+  )
+    return;
+
   return await writeFile(
     settingsGradlePath,
     [currentSettingsGradle, settingsGradlePatch].join('\n'),
