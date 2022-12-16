@@ -8,7 +8,7 @@ export type { TurboModule } from './Libraries/TurboModule/RCTExport';
 export { Platform } from './Libraries/Utilities/Platform';
 export { NativeModules } from './src/ios/nativemodules';
 export const DeviceEventEmitter = RCTDeviceEventEmitter;
-
+export { Dimensions } from './Libraries/Utilities/Dimensions';
 /**
  * Loads all modules eagerly in a specific ReactPackage.
  *
