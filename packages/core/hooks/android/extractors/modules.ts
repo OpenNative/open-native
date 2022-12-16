@@ -119,9 +119,10 @@ export async function extractPackageModules(folder: string) {
              */
             raw = raw.replace(/\s+/g, ' ');
 
-            const hasReactMethodAnnotation = raw.includes('@ReactMethod ');
+            const hasReactMethodAnnotation =
+              raw.includes('@ReactMethod ') || raw.includes('@ReactMethod(');
             const isBlockingSynchronousMethod =
-              /isBlockingSynchronousMethod\s*=\s*true/.test(
+              /isBlockingSynchronousMethod\s*=\s*true/gm.test(
                 raw
                   .split(/\)/)
                   .find((split) => split?.includes('@ReactMethod(')) || ''
