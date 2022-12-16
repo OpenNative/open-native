@@ -26,8 +26,10 @@ export const Platform = {
    * @web web, default
    */
   select: <T>(specifics: { [platform in PlatformSelectOSType]?: T }): T => {
-    return 'ios' in specifics
+    return isIOS && 'ios' in specifics
       ? specifics.ios
+      : isAndroid && 'android' in specifics
+      ? specifics.android
       : 'native' in specifics
       ? specifics.native
       : specifics.default;
