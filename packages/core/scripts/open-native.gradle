@@ -1,3 +1,8 @@
+ext {
+   reactNativeAndroidRoot = new File(new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim()).parentFile, "/react-android/react")
+   reactNativeProjects = []
+}
+
 allprojects {
   
   // Nativescript by default runs this hook for all plugin builds,
