@@ -271,7 +271,7 @@ export function promisify(
 ): Promise<unknown> {
   return new Promise((resolve, reject) => {
     try {
-      if (methodQueue) {
+      if (methodQueue && module.methodQueue) {
         dispatch_async(module.methodQueue, () => {
           module[methodName](
             ...toNativeArguments(methodTypes, args, resolve, reject)
