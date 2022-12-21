@@ -10,6 +10,7 @@ import { getPodspecFilePath } from './podspec-path';
 import { getSourceFilePaths } from './source-file-paths';
 import { extractInterfaces } from '../extractors/interface';
 import { writePublicSwiftModule } from '../writers/swift-module';
+import { resolvePackagePath } from '@rigor789/resolve-package-path';
 
 /**
  * @param {object} args
@@ -30,9 +31,7 @@ export async function getPackageAutolinkInfo({
   packageName: string;
   projectDir: string;
 }) {
-  const packagePath = path.dirname(
-    require.resolve(`${packageName}/package.json`, { paths: [projectDir] })
-  );
+  const packagePath = resolvePackagePath(packageName, { paths: [projectDir] });
 
   const podspecs = await globProm(
     packageName === ownPackageName

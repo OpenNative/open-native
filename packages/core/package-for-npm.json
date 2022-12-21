@@ -49,5 +49,8 @@
   "license": "MIT",
   "homepage": "https://github.com/OpenNative/open-native",
   "readmeFilename": "README.md",
-  "bootstrapper": "@nativescript/plugin-seed"
+  "bootstrapper": "@nativescript/plugin-seed",
+  "dependencies": {
+    "@rigor789/resolve-package-path": "1.0.5"
+  }
 }

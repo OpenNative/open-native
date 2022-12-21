@@ -6,6 +6,7 @@ import { extractPackageModules } from '../extractors/modules';
 import { extractLibraryName } from '../extractors/library-name';
 import { extractComponentDescriptors } from '../extractors/component-descriptors';
 import { createAndroidPackageName } from './project-name';
+import { resolvePackagePath } from '@rigor789/resolve-package-path';
 /**
  * @param {object} args
  * @param args.npmPackageName The package name, e.g. 'react-native-module-test'.
@@ -32,9 +33,9 @@ export async function getPackageAutolinkInfo({
   projectDir: string;
   userConfig?: AndroidDependencyParams;
 }) {
-  const npmPackagePath = path.dirname(
-    require.resolve(`${npmPackageName}/package.json`, { paths: [projectDir] })
-  );
+  const packagePath = resolvePackagePath(npmPackageName, {
+    paths: [projectDir],
+  });
 
   /**
    * Detect whether we're autolinking our own React Native bridge
@@ -43,7 +44,7 @@ export async function getPackageAutolinkInfo({
    */
   const isCore = npmPackageName === ownPackageName;
   const sourceDir = path.join(
-    npmPackagePath,
+    packagePath,
     isCore
       ? 'react-android/react/src/main/java/com/facebook'
       : userConfig.sourceDir || 'android'
@@ -54,10 +55,7 @@ export async function getPackageAutolinkInfo({
   }
 
   const manifestPath = isCore
-    ? path.join(
-        npmPackagePath,
-        'react-android/react/src/main/AndroidManifest.xml'
-      )
+    ? path.join(packagePath, 'react-android/react/src/main/AndroidManifest.xml')
     : userConfig.manifestPath
     ? path.join(sourceDir, userConfig.manifestPath)
     : await getManifestPath(sourceDir);
@@ -90,7 +88,7 @@ export async function getPackageAutolinkInfo({
   const buildTypes = userConfig.buildTypes || [];
   const dependencyConfiguration = userConfig.dependencyConfiguration;
   const libraryName =
-    userConfig.libraryName || extractLibraryName(npmPackagePath, sourceDir);
+    userConfig.libraryName || extractLibraryName(packagePath, sourceDir);
 
   /**
    * At least so far, I'm not aware of us having any React components to export
@@ -99,7 +97,7 @@ export async function getPackageAutolinkInfo({
   const componentDescriptors = isCore
     ? []
     : userConfig.componentDescriptors ||
-      (await extractComponentDescriptors(npmPackagePath));
+      (await extractComponentDescriptors(packagePath));
   const androidMkPath = userConfig.androidMkPath
     ? path.join(sourceDir, userConfig.androidMkPath)
     : path.join(sourceDir, 'build/generated/source/codegen/jni/Android.mk');
