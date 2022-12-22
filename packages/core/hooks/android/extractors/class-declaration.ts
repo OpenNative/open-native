@@ -24,7 +24,7 @@
 export function extractClassDeclarationForModule(file: string) {
   // Match any class with the @ReactModule annotation.
   const reactModuleMatch = file.match(
-    /@ReactModule[\s\S]*class\s+(\w+[^(\s]*)[\s\w():]*.*{/
+    /@ReactModule[\s\S]*public class\s+(\w+[^(\s]*)[\s\w():]*.*{/
   );
   if (reactModuleMatch) {
     return reactModuleMatch;
@@ -44,6 +44,6 @@ export function extractClassDeclarationForModule(file: string) {
 
   // Match any class that extends ReactContextBaseJavaModule.
   return file.match(
-    /class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ReactContextBaseJavaModule/
+    /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ReactContextBaseJavaModule/
   );
 }
