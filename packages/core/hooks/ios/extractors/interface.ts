@@ -15,6 +15,10 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
     `@interface RCT_EXTERN_MODULE`
   );
 
+  if (!isSwiftModuleInterface && !sourceCode.includes('RCT_EXPORT_MODULE')) {
+    return {};
+  }
+
   /**
    * A record of JS bridge module names to method descriptions.
    * @example
