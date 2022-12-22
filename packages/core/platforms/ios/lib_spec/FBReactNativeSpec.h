@@ -214,7 +214,7 @@ namespace JS {
 @end
 @protocol NativeAlertManagerSpec <RCTBridgeModule, RCTTurboModule>
 
-- (void)alertWithArgs:(JS::NativeAlertManager::Args &)args
+- (void)alertWithArgs:(NSDictionary *)args
              callback:(RCTResponseSenderBlock)callback;
 
 @end

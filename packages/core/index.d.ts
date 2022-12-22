@@ -9,6 +9,8 @@ export type {
 import type { Linking } from './Libraries/Linking/Linking';
 import EventEmitter from './Libraries/vendor/emitter/EventEmitter';
 export { AppRegistry } from './Libraries/ReactNative/AppRegistry';
+export { Alert } from './Libraries/Alert/Alert';
+
 declare global {
   // eslint-disable-next-line no-var
   var reactNativeBridgeIOS: RCTBridge;

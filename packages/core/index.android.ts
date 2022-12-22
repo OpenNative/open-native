@@ -10,6 +10,7 @@ export { AppRegistry } from './Libraries/ReactNative/AppRegistry';
 export { Linking } from './Libraries/Linking/Linking';
 export const DeviceEventEmitter = RCTDeviceEventEmitter;
 export { Dimensions } from './Libraries/Utilities/Dimensions';
+export { Alert } from './Libraries/Alert/Alert';
 /**
  * Loads all modules eagerly in a specific ReactPackage.
  *
