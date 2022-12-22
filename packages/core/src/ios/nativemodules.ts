@@ -112,10 +112,14 @@ class NativeModuleHolder implements Partial<NativeModule> {
       );
       return;
     }
-
+    this.constants = constantsAsJs;
     for (const key in constantsAsJs) {
       this[key] = constantsAsJs[key];
     }
+  }
+
+  getConstants() {
+    return this.constants;
   }
 
   private wrapNativeMethods(moduleMethods: TModuleMethodsType): void {
@@ -127,6 +131,7 @@ class NativeModuleHolder implements Partial<NativeModule> {
             `Unable to wrap method "${exportedMethodName}" on module "${this.moduleName}" as the module was not found in the bridge.`
           );
         }
+
         if (isPromise(moduleMethods, exportedMethodName)) {
           return promisify(
             this.nativeModule,
@@ -143,7 +148,6 @@ class NativeModuleHolder implements Partial<NativeModule> {
           );
           return;
         }
-
         return this.nativeModule[jsName]?.(
           ...toNativeArguments(methodTypes, args)
         );

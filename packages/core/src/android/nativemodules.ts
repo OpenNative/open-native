@@ -114,10 +114,14 @@ class NativeModuleHolder implements Partial<NativeModule> {
       );
       return;
     }
-
+    this.constants = constantsAsJs;
     for (const key in constantsAsJs) {
       this[key] = constantsAsJs[key];
     }
+  }
+
+  getConstants() {
+    return this.constants;
   }
 
   private wrapNativeMethods(moduleMethods: TModuleMethodsType): void {
