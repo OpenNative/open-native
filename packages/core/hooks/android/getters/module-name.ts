@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 
-const ANDROID_GET_NAME_FN_REGEX = /getName\(\)[\s\S]*?\{[^}]*\}/gm;
-const ANDROID_MODULE_NAME_REGEX = /(?<=return ).*(?=;)/gm;
+const ANDROID_GET_NAME_FN = /getName\(\)[\s\S]*?\{[^}]*\}/gm;
+const GET_NAME_RETURN_VALUE = /(?<=return ).*(?=;)/gm;
+const MODULE_NAME_ANNOTATION = /(?<=@ReactModule\(name.*=).*(?=\))/gm;
 
 /**
  * Gets the exported name for the module, or null if there's no such match.
@@ -11,10 +12,12 @@ export function getModuleName(
   moduleContents: string,
   files: string[]
 ): string | null {
-  let getNameFunctionReturnValue = moduleContents
-    .match(ANDROID_GET_NAME_FN_REGEX)?.[0]
-    .match(ANDROID_MODULE_NAME_REGEX)?.[0]
-    .trim();
+  let getNameFunctionReturnValue =
+    moduleContents.match(MODULE_NAME_ANNOTATION)?.[0]?.trim() ||
+    moduleContents
+      .match(ANDROID_GET_NAME_FN)?.[0]
+      ?.match(GET_NAME_RETURN_VALUE)?.[0]
+      ?.trim();
   // The module doesn't have a getName() method at all. It may be a spec, or not
   // a ReactModule in the first place.
   if (!getNameFunctionReturnValue) {
