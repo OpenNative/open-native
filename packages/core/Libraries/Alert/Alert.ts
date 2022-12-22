@@ -6,7 +6,6 @@
  *
  */
 
-import { Dialogs, PromptOptions } from '@nativescript/core';
 import { NativeModules } from '../..';
 import { Platform } from '../Utilities/Platform';
 import RCTAlertManagerAndroid from './RCTAlertManager.android';
