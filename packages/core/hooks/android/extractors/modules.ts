@@ -65,6 +65,9 @@ export async function extractPackageModules(folder: string) {
   const reactMethods: {
     [moduleClassName: string]: Set<string>;
   } = {};
+  const exportedConstants: {
+    [moduleClassName: string]: boolean;
+  } = {};
 
   let modules = moduleDeclarationMatches
     // Sort all direct extensions of ReactContextBaseJavaModule (base classes)
@@ -108,8 +111,9 @@ export async function extractPackageModules(folder: string) {
           ([] as unknown as RegExpMatchArray);
 
         const exportsConstants =
-          /@Override\s+.*\s+getConstants\(\s*\)\s*{/m.test(moduleContents);
-
+          /getConstants\(\s*\)\s*{/m.test(moduleContents) ||
+          exportedConstants[superclassName];
+        exportedConstants[moduleClassName] = exportsConstants;
         const exportedMethods = potentialMethodMatches
           .map((raw) => {
             /**
