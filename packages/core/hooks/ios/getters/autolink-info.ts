@@ -53,7 +53,6 @@ export async function getPackageAutolinkInfo({
     packagePath,
     podspecs,
   });
-
   const { stdout: podspecContents } = await execFile('pod', [
     'ipc',
     'spec',
@@ -87,7 +86,10 @@ export async function getPackageAutolinkInfo({
   }
 
   const sourceFilePaths = await getSourceFilePaths({
-    commonSourceFiles,
+    commonSourceFiles:
+      ownPackageName === packageName
+        ? [commonSourceFiles as string, 'lib_core/React/CoreModules/*.{m,mm}']
+        : commonSourceFiles,
     iosSourceFiles,
     cwd: path.dirname(podspecFilePath),
   });
