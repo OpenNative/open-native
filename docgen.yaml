@@ -1,6 +1,7 @@
 ---
 title: "Open Native"
 logo: logo.png
+base_path: "/open-native"
 navigation:
   - path: docs/installation.md
   - path: docs/install-module.md
