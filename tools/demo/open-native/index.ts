@@ -14,7 +14,7 @@ export class DemoSharedOpenNative extends DemoSharedBase {
   testPromise() {
     const testPromise = async () => {
       for (let i = 0; i < 5000; i++) {
-        await NativeModules.RNTestModuleAliased.testPromise();
+        await NativeModules.RNTestModule.testPromise();
       }
     };
     measure('promise', testPromise);
