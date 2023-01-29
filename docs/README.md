@@ -1,5 +1,5 @@
 <div>
-    <img alt="open native logo" width="100%" src="open-native-logo.svg">
+    <img alt="open native logo" width="100%" src="open-native-logo-inverted.svg">
 </div>
 
 We all want to build apps in a way that's approachable to us, regardless of the target platform. Projects like React Native, Flutter, Capacitor, and NativeScript enable us to build native (e.g. iOS and Android) apps using alternative idioms such as JavaScript, Web tech, or platform-agnostic UI.

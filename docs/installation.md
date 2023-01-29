@@ -22,9 +22,9 @@ yarn add @open-native/core
 
 ## Android Setup
 
-Android requires two extra steps before you start using Open Native in your NativeScript app.
+Android requires two more steps before you start using installing native modules in your NativeScript app.
 
-#### Installing open-native.gradle plugin
+### Installing open-native.gradle plugin
 
 Create `App_Resources/Android/before-plugins.gradle and install `open-native.gradle` plugin by pasting the following contents.
 
@@ -38,7 +38,7 @@ apply from: new File(["node", "--print", "require.resolve('@open-native/core/pac
 
 {% end %}
 
-#### Installing native_modules.gradle plugin
+### Installing native_modules.gradle plugin
 
 Create `App_Resources/Android/settings.gradle` and install `native_modules.gradle` plugin by pasting the following contents.
 
