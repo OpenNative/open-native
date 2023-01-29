@@ -4,10 +4,10 @@ def safeExtGetOpenNative(prop, fallback) {
 ext {
    reactNativeAndroidRoot = new File(new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim()).parentFile, "/react-android/react")
    reactNativeProjects = []
-   buildToolsVersion = NS_DEFAULT_BUILD_TOOLS_VERSION as String
-   minSdkVersion = NS_DEFAULT_MIN_SDK_VERSION as int
-   compileSdkVersion = NS_DEFAULT_COMPILE_SDK_VERSION as int
-   targetSdkVersion = NS_DEFAULT_COMPILE_SDK_VERSION as int
+   buildToolsVersion = safeExtGetOpenNative("NS_DEFAULT_BUILD_TOOLS_VERSION", "32.0.0") as String
+   minSdkVersion = safeExtGetOpenNative("NS_DEFAULT_MIN_SDK_VERSION", 19) as int
+   compileSdkVersion = safeExtGetOpenNative("NS_DEFAULT_COMPILE_SDK_VERSION", 32) as int
+   targetSdkVersion = safeExtGetOpenNative("NS_DEFAULT_COMPILE_SDK_VERSION", 32) as int
    androidXCoreVersion = safeExtGetOpenNative("ns_default_androidx_core_version", "1.8.0") 
    androidXCompatVersion = safeExtGetOpenNative("ns_default_androidx_appcompat_version",  "1.5.1")
 }
