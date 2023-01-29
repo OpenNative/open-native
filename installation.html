@@ -8,21 +8,21 @@
     <title>Installation</title>
     <meta name="description" content="Documentation for Open Native">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico?">
+
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
         rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="/open-native/assets/normalize.css?v=1674991762"
+    <link rel="stylesheet" type="text/css" href="/open-native/assets/normalize.css?v=1674997126"
         media="screen" />
-    <link rel="stylesheet" type="text/css" href="/open-native/assets/docgen-style.css?v=1674991762"
+    <link rel="stylesheet" type="text/css" href="/open-native/assets/docgen-style.css?v=1674997126"
         media="screen" />
-    <link rel="stylesheet" type="text/css" href="/open-native/assets/katex.css?v=1674991762" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/open-native/assets/prism-ghcolors.css?v=1674991762"
+    <link rel="stylesheet" type="text/css" href="/open-native/assets/katex.css?v=1674997126" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/open-native/assets/prism-ghcolors.css?v=1674997126"
         media="screen" />
 
     <script>
-        var DOCGEN_TIMESTAMP = "1674991762";
+        var DOCGEN_TIMESTAMP = "1674997126";
         var BASE_PATH = "/open-native/";
         var color = localStorage.getItem('docgen-color')
 
@@ -111,14 +111,14 @@
 <pre><code>yarn add @open-native/core
 </code></pre>
 </div></div><h2 id="android-setup">Android Setup</h2>
-<p>Android requires two extra steps before you start using Open Native in your NativeScript app.</p>
-<h4 id="installing-open-native.gradle-plugin">Installing open-native.gradle plugin</h4>
+<p>Android requires two more steps before you start using installing native modules in your NativeScript app.</p>
+<h3 id="installing-open-native.gradle-plugin">Installing open-native.gradle plugin</h3>
 <p>Create <code>App_Resources/Android/before-plugins.gradle and install </code>open-native.gradle` plugin by pasting the following contents.</p>
 <pre><code class="language-groovy">apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/open-native.gradle");
 </code></pre>
 <div class="callout info">
 <p><code>open-native.gradle</code> plugin aliases <code>react-native</code> with <code>open-native</code> so any native modules will use <code>open-native</code> sources to compile &amp; run.</p>
-</div><h4 id="installing-native_modules.gradle-plugin">Installing native_modules.gradle plugin</h4>
+</div><h3 id="installing-native_modules.gradle-plugin">Installing native_modules.gradle plugin</h3>
 <p>Create <code>App_Resources/Android/settings.gradle</code> and install <code>native_modules.gradle</code> plugin by pasting the following contents.</p>
 <pre><code class="language-groovy">apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/native_modules.gradle");
 </code></pre>
@@ -162,11 +162,11 @@ Linking.openUrl("https://github.com/OpenNative/open-native");
                             <a href='#android-setup'>Android Setup</a>
                         </li>
                         
-                        <li class='page-nav-level-4'>
+                        <li class='page-nav-level-3'>
                             <a href='#installing-open-native.gradle-plugin'>Installing open-native.gradle plugin</a>
                         </li>
                         
-                        <li class='page-nav-level-4'>
+                        <li class='page-nav-level-3'>
                             <a href='#installing-native_modules.gradle-plugin'>Installing native_modules.gradle plugin</a>
                         </li>
                         
@@ -197,11 +197,11 @@ Linking.openUrl("https://github.com/OpenNative/open-native");
             </div>
         </div>
     </div>
-    <script type="text/javascript" src="/open-native/assets/katex.js?v=1674991762"></script>
-    <script type="text/javascript" src="/open-native/assets/mermaid.js?v=1674991762"></script>
-    <script type="text/javascript" src="/open-native/assets/elasticlunr.js?v=1674991762"></script>
-    <script type="text/javascript" src="/open-native/assets/prism.js?v=1674991762"></script>
-    <script type="text/javascript" src="/open-native/assets/docgen-app.js?v=1674991762"></script>
+    <script type="text/javascript" src="/open-native/assets/katex.js?v=1674997126"></script>
+    <script type="text/javascript" src="/open-native/assets/mermaid.js?v=1674997126"></script>
+    <script type="text/javascript" src="/open-native/assets/elasticlunr.js?v=1674997126"></script>
+    <script type="text/javascript" src="/open-native/assets/prism.js?v=1674997126"></script>
+    <script type="text/javascript" src="/open-native/assets/docgen-app.js?v=1674997126"></script>
 
     
 </body>

@@ -146,17 +146,11 @@ function setColor() {
       BASE_PATH + "assets/prism-atom-dark.css?v=" + DOCGEN_TIMESTAMP;
     document.getElementsByTagName("html")[0].classList.remove("light");
     document.getElementsByTagName("html")[0].classList.add("dark");
-    if (document.getElementsByClassName("open-native-logo").length > 0) {
-      document.getElementsByClassName("open-native-logo")[0] .src="open-native-logo-inverted.svg"
-    }
   } else {
     document.querySelector("link[rel='stylesheet'][href*='prism-']").href =
       BASE_PATH + "assets/prism-ghcolors.css?" + DOCGEN_TIMESTAMP;
     document.getElementsByTagName("html")[0].classList.remove("dark");
     document.getElementsByTagName("html")[0].classList.add("light");
-    if (document.getElementsByClassName("open-native-logo").length > 0) {
-      document.getElementsByClassName("open-native-logo")[0].src="open-native-logo.svg"
-    }
   }
 }
 
