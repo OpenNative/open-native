@@ -23,7 +23,8 @@
     "start:metro": "nx run demo-react-native:start",
     "start:rna": "nx run demo-react-native:run-android",
     "start:rni": "nx run demo-react-native:run-ios",
-    "test:hooks": "yarn demo:hooks && node ./packages/core/test_hook.js"
+    "test:hooks": "yarn demo:hooks && node ./packages/core/test_hook.js",
+    "build:docs": "docgen build --release && cp ./docs/docgen-style.css ./site/assets/docgen-style.css"
   },
   "private": true,
   "dependencies": {
