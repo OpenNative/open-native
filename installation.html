@@ -113,7 +113,7 @@
 </div></div><h2 id="android-setup">Android Setup</h2>
 <p>Android requires two more steps before you start using installing native modules in your NativeScript app.</p>
 <h3 id="installing-open-native.gradle-plugin">Installing open-native.gradle plugin</h3>
-<p>Create <code>App_Resources/Android/before-plugins.gradle and install </code>open-native.gradle` plugin by pasting the following contents.</p>
+<p>Create <code>App_Resources/Android/before-plugins.gradle</code> and install <code>open-native.gradle</code> plugin by pasting the following contents.</p>
 <pre><code class="language-groovy">apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/open-native.gradle");
 </code></pre>
 <div class="callout info">
