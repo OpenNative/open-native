@@ -17,6 +17,7 @@
           "packages/core/preuninstall.js",
           "packages/core/react-android/**/*",
           "packages/core/scripts/**/*",
+          "packages/core/polyfills/**/*",
           "LICENSE",
           "LICENSE-react-native",
           "LICENSE-react-native-community-cli",
