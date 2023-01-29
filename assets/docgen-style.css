@@ -43,6 +43,10 @@ body {
   color: var(--fg);
 }
 
+strong {
+  color: var(--fg-dim)
+}
+
 h1,
 h2,
 h3,
