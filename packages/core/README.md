@@ -12,17 +12,6 @@ Create `App_Resources/Android/before-plugins.gradle with the following contents
 
 ```groovy
 apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/open-native.gradle");
-ext {
-        // The versions used here should be same as the one's set in app.gradle file.
-        buildToolsVersion = '33.0.0'
-        minSdkVersion = 23
-        compileSdkVersion = 33
-        targetSdkVersion = 33
-        reactNativeProjects = []
-
-        androidXCoreVersion = "1.8.0"
-        androidXCompatVersion = "1.5.1"
-}
 ```
 
 Create `App_Resources/Android/settings.gradle` and paste the following contents:
