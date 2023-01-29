@@ -82,7 +82,11 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
        * previous match and get skipped.
        */
       ...fullMatch.matchAll(/ERN_METHOD\((.|[\r\n])*?\)*(RCT_EXT|@end)/gm),
+      ...fullMatch.matchAll(
+        /ERN__BLOCKING_SYNCHRONOUS_METHOD\((.|[\r\n])*?\)*(RCT_EXT|@end)/gm
+      ),
     ].map((match) => {
+      const isSync = match[0].includes('BLOCKING_SYNCHRONOUS');
       const [
         ,
         /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject) {' */
@@ -91,7 +95,9 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
         //Remove next method's starting RCT_EXT & trim out and whitespace at the end.
         .replace('RCT_EXT', '')
         .trim()
-        .split(/ERN_METHOD\(\s*/);
+        .split(
+          isSync ? /ERN__BLOCKING_SYNCHRONOUS_METHOD\(\s*/ : /ERN_METHOD\(\s*/
+        );
 
       /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject' */
       const methodNameAndArgs = fromMethodName
@@ -99,7 +105,7 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
         .slice(0, -1)
         .join(')');
       const methodName = methodNameAndArgs.split(':')[0].trim();
-      return extractObjcMethodContents(methodNameAndArgs, methodName);
+      return extractObjcMethodContents(methodNameAndArgs, methodName, isSync);
     });
 
     /**
@@ -142,12 +148,20 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
      */
     const exportedMethods = [
       ...fullMatch.matchAll(/^\s*RCT_EXPORT_METHOD\((.|[\r\n])*?\)*\{/gm),
+      ...fullMatch.matchAll(
+        /^\s*RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD\((.|[\r\n])*?\)*\{/gm
+      ),
     ].map((match) => {
+      const isSync = match[0].includes('BLOCKING_SYNCHRONOUS');
       const [
         ,
         /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject) {' */
         fromMethodName,
-      ] = match[0].split(/RCT_EXPORT_METHOD\(\s*/);
+      ] = match[0].split(
+        isSync
+          ? /RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD\(\s*/
+          : /RCT_EXPORT_METHOD\(\s*/
+      );
 
       /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject' */
       const methodNameAndArgs = fromMethodName
@@ -155,7 +169,7 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
         .slice(0, -1)
         .join(')');
       const methodName = methodNameAndArgs.split(':')[0].trim();
-      return extractObjcMethodContents(methodNameAndArgs, methodName);
+      return extractObjcMethodContents(methodNameAndArgs, methodName, isSync);
     });
 
     const allMethods = [

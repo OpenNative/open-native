@@ -12,13 +12,14 @@ const METHOD_PARAM_REGEX = /:\((.|[\r\n])*?\).*?[a-zA-Z0-9]+/g;
  */
 export function extractObjcMethodContents(
   contents: string,
-  remappedName?: string
+  remappedName?: string,
+  isSync?: boolean
 ) {
   /**
    * The Obj-C method signature, with all unnecessary whitespace removed.
    * @example '- (void)exportedName:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject'
    */
-  const signature = `- (void)${contents
+  const signature = `- (${isSync ? 'id' : 'void'})${contents
     .trim()
     .replace(/\s+/g, ' ') // Standardise all whitespace to a single space
     .replace(/\s?\*\s?/g, '*') // Collapse (NSString *) or similar to (NSString*)
@@ -29,7 +30,7 @@ export function extractObjcMethodContents(
    * @example 'exportedName:withRejecter:'
    */
   const selector = signature
-    .split('- (void)')[1]
+    .split(`- (${isSync ? 'id' : 'void'})`)[1]
     .replace(METHOD_PARAM_REGEX, '')
     .replace(';', '');
   /**
@@ -76,5 +77,6 @@ export function extractObjcMethodContents(
     selector,
     signature,
     types,
+    sync: isSync,
   };
 }

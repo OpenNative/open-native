@@ -61,6 +61,9 @@ export function toNativeArguments(
     // }
 
     switch (argType) {
+      case RNObjcSerialisableType.returnType: {
+        break;
+      }
       case RNObjcSerialisableType.other: {
         throw new Error(
           `Unexpected type 'other' at index ${i} - the autolinker must have failed to parse the native module.`

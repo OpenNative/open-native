@@ -41,6 +41,8 @@ export function extractMethodParamTypes(
   }
 
   switch (objcType) {
+    case 'id':
+      return RNObjcSerialisableType.returnType;
     case 'void': // This is only of relevance for parsing the return type.
       return RNObjcSerialisableType.void;
     case 'double':
