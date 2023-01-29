@@ -5,11 +5,11 @@
   </picture>
 </p>
 
+We all want to build apps in a way that's approachable to us, regardless of the target platform. Projects like React Native, Flutter, Capacitor, and NativeScript enable us to build native (e.g. iOS and Android) apps using alternative idioms such as JavaScript, Web tech, or platform-agnostic UI.
+
+Each of these projects has a way to map platform APIs into their idiom (e.g. React Native has "native modules"), but none are completely mutually compatible. That is to say, a React Native native module cannot be used in a Flutter app as-is, and vice versa. This situation has led to a great amount of duplicated effort, and an isolation of communities.
+
 Open Native is the long overdue Rosetta Stone that **allows native modules to be used cross-ecosystem**. It handles all the necessary autolinking, type marshalling and API-binding to allow you to choose the highest quality native module for your project, no matter what ecosystem it comes from.
-
-For our first integration, we've **enabled NativeScript to use React Native native modules** exactly as documented for React Native.
-
-Open Native **implements just the native module API and autolinking** for a given ecosystem (e.g. React Native) without including any unnecessary core code or CLI tooling. It then exposes the native APIs in an ecosystem-agnostic manner that another framework (e.g. NativeScript) can provide a minimal adapter for.
 
 For our first integration, we've **enabled NativeScript to use React Native native modules** the same way one would use them in React Native.
 
@@ -24,7 +24,7 @@ Head over to the [installation](https://opennative.github.io/open-native/install
 
 ## I want to contribute
 
-That great news! There is a lot happening at a very fast pace in this library right now. Every little help is precious. You can contribute in many ways:
+That is great news! There is a lot happening at a very fast pace in this library right now. Every little help is precious. You can contribute in many ways:
 
 - If you have suggestion or idea you want to discuss, [open an issue](https://github.com/OpenNative/open-native/issues).
 - Open an issue if you want to make a pull request, and tell me what you want to improve or add so we can discuss about it.
