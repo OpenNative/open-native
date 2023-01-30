@@ -26,7 +26,7 @@ Android requires two more steps before you start using installing native modules
 
 ### Installing open-native.gradle plugin
 
-Create `App_Resources/Android/before-plugins.gradle and install `open-native.gradle` plugin by pasting the following contents.
+Create `App_Resources/Android/before-plugins.gradle` and install `open-native.gradle` plugin by pasting the following contents.
 
 ```groovy
 apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/open-native.gradle");
@@ -79,7 +79,7 @@ Once you have installed Open Native, you must want to know whether everything is
 import { Linking } from "react-native"; // react-native?? yes we alias react-native with open-native so don't worry, you have not installed react-native :P
 
 // Invoke the method on Linking module to open a URL.
-Linking.openUrl("https://github.com/OpenNative/open-native");
+Linking.openURL("https://github.com/OpenNative/open-native");
 ```
 This should open up Open Native github in your mobile/emulator browser. 
 
