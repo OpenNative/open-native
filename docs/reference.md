@@ -90,7 +90,7 @@ Gets the current dimensions related data. See [react-native](https://reactnative
 Open Native does not load modules until the first request to import a NativeModule takes place. If you want to eagerly load all modules metadata, call this method in `app.js`.
 
 ```ts
-import { init } from 'open-native';
+import { init } from '@open-native/core';
 init();
 ```
 
@@ -101,7 +101,7 @@ Remember that this only loads the metadata, the NativeModules are always lazily 
 Native modules on android ship in small ReactPackages. Each package can have multiple modules. Open Native by default does not load native modules this way because it breaks lazy loading modules. In case you want to load a package of modules eagerly, you can call this method.
 
 ```ts
-import { loadModulesForPackage } from 'open-native';
+import { loadModulesForPackage } from '@open-native/core';
 
 loadModulesForPackage('RNTestModulePackage');
 ```
