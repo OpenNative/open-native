@@ -1,0 +1,4 @@
+apps
+node_modules
+.husky
+packages

@@ -108,7 +108,7 @@
 <p>The <code>NativeModules</code> object holds references to all the native modules that have been initialized on app launch. This is used by react native modules javascript code to access native methods.</p>
 <p>For example the Linking Core module uses the following two modules:</p>
 <pre><code class="language-ts">// Importing from `react-native` because it is alaised by `open-native`.
-// You can do `import { NativeModules } from "open-native" and
+// You can do `import { NativeModules } from "@open-native/core" and
 // it will work the same.
 import { NativeModules } from 'react-native';
 
@@ -159,13 +159,13 @@ Usually used by native modules that do work in background or wake your app to ru
 <p>Gets the current dimensions related data. See <a href="https://reactnative.dev/docs/dimensions#get">react-native</a> docs on how to use this method.</p>
 <h3 id="init"><code>init</code></h3>
 <p>Open Native does not load modules until the first request to import a NativeModule takes place. If you want to eagerly load all modules metadata, call this method in <code>app.js</code>.</p>
-<pre><code class="language-ts">import { init } from 'open-native';
+<pre><code class="language-ts">import { init } from '@open-native/core';
 init();
 </code></pre>
 <p>Remember that this only loads the metadata, the NativeModules are always lazily loaded.</p>
 <h3 id="loadmodulesforpackage-(android-only)"><code>loadModulesForPackage (android only)</code></h3>
 <p>Native modules on android ship in small ReactPackages. Each package can have multiple modules. Open Native by default does not load native modules this way because it breaks lazy loading modules. In case you want to load a package of modules eagerly, you can call this method.</p>
-<pre><code class="language-ts">import { loadModulesForPackage } from 'open-native';
+<pre><code class="language-ts">import { loadModulesForPackage } from '@open-native/core';
 
 loadModulesForPackage('RNTestModulePackage');
 </code></pre>
