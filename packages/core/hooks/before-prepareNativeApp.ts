@@ -1,6 +1,9 @@
 import type { HookArgs } from './hookArgs';
 import { writeSettingsGradleFile } from './android/writers/settings-gradle';
 import { writeAndroidApplication } from './android/writers/android-application';
+import { resolvePackagePath } from '@rigor789/resolve-package-path';
+import * as path from 'path';
+import * as fs from 'fs';
 
 const logPrefix = '[@open-native/core/hooks/before-prepareNativeApp.js]';
 
@@ -24,6 +27,25 @@ export = async function (hookArgs: HookArgs) {
     await writeSettingsGradleFile(projectDir);
     if (patchAndroidApplication) {
       await writeAndroidApplication(projectDir);
+    }
+    try {
+      const reactNativeDir = resolvePackagePath('react-native', {
+        paths: [projectDir],
+      });
+      const openNativeDir = resolvePackagePath('@open-native/core', {
+        paths: [projectDir],
+      });
+      const nodeModulesDir = path.resolve(path.join(openNativeDir, '../../'));
+      if (!reactNativeDir) {
+        fs.mkdirSync(path.join(nodeModulesDir, 'react-native'));
+        fs.writeFileSync(
+          path.join(nodeModulesDir, 'react-native', 'package.json'),
+          ''
+        );
+        fs.mkdirSync(path.join(nodeModulesDir, 'react-native', 'android'));
+      }
+    } catch (e) {
+      console.log('');
     }
   }
 };
