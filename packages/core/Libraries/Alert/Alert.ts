@@ -62,8 +62,8 @@ export class Alert {
       }
       const constants = NativeDialogManagerAndroid.getConstants();
       const config: DialogOptions = {
-        title: title || '',
-        message: message || '',
+        title: `${title || ''}`,
+        message: `${message || ''}`,
         cancelable: false,
       };
 
