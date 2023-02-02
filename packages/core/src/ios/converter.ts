@@ -4,12 +4,11 @@ import {
   RNObjcSerialisableType,
   warn,
 } from '../common';
-import { Utils } from '@nativescript/core';
 import {
-  getClass,
   numberHasDecimals,
   numberIs64Bit,
 } from '@nativescript/core/utils/types';
+import { Utils } from '@nativescript/core';
 
 export function toNativeArguments(
   methodTypes: RNObjcSerialisableType[],
@@ -265,6 +264,29 @@ export function toNativeArguments(
   return nativeArguments;
 }
 
+function toJSError(error: NSError) {
+  if (!error) return new Error('');
+  // The nativeError may be nil (null on our side), so unlike the
+  // RCTResponseErrorBlock, we'll need to construct an error afresh.
+  const jsError = new Error(
+    toJSValue(
+      error.localizedDescription ||
+        error.localizedFailureReason ||
+        'Unknown error'
+    ) as string
+  );
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (jsError as Error & { code: string }).code = toJSValue(error.code) as string;
+
+  // In case NativeScript doesn't support the new Error 'cause' API,
+  // I'll assign it directly to be safe.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (jsError as Error & { cause: NSError }).cause = error;
+
+  return jsError;
+}
+
 export function promisify(
   module: RCTBridgeModule,
   methodQueue: boolean,
@@ -476,9 +498,9 @@ export function toJSValue(
     return null;
   }
 
-  throw new Error(
-    `Unable to marshal native value to JS: ${getClass(data)}:${data}`
-  );
+  if (data instanceof NSError) return toJSError(data) as any;
+
+  return Utils.dataDeserialize(data);
 }
 
 /**
