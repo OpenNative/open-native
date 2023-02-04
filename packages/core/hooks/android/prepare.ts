@@ -120,10 +120,12 @@ export async function autolinkAndroid({
             exportedModuleName,
             exportsConstants,
             moduleImportNameJs,
+            isReactViewManager
           }) => {
             acc[exportedModuleName] = {
               e: exportsConstants,
               j: moduleImportNameJs,
+              v: isReactViewManager,
               m: exportedMethods.reduce(
                 (
                   innerAcc,
@@ -132,12 +134,14 @@ export async function autolinkAndroid({
                     isBlockingSynchronousMethod,
                     methodNameJs,
                     methodTypesParsed,
+                    prop,
                   }
                 ) => {
                   innerAcc[exportedMethodName] = {
                     b: isBlockingSynchronousMethod,
                     j: methodNameJs,
                     t: methodTypesParsed,
+                    p: prop,
                   };
                   return innerAcc;
                 },

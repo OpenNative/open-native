@@ -12,7 +12,7 @@ import { AppRegistry } from '../../Libraries/ReactNative/AppRegistry';
 import CatalystInstance from './catalyst-instance';
 import { toJSValue } from './converter';
 import { JSModules } from './js-modules';
-import { ReactContext } from './types';
+import {  ReactContext } from './types';
 
 export function getJSModules() {
   if (!global.jsModulesAndroid) {
@@ -74,6 +74,15 @@ export function getCurrentBridge() {
     attachActivityLifecycleListeners(reactApplicationContext);
   }
   return global.reactNativeBridgeAndroid;
+}
+
+export function getThemedReactContext(moduleName:string,surfaceId) {
+  return  new com.facebook.react.uimanager.ThemedReactContext(
+    getCurrentBridge().reactContext as never,
+    Utils.android.getApplicationContext(),
+    moduleName,
+    surfaceId
+  )
 }
 
 function getActivityName(activity: android.app.Activity) {

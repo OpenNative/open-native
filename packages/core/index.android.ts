@@ -5,7 +5,7 @@ export { Platform } from './Libraries/Utilities/Platform';
 import * as _TurboModuleRegistry from './Libraries/TurboModule/TurboModuleRegistry';
 export type { TurboModule } from './Libraries/TurboModule/RCTExport';
 import { load } from './src/android/nativemodules';
-export { NativeModules } from './src/android/nativemodules';
+export { NativeModules,ViewManagers } from './src/android/nativemodules';
 export { AppRegistry } from './Libraries/ReactNative/AppRegistry';
 export { Linking } from './Libraries/Linking/Linking';
 export const DeviceEventEmitter = RCTDeviceEventEmitter;

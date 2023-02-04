@@ -27,6 +27,7 @@ export async function writeModuleMapFile({
           t: RNJavaSerialisableType[];
         };
       };
+      p: string
     };
   };
   outputModuleMapPath: string;

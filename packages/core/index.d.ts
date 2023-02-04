@@ -30,6 +30,7 @@ declare global {
  */
 export function loadModulesForPackage(name: string): void;
 export const NativeModules: { [name: string]: any };
+export const ViewManagers: { [name: string]: any};
 export const DeviceEventEmitter: EventEmitter;
 export class TurboModule {}
 export function init(): void;

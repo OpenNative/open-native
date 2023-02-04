@@ -54,3 +54,21 @@ export function getModuleName(
 
   return variableDefinitionLine.split(`"`)[1];
 }
+
+export function resolveVariableValue(variable: string, files: string[]) {
+  if (variable.startsWith('"') && variable.endsWith('"')) return variable.split('"')[1];
+  if (!variable.includes('.')) return variable;
+  let variableDefinitionLine = undefined;
+  const split = variable.split('.');
+  const className = split[0] + '.java';
+  variable = split[1];
+  for (const file of files) {
+    if (file.includes(`/${className}`)) {
+      variableDefinitionLine = fs
+        .readFileSync(file, { encoding: 'utf-8' })
+        .split('\n')
+        .find((line) => line.includes(`String ${variable}`));
+    }
+  }
+  return variableDefinitionLine.split(`"`)[1];
+}

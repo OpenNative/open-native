@@ -1,5 +1,8 @@
 import { DemoSharedBase } from '../utils';
-import { NativeModules } from '@open-native/core';
+import { ViewManagers, NativeModules } from '@open-native/core';
+
+const view = ViewManagers.ModuleTestView.createViewInstance();
+
 
 async function measure(name: string, action: () => Promise<void>) {
   const start = performance.now();

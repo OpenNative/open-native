@@ -6,6 +6,8 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.ViewManager;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -37,6 +39,7 @@ public class Bridge {
       for (ReactPackage pkg : Packages.list) {
         if (pkg.getClass().getSimpleName().equals(packageName)) {
           List<NativeModule> modules_chunk = pkg.createNativeModules(reactContext);
+          modules_chunk.addAll(pkg.createViewManagers(reactContext));
           for (NativeModule module: modules_chunk) {
             modules.put(module.getName(),module);
             module.initialize();
@@ -62,47 +65,54 @@ public class Bridge {
     }
   }
 
-  public NativeModule getModuleByName(String name) {
+  public NativeModule getModuleByName(String name, boolean isViewManager) {
     if (modules.containsKey(name)) return modules.get(name);
-    return loadModuleByName(name);
+    return loadModuleByName(name, isViewManager);
   }
 
-  public NativeModule getModuleForClass(Class clazz) {
+  public NativeModule getModuleForClass(Class clazz, boolean isViewManager) {
     for (String moduleName : modules.keySet()) {
       NativeModule module = modules.get(moduleName);
       if (module.getClass().equals(clazz)) {
         return module;
       }
     }
-    return loadModuleForClass(clazz);
+    return loadModuleForClass(clazz,isViewManager);
   }
 
-
-  NativeModule loadModuleByName(String name) {
+  NativeModule loadModuleByName(String name, boolean isViewManager) {
     Class moduleClass = Packages.moduleClasses.get(name);
     if (moduleClass == null) return null;
-    return loadModuleForClass(moduleClass);
+    return loadModuleForClass(moduleClass,isViewManager);
   }
 
   public  boolean hasNativeModule(Class clazz) {
     return !Packages.moduleClasses.containsValue(clazz);
   }
 
-  NativeModule loadModuleForClass(Class moduleClass) {
+  NativeModule loadModuleForClass(Class moduleClass, boolean isViewManager) {
     try {
       if (!Packages.moduleClasses.containsValue(moduleClass)) {
         Log.d(TAG,"Module for class" + moduleClass.getName() + "not found");
         return null;
       }
       for(Constructor<?> constructor : moduleClass.getDeclaredConstructors()){
-        if(constructor.getParameterTypes().length == 1 &&
-          (constructor.getParameterTypes()[0] == ReactContext.class ||
-            constructor.getParameterTypes()[0] == ReactApplicationContext.class)){
+          Class[] params = constructor.getParameterTypes();
+
+        if(params.length == 1 &&
+          (params[0] == ReactContext.class ||
+            params[0] == ReactApplicationContext.class ||
+            params[0] == ThemedReactContext.class)){
           NativeModule module = (NativeModule) constructor.newInstance(reactContext);
           modules.put(module.getName(), module);
           module.initialize();
           return module;
-        } else {
+        } else if (isViewManager) {
+          NativeModule module = (NativeModule) constructor.newInstance();
+          modules.put(module.getName(), module);
+          module.initialize();
+          return module;
+        } else  {
           /**
            * Load the package for the module instead if
            * we are not able to load the module without the
@@ -114,7 +124,7 @@ public class Bridge {
            */
           String pkgName = Packages.modulePackageMap.get(moduleClass.getSimpleName());
           loadModulesForPackage(pkgName);
-          return getModuleForClass(moduleClass);
+          return getModuleForClass(moduleClass,isViewManager);
         }
       }
     } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {

@@ -1,5 +1,4 @@
 import { Application } from '@nativescript/core';
-import { init } from '@open-native/core';
 
 if (!global.performance) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -15,6 +14,5 @@ if (!global.performance) {
   };
 }
 
-init();
 
 Application.run({ moduleName: 'app-root' });

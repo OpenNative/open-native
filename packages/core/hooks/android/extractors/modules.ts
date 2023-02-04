@@ -1,11 +1,14 @@
 import { globProm, readFile } from '../common';
 import { getModuleImportPath } from '../getters/module-import-path';
-import { getModuleName } from '../getters/module-name';
+import { getModuleName, resolveVariableValue } from '../getters/module-name';
 import { extractClassDeclarationForModule } from './class-declaration';
 import { extractMethodParamTypes } from './module-param-types';
 import { extractClassDeclarationForPackage } from './package-class-declaration';
 import * as path from 'path';
 
+const ANDROID_REACT_PROP_REGEX = /(?<=@ReactProp\(name.*=)(.*)(?=\))/gm;
+const ANDROID_REACT_PROP_METHOD_REGEX =
+  /(?:@ReactProp\(name = "color"\))[\s\S]*?public[\s\S]*?[{;]/gm;
 const ANDROID_METHOD_REGEX =
   /(?:@Override|@ReactMethod)[\s\S]*?public[\s\S]*?[{;]/gm;
 
@@ -107,8 +110,10 @@ export async function extractPackageModules(folder: string) {
          * ['@Override\n@DoNotStrip\n   public abstract void getInitialURL(Promise promise);']
          */
         const potentialMethodMatches: RegExpMatchArray =
-          (moduleContents.match(ANDROID_METHOD_REGEX) as RegExpMatchArray) ??
-          ([] as unknown as RegExpMatchArray);
+          ([
+            ...(moduleContents.match(ANDROID_METHOD_REGEX) || []),
+            ...(moduleContents.match(ANDROID_REACT_PROP_METHOD_REGEX) || []),
+          ] as RegExpMatchArray) ?? ([] as unknown as RegExpMatchArray);
 
         const exportsConstants =
           /getConstants\(\s*\)\s*{/m.test(moduleContents) ||
@@ -125,12 +130,21 @@ export async function extractPackageModules(folder: string) {
 
             const hasReactMethodAnnotation =
               raw.includes('@ReactMethod ') || raw.includes('@ReactMethod(');
+            const hasReactPropAnnotation = raw.includes('@ReactProp');
+
             const isBlockingSynchronousMethod =
               /isBlockingSynchronousMethod\s*=\s*true/gm.test(
                 raw
                   .split(/\)/)
                   .find((split) => split?.includes('@ReactMethod(')) || ''
               );
+            let methodPropName = undefined;
+            if (hasReactPropAnnotation) {
+              methodPropName = resolveVariableValue(
+                raw.split("public")[0].match(ANDROID_REACT_PROP_REGEX)[0].trim(),
+                filePaths
+              );
+            }
 
             /**
              * Remove annotations & comments.
@@ -201,7 +215,7 @@ export async function extractPackageModules(folder: string) {
               extractMethodParamTypes(t)
             );
 
-            if (hasReactMethodAnnotation) {
+            if (hasReactMethodAnnotation || hasReactPropAnnotation) {
               reactMethods[moduleClassName]?.add(methodNameJava);
             }
             // Discard any @Override methods for which we haven't encountered a
@@ -223,6 +237,7 @@ export async function extractPackageModules(folder: string) {
               methodTypesRaw,
               returnType,
               signature,
+              prop: methodPropName,
             };
           })
           .filter((obj) => obj?.signature);
@@ -246,6 +261,8 @@ export async function extractPackageModules(folder: string) {
           moduleClassName,
           /** @example 'com.facebook.react.modules.intent' */
           moduleImportPath,
+          /** @example @ReactProp(name = "color") */
+          isReactViewManager: moduleContents.includes('@ReactProp'),
         };
       }
     );

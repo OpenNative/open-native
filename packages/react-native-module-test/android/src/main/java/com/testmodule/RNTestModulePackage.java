@@ -16,13 +16,8 @@ public class RNTestModulePackage implements ReactPackage {
         return Arrays.<NativeModule>asList(new RNTestModule(reactContext), new RNTestCaseNameVariable(reactContext),new RNTestCaseScopedNameVariable(reactContext));
     }
 
-//  @Override
-//  public List<Class<? extends JavaScriptModule>> createJSModules() {
-//    return null;
-//  }
-
- @Override
-   public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
-       return Collections.emptyList();
-   }
+    @Override
+    public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
+            return Arrays.<ViewManager>asList(new ModuleTestViewManager());
+    }
 }
