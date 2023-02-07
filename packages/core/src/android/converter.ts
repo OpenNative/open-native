@@ -178,6 +178,16 @@ function createJSPromise(resolve, reject) {
   });
 }
 
+function fromJSON(value: string) {
+  if (typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    console.warn(e.message, e, value);
+    return value;
+  }
+}
+
 export function toNativeArguments(
   methodTypes: RNJavaSerialisableType[],
   args: JSValuePassableIntoJava[],
@@ -208,7 +218,7 @@ export function toNativeArguments(
 
   for (let i = 0; i < argumentTypes.length; i++) {
     const argType = argumentTypes[i];
-    const data = args[i];
+    let data = args[i];
 
     // assert(
     //   typeof data !== 'undefined',
@@ -245,12 +255,22 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullArray: {
+        const isJsonArray =
+          typeof data === 'string' ? (data as string)?.startsWith('[') : false;
+        const jsonParsedObject = isJsonArray && fromJSON(data as string);
         assert(
-          data === null || Array.isArray(data),
+          data === null ||
+            Array.isArray(data) ||
+            (isJsonArray && jsonParsedObject),
           `Argument at index ${i} expected an Array value, but got ${data}`
         );
 
-        nativeArguments.push(toNativeValue(data, false) as JavaJSONEquivalent);
+        nativeArguments.push(
+          toNativeValue(
+            isJsonArray ? jsonParsedObject : data,
+            false
+          ) as JavaJSONEquivalent
+        );
         break;
       }
 
@@ -261,14 +281,19 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullObject: {
+        const isJsonObject =
+          typeof data === 'string' ? (data as string)?.startsWith('{') : false;
+        const jsonParsedObject = isJsonObject && fromJSON(data as string);
         assert(
-          data === null || data?.constructor === Object,
+          data === null ||
+            data?.constructor === Object ||
+            (isJsonObject && jsonParsedObject),
           `Argument at index ${i} expected an object value, but got ${data}`
         );
 
         nativeArguments.push(
           toNativeValue(
-            data as JSONSerialisable | null,
+            isJsonObject ? jsonParsedObject : (data as JSONSerialisable | null),
             false
           ) as JavaJSONEquivalent
         );
@@ -285,6 +310,7 @@ export function toNativeArguments(
         nativeArguments.push(toNativeValue(data, true) as java.lang.Boolean);
         break;
       case RNJavaSerialisableType.nonnullBoolean:
+        data = fromJSON(data as string);
         assert(
           typeof data === 'boolean',
           `Argument at index ${i} expected a boolean, but got ${data}`
@@ -311,6 +337,7 @@ export function toNativeArguments(
         break;
 
       case RNJavaSerialisableType.int:
+        data = fromJSON(data as string);
         assert(
           typeof data === 'number',
           `Argument at index ${i} expected a number, but got ${data}`
@@ -318,6 +345,7 @@ export function toNativeArguments(
         nativeArguments.push(new java.lang.Integer(data));
         break;
       case RNJavaSerialisableType.nonnullInt:
+        data = fromJSON(data as string);
         assert(
           typeof data === 'number',
           `Argument at index ${i} expected a number, but got ${data}`
@@ -331,6 +359,7 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullFloat:
+        data = fromJSON(data as string);
         assert(
           typeof data === 'number',
           `Argument at index ${i} expected a number, but got ${data}`
@@ -344,6 +373,7 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullDouble:
+        data = fromJSON(data as string);
         assert(
           typeof data === 'number',
           `Argument at index ${i} expected a number, but got ${data}`

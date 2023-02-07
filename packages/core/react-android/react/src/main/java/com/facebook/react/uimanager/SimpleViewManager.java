@@ -20,4 +20,5 @@ import android.view.View;
 public abstract class SimpleViewManager<T extends View>
     extends BaseViewManager<T, ReactShadowNode> {
 
+
 }

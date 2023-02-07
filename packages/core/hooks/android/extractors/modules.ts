@@ -1,4 +1,4 @@
-import { globProm, readFile } from '../common';
+import { globProm, readFileSync } from '../common';
 import { getModuleImportPath } from '../getters/module-import-path';
 import { getModuleName, resolveVariableValue } from '../getters/module-name';
 import { extractClassDeclarationForModule } from './class-declaration';
@@ -6,18 +6,21 @@ import { extractMethodParamTypes } from './module-param-types';
 import { extractClassDeclarationForPackage } from './package-class-declaration';
 import * as path from 'path';
 
-const ANDROID_REACT_PROP_REGEX = /(?<=@ReactProp\(name.*=)(.*)(?=\))/gm;
+const ANDROID_REACT_PROP_REGEX = /(?<=@ReactProp\(name.*= ")(.*)(?=")/gm;
+const ANDROID_REACT_PROP_DEFAULT_VALUE =
+  /(?<=(defaultBoolean|defaultFloat|defaultDouble|defaultInt).*= )(.*)(?=\))/gm;
 const ANDROID_REACT_PROP_METHOD_REGEX =
-  /(?:@ReactProp\(name = "color"\))[\s\S]*?public[\s\S]*?[{;]/gm;
+  /(?:@ReactProp\(name*.*\))[\s\S]*?public[\s\S]*?[{;]/gm;
 const ANDROID_METHOD_REGEX =
   /(?:@Override|@ReactMethod)[\s\S]*?public[\s\S]*?[{;]/gm;
 
 export async function extractPackageModules(folder: string) {
   let filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
   filePaths = filePaths.map((filePath) => path.join(folder, filePath));
-  const files = await Promise.all(
-    filePaths.map((filePath) => readFile(filePath, 'utf8'))
-  );
+  const files = filePaths.map((filePath) => ({
+    contents: readFileSync(filePath, 'utf8'),
+    path: filePath,
+  }));
 
   // TODO: We should ideally strip comments before running any Regex.
 
@@ -26,14 +29,19 @@ export async function extractPackageModules(folder: string) {
     contents: string;
     match: RegExpMatchArray;
     superclassName: string;
+    path: string;
   }[] = [];
 
   for (const file of files) {
     if (!packageDeclarationMatch) {
-      packageDeclarationMatch = extractClassDeclarationForPackage(file);
+      packageDeclarationMatch = extractClassDeclarationForPackage(
+        file.contents
+      );
     }
 
-    const moduleDeclarationMatch = extractClassDeclarationForModule(file);
+    const moduleDeclarationMatch = extractClassDeclarationForModule(
+      file.contents
+    );
     if (moduleDeclarationMatch) {
       const [moduleClassSignature] = moduleDeclarationMatch;
 
@@ -45,9 +53,10 @@ export async function extractPackageModules(folder: string) {
       }
 
       moduleDeclarationMatches.push({
-        contents: file,
+        contents: file.contents,
         match: moduleDeclarationMatch,
         superclassName,
+        path: file.path,
       });
     }
   }
@@ -92,6 +101,7 @@ export async function extractPackageModules(folder: string) {
         contents: moduleContents,
         match: moduleDeclarationMatch,
         superclassName,
+        path,
       }) => {
         const [, moduleClassName] = moduleDeclarationMatch;
 
@@ -114,7 +124,6 @@ export async function extractPackageModules(folder: string) {
             ...(moduleContents.match(ANDROID_METHOD_REGEX) || []),
             ...(moduleContents.match(ANDROID_REACT_PROP_METHOD_REGEX) || []),
           ] as RegExpMatchArray) ?? ([] as unknown as RegExpMatchArray);
-
         const exportsConstants =
           /getConstants\(\s*\)\s*{/m.test(moduleContents) ||
           exportedConstants[superclassName];
@@ -127,7 +136,7 @@ export async function extractPackageModules(folder: string) {
              * @example ['@Override @DoNotStrip public abstract void getInitialURL(Promise promise);']
              */
             raw = raw.replace(/\s+/g, ' ');
-
+            const nativeDefinition = raw.split('{')[0].trim() + ';';
             const hasReactMethodAnnotation =
               raw.includes('@ReactMethod ') || raw.includes('@ReactMethod(');
             const hasReactPropAnnotation = raw.includes('@ReactProp');
@@ -139,11 +148,32 @@ export async function extractPackageModules(folder: string) {
                   .find((split) => split?.includes('@ReactMethod(')) || ''
               );
             let methodPropName = undefined;
+            let defaultPropValue = undefined;
             if (hasReactPropAnnotation) {
               methodPropName = resolveVariableValue(
-                raw.split("public")[0].match(ANDROID_REACT_PROP_REGEX)[0].trim(),
+                raw
+                  .split('public')[0]
+                  .match(ANDROID_REACT_PROP_REGEX)[0]
+                  .trim(),
                 filePaths
               );
+              defaultPropValue = raw
+                .split('public')[0]
+                .match(ANDROID_REACT_PROP_DEFAULT_VALUE)?.[0];
+              if (defaultPropValue) {
+                if (defaultPropValue?.endsWith('f')) defaultPropValue = 0.0;
+                if (
+                  defaultPropValue !== 'true' &&
+                  defaultPropValue !== 'false'
+                ) {
+                  defaultPropValue = defaultPropValue.include('.')
+                    ? parseFloat(defaultPropValue)
+                    : parseInt(defaultPropValue);
+                } else {
+                  defaultPropValue =
+                    defaultPropValue === 'false' ? false : true;
+                }
+              }
             }
 
             /**
@@ -238,6 +268,11 @@ export async function extractPackageModules(folder: string) {
               returnType,
               signature,
               prop: methodPropName,
+              defaultValue: defaultPropValue,
+              nativeDefinition: `Native definition for this prop in Java:
+\`\`\`java
+/${nativeDefinition}
+\`\`\``,
             };
           })
           .filter((obj) => obj?.signature);
@@ -250,11 +285,12 @@ export async function extractPackageModules(folder: string) {
          */
         const exportedModuleName = getModuleName(moduleContents, filePaths);
         const moduleImportPath = getModuleImportPath(moduleContents);
-
         return {
           exportedMethods,
           /** @example 'RNTestModule' or `null` if missing, e.g. for specs */
-          exportedModuleName,
+          exportedModuleName: moduleContents.includes('@ReactProp')
+            ? exportedModuleName + 'Manager'
+            : exportedModuleName,
           /** @example true */
           exportsConstants,
           /** @example 'RNTestModule' */
@@ -279,7 +315,9 @@ export async function extractPackageModules(folder: string) {
     }
 
     const matchingIndex = acc.findIndex(
-      (m) => m.exportedModuleName === mod.exportedModuleName
+      (m) =>
+        m.exportedModuleName === mod.exportedModuleName &&
+        mod.isReactViewManager === m.isReactViewManager
     );
 
     // If there's no previous module bearing this exportedModuleName, simply

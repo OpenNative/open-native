@@ -37,6 +37,10 @@ fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_com
 
 fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/React-Native-Podspecs.podspec'), '{}\n', 'utf-8');
 
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/src/android/view-manager-types.ts'), '{}\n', 'utf-8');
+
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/src/ios/view-manager-types.ts'), '{}\n', 'utf-8');
+
 const distExists = fs.existsSync(path.resolve(monorepoRoot, 'dist'));
 if (distExists) {
   const includeGradlePathDist = path.resolve(monorepoRoot, 'dist/packages/core/platforms/android');
@@ -56,4 +60,8 @@ if (distExists) {
   fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/platforms/ios/lib_community/RNPodspecs.h'), '{}\n', 'utf-8');
 
   fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/platforms/ios/React-Native-Podspecs.podspec'), '{}\n', 'utf-8');
+
+  fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/src/android/view-manager-types.ts'), 'export interface ViewManagers {}', 'utf-8');
+
+  fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/src/ios/view-manager-types.ts'), 'export interface ViewManagers {}', 'utf-8');
 }

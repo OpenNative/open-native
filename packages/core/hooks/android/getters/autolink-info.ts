@@ -117,7 +117,7 @@ export async function getPackageAutolinkInfo({
       exportedModuleName,
       exportsConstants,
       moduleImportPath,
-      isReactViewManager
+      isReactViewManager,
     }) => {
       const moduleImportName = `${moduleImportPath}.${moduleClassName}`;
       // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java

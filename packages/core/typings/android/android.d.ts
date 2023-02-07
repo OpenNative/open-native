@@ -86,11 +86,11 @@ declare module com {
 			public modules: java.util.HashMap<string,com.facebook.react.bridge.NativeModule>;
 			public reactContext: com.facebook.react.bridge.ReactApplicationContext;
 			public constructor(param0: com.facebook.react.bridge.ReactApplicationContext);
+			public getModuleByName(param0: string, param1: boolean): com.facebook.react.bridge.NativeModule;
 			public loadModulesForPackage(param0: string): void;
-			public getModuleByName(param0: string): com.facebook.react.bridge.NativeModule;
 			public loadModules(): void;
+			public getModuleForClass(param0: java.lang.Class<any>, param1: boolean): com.facebook.react.bridge.NativeModule;
 			public hasNativeModule(param0: java.lang.Class<any>): boolean;
-			public getModuleForClass(param0: java.lang.Class<any>): com.facebook.react.bridge.NativeModule;
 		}
 	}
 }
@@ -727,9 +727,11 @@ declare module com {
 						getNativeModules(): java.util.Collection<com.facebook.react.bridge.NativeModule>;
 						getJavaScriptContextHolder(): com.facebook.react.bridge.JavaScriptContextHolder;
 						setTurboModuleManager(param0: com.facebook.react.bridge.JSIModule): void;
+						callFunction(param0: string, param1: string, param2: com.facebook.react.bridge.ReadableNativeArray): void;
 					});
 					public constructor();
 					public destroy(): void;
+					public callFunction(param0: string, param1: string, param2: com.facebook.react.bridge.ReadableNativeArray): void;
 					public getJSIModule(param0: com.facebook.react.bridge.JSIModuleType): com.facebook.react.bridge.JSIModule;
 					public getNativeModule(param0: java.lang.Class<any>): com.facebook.react.bridge.NativeModule;
 					public setTurboModuleManager(param0: com.facebook.react.bridge.JSIModule): void;
@@ -1040,6 +1042,7 @@ declare module com {
 				export class JavaScriptContextHolder {
 					public static class: java.lang.Class<com.facebook.react.bridge.JavaScriptContextHolder>;
 					public constructor();
+					public get(): number;
 				}
 			}
 		}
@@ -2574,6 +2577,46 @@ declare module com {
 	export module facebook {
 		export module react {
 			export module uimanager {
+				export class DisplayMetricsHolder {
+					public static class: java.lang.Class<com.facebook.react.uimanager.DisplayMetricsHolder>;
+					public static setScreenDisplayMetrics(param0: globalAndroid.util.DisplayMetrics): void;
+					public static getScreenDisplayMetrics(): globalAndroid.util.DisplayMetrics;
+					/** @deprecated */
+					public static setWindowDisplayMetrics(param0: globalAndroid.util.DisplayMetrics): void;
+					/** @deprecated */
+					public static getWindowDisplayMetrics(): globalAndroid.util.DisplayMetrics;
+					public constructor();
+					public static getDisplayMetricsWritableMap(param0: number): com.facebook.react.bridge.WritableMap;
+					public static initDisplayMetrics(param0: globalAndroid.content.Context): void;
+					public static initDisplayMetricsIfNotInitialized(param0: globalAndroid.content.Context): void;
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module uimanager {
+				export class PixelUtil {
+					public static class: java.lang.Class<com.facebook.react.uimanager.PixelUtil>;
+					public static toPixelFromSP(param0: number): number;
+					public constructor();
+					public static getDisplayMetricDensity(): number;
+					public static toPixelFromDIP(param0: number): number;
+					public static toPixelFromSP(param0: number, param1: number): number;
+					public static toDIPFromPixel(param0: number): number;
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module uimanager {
 				export class ReactShadowNode {
 					public static class: java.lang.Class<com.facebook.react.uimanager.ReactShadowNode>;
 					public constructor();
@@ -2657,6 +2700,29 @@ declare module com {
 	export module facebook {
 		export module react {
 			export module uimanager {
+				export class UIManagerModule extends com.facebook.react.bridge.ReactContextBaseJavaModule {
+					public static class: java.lang.Class<com.facebook.react.uimanager.UIManagerModule>;
+					public static NAME: string;
+					public onCatalystInstanceDestroy(): void;
+					public constructor();
+					public getName(): string;
+					public canOverrideExistingModule(): boolean;
+					public constructor(param0: com.facebook.react.bridge.ReactApplicationContext);
+					public receiveEvent(param0: number, param1: string, param2: com.facebook.react.bridge.WritableMap): void;
+					public getEventDispatcher(): com.facebook.react.uimanager.events.EventDispatcher;
+					public receiveEvent(param0: number, param1: number, param2: string, param3: com.facebook.react.bridge.WritableMap): void;
+					public initialize(): void;
+					public invalidate(): void;
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module uimanager {
 				export abstract class ViewGroupManager<T>  extends com.facebook.react.uimanager.BaseViewManager<any,com.facebook.react.uimanager.ReactShadowNode> {
 					public static class: java.lang.Class<com.facebook.react.uimanager.ViewGroupManager<any>>;
 					public shouldPromoteGrandchildren(): boolean;
@@ -2700,7 +2766,9 @@ declare module com {
 					public getName(): string;
 					public createViewInstance(param0: com.facebook.react.uimanager.ThemedReactContext): any;
 					public getExportedViewConstants(): java.util.Map<string,any>;
+					public addEventEmitters(param0: com.facebook.react.uimanager.ThemedReactContext, param1: any): void;
 					public initialize(): void;
+					public onDropViewInstance(param0: any): void;
 					public invalidate(): void;
 				}
 			}
@@ -2817,6 +2885,116 @@ declare module com {
 		export module react {
 			export module uimanager {
 				export module events {
+					export class ContentSizeChangeEvent extends com.facebook.react.uimanager.events.Event<com.facebook.react.uimanager.events.ContentSizeChangeEvent> {
+						public static class: java.lang.Class<com.facebook.react.uimanager.events.ContentSizeChangeEvent>;
+						public static EVENT_NAME: string;
+						public constructor();
+						public getEventName(): string;
+						public getEventData(): com.facebook.react.bridge.WritableMap;
+						/** @deprecated */
+						public constructor(param0: number);
+						/** @deprecated */
+						public constructor(param0: number, param1: number, param2: number);
+						public constructor(param0: number, param1: number);
+						public constructor(param0: number, param1: number, param2: number, param3: number);
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module uimanager {
+				export module events {
+					export abstract class Event<T>  extends java.lang.Object {
+						public static class: java.lang.Class<com.facebook.react.uimanager.events.Event<any>>;
+						public getSurfaceId(): number;
+						public getUniqueID(): number;
+						/** @deprecated */
+						public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+						public constructor();
+						public getViewTag(): number;
+						/** @deprecated */
+						public init(param0: number): void;
+						public getUIManagerType(): number;
+						public getEventData(): com.facebook.react.bridge.WritableMap;
+						/** @deprecated */
+						public dispatchModernV2(param0: com.facebook.react.uimanager.events.RCTModernEventEmitter): void;
+						public getTimestampMs(): number;
+						/** @deprecated */
+						public constructor(param0: number);
+						public init(param0: number, param1: number, param2: number): void;
+						public init(param0: number, param1: number): void;
+						public canCoalesce(): boolean;
+						public getEventName(): string;
+						public getEventCategory(): number;
+						public dispatchModern(param0: com.facebook.react.uimanager.events.RCTModernEventEmitter): void;
+						public coalesce(param0: T): T;
+						public getCoalescingKey(): number;
+						public constructor(param0: number, param1: number);
+						public onDispose(): void;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module uimanager {
+				export module events {
+					export class EventCategoryDef {
+						public static class: java.lang.Class<com.facebook.react.uimanager.events.EventCategoryDef>;
+						/**
+						 * Constructs a new instance of the com.facebook.react.uimanager.events.EventCategoryDef interface with the provided implementation. An empty constructor exists calling super() when extending the interface class.
+						 */
+						public constructor(implementation: {
+						});
+						public constructor();
+						public static CONTINUOUS_START: number;
+						public static CONTINUOUS: number;
+						public static CONTINUOUS_END: number;
+						public static UNSPECIFIED: number;
+						public static DISCRETE: number;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module uimanager {
+				export module events {
+					export class EventDispatcher {
+						public static class: java.lang.Class<com.facebook.react.uimanager.events.EventDispatcher>;
+						/**
+						 * Constructs a new instance of the com.facebook.react.uimanager.events.EventDispatcher interface with the provided implementation. An empty constructor exists calling super() when extending the interface class.
+						 */
+						public constructor(implementation: {
+							dispatchEvent(param0: com.facebook.react.uimanager.events.Event<any>): void;
+						});
+						public constructor();
+						public dispatchEvent(param0: com.facebook.react.uimanager.events.Event<any>): void;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module uimanager {
+				export module events {
 					export class RCTEventEmitter extends com.facebook.react.bridge.JavaScriptModule {
 						public static class: java.lang.Class<com.facebook.react.uimanager.events.RCTEventEmitter>;
 						/**
@@ -2883,6 +3061,85 @@ declare module com {
 						public register(param0: number, param1: com.facebook.react.uimanager.events.RCTEventEmitter): void;
 						public receiveEvent(param0: number, param1: number, param2: string, param3: boolean, param4: number, param5: com.facebook.react.bridge.WritableMap, param6: number): void;
 						public receiveEvent(param0: number, param1: string, param2: com.facebook.react.bridge.WritableMap): void;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module views {
+				export module scroll {
+					export class OnScrollDispatchHelper {
+						public static class: java.lang.Class<com.facebook.react.views.scroll.OnScrollDispatchHelper>;
+						public getYFlingVelocity(): number;
+						public constructor();
+						public onScrollChanged(param0: number, param1: number): boolean;
+						public getXFlingVelocity(): number;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module views {
+				export module scroll {
+					export class ScrollEvent extends com.facebook.react.uimanager.events.Event<com.facebook.react.views.scroll.ScrollEvent> {
+						public static class: java.lang.Class<com.facebook.react.views.scroll.ScrollEvent>;
+						public canCoalesce(): boolean;
+						public getEventName(): string;
+						public getEventData(): com.facebook.react.bridge.WritableMap;
+						public static obtain(param0: number, param1: number, param2: com.facebook.react.views.scroll.ScrollEventType, param3: number, param4: number, param5: number, param6: number, param7: number, param8: number, param9: number, param10: number): com.facebook.react.views.scroll.ScrollEvent;
+						public onDispose(): void;
+						/** @deprecated */
+						public static obtain(param0: number, param1: com.facebook.react.views.scroll.ScrollEventType, param2: number, param3: number, param4: number, param5: number, param6: number, param7: number, param8: number, param9: number): com.facebook.react.views.scroll.ScrollEvent;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module views {
+				export module scroll {
+					export class ScrollEventType {
+						public static class: java.lang.Class<com.facebook.react.views.scroll.ScrollEventType>;
+						public static BEGIN_DRAG: com.facebook.react.views.scroll.ScrollEventType;
+						public static END_DRAG: com.facebook.react.views.scroll.ScrollEventType;
+						public static SCROLL: com.facebook.react.views.scroll.ScrollEventType;
+						public static MOMENTUM_BEGIN: com.facebook.react.views.scroll.ScrollEventType;
+						public static MOMENTUM_END: com.facebook.react.views.scroll.ScrollEventType;
+						public static getJSEventName(param0: com.facebook.react.views.scroll.ScrollEventType): string;
+						public static values(): androidNative.Array<com.facebook.react.views.scroll.ScrollEventType>;
+						public static valueOf(param0: string): com.facebook.react.views.scroll.ScrollEventType;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module views {
+				export module scroll {
+					export class VelocityHelper {
+						public static class: java.lang.Class<com.facebook.react.views.scroll.VelocityHelper>;
+						public constructor();
+						public getXVelocity(): number;
+						public getYVelocity(): number;
+						public calculateVelocity(param0: globalAndroid.view.MotionEvent): void;
 					}
 				}
 			}
@@ -3118,6 +3375,598 @@ declare module com {
 }
 
 declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export class BasicAuthCredential {
+				public static class: java.lang.Class<com.reactnativecommunity.webview.BasicAuthCredential>;
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export class BuildConfig {
+				public static class: java.lang.Class<com.reactnativecommunity.webview.BuildConfig>;
+				public static DEBUG: boolean;
+				public static LIBRARY_PACKAGE_NAME: string;
+				public static BUILD_TYPE: string;
+				public constructor();
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export class RNCWebViewFileProvider {
+				public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewFileProvider>;
+				public constructor();
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export class RNCWebViewManager extends com.facebook.react.uimanager.SimpleViewManager<globalAndroid.webkit.WebView> {
+				public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewManager>;
+				public static COMMAND_GO_BACK: number;
+				public static COMMAND_GO_FORWARD: number;
+				public static COMMAND_RELOAD: number;
+				public static COMMAND_STOP_LOADING: number;
+				public static COMMAND_POST_MESSAGE: number;
+				public static COMMAND_INJECT_JAVASCRIPT: number;
+				public static COMMAND_LOAD_URL: number;
+				public static COMMAND_FOCUS: number;
+				public static COMMAND_CLEAR_FORM_DATA: number;
+				public static COMMAND_CLEAR_CACHE: number;
+				public static COMMAND_CLEAR_HISTORY: number;
+				public static REACT_CLASS: string;
+				public static HTML_ENCODING: string;
+				public static HTML_MIME_TYPE: string;
+				public static JAVASCRIPT_INTERFACE: string;
+				public static HTTP_METHOD_POST: string;
+				public static BLANK_URL: string;
+				public static SHOULD_OVERRIDE_URL_LOADING_TIMEOUT: number;
+				public static DEFAULT_DOWNLOADING_MESSAGE: string;
+				public static DEFAULT_LACK_PERMISSION_TO_DOWNLOAD_MESSAGE: string;
+				public mWebViewConfig: com.reactnativecommunity.webview.WebViewConfig;
+				public mWebChromeClient: com.reactnativecommunity.webview.RNCWebViewManager.RNCWebChromeClient;
+				public mAllowsFullscreenVideo: boolean;
+				public mAllowsProtectedMedia: boolean;
+				public mUserAgent: string;
+				public mUserAgentWithApplicationName: string;
+				public mDownloadingMessage: string;
+				public mLackPermissionToDownloadMessage: string;
+				public setDomStorageEnabled(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setThirdPartyCookiesEnabled(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setOnScroll(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setForceDarkOn(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setTextZoom(param0: globalAndroid.webkit.WebView, param1: number): void;
+				public setSaveFormDataDisabled(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setAllowFileAccessFromFileURLs(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public constructor();
+				public setOnContentSizeChange(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setSupportMultipleWindows(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setApplicationNameForUserAgent(param0: globalAndroid.webkit.WebView, param1: string): void;
+				public setInjectedJavaScriptForMainFrameOnly(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public canOverrideExistingModule(): boolean;
+				public setLayerType(param0: globalAndroid.webkit.WebView, param1: string): void;
+				public setUserAgent(param0: globalAndroid.webkit.WebView, param1: string): void;
+				public setMixedContentMode(param0: globalAndroid.webkit.WebView, param1: string): void;
+				public setDownloadingMessage(param0: globalAndroid.webkit.WebView, param1: string): void;
+				public setAllowsFullscreenVideo(param0: globalAndroid.webkit.WebView, param1: java.lang.Boolean): void;
+				public setupWebChromeClient(param0: com.facebook.react.bridge.ReactContext, param1: globalAndroid.webkit.WebView): void;
+				public getName(): string;
+				public onCatalystInstanceDestroy(): void;
+				public setInjectedJavaScriptBeforeContentLoaded(param0: globalAndroid.webkit.WebView, param1: string): void;
+				public getExportedCustomDirectEventTypeConstants(): java.util.Map<any,any>;
+				public setGeolocationEnabled(param0: globalAndroid.webkit.WebView, param1: java.lang.Boolean): void;
+				public setCacheMode(param0: globalAndroid.webkit.WebView, param1: string): void;
+				public setSource(param0: globalAndroid.webkit.WebView, param1: com.facebook.react.bridge.ReadableMap): void;
+				public setAllowUniversalAccessFromFileURLs(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setIncognito(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setBasicAuthCredential(param0: globalAndroid.webkit.WebView, param1: com.facebook.react.bridge.ReadableMap): void;
+				public static getModule(param0: com.facebook.react.bridge.ReactContext): com.reactnativecommunity.webview.RNCWebViewModule;
+				public initialize(): void;
+				public createViewInstance(param0: com.facebook.react.uimanager.ThemedReactContext): globalAndroid.webkit.WebView;
+				public onDropViewInstance(param0: globalAndroid.webkit.WebView): void;
+				public invalidate(): void;
+				public setInjectedJavaScript(param0: globalAndroid.webkit.WebView, param1: string): void;
+				public setCacheEnabled(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setOverScrollMode(param0: globalAndroid.webkit.WebView, param1: string): void;
+				public addEventEmitters(param0: com.facebook.react.uimanager.ThemedReactContext, param1: globalAndroid.webkit.WebView): void;
+				public createRNCWebViewInstance(param0: com.facebook.react.uimanager.ThemedReactContext): com.reactnativecommunity.webview.RNCWebViewManager.RNCWebView;
+				public receiveCommand(param0: any, param1: string, param2: com.facebook.react.bridge.ReadableArray): void;
+				public setUserAgentString(param0: globalAndroid.webkit.WebView): void;
+				public getExportedCustomDirectEventTypeConstants(): java.util.Map<string,any>;
+				public setMinimumFontSize(param0: globalAndroid.webkit.WebView, param1: number): void;
+				public setDisplayZoomControls(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public constructor(param0: com.reactnativecommunity.webview.WebViewConfig);
+				public setMessagingEnabled(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setShowsHorizontalScrollIndicator(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setLackPermissionToDownlaodMessage(param0: globalAndroid.webkit.WebView, param1: string): void;
+				public setHardwareAccelerationDisabled(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setJavaScriptEnabled(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setInjectedJavaScriptBeforeContentLoadedForMainFrameOnly(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				/** @deprecated */
+				public receiveCommand(param0: any, param1: number, param2: com.facebook.react.bridge.ReadableArray): void;
+				public receiveCommand(param0: globalAndroid.webkit.WebView, param1: string, param2: com.facebook.react.bridge.ReadableArray): void;
+				public createViewInstance(param0: com.facebook.react.uimanager.ThemedReactContext): any;
+				public setBuiltInZoomControls(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setMessagingModuleName(param0: globalAndroid.webkit.WebView, param1: string): void;
+				public setShowsVerticalScrollIndicator(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public addEventEmitters(param0: com.facebook.react.uimanager.ThemedReactContext, param1: any): void;
+				public setNestedScrollEnabled(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setAllowFileAccess(param0: globalAndroid.webkit.WebView, param1: java.lang.Boolean): void;
+				public setJavaScriptCanOpenWindowsAutomatically(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public getCommandsMap(): java.util.Map<string,java.lang.Integer>;
+				public onDropViewInstance(param0: any): void;
+				public setMediaPlaybackRequiresUserAction(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setScalesPageToFit(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setAllowsProtectedMedia(param0: globalAndroid.webkit.WebView, param1: boolean): void;
+				public setUrlPrefixesForDefaultIntent(param0: globalAndroid.webkit.WebView, param1: com.facebook.react.bridge.ReadableArray): void;
+			}
+			export module RNCWebViewManager {
+				export class RNCWebChromeClient implements com.facebook.react.bridge.LifecycleEventListener {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewManager.RNCWebChromeClient>;
+					public static FULLSCREEN_LAYOUT_PARAMS: globalAndroid.widget.FrameLayout.LayoutParams;
+					public static FULLSCREEN_SYSTEM_UI_VISIBILITY: number;
+					public static COMMON_PERMISSION_REQUEST: number;
+					public mReactContext: com.facebook.react.bridge.ReactContext;
+					public mWebView: globalAndroid.view.View;
+					public mVideoView: globalAndroid.view.View;
+					public mCustomViewCallback: globalAndroid.webkit.WebChromeClient.CustomViewCallback;
+					public permissionRequest: globalAndroid.webkit.PermissionRequest;
+					public grantedPermissions: java.util.List<string>;
+					public geolocationPermissionCallback: globalAndroid.webkit.GeolocationPermissions.Callback;
+					public geolocationPermissionOrigin: string;
+					public permissionsRequestShown: boolean;
+					public pendingPermissions: java.util.List<string>;
+					public progressChangedFilter: com.reactnativecommunity.webview.RNCWebViewManager.RNCWebView.ProgressChangedFilter;
+					public mAllowsProtectedMedia: boolean;
+					public openFileChooser(param0: globalAndroid.webkit.ValueCallback<globalAndroid.net.Uri>): void;
+					public onProgressChanged(param0: globalAndroid.webkit.WebView, param1: number): void;
+					public setProgressChangedFilter(param0: com.reactnativecommunity.webview.RNCWebViewManager.RNCWebView.ProgressChangedFilter): void;
+					public onShowFileChooser(param0: globalAndroid.webkit.WebView, param1: globalAndroid.webkit.ValueCallback<androidNative.Array<globalAndroid.net.Uri>>, param2: globalAndroid.webkit.WebChromeClient.FileChooserParams): boolean;
+					public openFileChooser(param0: globalAndroid.webkit.ValueCallback<globalAndroid.net.Uri>, param1: string, param2: string): void;
+					public openFileChooser(param0: globalAndroid.webkit.ValueCallback<globalAndroid.net.Uri>, param1: string): void;
+					public onHostDestroy(): void;
+					public constructor(param0: com.facebook.react.bridge.ReactContext, param1: globalAndroid.webkit.WebView);
+					public onPermissionRequest(param0: globalAndroid.webkit.PermissionRequest): void;
+					public onHostPause(): void;
+					public onCreateWindow(param0: globalAndroid.webkit.WebView, param1: boolean, param2: boolean, param3: globalAndroid.os.Message): boolean;
+					public getRootView(): globalAndroid.view.ViewGroup;
+					public onHostResume(): void;
+					public onConsoleMessage(param0: globalAndroid.webkit.ConsoleMessage): boolean;
+					public setAllowsProtectedMedia(param0: boolean): void;
+					public onGeolocationPermissionsShowPrompt(param0: string, param1: globalAndroid.webkit.GeolocationPermissions.Callback): void;
+				}
+				export class RNCWebView implements com.facebook.react.bridge.LifecycleEventListener {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewManager.RNCWebView>;
+					public injectedJS: string;
+					public injectedJSBeforeContentLoaded: string;
+					public injectedJavaScriptForMainFrameOnly: boolean;
+					public injectedJavaScriptBeforeContentLoadedForMainFrameOnly: boolean;
+					public messagingEnabled: boolean;
+					public messagingModuleName: string;
+					public mRNCWebViewClient: com.reactnativecommunity.webview.RNCWebViewManager.RNCWebViewClient;
+					public mCatalystInstance: com.facebook.react.bridge.CatalystInstance;
+					public sendContentSizeChangeEvents: boolean;
+					public hasScrollEvent: boolean;
+					public nestedScrollEnabled: boolean;
+					public progressChangedFilter: com.reactnativecommunity.webview.RNCWebViewManager.RNCWebView.ProgressChangedFilter;
+					public setHasScrollEvent(param0: boolean): void;
+					public setInjectedJavaScriptForMainFrameOnly(param0: boolean): void;
+					public setNestedScrollEnabled(param0: boolean): void;
+					public setMessagingEnabled(param0: boolean): void;
+					public onHostDestroy(): void;
+					public setWebChromeClient(param0: globalAndroid.webkit.WebChromeClient): void;
+					public onHostPause(): void;
+					public destroy(): void;
+					public setIgnoreErrFailedForThisURL(param0: string): void;
+					public evaluateJavascriptWithFallback(param0: string): void;
+					public cleanupCallbacksAndDestroy(): void;
+					public setInjectedJavaScriptBeforeContentLoadedForMainFrameOnly(param0: boolean): void;
+					public createRNCWebViewBridge(param0: com.reactnativecommunity.webview.RNCWebViewManager.RNCWebView): com.reactnativecommunity.webview.RNCWebViewManager.RNCWebView.RNCWebViewBridge;
+					public getRNCWebViewClient(): com.reactnativecommunity.webview.RNCWebViewManager.RNCWebViewClient;
+					public constructor(param0: com.facebook.react.uimanager.ThemedReactContext);
+					public onMessage(param0: string): void;
+					public createCatalystInstance(): void;
+					public setInjectedJavaScript(param0: string): void;
+					public callInjectedJavaScript(): void;
+					public onSizeChanged(param0: number, param1: number, param2: number, param3: number): void;
+					public dispatchEvent(param0: globalAndroid.webkit.WebView, param1: com.facebook.react.uimanager.events.Event<any>): void;
+					public sendDirectMessage(param0: string, param1: com.facebook.react.bridge.WritableMap): void;
+					public onHostResume(): void;
+					public setWebViewClient(param0: globalAndroid.webkit.WebViewClient): void;
+					public onScrollChanged(param0: number, param1: number, param2: number, param3: number): void;
+					public onTouchEvent(param0: globalAndroid.view.MotionEvent): boolean;
+					public setInjectedJavaScriptBeforeContentLoaded(param0: string): void;
+					public setBasicAuthCredential(param0: com.reactnativecommunity.webview.BasicAuthCredential): void;
+					public setSendContentSizeChangeEvents(param0: boolean): void;
+					public callInjectedJavaScriptBeforeContentLoaded(): void;
+					public setMessagingModuleName(param0: string): void;
+				}
+				export module RNCWebView {
+					export class ProgressChangedFilter {
+						public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewManager.RNCWebView.ProgressChangedFilter>;
+						public constructor();
+						public setWaitingForCommandLoadUrl(param0: boolean): void;
+						public isWaitingForCommandLoadUrl(): boolean;
+					}
+					export class RNCWebViewBridge {
+						public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewManager.RNCWebView.RNCWebViewBridge>;
+						public postMessage(param0: string): void;
+					}
+				}
+				export class RNCWebViewClient {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewManager.RNCWebViewClient>;
+					public mLastLoadFailed: boolean;
+					public mUrlPrefixesForDefaultIntent: com.facebook.react.bridge.ReadableArray;
+					public progressChangedFilter: com.reactnativecommunity.webview.RNCWebViewManager.RNCWebView.ProgressChangedFilter;
+					public ignoreErrFailedForThisURL: string;
+					public basicAuthCredential: com.reactnativecommunity.webview.BasicAuthCredential;
+					public onRenderProcessGone(param0: globalAndroid.webkit.WebView, param1: globalAndroid.webkit.RenderProcessGoneDetail): boolean;
+					public setProgressChangedFilter(param0: com.reactnativecommunity.webview.RNCWebViewManager.RNCWebView.ProgressChangedFilter): void;
+					public onReceivedHttpAuthRequest(param0: globalAndroid.webkit.WebView, param1: globalAndroid.webkit.HttpAuthHandler, param2: string, param3: string): void;
+					public shouldOverrideUrlLoading(param0: globalAndroid.webkit.WebView, param1: string): boolean;
+					public onReceivedError(param0: globalAndroid.webkit.WebView, param1: number, param2: string, param3: string): void;
+					public onPageStarted(param0: globalAndroid.webkit.WebView, param1: string, param2: globalAndroid.graphics.Bitmap): void;
+					public onPageFinished(param0: globalAndroid.webkit.WebView, param1: string): void;
+					public constructor();
+					public shouldOverrideUrlLoading(param0: globalAndroid.webkit.WebView, param1: globalAndroid.webkit.WebResourceRequest): boolean;
+					public setIgnoreErrFailedForThisURL(param0: string): void;
+					public onReceivedSslError(param0: globalAndroid.webkit.WebView, param1: globalAndroid.webkit.SslErrorHandler, param2: globalAndroid.net.http.SslError): void;
+					public emitFinishEvent(param0: globalAndroid.webkit.WebView, param1: string): void;
+					public createWebViewEvent(param0: globalAndroid.webkit.WebView, param1: string): com.facebook.react.bridge.WritableMap;
+					public setUrlPrefixesForDefaultIntent(param0: com.facebook.react.bridge.ReadableArray): void;
+					public setBasicAuthCredential(param0: com.reactnativecommunity.webview.BasicAuthCredential): void;
+					public onReceivedHttpError(param0: globalAndroid.webkit.WebView, param1: globalAndroid.webkit.WebResourceRequest, param2: globalAndroid.webkit.WebResourceResponse): void;
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export class RNCWebViewModule extends com.facebook.react.bridge.ReactContextBaseJavaModule implements com.facebook.react.bridge.ActivityEventListener {
+				public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewModule>;
+				public static MODULE_NAME: string;
+				public static shouldOverrideUrlLoadingLock: com.reactnativecommunity.webview.RNCWebViewModule.ShouldOverrideUrlLoadingLock;
+				public constructor(param0: com.facebook.react.bridge.ReactApplicationContext);
+				public getName(): string;
+				public startPhotoPickerIntent(param0: globalAndroid.webkit.ValueCallback<androidNative.Array<globalAndroid.net.Uri>>, param1: androidNative.Array<string>, param2: boolean): boolean;
+				public onCatalystInstanceDestroy(): void;
+				public constructor();
+				public downloadFile(param0: string): void;
+				public onShouldStartLoadWithRequestCallback(param0: boolean, param1: number): void;
+				public initialize(): void;
+				public startPhotoPickerIntent(param0: globalAndroid.webkit.ValueCallback<globalAndroid.net.Uri>, param1: string): void;
+				public canOverrideExistingModule(): boolean;
+				public onNewIntent(param0: globalAndroid.content.Intent): void;
+				public invalidate(): void;
+				public setDownloadRequest(param0: globalAndroid.app.DownloadManager.Request): void;
+				public onActivityResult(param0: globalAndroid.app.Activity, param1: number, param2: number, param3: globalAndroid.content.Intent): void;
+				public needsCameraPermission(): boolean;
+				public isFileUploadSupported(param0: com.facebook.react.bridge.Promise): void;
+				public grantFileDownloaderPermissions(param0: string, param1: string): boolean;
+			}
+			export module RNCWebViewModule {
+				export class MimeType {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewModule.MimeType>;
+					public static DEFAULT: com.reactnativecommunity.webview.RNCWebViewModule.MimeType;
+					public static IMAGE: com.reactnativecommunity.webview.RNCWebViewModule.MimeType;
+					public static VIDEO: com.reactnativecommunity.webview.RNCWebViewModule.MimeType;
+					public static values(): androidNative.Array<com.reactnativecommunity.webview.RNCWebViewModule.MimeType>;
+					public static valueOf(param0: string): com.reactnativecommunity.webview.RNCWebViewModule.MimeType;
+				}
+				export class ShouldOverrideUrlLoadingLock {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewModule.ShouldOverrideUrlLoadingLock>;
+					public removeLock(param0: java.lang.Integer): void;
+					public constructor();
+					public getNewLock(): androidx.core.util.Pair<java.lang.Integer,java.util.concurrent.atomic.AtomicReference<com.reactnativecommunity.webview.RNCWebViewModule.ShouldOverrideUrlLoadingLock.ShouldOverrideCallbackState>>;
+					public getLock(param0: java.lang.Integer): java.util.concurrent.atomic.AtomicReference<com.reactnativecommunity.webview.RNCWebViewModule.ShouldOverrideUrlLoadingLock.ShouldOverrideCallbackState>;
+				}
+				export module ShouldOverrideUrlLoadingLock {
+					export class ShouldOverrideCallbackState {
+						public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewModule.ShouldOverrideUrlLoadingLock.ShouldOverrideCallbackState>;
+						public static UNDECIDED: com.reactnativecommunity.webview.RNCWebViewModule.ShouldOverrideUrlLoadingLock.ShouldOverrideCallbackState;
+						public static SHOULD_OVERRIDE: com.reactnativecommunity.webview.RNCWebViewModule.ShouldOverrideUrlLoadingLock.ShouldOverrideCallbackState;
+						public static DO_NOT_OVERRIDE: com.reactnativecommunity.webview.RNCWebViewModule.ShouldOverrideUrlLoadingLock.ShouldOverrideCallbackState;
+						public static values(): androidNative.Array<com.reactnativecommunity.webview.RNCWebViewModule.ShouldOverrideUrlLoadingLock.ShouldOverrideCallbackState>;
+						public static valueOf(param0: string): com.reactnativecommunity.webview.RNCWebViewModule.ShouldOverrideUrlLoadingLock.ShouldOverrideCallbackState;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export class RNCWebViewPackage extends com.facebook.react.ReactPackage {
+				public static class: java.lang.Class<com.reactnativecommunity.webview.RNCWebViewPackage>;
+				public createNativeModules(param0: com.facebook.react.bridge.ReactApplicationContext): java.util.List<com.reactnativecommunity.webview.RNCWebViewModule>;
+				public createNativeModules(param0: com.facebook.react.bridge.ReactApplicationContext): java.util.List<com.facebook.react.bridge.NativeModule>;
+				public createViewManagers(param0: com.facebook.react.bridge.ReactApplicationContext): java.util.List<com.reactnativecommunity.webview.RNCWebViewManager>;
+				public createViewManagers(param0: com.facebook.react.bridge.ReactApplicationContext): java.util.List<com.facebook.react.uimanager.ViewManager<any,any>>;
+				public constructor();
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export class URLUtil {
+				public static class: java.lang.Class<com.reactnativecommunity.webview.URLUtil>;
+				public static guessFileName(param0: string, param1: string, param2: string): string;
+				public constructor();
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export class WebViewConfig {
+				public static class: java.lang.Class<com.reactnativecommunity.webview.WebViewConfig>;
+				/**
+				 * Constructs a new instance of the com.reactnativecommunity.webview.WebViewConfig interface with the provided implementation. An empty constructor exists calling super() when extending the interface class.
+				 */
+				public constructor(implementation: {
+					configWebView(param0: globalAndroid.webkit.WebView): void;
+				});
+				public constructor();
+				public configWebView(param0: globalAndroid.webkit.WebView): void;
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export module events {
+				export class TopHttpErrorEvent extends com.facebook.react.uimanager.events.Event<com.reactnativecommunity.webview.events.TopHttpErrorEvent> {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopHttpErrorEvent>;
+					public static EVENT_NAME: string;
+					public getCoalescingKey(): number;
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+					public constructor();
+					public constructor(param0: number, param1: com.facebook.react.bridge.WritableMap);
+					public canCoalesce(): boolean;
+					public getEventName(): string;
+					/** @deprecated */
+					public constructor(param0: number);
+					public constructor(param0: number, param1: number);
+					/** @deprecated */
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+				}
+				export module TopHttpErrorEvent {
+					export class Companion {
+						public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopHttpErrorEvent.Companion>;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export module events {
+				export class TopLoadingErrorEvent extends com.facebook.react.uimanager.events.Event<com.reactnativecommunity.webview.events.TopLoadingErrorEvent> {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopLoadingErrorEvent>;
+					public static EVENT_NAME: string;
+					public getCoalescingKey(): number;
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+					public constructor();
+					public constructor(param0: number, param1: com.facebook.react.bridge.WritableMap);
+					public canCoalesce(): boolean;
+					public getEventName(): string;
+					/** @deprecated */
+					public constructor(param0: number);
+					public constructor(param0: number, param1: number);
+					/** @deprecated */
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+				}
+				export module TopLoadingErrorEvent {
+					export class Companion {
+						public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopLoadingErrorEvent.Companion>;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export module events {
+				export class TopLoadingFinishEvent extends com.facebook.react.uimanager.events.Event<com.reactnativecommunity.webview.events.TopLoadingFinishEvent> {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopLoadingFinishEvent>;
+					public static EVENT_NAME: string;
+					public getCoalescingKey(): number;
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+					public constructor();
+					public constructor(param0: number, param1: com.facebook.react.bridge.WritableMap);
+					public canCoalesce(): boolean;
+					public getEventName(): string;
+					/** @deprecated */
+					public constructor(param0: number);
+					public constructor(param0: number, param1: number);
+					/** @deprecated */
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+				}
+				export module TopLoadingFinishEvent {
+					export class Companion {
+						public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopLoadingFinishEvent.Companion>;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export module events {
+				export class TopLoadingProgressEvent extends com.facebook.react.uimanager.events.Event<com.reactnativecommunity.webview.events.TopLoadingProgressEvent> {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopLoadingProgressEvent>;
+					public static EVENT_NAME: string;
+					public getCoalescingKey(): number;
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+					public constructor();
+					public constructor(param0: number, param1: com.facebook.react.bridge.WritableMap);
+					public canCoalesce(): boolean;
+					public getEventName(): string;
+					/** @deprecated */
+					public constructor(param0: number);
+					public constructor(param0: number, param1: number);
+					/** @deprecated */
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+				}
+				export module TopLoadingProgressEvent {
+					export class Companion {
+						public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopLoadingProgressEvent.Companion>;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export module events {
+				export class TopLoadingStartEvent extends com.facebook.react.uimanager.events.Event<com.reactnativecommunity.webview.events.TopLoadingStartEvent> {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopLoadingStartEvent>;
+					public static EVENT_NAME: string;
+					public getCoalescingKey(): number;
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+					public constructor();
+					public constructor(param0: number, param1: com.facebook.react.bridge.WritableMap);
+					public canCoalesce(): boolean;
+					public getEventName(): string;
+					/** @deprecated */
+					public constructor(param0: number);
+					public constructor(param0: number, param1: number);
+					/** @deprecated */
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+				}
+				export module TopLoadingStartEvent {
+					export class Companion {
+						public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopLoadingStartEvent.Companion>;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export module events {
+				export class TopMessageEvent extends com.facebook.react.uimanager.events.Event<com.reactnativecommunity.webview.events.TopMessageEvent> {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopMessageEvent>;
+					public static EVENT_NAME: string;
+					public getCoalescingKey(): number;
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+					public constructor();
+					public constructor(param0: number, param1: com.facebook.react.bridge.WritableMap);
+					public canCoalesce(): boolean;
+					public getEventName(): string;
+					/** @deprecated */
+					public constructor(param0: number);
+					public constructor(param0: number, param1: number);
+					/** @deprecated */
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+				}
+				export module TopMessageEvent {
+					export class Companion {
+						public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopMessageEvent.Companion>;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export module events {
+				export class TopRenderProcessGoneEvent extends com.facebook.react.uimanager.events.Event<com.reactnativecommunity.webview.events.TopRenderProcessGoneEvent> {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopRenderProcessGoneEvent>;
+					public static EVENT_NAME: string;
+					public getCoalescingKey(): number;
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+					public constructor();
+					public constructor(param0: number, param1: com.facebook.react.bridge.WritableMap);
+					public canCoalesce(): boolean;
+					public getEventName(): string;
+					/** @deprecated */
+					public constructor(param0: number);
+					public constructor(param0: number, param1: number);
+					/** @deprecated */
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+				}
+				export module TopRenderProcessGoneEvent {
+					export class Companion {
+						public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopRenderProcessGoneEvent.Companion>;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module reactnativecommunity {
+		export module webview {
+			export module events {
+				export class TopShouldStartLoadWithRequestEvent extends com.facebook.react.uimanager.events.Event<com.reactnativecommunity.webview.events.TopShouldStartLoadWithRequestEvent> {
+					public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopShouldStartLoadWithRequestEvent>;
+					public static EVENT_NAME: string;
+					public getCoalescingKey(): number;
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+					public constructor();
+					public constructor(param0: number, param1: com.facebook.react.bridge.WritableMap);
+					public canCoalesce(): boolean;
+					public getEventName(): string;
+					/** @deprecated */
+					public constructor(param0: number);
+					public constructor(param0: number, param1: number);
+					/** @deprecated */
+					public dispatch(param0: com.facebook.react.uimanager.events.RCTEventEmitter): void;
+				}
+				export module TopShouldStartLoadWithRequestEvent {
+					export class Companion {
+						public static class: java.lang.Class<com.reactnativecommunity.webview.events.TopShouldStartLoadWithRequestEvent.Companion>;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
 	export module testmodule {
 		export class BuildConfig {
 			public static class: java.lang.Class<com.testmodule.BuildConfig>;
@@ -3136,13 +3985,16 @@ declare module com {
 			public static REACT_CLASS: string;
 			public invalidate(): void;
 			public getName(): string;
+			public getExportedCustomBubblingEventTypeConstants(): java.util.Map<string,any>;
 			public createViewInstance(param0: com.facebook.react.uimanager.ThemedReactContext): any;
 			public initialize(): void;
+			public getExportedCustomDirectEventTypeConstants(): java.util.Map<string,any>;
 			public constructor();
 			public createViewInstance(param0: com.facebook.react.uimanager.ThemedReactContext): globalAndroid.view.View;
 			public setColor(param0: globalAndroid.view.View, param1: string): void;
 			public onCatalystInstanceDestroy(): void;
 			public canOverrideExistingModule(): boolean;
+			public getExportedCustomBubblingEventTypeConstants(): java.util.Map<any,any>;
 		}
 	}
 }
@@ -3219,4 +4071,5 @@ declare module com {
 //com.facebook.react.uimanager.SimpleViewManager:1
 //com.facebook.react.uimanager.ViewGroupManager:1
 //com.facebook.react.uimanager.ViewManager:2
+//com.facebook.react.uimanager.events.Event:1
 

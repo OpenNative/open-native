@@ -60,7 +60,10 @@ export = async function (hookArgs: HookArgs) {
       packageDir,
       'platforms/android/include.gradle'
     );
-
+    const outputViewManagerTypesPath = path.resolve(
+      packageDir,
+      'src/android/view-manager-types.ts'
+    );
     packageNames = await autolinkAndroid({
       packageDir,
       dependencies: depsArr,
@@ -69,6 +72,7 @@ export = async function (hookArgs: HookArgs) {
       outputPackagesJavaPath,
       outputModuleMapPath,
       outputIncludeGradlePath,
+      outputViewManagerTypesPath,
     });
   } else {
     const outputHeaderPath = path.resolve(

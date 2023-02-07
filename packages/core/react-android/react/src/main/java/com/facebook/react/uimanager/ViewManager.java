@@ -32,6 +32,13 @@ public abstract class ViewManager <T extends View, C extends ReactShadowNode>
 
   public void receiveCommand(@NonNull T root, String commandId, @Nullable ReadableArray args) {}
 
+  /**
+   * Subclasses can override this method to install custom event emitters on the given View. You
+   * might want to override this method if your view needs to emit events besides basic touch events
+   * to JS (e.g. scroll events).
+   */
+  protected void addEventEmitters(@NonNull ThemedReactContext reactContext, @NonNull T view) {}
+
 
   public @Nullable Map<String, Integer> getCommandsMap() {
     return null;
@@ -84,4 +91,7 @@ public abstract class ViewManager <T extends View, C extends ReactShadowNode>
   public @Nullable Map<String, Object> getExportedViewConstants() {
     return null;
   }
+
+  public void onDropViewInstance(@NonNull T view) {}
+
 }

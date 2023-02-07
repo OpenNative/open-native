@@ -39,9 +39,14 @@ public class Bridge {
       for (ReactPackage pkg : Packages.list) {
         if (pkg.getClass().getSimpleName().equals(packageName)) {
           List<NativeModule> modules_chunk = pkg.createNativeModules(reactContext);
-          modules_chunk.addAll(pkg.createViewManagers(reactContext));
+          List<ViewManager> modules_chunk2 = pkg.createViewManagers(reactContext);
           for (NativeModule module: modules_chunk) {
             modules.put(module.getName(),module);
+            module.initialize();
+          }
+
+          for (NativeModule module: modules_chunk2) {
+            modules.put(module.getName() + "Manager",module);
             module.initialize();
           }
         }
@@ -109,7 +114,7 @@ public class Bridge {
           return module;
         } else if (isViewManager) {
           NativeModule module = (NativeModule) constructor.newInstance();
-          modules.put(module.getName(), module);
+          modules.put(module.getName() + "Manager", module);
           module.initialize();
           return module;
         } else  {

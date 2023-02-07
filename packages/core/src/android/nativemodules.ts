@@ -1,5 +1,5 @@
 import { NativeModule } from '../../Libraries/EventEmitter/NativeEventEmitter';
-import { getCurrentBridge, getThemedReactContext } from './bridge';
+import { getCurrentBridge } from './bridge';
 import {
   JavaJSONEquivalent,
   JSONSerialisable,
@@ -16,24 +16,24 @@ import {
   TNativeModuleMap,
 } from './utils';
 
-const NativeModuleMap =
+export const NativeModuleMap =
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('../../react-android/bridge/modulemap.json') as TNativeModuleMap;
 
-class NativeModuleHolder implements Partial<NativeModule> {
+export class NativeModuleHolder implements Partial<NativeModule> {
   /**
    * The JSModuleInvoker in JSModules() will be indexing into NativeModuleHolder
    * to call methods upon it, so the class needs an index signature expressing
    * the union of all possible values for keys on the class.
    */
-  [key: string]: typeof key extends keyof NativeModuleHolder
-    ? { [P in keyof NativeModuleHolder]: NativeModuleHolder[P] }
-    : ((...args: unknown[]) => number) | JSONSerialisable;
+  // [key: string]: typeof key extends keyof NativeModuleHolder
+  //   ? { [P in keyof NativeModuleHolder]: NativeModuleHolder[P] }
+  //   : ((...args: unknown[]) => number) | JSONSerialisable;
 
   private readonly bridge: Bridge = getCurrentBridge();
-  private readonly moduleMetadata: RNNativeModuleMetadata | undefined;
+  public readonly moduleMetadata: RNNativeModuleMetadata | undefined;
   private nativeModuleInstance: com.facebook.react.bridge.BaseJavaModule | null;
-
+  private constants = {};
   constructor(public moduleName: string) {
     this.moduleMetadata = NativeModuleMap[this.moduleName];
 
@@ -80,8 +80,11 @@ class NativeModuleHolder implements Partial<NativeModule> {
     // We'll know it's failed because we'll see the warning.
     this.nativeModuleInstance =
       this.nativeModuleInstance ||
-      //@ts-ignore
-      (this.bridge.getModuleByName(this.moduleName, this.moduleMetadata.v || false) as BaseJavaModule);
+      (this.bridge.getModuleByName(
+        this.moduleName,
+        //@ts-ignore
+        this.moduleMetadata.v || false
+      ) as BaseJavaModule);
 
     if (!this.nativeModuleInstance) {
       console.warn(
@@ -134,6 +137,23 @@ class NativeModuleHolder implements Partial<NativeModule> {
           );
         }
 
+        if (this.moduleMetadata.v) {
+          // In case of ViewManagers, the first argument is always the Native View instance followed by
+          // the props.
+          if (methodTypes.length === 2) {
+            this.nativeModule[jsName]?.(args[0]);
+          } else {
+            this.nativeModule[jsName]?.(
+              args[0],
+              ...toNativeArguments(
+                [methodTypes[0], ...methodTypes.slice(2)],
+                args.slice(1)
+              )
+            );
+          }
+          return;
+        }
+
         if (isPromise(moduleMethods, exportedMethodName)) {
           return promisify(this.nativeModule, jsName, methodTypes, args);
         }
@@ -141,34 +161,8 @@ class NativeModuleHolder implements Partial<NativeModule> {
         return this.nativeModule[jsName]?.(
           ...toNativeArguments(methodTypes, args)
         );
-
-
       };
-
     }
-  }
-}
-
-class ViewManagerHolder
-  extends NativeModuleHolder
-  implements
-    Partial<
-      Omit<com.facebook.react.uimanager.ViewManager<any, any>, 'getConstants'>
-    >
-{
-  createViewInstance(): any {
-    const context = getThemedReactContext(this.moduleName, -1);
-    return (
-      this.nativeModule as com.facebook.react.uimanager.ViewManager<any, any>
-    )?.createViewInstance?.(context);
-  }
-
-  public getExportedViewConstants(): any {
-    const exportedConstants = (
-      this.nativeModule as com.facebook.react.uimanager.ViewManager<any, any>
-    )?.getExportedViewConstants();
-
-    return exportedConstants ? toJSValue(exportedConstants) : {};
   }
 }
 
@@ -183,16 +177,5 @@ export const NativeModules = Object.keys(NativeModuleMap).reduce(
   {}
 );
 
-export const ViewManagers = Object.keys(NativeModuleMap).reduce(
-  (acc, moduleName) => {
-    if (NativeModuleMap[moduleName].v) {
-      acc[moduleName] = new ViewManagerHolder(moduleName);
-      return acc;
-    }
-    return acc;
-  },
-  {}
-);
-global.__viewManagerProxy = ViewManagers;
 global.__turboModulesProxy = NativeModules;
 export const load = () => null;

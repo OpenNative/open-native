@@ -6,9 +6,8 @@
   "dependencies": {
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
     "@open-native/core": "file:../../packages/core",
-    "react-native-auth0": "2.13.3",
-    "react-native-device-info": "^10.3.0",
-    "react-native-module-test": "file:../../packages/react-native-module-test"
+    "react-native-module-test": "file:../../packages/react-native-module-test",
+    "react-native-webview": "^11.26.1"
   },
   "devDependencies": {
     "@nativescript/android": "~8.4.0",

@@ -12,7 +12,7 @@ import { writeModulesJsonFile } from './writers/modules-json';
 import { writePackagesJavaFile } from './writers/packages-java';
 import { writeIncludeGradleFile } from './writers/include-gradle';
 import { writeModuleMapFile } from './writers/modulemap';
-
+import { writeViewManagerTypes } from './writers/write-view-manager-types';
 export type AutolinkAndroidParams = {
   packageDir: string;
   dependencies: string[];
@@ -21,6 +21,7 @@ export type AutolinkAndroidParams = {
   outputModuleMapPath: string;
   outputPackagesJavaPath: string;
   outputIncludeGradlePath: string;
+  outputViewManagerTypesPath: string;
 };
 
 /**
@@ -47,6 +48,7 @@ export async function autolinkAndroid({
   outputModuleMapPath,
   outputPackagesJavaPath,
   outputIncludeGradlePath,
+  outputViewManagerTypesPath,
 }: AutolinkAndroidParams) {
   const packageJson = JSON.parse(
     await readFile(path.join(packageDir, '/package.json'), {
@@ -83,6 +85,7 @@ export async function autolinkAndroid({
         packageName: npmPackageName,
       })
     );
+
   await Promise.all([
     await writeSettingsGradleFile(projectDir),
     await writeModulesJsonFile({
@@ -100,7 +103,51 @@ export async function autolinkAndroid({
       packages: autolinkingInfo,
       outputPackagesJavaPath,
     }),
-
+    await writeViewManagerTypes({
+      modules: autolinkingInfo.reduce((acc, { modules }) => {
+        modules.forEach(
+          ({
+            exportedMethods,
+            exportedModuleName,
+            exportsConstants,
+            moduleImportNameJs,
+            isReactViewManager,
+          }) => {
+            acc[exportedModuleName] = {
+              e: exportsConstants,
+              j: moduleImportNameJs,
+              v: isReactViewManager,
+              m: exportedMethods.reduce(
+                (
+                  innerAcc,
+                  {
+                    exportedMethodName,
+                    isBlockingSynchronousMethod,
+                    methodNameJs,
+                    methodTypesParsed,
+                    prop,
+                    nativeDefinition,
+                  }
+                ) => {
+                  innerAcc[exportedMethodName] = {
+                    b: isBlockingSynchronousMethod,
+                    j: methodNameJs,
+                    t: methodTypesParsed,
+                    p: prop,
+                    nd: nativeDefinition,
+                  };
+                  return innerAcc;
+                },
+                {}
+              ),
+            };
+          }
+        );
+    
+        return acc;
+      }, {}),
+      outputViewManagerTypesPath: outputViewManagerTypesPath,
+    }),
     await writeIncludeGradleFile({
       projectNames: autolinkingInfo.map(
         ({ androidProjectName }) => androidProjectName
@@ -120,7 +167,7 @@ export async function autolinkAndroid({
             exportedModuleName,
             exportsConstants,
             moduleImportNameJs,
-            isReactViewManager
+            isReactViewManager,
           }) => {
             acc[exportedModuleName] = {
               e: exportsConstants,
@@ -135,6 +182,7 @@ export async function autolinkAndroid({
                     methodNameJs,
                     methodTypesParsed,
                     prop,
+                    defaultValue
                   }
                 ) => {
                   innerAcc[exportedMethodName] = {
@@ -142,6 +190,7 @@ export async function autolinkAndroid({
                     j: methodNameJs,
                     t: methodTypesParsed,
                     p: prop,
+                    d: defaultValue
                   };
                   return innerAcc;
                 },
@@ -150,7 +199,7 @@ export async function autolinkAndroid({
             };
           }
         );
-
+    
         return acc;
       }, {}),
       outputModuleMapPath,

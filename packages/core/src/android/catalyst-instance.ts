@@ -1,3 +1,4 @@
+import { toJSValue } from './converter';
 import { JSModules } from './js-modules';
 import {
   Bridge,
@@ -33,9 +34,12 @@ export default class CatalystInstance {
       },
       getNativeModule(param0: unknown): NativeModule {
         if (typeof param0 === 'string') {
-          return bridge.getModuleByName(param0 as string);
+          return bridge.getModuleByName(param0 as string, false);
         } else {
-          return bridge.getModuleForClass(param0 as java.lang.Class<any>);
+          return bridge.getModuleForClass(
+            param0 as java.lang.Class<any>,
+            false
+          );
         }
       },
 
@@ -55,7 +59,13 @@ export default class CatalystInstance {
         return;
       },
       getJavaScriptContextHolder(): JavaScriptContextHolder {
-        return null;
+        return new com.facebook.react.bridge.JavaScriptContextHolder();
+      },
+      callFunction(name, method, args) {
+        const module = jsModules.getJSModuleByName(name);
+        if (module && module[method]) {
+          module[method](...((toJSValue(args) || []) as []));
+        }
       },
     });
   }

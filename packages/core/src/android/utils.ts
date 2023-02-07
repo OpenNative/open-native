@@ -23,7 +23,11 @@ export interface TModuleMethodsType {
     /**
      * ReactProp this method is attached with.
      */
-    p: string
+    p: string;
+    /**
+     * Default value for the prop.
+     */
+    d: boolean | number | undefined
   };
 }
 

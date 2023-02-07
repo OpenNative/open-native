@@ -1,4 +1,4 @@
-import { Observable, EventData, Page } from '@nativescript/core';
+import { EventData, Page } from '@nativescript/core';
 import { DemoSharedOpenNative } from '@demo/shared';
 // import {} from '@open-native/core';
 
@@ -7,4 +7,8 @@ export function navigatingTo(args: EventData) {
   page.bindingContext = new DemoModel();
 }
 
-export class DemoModel extends DemoSharedOpenNative {}
+export class DemoModel extends DemoSharedOpenNative {
+  sourceValue: {
+    html: '<p>hello world</p>';
+  };
+}
