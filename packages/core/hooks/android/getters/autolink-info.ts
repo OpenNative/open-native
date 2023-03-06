@@ -1,4 +1,4 @@
-import { AndroidDependencyParams, exists } from '../common';
+import { AndroidDependencyParams, exists, logPrefix } from '../common';
 import * as path from 'path';
 import { getManifestPath } from './manifest-path';
 import { getAndroidPackageName } from './package-name';
@@ -36,7 +36,12 @@ export async function getPackageAutolinkInfo({
   const packagePath = resolvePackagePath(npmPackageName, {
     paths: [projectDir],
   });
-
+  if (!packagePath) {
+    console.warn(
+      `${logPrefix} Path for package ${npmPackageName} not found. skipping.`
+    );
+    return;
+  }
   /**
    * Detect whether we're autolinking our own React Native bridge
    * implementation. If so, we'll adjust a few things because it's not a

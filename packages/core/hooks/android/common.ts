@@ -7,6 +7,7 @@ export const readFile = promisify(fs.readFile);
 export const exists = promisify(fs.exists);
 export const _writeFile = promisify(fs.writeFile);
 
+export const logPrefix = '[@open-native/core/hooks/prepare-android.js]';
 /**
  * A writeFile wrapper that only writes the file
  * if the contents have changed.

@@ -32,7 +32,12 @@ export async function getPackageAutolinkInfo({
   projectDir: string;
 }) {
   const packagePath = resolvePackagePath(packageName, { paths: [projectDir] });
-
+  if (!packagePath) {
+    console.warn(
+      `${logPrefix} Path for package ${packageName} not found. skipping.`
+    );
+    return;
+  }
   const podspecs = await globProm(
     packageName === ownPackageName
       ? // This glob will include the podspecs of any RN core modules, which for
