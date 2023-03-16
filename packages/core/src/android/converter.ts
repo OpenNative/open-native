@@ -280,7 +280,10 @@ export function toNativeArguments(
           nativeArguments.push(null);
           break;
         }
-      // eslint-disable-next-line no-fallthrough
+        // nullable booleans are java.lang.Booleans
+        // the runtime sometimes doesn't marshall primitives to their objects
+        nativeArguments.push(toNativeValue(data, true));
+        break;
       case RNJavaSerialisableType.nonnullBoolean:
         assert(
           typeof data === 'boolean',
@@ -643,6 +646,9 @@ export function toNativeValue<T extends boolean>(
   if (strict) {
     if (typeof data === 'string') {
       return new java.lang.String(data);
+    }
+    if (typeof data === 'boolean') {
+      return new java.lang.Boolean(true)
     }
   }
 
