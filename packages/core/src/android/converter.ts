@@ -282,7 +282,7 @@ export function toNativeArguments(
         }
         // nullable booleans are java.lang.Booleans
         // the runtime sometimes doesn't marshall primitives to their objects
-        nativeArguments.push(toNativeValue(data, true));
+        nativeArguments.push(toNativeValue(data, true) as java.lang.Boolean);
         break;
       case RNJavaSerialisableType.nonnullBoolean:
         assert(
@@ -602,7 +602,11 @@ export function toJSValue(
  * but want to use java.lang.Integer APIs on the return value without additional checks.
  */
 export function toNativeValue<T extends boolean>(
-  data: JSValuePassableIntoJava | java.lang.Object | undefined,
+  data:
+    | JSValuePassableIntoJava
+    | java.lang.Object
+    | java.lang.Boolean
+    | undefined,
   strict: T
 ):
   | java.lang.Object
@@ -769,4 +773,5 @@ export type RNNativeModuleMethodArg =
   | number
   | string
   | Callback
-  | RCTPromise;
+  | RCTPromise
+  | java.lang.Boolean;
