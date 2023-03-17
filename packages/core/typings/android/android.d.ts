@@ -1,83 +1,6 @@
 /// <reference path="android-declarations.d.ts"/>
 
 declare module com {
-	export module auth0 {
-		export module react {
-			export class A0Auth0Module extends com.facebook.react.bridge.ReactContextBaseJavaModule implements com.facebook.react.bridge.ActivityEventListener {
-				public static class: java.lang.Class<com.auth0.react.A0Auth0Module>;
-				public getConstants(): java.util.Map<string,any>;
-				public constructor(param0: com.facebook.react.bridge.ReactApplicationContext);
-				public getName(): string;
-				public onCatalystInstanceDestroy(): void;
-				public oauthParameters(param0: com.facebook.react.bridge.Callback): void;
-				public constructor();
-				public showUrl(param0: string, param1: boolean, param2: com.facebook.react.bridge.Callback): void;
-				public hide(): void;
-				public initialize(): void;
-				public canOverrideExistingModule(): boolean;
-				public onNewIntent(param0: globalAndroid.content.Intent): void;
-				public invalidate(): void;
-				public onActivityResult(param0: globalAndroid.app.Activity, param1: number, param2: number, param3: globalAndroid.content.Intent): void;
-			}
-		}
-	}
-}
-
-declare module com {
-	export module auth0 {
-		export module react {
-			export class A0Auth0Package extends com.facebook.react.ReactPackage {
-				public static class: java.lang.Class<com.auth0.react.A0Auth0Package>;
-				public createNativeModules(param0: com.facebook.react.bridge.ReactApplicationContext): java.util.List<com.facebook.react.bridge.NativeModule>;
-				public createViewManagers(param0: com.facebook.react.bridge.ReactApplicationContext): java.util.List<com.facebook.react.uimanager.ViewManager<any,any>>;
-				public constructor();
-			}
-		}
-	}
-}
-
-declare module com {
-	export module auth0 {
-		export module react {
-			export class AuthenticationActivity {
-				public static class: java.lang.Class<com.auth0.react.AuthenticationActivity>;
-				public onCreate(param0: globalAndroid.os.Bundle): void;
-				public onResume(): void;
-				public onNewIntent(param0: globalAndroid.content.Intent): void;
-				public onSaveInstanceState(param0: globalAndroid.os.Bundle): void;
-				public constructor();
-			}
-		}
-	}
-}
-
-declare module com {
-	export module auth0 {
-		export module react {
-			export class BuildConfig {
-				public static class: java.lang.Class<com.auth0.react.BuildConfig>;
-				public static DEBUG: boolean;
-				public static LIBRARY_PACKAGE_NAME: string;
-				public static BUILD_TYPE: string;
-				public constructor();
-			}
-		}
-	}
-}
-
-declare module com {
-	export module auth0 {
-		export module react {
-			export class RedirectActivity {
-				public static class: java.lang.Class<com.auth0.react.RedirectActivity>;
-				public onCreate(param0: globalAndroid.os.Bundle): void;
-				public constructor();
-			}
-		}
-	}
-}
-
-declare module com {
 	export module bridge {
 		export class Bridge {
 			public static class: java.lang.Class<com.bridge.Bridge>;
@@ -2353,6 +2276,28 @@ declare module com {
 	export module facebook {
 		export module react {
 			export module modules {
+				export module core {
+					export class RCTNativeAppEventEmitter extends com.facebook.react.bridge.JavaScriptModule {
+						public static class: java.lang.Class<com.facebook.react.modules.core.RCTNativeAppEventEmitter>;
+						/**
+						 * Constructs a new instance of the com.facebook.react.modules.core.RCTNativeAppEventEmitter interface with the provided implementation. An empty constructor exists calling super() when extending the interface class.
+						 */
+						public constructor(implementation: {
+							emit(param0: string, param1: any): void;
+						});
+						public constructor();
+						public emit(param0: string, param1: any): void;
+					}
+				}
+			}
+		}
+	}
+}
+
+declare module com {
+	export module facebook {
+		export module react {
+			export module modules {
 				export module dialog {
 					export class AlertFragment {
 						public static class: java.lang.Class<com.facebook.react.modules.dialog.AlertFragment>;
@@ -3141,233 +3086,6 @@ declare module com {
 						public getYVelocity(): number;
 						public calculateVelocity(param0: globalAndroid.view.MotionEvent): void;
 					}
-				}
-			}
-		}
-	}
-}
-
-declare module com {
-	export module learnium {
-		export module RNDeviceInfo {
-			export class BuildConfig {
-				public static class: java.lang.Class<com.learnium.RNDeviceInfo.BuildConfig>;
-				public static DEBUG: boolean;
-				public static LIBRARY_PACKAGE_NAME: string;
-				public static BUILD_TYPE: string;
-				public constructor();
-			}
-		}
-	}
-}
-
-declare module com {
-	export module learnium {
-		export module RNDeviceInfo {
-			export class DeviceType {
-				public static class: java.lang.Class<com.learnium.RNDeviceInfo.DeviceType>;
-				public static HANDSET: com.learnium.RNDeviceInfo.DeviceType;
-				public static TABLET: com.learnium.RNDeviceInfo.DeviceType;
-				public static TV: com.learnium.RNDeviceInfo.DeviceType;
-				public static UNKNOWN: com.learnium.RNDeviceInfo.DeviceType;
-				public static values(): androidNative.Array<com.learnium.RNDeviceInfo.DeviceType>;
-				public static valueOf(param0: string): com.learnium.RNDeviceInfo.DeviceType;
-				public getValue(): string;
-			}
-		}
-	}
-}
-
-declare module com {
-	export module learnium {
-		export module RNDeviceInfo {
-			export class RNDeviceInfo extends com.facebook.react.ReactPackage {
-				public static class: java.lang.Class<com.learnium.RNDeviceInfo.RNDeviceInfo>;
-				public createNativeModules(param0: com.facebook.react.bridge.ReactApplicationContext): java.util.List<com.facebook.react.bridge.NativeModule>;
-				public createJSModules(): java.util.List<java.lang.Class<any>>;
-				public createViewManagers(param0: com.facebook.react.bridge.ReactApplicationContext): java.util.List<com.facebook.react.uimanager.ViewManager<any,any>>;
-				public constructor();
-			}
-		}
-	}
-}
-
-declare module com {
-	export module learnium {
-		export module RNDeviceInfo {
-			export class RNDeviceModule extends com.facebook.react.bridge.ReactContextBaseJavaModule {
-				public static class: java.lang.Class<com.learnium.RNDeviceInfo.RNDeviceModule>;
-				public static NAME: string;
-				public isAirplaneMode(param0: com.facebook.react.bridge.Promise): void;
-				public getFingerprint(param0: com.facebook.react.bridge.Promise): void;
-				public getPowerState(param0: com.facebook.react.bridge.Promise): void;
-				public hasSystemFeatureSync(param0: string): boolean;
-				public getDeviceSync(): string;
-				public getTagsSync(): string;
-				public constructor(param0: com.facebook.react.bridge.ReactApplicationContext);
-				public getTypeSync(): string;
-				public getBatteryLevelSync(): number;
-				public getFirstInstallTime(param0: com.facebook.react.bridge.Promise): void;
-				public canOverrideExistingModule(): boolean;
-				public getTotalDiskCapacitySync(): number;
-				public isLocationEnabledSync(): boolean;
-				/** @deprecated */
-				public getTotalDiskCapacityOldSync(): number;
-				public getBatteryLevel(param0: com.facebook.react.bridge.Promise): void;
-				public getSupportedAbis(param0: com.facebook.react.bridge.Promise): void;
-				public getLastUpdateTimeSync(): number;
-				public isPinOrFingerprintSet(param0: com.facebook.react.bridge.Promise): void;
-				public getSystemAvailableFeaturesSync(): com.facebook.react.bridge.WritableArray;
-				public getUniqueIdSync(): string;
-				public static getRNDISharedPreferences(param0: globalAndroid.content.Context): globalAndroid.content.SharedPreferences;
-				public getPowerStateSync(): com.facebook.react.bridge.WritableMap;
-				public getDisplay(param0: com.facebook.react.bridge.Promise): void;
-				public invalidate(): void;
-				public getApiLevel(param0: com.facebook.react.bridge.Promise): void;
-				public hasGms(param0: com.facebook.react.bridge.Promise): void;
-				public getHostSync(): string;
-				public getSystemAvailableFeatures(param0: com.facebook.react.bridge.Promise): void;
-				public isLocationEnabled(param0: com.facebook.react.bridge.Promise): void;
-				public isHeadphonesConnected(param0: com.facebook.react.bridge.Promise): void;
-				public getBuildIdSync(): string;
-				public getSystemManufacturerSync(): string;
-				public getPhoneNumber(param0: com.facebook.react.bridge.Promise): void;
-				public getTotalDiskCapacityOld(param0: com.facebook.react.bridge.Promise): void;
-				public isCameraPresentSync(): boolean;
-				public getIncrementalSync(): string;
-				public getFreeDiskStorageSync(): number;
-				public getType(param0: com.facebook.react.bridge.Promise): void;
-				public getAndroidIdSync(): string;
-				public getFreeDiskStorage(param0: com.facebook.react.bridge.Promise): void;
-				public getInstallerPackageName(param0: com.facebook.react.bridge.Promise): void;
-				public getFreeDiskStorageOld(param0: com.facebook.react.bridge.Promise): void;
-				public getFreeDiskStorageOldSync(): number;
-				public getFirstInstallTimeSync(): number;
-				public getHardwareSync(): string;
-				public getCarrierSync(): string;
-				public getBuildId(param0: com.facebook.react.bridge.Promise): void;
-				public hasHmsSync(): boolean;
-				public getAvailableLocationProvidersSync(): com.facebook.react.bridge.WritableMap;
-				public getDeviceName(param0: com.facebook.react.bridge.Promise): void;
-				public getApiLevelSync(): number;
-				public getUserAgent(param0: com.facebook.react.bridge.Promise): void;
-				public getSupported32BitAbis(param0: com.facebook.react.bridge.Promise): void;
-				public getHardware(param0: com.facebook.react.bridge.Promise): void;
-				public isEmulator(param0: com.facebook.react.bridge.Promise): void;
-				public hasHms(param0: com.facebook.react.bridge.Promise): void;
-				public getDeviceNameSync(): string;
-				public getFontScale(param0: com.facebook.react.bridge.Promise): void;
-				public getInstanceIdSync(): string;
-				public getCodenameSync(): string;
-				public getConstants(): java.util.Map<string,any>;
-				public getCodename(param0: com.facebook.react.bridge.Promise): void;
-				public isAirplaneModeSync(): boolean;
-				public getTotalMemory(param0: com.facebook.react.bridge.Promise): void;
-				public getSerialNumberSync(): string;
-				public isBatteryChargingSync(): boolean;
-				public getFingerprintSync(): string;
-				public constructor();
-				public getMacAddressSync(): string;
-				public getUniqueId(param0: com.facebook.react.bridge.Promise): void;
-				public addListener(param0: string): void;
-				public getSerialNumber(param0: com.facebook.react.bridge.Promise): void;
-				public getHost(param0: com.facebook.react.bridge.Promise): void;
-				public getInstallReferrerSync(): string;
-				public getTotalDiskCapacity(param0: com.facebook.react.bridge.Promise): void;
-				public removeListeners(param0: java.lang.Integer): void;
-				public isBatteryCharging(param0: com.facebook.react.bridge.Promise): void;
-				public getBootloaderSync(): string;
-				public getSystemManufacturer(param0: com.facebook.react.bridge.Promise): void;
-				public getName(): string;
-				public isPinOrFingerprintSetSync(): boolean;
-				public onCatalystInstanceDestroy(): void;
-				public getIncremental(param0: com.facebook.react.bridge.Promise): void;
-				public initialize(): void;
-				public getAvailableLocationProviders(param0: com.facebook.react.bridge.Promise): void;
-				public getTotalMemorySync(): number;
-				public getPreviewSdkIntSync(): string;
-				public getBaseOs(param0: com.facebook.react.bridge.Promise): void;
-				public getLastUpdateTime(param0: com.facebook.react.bridge.Promise): void;
-				public getFontScaleSync(): number;
-				public getAndroidId(param0: com.facebook.react.bridge.Promise): void;
-				public getPhoneNumberSync(): string;
-				public getTags(param0: com.facebook.react.bridge.Promise): void;
-				public getDisplaySync(): string;
-				public getIpAddressSync(): string;
-				public getPreviewSdkInt(param0: com.facebook.react.bridge.Promise): void;
-				public isCameraPresent(param0: com.facebook.react.bridge.Promise): void;
-				public getInstallReferrer(param0: com.facebook.react.bridge.Promise): void;
-				public getIpAddress(param0: com.facebook.react.bridge.Promise): void;
-				public isHeadphonesConnectedSync(): boolean;
-				public hasSystemFeature(param0: string, param1: com.facebook.react.bridge.Promise): void;
-				public getSecurityPatchSync(): string;
-				public getUsedMemory(param0: com.facebook.react.bridge.Promise): void;
-				public getSupported32BitAbisSync(): com.facebook.react.bridge.WritableArray;
-				public getBootloader(param0: com.facebook.react.bridge.Promise): void;
-				public getSecurityPatch(param0: com.facebook.react.bridge.Promise): void;
-				public getInstallerPackageNameSync(): string;
-				public isEmulatorSync(): boolean;
-				public getMaxMemory(param0: com.facebook.react.bridge.Promise): void;
-				public getSupportedAbisSync(): com.facebook.react.bridge.WritableArray;
-				public getDevice(param0: com.facebook.react.bridge.Promise): void;
-				public getProductSync(): string;
-				public getSupported64BitAbis(param0: com.facebook.react.bridge.Promise): void;
-				public getProduct(param0: com.facebook.react.bridge.Promise): void;
-				public getMaxMemorySync(): number;
-				public getSupported64BitAbisSync(): com.facebook.react.bridge.WritableArray;
-				public getInstanceId(param0: com.facebook.react.bridge.Promise): void;
-				public getUsedMemorySync(): number;
-				public getUserAgentSync(): string;
-				public getCarrier(param0: com.facebook.react.bridge.Promise): void;
-				public hasGmsSync(): boolean;
-				public getBaseOsSync(): string;
-				public getMacAddress(param0: com.facebook.react.bridge.Promise): void;
-			}
-		}
-	}
-}
-
-declare module com {
-	export module learnium {
-		export module RNDeviceInfo {
-			export class RNInstallReferrerClient {
-				public static class: java.lang.Class<com.learnium.RNDeviceInfo.RNInstallReferrerClient>;
-			}
-			export module RNInstallReferrerClient {
-				export class InstallReferrerStateListenerProxy {
-					public static class: java.lang.Class<com.learnium.RNDeviceInfo.RNInstallReferrerClient.InstallReferrerStateListenerProxy>;
-					public onInstallReferrerServiceDisconnected(): void;
-					public invoke(param0: any, param1: java.lang.reflect.Method, param2: androidNative.Array<any>): any;
-					public onInstallReferrerSetupFinished(param0: number): void;
-				}
-			}
-		}
-	}
-}
-
-declare module com {
-	export module learnium {
-		export module RNDeviceInfo {
-			export module resolver {
-				export class DeviceIdResolver {
-					public static class: java.lang.Class<com.learnium.RNDeviceInfo.resolver.DeviceIdResolver>;
-					public constructor(param0: globalAndroid.content.Context);
-					public getInstanceIdSync(): string;
-				}
-			}
-		}
-	}
-}
-
-declare module com {
-	export module learnium {
-		export module RNDeviceInfo {
-			export module resolver {
-				export class DeviceTypeResolver {
-					public static class: java.lang.Class<com.learnium.RNDeviceInfo.resolver.DeviceTypeResolver>;
-					public constructor(param0: globalAndroid.content.Context);
-					public isTablet(): boolean;
-					public getDeviceType(): com.learnium.RNDeviceInfo.DeviceType;
 				}
 			}
 		}

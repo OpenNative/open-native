@@ -33,6 +33,18 @@ function RCTDeviceEventEmitter() {
     }
   );
 }
+
+function RCTNativeAppEventEmitter() {
+  return new com.facebook.react.modules.core.RCTNativeAppEventEmitter({
+    emit(eventType, params) {
+      const data = toJSValue(params);
+      setTimeout(() => {
+        DeviceEventEmitter.emit(eventType, data);
+      }, 1);
+    },
+  });
+}
+
 const viewRegistry = {};
 function RCTEventEmitter() {
   return new com.facebook.react.uimanager.events.RCTEventEmitter({
@@ -41,7 +53,6 @@ function RCTEventEmitter() {
     },
     receiveEvent(viewTag, eventName, params) {
       const data = toJSValue(params);
-      console.log('RECIEVE EVENT:', viewTag, eventName, data);
       setTimeout(() => {
         const view = viewRegistry[viewTag];
         if (view) {
@@ -58,14 +69,12 @@ function RCTModernEventEmitter() {
       console.warn('receiveTouches unimplemented');
     },
     receiveEvent(...params) {
-      console.log('RECIEVE EVENT:', ...params);
       if (params.length === 3) {
         (
           getJSModules().getJSModuleByName(
             'RCTEventEmitter'
           ) as com.facebook.react.uimanager.events.RCTEventEmitter
         ).receiveEvent(params[0], params[1], params[2]);
-        return;
       } else {
         (
           getJSModules().getJSModuleByName(
@@ -101,7 +110,10 @@ export function getCurrentBridge() {
       'RCTModernEventEmitter',
       RCTModernEventEmitter()
     );
-    RCTModernEventEmitter;
+    getJSModules().registerJSModule(
+      'RCTNativeAppEventEmitter',
+      RCTNativeAppEventEmitter()
+    );
     const reactApplicationContext =
       new com.facebook.react.bridge.ReactApplicationContext(
         Utils.android.getApplicationContext()
