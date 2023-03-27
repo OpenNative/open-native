@@ -3,6 +3,9 @@ import { getSwiftInterfaceImplementationContents } from '../getters/swift-interf
 import { extractModuleAliasedName } from './module-aliased-name';
 import { extractObjcMethodContents } from './method';
 
+const RCT_EXPORT_VIEW_PROPERTY_REGEX =
+  /(?<=(RCT_EXPORT_VIEW_PROPERTY|RCT_CUSTOM_VIEW_PROPERTY)\()(.*)(?=\))/gm;
+
 /**
  * Extracts interfaces representing the methods added to any RCTBridgeModule by
  * macros (e.g. RCT_EXPORT_METHOD).
