@@ -52,12 +52,16 @@ export function extractMethodParamTypes(
       return RNObjcSerialisableType.nonnullNumber;
     case 'BOOL':
       return RNObjcSerialisableType.nonnullBoolean;
+    case 'nonnull RCTResponseSenderBlock':
     case 'RCTResponseSenderBlock':
       return RNObjcSerialisableType.RCTResponseSenderBlock;
+    case 'nonnull RCTResponseErrorBlock':
     case 'RCTResponseErrorBlock':
       return RNObjcSerialisableType.RCTResponseErrorBlock;
+    case 'nonnull RCTPromiseResolveBlock':
     case 'RCTPromiseResolveBlock':
       return RNObjcSerialisableType.RCTPromiseResolveBlock;
+    case 'nonnull RCTPromiseRejectBlock':
     case 'RCTPromiseRejectBlock':
       return RNObjcSerialisableType.RCTPromiseRejectBlock;
     case 'int':
