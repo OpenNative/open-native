@@ -117,6 +117,7 @@ export async function getPackageAutolinkInfo({
       exportedModuleName,
       exportsConstants,
       moduleImportPath,
+      isPublic,
     }) => {
       const moduleImportName = `${moduleImportPath}.${moduleClassName}`;
       // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java
@@ -151,6 +152,10 @@ export async function getPackageAutolinkInfo({
          * @example 'com.test.RNTestModule'
          */
         moduleImportNameJs,
+        /**
+         * Whether this module is public or private.
+         */
+        isPublic,
       };
     }
   );

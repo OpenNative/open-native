@@ -15,7 +15,6 @@ export async function extractPackageModules(folder: string) {
   const files = await Promise.all(
     filePaths.map((filePath) => readFile(filePath, 'utf8'))
   );
-
   // TODO: We should ideally strip comments before running any Regex.
 
   let packageDeclarationMatch: RegExpMatchArray | null = null;
@@ -23,13 +22,13 @@ export async function extractPackageModules(folder: string) {
     contents: string;
     match: RegExpMatchArray;
     superclassName: string;
+    isPublic: boolean;
   }[] = [];
 
   for (const file of files) {
     if (!packageDeclarationMatch) {
       packageDeclarationMatch = extractClassDeclarationForPackage(file);
     }
-
     const moduleDeclarationMatch = extractClassDeclarationForModule(file);
     if (moduleDeclarationMatch) {
       const [moduleClassSignature] = moduleDeclarationMatch;
@@ -45,6 +44,7 @@ export async function extractPackageModules(folder: string) {
         contents: file,
         match: moduleDeclarationMatch,
         superclassName,
+        isPublic: file.indexOf('public class') > -1,
       });
     }
   }
@@ -89,6 +89,7 @@ export async function extractPackageModules(folder: string) {
         contents: moduleContents,
         match: moduleDeclarationMatch,
         superclassName,
+        isPublic,
       }) => {
         const [, moduleClassName] = moduleDeclarationMatch;
 
@@ -122,7 +123,6 @@ export async function extractPackageModules(folder: string) {
              * @example ['@Override @DoNotStrip public abstract void getInitialURL(Promise promise);']
              */
             raw = raw.replace(/\s+/g, ' ');
-
             const hasReactMethodAnnotation =
               raw.includes('@ReactMethod ') || raw.includes('@ReactMethod(');
             const isBlockingSynchronousMethod =
@@ -246,6 +246,7 @@ export async function extractPackageModules(folder: string) {
           moduleClassName,
           /** @example 'com.facebook.react.modules.intent' */
           moduleImportPath,
+          isPublic: isPublic,
         };
       }
     );
