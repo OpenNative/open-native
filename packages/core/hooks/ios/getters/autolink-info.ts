@@ -137,15 +137,14 @@ export async function getPackageAutolinkInfo({
       const sourceFileContents = await readFile(sourceFilePath, {
         encoding: 'utf8',
       });
+
       const sourceFileName = path.basename(sourceFilePath);
       // TODO: We should ideally strip comments before running any Regex.
-
       const {
         interfaceDecl,
         moduleNamesToMethodDescriptions,
         isSwiftModuleInterface,
       } = extractInterfaces(sourceFileContents, sourceFilePaths);
-
       // console.log(
       //   `!! working out importDecl, given clangModuleName "${clangModuleName}"; sourceFilePath "${sourceFilePath}"`
       // );
@@ -176,7 +175,8 @@ export async function getPackageAutolinkInfo({
       return {
         interfaceDecl,
         sourceFileName,
-        importDecl,
+        // Add import decl only if the module has an interface decl
+        importDecl: interfaceDecl ? importDecl : '',
         moduleNamesToMethodDescriptions,
         isSwiftModuleInterface,
       };

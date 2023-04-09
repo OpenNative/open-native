@@ -1,8 +1,8 @@
 import { logPrefix, ModuleNamesToMethodDescriptions } from '../common';
 import { getSwiftInterfaceImplementationContents } from '../getters/swift-interface-impl';
-import { extractModuleAliasedName } from './module-aliased-name';
+import { extractExtendedClassMethods } from './extended-class-methods';
 import { extractObjcMethodContents } from './method';
-
+import { extractModuleAliasedName } from './module-aliased-name';
 /**
  * Extracts interfaces representing the methods added to any RCTBridgeModule by
  * macros (e.g. RCT_EXPORT_METHOD).
@@ -41,10 +41,16 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
         : /\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm
     ),
   ].reduce<ModuleNamesToMethodDescriptions>((acc, matches) => {
-    const [fullMatch, objcClassName] = matches;
+    const [match, objcClassName] = matches;
     if (!objcClassName) {
       return acc;
     }
+
+    const extendedMethodDefs = extractExtendedClassMethods(
+      objcClassName,
+      sourceFiles
+    );
+    const fullMatch = match + `\n${extendedMethodDefs}`;
 
     /**
      * Extract swift implementation for the interface so we can later
@@ -65,6 +71,7 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
           /^RCT/,
           ''
         );
+
     if (!exportedModuleName) {
       return acc;
     }
