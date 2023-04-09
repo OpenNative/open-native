@@ -11,7 +11,7 @@ export function extractExtendedClassMethods(
   for (const file of sourceFiles) {
     const contents = readFileSync(file, { encoding: 'utf-8' });
     if (
-      contents.includes(`@implementation ${objcClassName}`) &&
+      contents.includes(`@implementation ${objcClassName} `) &&
       !contents.includes('RCT_EXPORT_MODULE')
     ) {
       extraMethodDefs += contents;
