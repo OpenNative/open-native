@@ -137,7 +137,6 @@ class NativeModuleHolder implements Partial<NativeModule> {
         if (isPromise(moduleMethods, exportedMethodName)) {
           return promisify(this.nativeModule, jsName, methodTypes, args);
         }
-
         return this.nativeModule[jsName]?.(
           ...toNativeArguments(methodTypes, args)
         );

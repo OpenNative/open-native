@@ -1,10 +1,11 @@
-import { globProm, readFile } from '../common';
+import * as path from 'path';
+import { globProm } from '../common';
 import { getModuleImportPath } from '../getters/module-import-path';
 import { getModuleName } from '../getters/module-name';
+import { loadModuleContents } from '../writers/load-module-contents';
 import { extractClassDeclarationForModule } from './class-declaration';
 import { extractMethodParamTypes } from './module-param-types';
 import { extractClassDeclarationForPackage } from './package-class-declaration';
-import * as path from 'path';
 
 const ANDROID_METHOD_REGEX =
   /(?:@Override|@ReactMethod)[\s\S]*?public[\s\S]*?[{;]/gm;
@@ -13,7 +14,7 @@ export async function extractPackageModules(folder: string) {
   let filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
   filePaths = filePaths.map((filePath) => path.join(folder, filePath));
   const files = await Promise.all(
-    filePaths.map((filePath) => readFile(filePath, 'utf8'))
+    filePaths.map((filePath) => loadModuleContents(filePath))
   );
   // TODO: We should ideally strip comments before running any Regex.
 

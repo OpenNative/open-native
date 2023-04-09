@@ -652,7 +652,7 @@ export function toNativeValue<T extends boolean>(
       return new java.lang.String(data);
     }
     if (typeof data === 'boolean') {
-      return new java.lang.Boolean(data)
+      return new java.lang.Boolean(data);
     }
   }
 
