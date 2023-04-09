@@ -80,7 +80,17 @@ public class Bridge {
 
   NativeModule loadModuleByName(String name) {
     Class moduleClass = Packages.moduleClasses.get(name);
-    if (moduleClass == null) return null;
+    if (moduleClass == null) {
+      // If module is not found, we look for it's package
+      // because it's possible that the module is a private
+      // module that can only be loaded through it's package.
+      String modulePackageName = Packages.modulePackageMap.get(name);
+      if (modulePackageName != null) {
+        loadModulesForPackage(modulePackageName);
+        if (modules.containsKey(name)) return modules.get(name);
+      }
+      return null;
+    }
     return loadModuleForClass(moduleClass);
   }
 
