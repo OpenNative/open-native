@@ -2683,6 +2683,29 @@ declare module com {
     export module react {
       export module modules {
         export module core {
+          export class RCTNativeAppEventEmitter extends com.facebook.react
+            .bridge.JavaScriptModule {
+            public static class: java.lang.Class<com.facebook.react.modules.core.RCTNativeAppEventEmitter>;
+            /**
+             * Constructs a new instance of the com.facebook.react.modules.core.RCTNativeAppEventEmitter interface with the provided implementation. An empty constructor exists calling super() when extending the interface class.
+             */
+            public constructor(implementation: {
+              emit(param0: string, param1: any): void;
+            });
+            public constructor();
+            public emit(param0: string, param1: any): void;
+          }
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module modules {
+        export module core {
           export class DeviceEventManagerModule extends com.facebook.react
             .bridge.ReactContextBaseJavaModule {
             public static class: java.lang.Class<com.facebook.react.modules.core.DeviceEventManagerModule>;

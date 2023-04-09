@@ -21,17 +21,25 @@ export function getJSModules() {
   return global.jsModulesAndroid;
 }
 
+function emit(eventType, params) {
+  const data = toJSValue(params);
+  setTimeout(() => {
+    DeviceEventEmitter.emit(eventType, data);
+  }, 1);
+}
+
 function RCTDeviceEventEmitter() {
   return new com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter(
     {
-      emit(eventType, params) {
-        const data = toJSValue(params);
-        setTimeout(() => {
-          DeviceEventEmitter.emit(eventType, data);
-        }, 1);
-      },
+      emit: emit,
     }
   );
+}
+
+function RCTNativeAppEventEmitter() {
+  return new com.facebook.react.modules.core.RCTNativeAppEventEmitter({
+    emit: emit,
+  });
 }
 
 /**
@@ -44,6 +52,10 @@ export function getCurrentBridge() {
     getJSModules().registerJSModule(
       'RCTDeviceEventEmitter',
       RCTDeviceEventEmitter()
+    );
+    getJSModules().registerJSModule(
+      'RCTNativeAppEventEmitter',
+      RCTNativeAppEventEmitter()
     );
     getJSModules().registerJSModule(
       'AppRegistry',
