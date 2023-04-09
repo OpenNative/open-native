@@ -15,8 +15,6 @@
 #import <React/UIView+React.h>
 
 @class RCTBridge;
-@class RCTShadowView;
-@class RCTSparseArray;
 @class RCTUIManager;
 
 typedef void (^RCTViewManagerUIBlock)(RCTUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry);
@@ -38,28 +36,6 @@ typedef void (^RCTViewManagerUIBlock)(RCTUIManager *uiManager, NSDictionary<NSNu
  * view and return the same instance for subsequent calls.
  */
 - (UIView *)view;
-
-/**
- * This method instantiates a shadow view to be managed by the module. If omitted,
- * an ordinary RCTShadowView instance will be created, which is typically fine for
- * most view types. As with the -view method, the -shadowView method should return
- * a fresh instance each time it is called.
- */
-- (RCTShadowView *)shadowView;
-
-/**
- * DEPRECATED: declare properties of type RCTBubblingEventBlock instead
- *
- * Returns an array of names of events that can be sent by native views. This
- * should return bubbling, directly-dispatched event types. The event name
- * should not include a prefix such as 'on' or 'top', as this will be applied
- * as needed. When subscribing to the event, use the 'Captured' suffix to
- * indicate the captured form, or omit the suffix for the bubbling form.
- *
- * Note that this method is not inherited when you subclass a view module, and
- * you should not call [super customBubblingEventTypes] when overriding it.
- */
-- (NSArray<NSString *> *)customBubblingEventTypes __deprecated_msg("Use RCTBubblingEventBlock props instead.");
 
 /**
  * This handles the simple case, where JS and native property names match.

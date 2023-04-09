@@ -11,12 +11,5 @@
 
 UIEdgeInsets RCTContentInsets(UIView *view)
 {
-  while (view) {
-    UIViewController *controller = view.reactViewController;
-    if (controller) {
-      return controller.view.safeAreaInsets;
-    }
-    view = view.superview;
-  }
-  return UIEdgeInsetsZero;
+  return view.safeAreaInsets;
 }

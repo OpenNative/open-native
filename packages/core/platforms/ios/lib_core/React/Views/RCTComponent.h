@@ -25,28 +25,6 @@ typedef void (^RCTCapturingEventBlock)(NSDictionary *body);
 @protocol RCTComponent <NSObject>
 
 @property (nonatomic, copy) NSNumber *reactTag;
-@property (nonatomic, copy) NSNumber *rootTag;
-
-- (void)insertReactSubview:(id<RCTComponent>)subview atIndex:(NSInteger)atIndex;
-- (void)removeReactSubview:(id<RCTComponent>)subview;
-- (NSArray<id<RCTComponent>> *)reactSubviews;
-- (id<RCTComponent>)reactSuperview;
-- (NSNumber *)reactTagAtPoint:(CGPoint)point;
-
-// View/ShadowView is a root view
-- (BOOL)isReactRootView;
-
-/**
- * Called each time props have been set.
- * Not all props have to be set - React can set only changed ones.
- * @param changedProps String names of all set props.
- */
-- (void)didSetProps:(NSArray<NSString *> *)changedProps;
-
-/**
- * Called each time subviews have been updated
- */
-- (void)didUpdateReactSubviews;
 
 @end
 
