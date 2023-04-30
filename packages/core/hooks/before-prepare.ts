@@ -12,6 +12,7 @@ const reset = '\x1b[0m';
  */
 export = async function (hookArgs: HookArgs) {
   const normalizedPlatformName = hookArgs?.prepareData?.platform;
+  const openNativeConfig = hookArgs.projectData.nsConfig?.['open-native'];
 
   if (
     normalizedPlatformName !== 'android' &&
@@ -93,6 +94,7 @@ export = async function (hookArgs: HookArgs) {
       outputPodfilePath,
       outputModuleMapPath,
       outputPodspecPath,
+      config: openNativeConfig,
     });
   }
 

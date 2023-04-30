@@ -128,3 +128,14 @@ export interface ModuleNamesToMethodDescriptionsMinimal {
     mq: boolean;
   };
 }
+
+export type OpenNativeConfig = {
+  patchAndroidApplication?: boolean;
+  modules: {
+    [name: string]: {
+      ios: {
+        podSubspecs?: string[];
+      };
+    };
+  };
+};

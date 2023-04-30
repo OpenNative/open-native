@@ -4,6 +4,7 @@ import {
   globProm,
   logPrefix,
   ModuleNamesToMethodDescriptionsMinimal,
+  OpenNativeConfig,
   readFile,
 } from '../common';
 import { getPodspecFilePath } from './podspec-path';
@@ -26,12 +27,16 @@ export async function getPackageAutolinkInfo({
   ownPackageName,
   packageName,
   projectDir,
+  config,
 }: {
   ownPackageName: string;
   packageName: string;
   projectDir: string;
+  config: OpenNativeConfig;
 }) {
   const packagePath = resolvePackagePath(packageName, { paths: [projectDir] });
+  const packageConfig = config?.modules?.[packageName]?.['ios'];
+
   if (!packagePath) {
     console.warn(
       `${logPrefix} Path for package ${packageName} not found. skipping.`
@@ -75,6 +80,10 @@ export async function getPackageAutolinkInfo({
     source_files?: string | string[];
     ios?: { source_files?: string | string[] };
     header_dir?: string;
+    subspecs?: {
+      name?: string;
+      source_files?: string | string[];
+    }[];
   } = JSON.parse(podspecContents);
 
   // The other platforms are 'osx', 'macos', 'tvos', and 'watchos'.
@@ -83,22 +92,41 @@ export async function getPackageAutolinkInfo({
     source_files: commonSourceFiles = [],
     ios: { source_files: iosSourceFiles } = { source_files: [] },
   } = podspecParsed;
-
   if (!podspecParsed.name) {
     console.warn(
       `${logPrefix} Podspec "${podspecFileName}" for npm package "${packageName}" did not specify a name, so using "${packageName}" instead.`
     );
   }
 
+  const podspecHasSourceFiles =
+    commonSourceFiles.length > 0 || iosSourceFiles.length > 0;
+
+  const subspecPaths = [];
+  const subspecs = {};
+  if (packageConfig?.podSubspecs) {
+    for (const subspecName of packageConfig.podSubspecs) {
+      const subspec = podspecParsed['subspecs']?.find(
+        (subspec) => subspec.name === subspecName
+      );
+      if (subspec) {
+        subspecs[subspecName] = subspec;
+        subspecPaths.push(...subspec.source_files);
+      } else {
+        console.warn(
+          `${logPrefix} Subspec ${subspecName} was not found in "${podspecFileName}" for npm package "${packageName}".`
+        );
+      }
+    }
+  }
+
   const sourceFilePaths = await getSourceFilePaths({
     commonSourceFiles:
       ownPackageName === packageName
         ? [commonSourceFiles as string, 'lib_core/React/CoreModules/*.{m,mm}']
-        : commonSourceFiles,
+        : [...commonSourceFiles, ...subspecPaths],
     iosSourceFiles,
     cwd: path.dirname(podspecFilePath),
   });
-
   // In a complicated pod setup, e.g. with subspecs, there may be special cases
   // to handle. In practice, this is redundant for core modules (we don't
   // augment the header at present), but it's good to be prepared for a future
@@ -130,7 +158,12 @@ export async function getPackageAutolinkInfo({
     podspecParsed.header_dir ||
     podspecName.replace(/-/g, '_');
   const commentIdentifyingPodspec = `package: ${packageName}; podspec: ${podspecFileName}`;
-  const podfileEntry = `pod '${podspecName}', path: "${podspecFilePath}"`;
+
+  const podfileEntry = packageConfig?.podSubspecs
+    ? `pod '${podspecName}', :subspecs => [${packageConfig?.podSubspecs
+        .map((name) => `"${name}"`)
+        .join(',')}], :podspec => '${podspecFilePath}'`
+    : `pod '${podspecName}', path: '${podspecFilePath}'`;
 
   const sourceFileInfoArr = await Promise.all(
     sourceFilePaths.map(async (sourceFilePath) => {
@@ -217,6 +250,7 @@ export async function getPackageAutolinkInfo({
       ),
     packageName,
     podfileEntry,
-    podspecName,
+    podspecName: podspecHasSourceFiles ? podspecName : undefined,
+    subspecNames: Object.keys(subspecs).map((name) => `${podspecName}/${name}`),
   };
 }

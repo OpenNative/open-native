@@ -5,7 +5,8 @@
   "repository": "<fill-your-repository-here>",
   "dependencies": {
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
-    "@open-native/core": "file:../../packages/core"
+    "@open-native/core": "file:../../packages/core",
+    "@notifee/react-native": "7.4.0"
   },
   "devDependencies": {
     "@nativescript/android": "~8.4.0",

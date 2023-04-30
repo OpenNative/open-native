@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { readFile } from './common';
+import { OpenNativeConfig, readFile } from './common';
 import { getPackageAutolinkInfo } from './getters/autolink-info';
 import { writeModuleMapFile } from './writers/modulemap';
 import { writePodfile } from './writers/podfile';
@@ -14,6 +14,7 @@ type AutolinkIosParams = {
   outputPodfilePath: string;
   outputPodspecPath: string;
   outputModuleMapPath: string;
+  config: OpenNativeConfig;
 };
 
 /**
@@ -39,6 +40,7 @@ export async function autolinkIos({
   outputPodfilePath,
   outputPodspecPath,
   outputModuleMapPath,
+  config,
 }: AutolinkIosParams) {
   const packageJson = JSON.parse(
     await readFile(path.join(packageDir, '/package.json'), {
@@ -53,6 +55,7 @@ export async function autolinkIos({
           ownPackageName: packageJson.name,
           packageName,
           projectDir,
+          config,
         })
       )
     )
@@ -80,7 +83,11 @@ export async function autolinkIos({
     }),
 
     await writeReactNativePodspecFile({
-      podspecNames: autolinkingInfo.map(({ podspecName }) => podspecName),
+      podspecNames: autolinkingInfo
+        .map(({ podspecName, subspecNames }) => {
+          return podspecName ? [podspecName, ...subspecNames] : subspecNames;
+        })
+        .flat(),
       outputPodspecPath,
     }),
 
