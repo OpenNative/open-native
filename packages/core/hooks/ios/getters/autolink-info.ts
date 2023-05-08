@@ -87,11 +87,13 @@ export async function getPackageAutolinkInfo({
   } = JSON.parse(podspecContents);
 
   // The other platforms are 'osx', 'macos', 'tvos', and 'watchos'.
-  const {
-    name: podspecName = packageName,
-    source_files: commonSourceFiles = [],
-    ios: { source_files: iosSourceFiles } = { source_files: [] },
-  } = podspecParsed;
+  const { name: podspecName = packageName } = podspecParsed;
+  // standardize the source files:
+  // "" becomes []
+  // "something" becomes ["something"]
+  // ["something"] stays as ["something"]
+  const commonSourceFiles = [podspecParsed.source_files || []].flat().filter((v) => !!v);
+  const iosSourceFiles = [podspecParsed.ios?.source_files || []].flat().filter((v) => !!v);
   if (!podspecParsed.name) {
     console.warn(
       `${logPrefix} Podspec "${podspecFileName}" for npm package "${packageName}" did not specify a name, so using "${packageName}" instead.`
@@ -122,7 +124,7 @@ export async function getPackageAutolinkInfo({
   const sourceFilePaths = await getSourceFilePaths({
     commonSourceFiles:
       ownPackageName === packageName
-        ? [commonSourceFiles as string, 'lib_core/React/CoreModules/*.{m,mm}']
+        ? [...commonSourceFiles, 'lib_core/React/CoreModules/*.{m,mm}']
         : [...commonSourceFiles, ...subspecPaths],
     iosSourceFiles,
     cwd: path.dirname(podspecFilePath),
