@@ -3,9 +3,9 @@ import type { HookArgs } from './hookArgs';
 import { autolinkAndroid } from './android/prepare';
 import { autolinkIos } from './ios/prepare';
 
-const logPrefix = '[@open-native/core/hooks/before-prepare.js]';
 const green = '\x1b[32m';
 const reset = '\x1b[0m';
+const logPrefix = reset + '[@open-native/core/hooks/before-prepare.js]' + reset;
 
 /**
  * autolink any React Native native modules.
