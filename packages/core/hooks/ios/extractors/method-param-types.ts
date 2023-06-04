@@ -29,6 +29,7 @@ export function extractMethodParamTypes(
       ? RNObjcSerialisableType.nonnullNumber
       : RNObjcSerialisableType.number;
   }
+
   if (splitBeforeGeneric.includes('NSDictionary')) {
     return nonnull
       ? RNObjcSerialisableType.nonnullObject
@@ -50,6 +51,7 @@ export function extractMethodParamTypes(
     case 'CGFloat': // deprecated
     case 'NSInteger': // deprecated
       return RNObjcSerialisableType.nonnullNumber;
+    case 'BOOL*':
     case 'BOOL':
       return RNObjcSerialisableType.nonnullBoolean;
     case 'nonnull RCTResponseSenderBlock':
