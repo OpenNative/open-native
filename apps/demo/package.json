@@ -6,7 +6,8 @@
   "dependencies": {
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
     "@open-native/core": "file:../../packages/core",
-    "@notifee/react-native": "7.4.0"
+    "@notifee/react-native": "7.4.0",
+    "react-native-app-auth": "^6.4.3"
   },
   "devDependencies": {
     "@nativescript/android": "~8.4.0",
