@@ -33,13 +33,17 @@ export async function writeModuleMapFile({
     moduleNamesToMethodDescriptions
   ).reduce<ModuleNamesToMethodDescriptionsMinimal>(
     (acc, exportedModuleName) => {
-      const { exportsConstants, methods, jsName, hasMethodQueue } =
+      const { exportsConstants, methods, jsName, hasMethodQueue, viewProps } =
         moduleNamesToMethodDescriptions[exportedModuleName];
 
       acc[exportedModuleName] = {
         j: jsName,
         e: exportsConstants,
         mq: hasMethodQueue,
+        p: viewProps.map((prop) => ({
+          j: prop.name,
+          t: prop.type,
+        })),
         m: methods.reduce<MethodDescriptionsMinimal>(
           (innerAcc, methodDescription) => {
             const { exportedName, jsName, types } = methodDescription;
@@ -60,7 +64,7 @@ export async function writeModuleMapFile({
 
   return await writeFile(
     outputModuleMapPath,
-    JSON.stringify(moduleNamesToMethodDescriptionsMinimal, null, 0) + '\n',
+    JSON.stringify(moduleNamesToMethodDescriptionsMinimal, null, 1) + '\n',
     { encoding: 'utf-8' }
   );
 }

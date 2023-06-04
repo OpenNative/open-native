@@ -7,7 +7,7 @@
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
     "@open-native/core": "file:../../packages/core",
     "react-native-module-test": "file:../../packages/react-native-module-test",
-    "react-native-webview": "^11.26.1"
+    "react-native-webview": "^12.2.0"
   },
   "devDependencies": {
     "@nativescript/android": "~8.4.0",
