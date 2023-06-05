@@ -1,6 +1,6 @@
 {
   "name": "@open-native/core",
-  "version": "1.0.0-alpha.34",
+  "version": "1.0.0-alpha.36",
   "description": "Open Native helps cross platform communities work better together.",
   "main": "index",
   "types": "index.d.ts",

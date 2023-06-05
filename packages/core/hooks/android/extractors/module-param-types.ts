@@ -7,11 +7,11 @@ export function extractMethodParamTypes(
   // but just in case the implementation changes in future.
   const splitBeforeGeneric = javaType.split('<')[0];
 
-  if (splitBeforeGeneric.includes('@Nullable String')) {
-    return RNJavaSerialisableType.string;
+  if (splitBeforeGeneric.includes('@NonNull String')) {
+    return RNJavaSerialisableType.nonnullString;
   }
   if (splitBeforeGeneric.includes('String')) {
-    return RNJavaSerialisableType.nonnullString;
+    return RNJavaSerialisableType.string;
   }
   if (splitBeforeGeneric.includes('Integer')) {
     return RNJavaSerialisableType.int;
@@ -37,23 +37,23 @@ export function extractMethodParamTypes(
   if (splitBeforeGeneric.includes('float')) {
     return RNJavaSerialisableType.nonnullFloat;
   }
-  if (splitBeforeGeneric.includes('@Nullable ReadableMap')) {
-    return RNJavaSerialisableType.object;
-  }
-  if (splitBeforeGeneric.includes('ReadableMap')) {
+  if (splitBeforeGeneric.includes('@NonNull ReadableMap')) {
     return RNJavaSerialisableType.nonnullObject;
   }
-  if (splitBeforeGeneric.includes('@Nullable ReadableArray')) {
-    return RNJavaSerialisableType.array;
+  if (splitBeforeGeneric.includes('ReadableMap')) {
+    return RNJavaSerialisableType.object;
   }
-  if (splitBeforeGeneric.includes('ReadableArray')) {
+  if (splitBeforeGeneric.includes('@NonNull ReadableArray')) {
     return RNJavaSerialisableType.nonnullArray;
   }
-  if (splitBeforeGeneric.includes('@Nullable Callback')) {
-    return RNJavaSerialisableType.Callback;
+  if (splitBeforeGeneric.includes('ReadableArray')) {
+    return RNJavaSerialisableType.array;
+  }
+  if (splitBeforeGeneric.includes('@NonNull Callback')) {
+    return RNJavaSerialisableType.nonnullCallback;
   }
   if (splitBeforeGeneric.includes('Callback')) {
-    return RNJavaSerialisableType.nonnullCallback;
+    return RNJavaSerialisableType.Callback;
   }
   if (splitBeforeGeneric.includes('Promise')) {
     return RNJavaSerialisableType.Promise;

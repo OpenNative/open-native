@@ -277,7 +277,7 @@ export function toNativeArguments(
 
       case RNJavaSerialisableType.boolean:
         if (isNullOrUndefined(data)) {
-          nativeArguments.push(null);
+          nativeArguments.push(false);
           break;
         }
         // nullable booleans are java.lang.Booleans
@@ -286,12 +286,14 @@ export function toNativeArguments(
         break;
       case RNJavaSerialisableType.nonnullBoolean:
         assert(
-          typeof data === 'boolean',
+          typeof data === 'boolean' || isNullOrUndefined(data),
           `Argument at index ${i} expected a boolean, but got ${data}`
         );
 
         // booleans are auto-marshalled to BOOL.
-        nativeArguments.push(data);
+        nativeArguments.push(
+          isNullOrUndefined(data) ? false : (data as boolean)
+        );
         break;
 
       case RNJavaSerialisableType.string:
@@ -311,18 +313,18 @@ export function toNativeArguments(
         break;
 
       case RNJavaSerialisableType.int:
-        assert(
-          typeof data === 'number',
-          `Argument at index ${i} expected a number, but got ${data}`
-        );
-        nativeArguments.push(new java.lang.Integer(data));
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(new java.lang.Integer(0));
+          break;
+        }
+        nativeArguments.push(new java.lang.Integer(data as number));
         break;
       case RNJavaSerialisableType.nonnullInt:
         assert(
-          typeof data === 'number',
+          typeof data === 'number' || isNullOrUndefined(data),
           `Argument at index ${i} expected a number, but got ${data}`
         );
-        nativeArguments.push(data);
+        nativeArguments.push(isNullOrUndefined(data) ? 0 : (data as number));
         break;
       case RNJavaSerialisableType.float:
         if (isNullOrUndefined(data)) {
@@ -332,10 +334,12 @@ export function toNativeArguments(
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullFloat:
         assert(
-          typeof data === 'number',
+          typeof data === 'number' || isNullOrUndefined(data),
           `Argument at index ${i} expected a number, but got ${data}`
         );
-        nativeArguments.push(float(data));
+        nativeArguments.push(
+          isNullOrUndefined(data) ? float(0) : float(data as number)
+        );
         break;
       case RNJavaSerialisableType.double:
         if (isNullOrUndefined(data)) {
@@ -345,10 +349,12 @@ export function toNativeArguments(
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullDouble:
         assert(
-          typeof data === 'number',
+          typeof data === 'number' || isNullOrUndefined(data),
           `Argument at index ${i} expected a number, but got ${data}`
         );
-        nativeArguments.push(double(data));
+        nativeArguments.push(
+          isNullOrUndefined(data) ? double(0) : double(data as number)
+        );
         break;
       case RNJavaSerialisableType.Callback:
         if (isNullOrUndefined(data)) {
