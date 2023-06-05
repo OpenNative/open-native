@@ -106,6 +106,14 @@ RCT_EXPORT_MODULE()
     [self addUIBlock:block];
 }
 
+- (void) registerView:(UIView *)view reactTag:(NSNumber *)reactTag {
+    [_viewRegistry setObject:view forKey:reactTag];
+}
+
+- (void) unRegisterView:(NSNumber *)reactTag {
+    [_viewRegistry removeObjectForKey:reactTag];
+}
+
 @end
 
 @implementation RCTBridge (RCTUIManager)

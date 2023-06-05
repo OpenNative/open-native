@@ -135,5 +135,7 @@ export interface ModuleNamesToMethodDescriptionsMinimal {
      * View Manager Props
      */
     p: ViewPropMinimal[];
+
+    v: boolean;
   };
 }

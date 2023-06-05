@@ -40,10 +40,11 @@ export async function writeModuleMapFile({
         j: jsName,
         e: exportsConstants,
         mq: hasMethodQueue,
-        p: viewProps.map((prop) => ({
+        p: viewProps?.map((prop) => ({
           j: prop.name,
           t: prop.type,
         })),
+        v: viewProps?.length > 0,
         m: methods.reduce<MethodDescriptionsMinimal>(
           (innerAcc, methodDescription) => {
             const { exportedName, jsName, types } = methodDescription;

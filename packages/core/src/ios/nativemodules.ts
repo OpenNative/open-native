@@ -15,11 +15,11 @@ import {
 } from './utils';
 import { NativeModule } from '../../Libraries/EventEmitter/NativeEventEmitter';
 
-const NativeModuleMap =
+export const NativeModuleMap =
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('../../platforms/ios/lib_community/modulemap.json') as TNativeModuleMap;
 
-class NativeModuleHolder implements Partial<NativeModule> {
+export class NativeModuleHolder implements Partial<NativeModule> {
   /**
    * The JSModuleInvoker in JSModules() will be indexing into NativeModuleHolder
    * to call methods upon it, so the class needs an index signature expressing
@@ -27,10 +27,10 @@ class NativeModuleHolder implements Partial<NativeModule> {
    */
   [key: string]: typeof key extends keyof NativeModuleHolder
     ? { [P in keyof NativeModuleHolder]: NativeModuleHolder[P] }
-    : ((...args: unknown[]) => number) | JSONSerialisable;
+    : ((...args: unknown[]) => number) | JSONSerialisable | any;
 
   private readonly bridge: RCTBridge = getCurrentBridge();
-  private readonly moduleMetadata: RNNativeModuleMetadata | undefined;
+  public readonly moduleMetadata: RNNativeModuleMetadata | undefined;
   private nativeModuleInstance: RCTBridgeModule;
 
   constructor(public moduleName: string) {
@@ -158,7 +158,9 @@ class NativeModuleHolder implements Partial<NativeModule> {
 
 export const NativeModules = Object.keys(NativeModuleMap).reduce(
   (acc, moduleName) => {
-    acc[moduleName] = new NativeModuleHolder(moduleName);
+    if (!NativeModuleMap[moduleName].v) {
+      acc[moduleName] = new NativeModuleHolder(moduleName);
+    }
     return acc;
   },
   {}

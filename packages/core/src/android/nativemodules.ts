@@ -170,7 +170,6 @@ export const NativeModules = Object.keys(NativeModuleMap).reduce(
   (acc, moduleName) => {
     if (!NativeModuleMap[moduleName].v) {
       acc[moduleName] = new NativeModuleHolder(moduleName);
-      return acc;
     }
     return acc;
   },

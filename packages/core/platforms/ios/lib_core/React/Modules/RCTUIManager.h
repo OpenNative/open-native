@@ -30,6 +30,14 @@
  */
 - (void)prependUIBlock:(RCTViewManagerUIBlock)block;
 
+- (void) registerView:(UIView *)view reactTag:(NSNumber *)reactTag;
+
+- (void) unRegisterView:(NSNumber *)reactTag;
+
+- (NSMutableDictionary<NSNumber *, UIView *> *)viewRegistry;
+
+- (NSMapTable *)nativeIDRegistry;
+
 @end
 
 /**

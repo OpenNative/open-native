@@ -1,7 +1,5 @@
 #import <React/RCTViewManager.h>
-
-@interface ModuleTestViewManager : RCTViewManager
-@end
+#import "ModuleTestViewManager.h"
 
 @implementation ModuleTestViewManager
 

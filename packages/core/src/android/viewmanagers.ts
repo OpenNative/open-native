@@ -123,8 +123,6 @@ export const ViewManagers: { [name: string]: ViewManagerHolder } = Object.keys(
 ).reduce((acc, moduleName) => {
   if (NativeModuleMap[moduleName].v) {
     acc[moduleName] = new ViewManagerHolder(moduleName);
-
-    return acc;
   }
   return acc;
 }, {});
@@ -138,7 +136,7 @@ type ViewProps<K extends keyof ViewManagerInterfaces> =
 export function requireNativeView<T extends keyof ViewManagerInterfaces>(
   key: T
 ): Omit<View, ViewProps<T>> & ViewManagerInterfaces[T] {
-  if (!ViewManagers[key]) {
+  if (!ViewManagers[key as any]) {
     throw new Error(`ViewManager with name ${name} was not found.`);
   }
   if (_nativeViewCache[key as string]) return _nativeViewCache[key as string];
@@ -146,10 +144,10 @@ export function requireNativeView<T extends keyof ViewManagerInterfaces>(
   return (_nativeViewCache[key as string] = class extends View {
     nativeProps: { [name: string]: any[] } = {};
     _viewTag: number;
-    _viewManager = ViewManagers[key];
+    _viewManager = ViewManagers[key as any];
     constructor() {
       super();
-      const viewManager = ViewManagers[key];
+      const viewManager = ViewManagers[key as any];
       for (const prop in viewManager.props) {
         Object.defineProperty(this, prop, {
           set(newValue) {
