@@ -6,11 +6,10 @@
   "dependencies": {
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
     "@open-native/core": "file:../../packages/core",
-    "@notifee/react-native": "7.4.0",
-    "react-native-app-auth": "^6.4.3"
+    "react-native-module-test": "file:../../packages/react-native-module-test"
   },
   "devDependencies": {
-    "@nativescript/android": "~8.4.0",
+    "@nativescript/android": "~8.5.0",
     "@nativescript/ios": "~8.4.0",
     "@rigor789/resolve-package-path": "1.0.5",
     "metro-react-native-babel-preset": "file:../../node_modules/metro-react-native-babel-preset"
