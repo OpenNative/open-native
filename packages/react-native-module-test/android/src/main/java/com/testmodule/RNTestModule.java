@@ -43,6 +43,48 @@ public class RNTestModule extends ReactContextBaseJavaModule {
     callback.invoke(true);
   }
 
+
+  @ReactMethod
+  public void testFloat(float value, Promise promise) {
+      promise.resolve(value);
+  }
+
+  @ReactMethod
+  public void testJavaFloat(Float value, Promise promise) {
+    promise.resolve(value);
+  }
+
+  @ReactMethod
+  public void testDouble(double value, Promise promise) {
+    promise.resolve(value);
+  }
+
+  @ReactMethod
+  public void testJavaDouble(Double value, Promise promise) {
+    promise.resolve(value);
+  }
+
+  @ReactMethod
+  public void testBoolean(Boolean value, Promise promise) {
+    promise.resolve(value);
+  }
+
+  @ReactMethod
+  public void testJavaBoolean(boolean value, Promise promise) {
+    promise.resolve(value);
+  }
+
+  @ReactMethod
+  public void testInt(int value, Promise promise) {
+    promise.resolve(value);
+  }
+
+  @ReactMethod
+  public void testInteger(Integer value, Promise promise) {
+    promise.resolve(value);
+  }
+
+
   @ReactMethod
   public void testPromise(Promise promise) {
     promise.resolve(true);

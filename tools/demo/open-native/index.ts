@@ -19,4 +19,22 @@ export class DemoSharedOpenNative extends DemoSharedBase {
     };
     measure('promise', testPromise);
   }
+
+  async testPrimitives() {
+    try {
+      console.log(await NativeModules.RNTestModule.testDouble(10));
+      console.log(await NativeModules.RNTestModule.testJavaDouble(10));
+
+      console.log(await NativeModules.RNTestModule.testInt(10));
+      console.log(await NativeModules.RNTestModule.testInteger(10));
+
+      console.log(await NativeModules.RNTestModule.testFloat(10.1));
+      console.log(await NativeModules.RNTestModule.testJavaFloat(10.1));
+
+      console.log(await NativeModules.RNTestModule.testBoolean(true));
+      console.log(await NativeModules.RNTestModule.testJavaBoolean(true));
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }
