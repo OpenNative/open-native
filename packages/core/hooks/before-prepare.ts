@@ -89,6 +89,11 @@ export = async function (hookArgs: HookArgs) {
       'platforms/ios/lib_community/modulemap.json'
     );
 
+    const outputViewManagerTypesPath = path.resolve(
+      packageDir,
+      'src/ios/view-manager-types.ts'
+    );
+
     packageNames = await autolinkIos({
       packageDir,
       dependencies: depsArr,
@@ -97,6 +102,7 @@ export = async function (hookArgs: HookArgs) {
       outputPodfilePath,
       outputModuleMapPath,
       outputPodspecPath,
+      outputViewManagerTypesPath,
     });
   }
 
