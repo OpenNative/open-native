@@ -145,38 +145,35 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
   Application.android.on(
     AndroidApplication.activityResultEvent,
     (args: AndroidActivityResultEventData) => {
-      if (args.activity.getIntent().getData()) {
-        reactContext.onActivityResult(
-          args.activity,
-          args.requestCode,
-          args.resultCode,
-          args.activity.getIntent()
-        );
-        return;
-      }
-      const callback = (_args: Partial<AndroidActivityNewIntentEventData>) => {
-        reactContext.onActivityResult(
-          args.activity,
-          args.requestCode,
-          _args.intent.getData() ? -1 : args.resultCode,
-          _args.intent
-        );
-        Application.android.off(
-          AndroidApplication.activityNewIntentEvent,
-          callback
-        );
-      };
-      Application.android.on(
-        AndroidApplication.activityNewIntentEvent,
-        callback
+      reactContext.onActivityResult(
+        args.activity,
+        args.requestCode,
+        args.resultCode,
+        args.intent
       );
-      setTimeout(() => {
-        Application.android.off(
-          AndroidApplication.activityNewIntentEvent,
-          callback
-        );
-        callback({ intent: args.activity.getIntent() });
-      }, 1000);
+      // const callback = (_args: Partial<AndroidActivityNewIntentEventData>) => {
+      //   reactContext.onActivityResult(
+      //     args.activity,
+      //     args.requestCode,
+      //     args.resultCode,
+      //     _args.intent
+      //   );
+      //   Application.android.off(
+      //     AndroidApplication.activityNewIntentEvent,
+      //     callback
+      //   );
+      // };
+      // Application.android.on(
+      //   AndroidApplication.activityNewIntentEvent,
+      //   callback
+      // );
+      // setTimeout(() => {
+      //   Application.android.off(
+      //     AndroidApplication.activityNewIntentEvent,
+      //     callback
+      //   );
+      //   callback({ intent: args.activity.getIntent() });
+      // }, 1000);
     }
   );
 }
