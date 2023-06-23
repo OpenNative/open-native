@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NativeModuleHolder, NativeModuleMap } from './nativemodules';
-import { toJSValue } from './converter';
+import { toJSValue, toNativeArguments } from './converter';
 import { getCurrentBridge } from './bridge';
 import type { ViewManagers as ViewManagerInterfaces } from './view-manager-types';
-import { View } from '@nativescript/core';
+import { EventData, View } from '@nativescript/core';
+import { RNObjcSerialisableType } from '../common';
+
+type ViewEventReciever = { subscribe: () => void; unsubscribe: () => void };
+type ViewProps<K extends keyof ViewManagerInterfaces> =
+  keyof ViewManagerInterfaces[K];
 
 function isEventProp(prop) {
-  return (
-    prop.t === 'RCTDirectEventBlock' ||
-    prop.t === 'RCTBubblingEventBlock' ||
-    prop.t === 'RCTCapturingEventBlock'
-  );
+  return prop.t === RNObjcSerialisableType.RCTEventType;
 }
 
 class ViewManagerHolder extends NativeModuleHolder {
@@ -66,7 +68,11 @@ class ViewManagerHolder extends NativeModuleHolder {
 
   public setNativeProp(view: any, prop: string, ...params: any[]) {
     if (this.props[prop]) {
-      view[prop] = params[0];
+      const nativeParams = toNativeArguments(
+        [0, this.props[prop]] as never,
+        params
+      );
+      view[prop] = nativeParams[0];
       return;
     }
     console.warn(
@@ -82,15 +88,14 @@ class ViewManagerHolder extends NativeModuleHolder {
   }
 }
 
-export const ViewManagers: { [name: string]: ViewManagerHolder } = Object.keys(
-  NativeModuleMap
-).reduce((acc, moduleName) => {
-  if (NativeModuleMap[moduleName].v) {
-    acc[moduleName] = new ViewManagerHolder(moduleName);
-  }
-  return acc;
-}, {});
-global.__viewManagerProxy = ViewManagers;
+export const ViewManagersIOS: { [name: string]: ViewManagerHolder } =
+  Object.keys(NativeModuleMap).reduce((acc, moduleName) => {
+    if (NativeModuleMap[moduleName].v) {
+      acc[moduleName] = new ViewManagerHolder(moduleName);
+    }
+    return acc;
+  }, {});
+global.__viewManagerProxy = ViewManagersIOS;
 export const load = () => null;
 
 // When event is subscribed, check for it's native event &
@@ -98,23 +103,25 @@ export const load = () => null;
 // emit the JS event through the eventEmitter.
 
 const _nativeViewCache = {};
-type ViewProps<K extends keyof ViewManagerInterfaces> =
-  keyof ViewManagerInterfaces[K];
-export function requireNativeView<T extends keyof ViewManagerInterfaces>(
+
+export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
   key: T
 ): Omit<View, ViewProps<T>> & ViewManagerInterfaces[T] {
-  if (!ViewManagers[key as any]) {
+  if (!ViewManagersIOS[key as any]) {
     throw new Error(`ViewManager with name ${name} was not found.`);
   }
   if (_nativeViewCache[key as string]) return _nativeViewCache[key as string];
 
-  return (_nativeViewCache[key as string] = class extends View {
+  (_nativeViewCache[key as string] = class extends View {
     nativeProps: { [name: string]: any[] } = {};
     _viewTag: number;
-    _viewManager = ViewManagers[key as any];
+    _viewManager = ViewManagersIOS[key as any];
+    _viewEventRecievers: {
+      [name: string]: ViewEventReciever;
+    } = {};
     constructor() {
       super();
-      const viewManager = ViewManagers[key as any];
+      const viewManager = ViewManagersIOS[key as any];
       for (const prop in viewManager.props) {
         Object.defineProperty(this, prop, {
           set(newValue) {
@@ -152,12 +159,15 @@ export function requireNativeView<T extends keyof ViewManagerInterfaces>(
             this.nativeProps[prop]
           );
         }
+        for (const key in this._viewEventRecievers) {
+          this._viewEventRecievers[key]?.subscribe();
+        }
       }
     }
 
     receiveEvent(eventName: string, data: unknown) {
       this.notify({
-        eventName: this._viewManager.__getJSEventName(eventName),
+        eventName: eventName,
         object: this,
         nativeEvent: data,
       });
@@ -167,6 +177,59 @@ export function requireNativeView<T extends keyof ViewManagerInterfaces>(
         this._viewManager.__unRegisterView(this._viewTag);
       }
     }
+    addEventListener(
+      arg: string,
+      callback: (data: EventData) => void,
+      thisArg?: any
+    ): void {
+      const events = arg.split(',');
+      for (const event of events) {
+        const viewEventReciever = this.createViewEventReceiver(event);
+        this._viewEventRecievers[event] = viewEventReciever;
+        viewEventReciever?.subscribe();
+      }
+      super.addEventListener(arg, callback, thisArg);
+    }
+
+    removeEventListener(arg: string, callback?: any, thisArg?: any): void {
+      super.removeEventListener(arg, callback, thisArg);
+
+      const events = arg.split(',');
+      for (const event of events) {
+        if (!this.hasListeners(event)) {
+          this._viewEventRecievers[event]?.unsubscribe();
+        }
+      }
+    }
+
+    createViewEventReceiver(eventName: string) {
+      if (this._viewEventRecievers[eventName])
+        return this._viewEventRecievers[eventName];
+
+      if (this._viewManager.viewEvents[eventName]) {
+        const nativeEventBlockName =
+          this._viewManager.viewEvents[eventName].nativeName;
+
+        return {
+          subscribe: () => {
+            if (this.nativeViewProtected) {
+              this.nativeViewProtected[nativeEventBlockName] = (
+                event: NSDictionary<string, unknown>
+              ) => {
+                const jsEventObject = toJSValue(event);
+                this.receiveEvent(eventName as string, jsEventObject);
+              };
+            }
+          },
+          unsubscribe: () => {
+            if (this.nativeViewProtected) {
+              this.nativeViewProtected[nativeEventBlockName] = null;
+            }
+          },
+        };
+      }
+    }
   }) as unknown as Omit<View, keyof ViewManagerInterfaces[T]> &
     ViewManagerInterfaces[T];
+  return _nativeViewCache[key as string];
 }

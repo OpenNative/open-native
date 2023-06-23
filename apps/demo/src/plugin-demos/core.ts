@@ -7,8 +7,14 @@ export function navigatingTo(args: EventData) {
   page.bindingContext = new DemoModel();
 }
 
-export class DemoModel extends DemoSharedOpenNative {
-  sourceValue: {
-    html: '<p>hello world</p>';
-  };
+export function loadingFinish(args: EventData) {
+  const page = <Page>args.object;
+  page.bindingContext = new DemoModel();
+  console.log('loading');
 }
+
+export function onLoaded(data) {
+  console.log('loading finish called', data.nativeEvent);
+}
+
+export class DemoModel extends DemoSharedOpenNative {}

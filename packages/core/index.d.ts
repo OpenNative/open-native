@@ -10,7 +10,12 @@ export { Linking } from './Libraries/Linking/Linking';
 import EventEmitter from './Libraries/vendor/emitter/EventEmitter';
 export { AppRegistry } from './Libraries/ReactNative/AppRegistry';
 export { Alert } from './Libraries/Alert/Alert';
-export { ViewManagers, requireNativeView } from './src/android/viewmanagers';
+export { ViewManagersIOS, requireNativeViewIOS } from './src/ios/viewmanagers';
+export {
+  ViewManagersAndroid,
+  requireNativeViewAndroid,
+} from './src/android/viewmanagers';
+
 declare global {
   // eslint-disable-next-line no-var
   var reactNativeBridgeIOS: RCTBridge;

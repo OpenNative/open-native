@@ -62,7 +62,7 @@ export = async function (hookArgs: HookArgs) {
     );
     const outputViewManagerTypesPath = path.resolve(
       packageDir,
-      'src/android/view-manager-types.ts'
+      'src/android/view-manager-types.d.ts'
     );
     packageNames = await autolinkAndroid({
       packageDir,
@@ -91,7 +91,7 @@ export = async function (hookArgs: HookArgs) {
 
     const outputViewManagerTypesPath = path.resolve(
       packageDir,
-      'src/ios/view-manager-types.ts'
+      'src/ios/view-manager-types.d.ts'
     );
 
     packageNames = await autolinkIos({

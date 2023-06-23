@@ -11,7 +11,10 @@ export { Linking } from './Libraries/Linking/Linking';
 export const DeviceEventEmitter = RCTDeviceEventEmitter;
 export { Dimensions } from './Libraries/Utilities/Dimensions';
 export { Alert } from './Libraries/Alert/Alert';
-export { ViewManagers, requireNativeView } from './src/android/viewmanagers';
+export {
+  ViewManagersAndroid as ViewManagers,
+  requireNativeViewAndroid as requireNativeView,
+} from './src/android/viewmanagers';
 import { load as loadViewManagers } from './src/android/viewmanagers';
 /**
  * Loads all modules eagerly in a specific ReactPackage.

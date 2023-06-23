@@ -207,7 +207,7 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
 
       return {
         name: name.trim(),
-        type: extractMethodParamTypes(type.trim()) || type,
+        type: extractMethodParamTypes(type.trim()),
       };
     });
 

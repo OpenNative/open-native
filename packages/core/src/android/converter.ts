@@ -255,22 +255,13 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullArray: {
-        const isJsonArray =
-          typeof data === 'string' ? (data as string)?.startsWith('[') : false;
-        const jsonParsedObject = isJsonArray && fromJSON(data as string);
+        data = fromJSON(data as string);
         assert(
-          data === null ||
-            Array.isArray(data) ||
-            (isJsonArray && jsonParsedObject),
+          data === null || Array.isArray(data),
           `Argument at index ${i} expected an Array value, but got ${data}`
         );
 
-        nativeArguments.push(
-          toNativeValue(
-            isJsonArray ? jsonParsedObject : data,
-            false
-          ) as JavaJSONEquivalent
-        );
+        nativeArguments.push(toNativeValue(data, false) as JavaJSONEquivalent);
         break;
       }
 
@@ -281,19 +272,15 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullObject: {
-        const isJsonObject =
-          typeof data === 'string' ? (data as string)?.startsWith('{') : false;
-        const jsonParsedObject = isJsonObject && fromJSON(data as string);
+        data = fromJSON(data as string);
         assert(
-          data === null ||
-            data?.constructor === Object ||
-            (isJsonObject && jsonParsedObject),
+          data === null || data?.constructor === Object,
           `Argument at index ${i} expected an object value, but got ${data}`
         );
 
         nativeArguments.push(
           toNativeValue(
-            isJsonObject ? jsonParsedObject : (data as JSONSerialisable | null),
+            data as JSONSerialisable | null,
             false
           ) as JavaJSONEquivalent
         );
@@ -682,7 +669,7 @@ export function toNativeValue<T extends boolean>(
       return new java.lang.String(data);
     }
     if (typeof data === 'boolean') {
-      return new java.lang.Boolean(data)
+      return new java.lang.Boolean(data);
     }
   }
 

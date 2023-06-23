@@ -1,3 +1,4 @@
-import { requireNativeView } from '@open-native/core';
+import { Platform } from 'react-native';
+import { requireNativeViewIOS, requireNativeViewAndroid } from '@open-native/core';
 
-export const WebView = requireNativeView("RNCWebViewManager");
+export const WebView = Platform.OS === 'ios' ? requireNativeViewIOS('RNCWebView') : requireNativeViewAndroid('RNCWebViewManager' as never);

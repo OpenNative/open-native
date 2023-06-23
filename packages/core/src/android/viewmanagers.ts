@@ -118,25 +118,24 @@ class ViewManagerHolder
   }
 }
 
-export const ViewManagers: { [name: string]: ViewManagerHolder } = Object.keys(
-  NativeModuleMap
-).reduce((acc, moduleName) => {
-  if (NativeModuleMap[moduleName].v) {
-    acc[moduleName] = new ViewManagerHolder(moduleName);
-  }
-  return acc;
-}, {});
+export const ViewManagersAndroid: { [name: string]: ViewManagerHolder } =
+  Object.keys(NativeModuleMap).reduce((acc, moduleName) => {
+    if (NativeModuleMap[moduleName].v) {
+      acc[moduleName] = new ViewManagerHolder(moduleName);
+    }
+    return acc;
+  }, {});
 
-global.__viewManagerProxy = ViewManagers;
+global.__viewManagerProxy = ViewManagersAndroid;
 export const load = () => null;
 
 const _nativeViewCache = {};
 type ViewProps<K extends keyof ViewManagerInterfaces> =
   keyof ViewManagerInterfaces[K];
-export function requireNativeView<T extends keyof ViewManagerInterfaces>(
+export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
   key: T
 ): Omit<View, ViewProps<T>> & ViewManagerInterfaces[T] {
-  if (!ViewManagers[key as any]) {
+  if (!ViewManagersAndroid[key as any]) {
     throw new Error(`ViewManager with name ${name} was not found.`);
   }
   if (_nativeViewCache[key as string]) return _nativeViewCache[key as string];
@@ -144,10 +143,10 @@ export function requireNativeView<T extends keyof ViewManagerInterfaces>(
   return (_nativeViewCache[key as string] = class extends View {
     nativeProps: { [name: string]: any[] } = {};
     _viewTag: number;
-    _viewManager = ViewManagers[key as any];
+    _viewManager = ViewManagersAndroid[key as any];
     constructor() {
       super();
-      const viewManager = ViewManagers[key as any];
+      const viewManager = ViewManagersAndroid[key as any];
       for (const prop in viewManager.props) {
         Object.defineProperty(this, prop, {
           set(newValue) {

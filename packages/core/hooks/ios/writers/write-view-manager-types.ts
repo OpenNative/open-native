@@ -1,4 +1,8 @@
-import { ModuleNamesToMethodDescriptions, writeFile } from '../common';
+import {
+  ModuleNamesToMethodDescriptions,
+  RNObjcSerialisableType,
+  writeFile,
+} from '../common';
 
 function getJSEventName(eventName: string) {
   let jsEventName = eventName;
@@ -59,7 +63,7 @@ export async function writeViewManagerTypes({
     const props: string[] = [];
     const events: string[] = [];
     for (const prop of viewProps) {
-      if (typeof prop.type === 'number') {
+      if (prop.type !== RNObjcSerialisableType.RCTEventType) {
         props.push(`${prop.name}: ${ObjCTypeToTSTypeMap[prop.type] || 'any'}`);
       } else {
         events.push(getJSEventName(prop.name));
@@ -79,9 +83,11 @@ export interface ViewManagers {
       (module) => `"${module}":{
       ${interfaces[module].props.join('\n')}
 
-      ${
-        interfaces[module].events?.length > 0 ? `viewEventNames:` : ''
-      } ${interfaces[module].events.map((event) => `"${event}"`).join(' | ')}
+  viewEventNames: ${
+    interfaces[module].events.length === 0
+      ? '""'
+      : interfaces[module].events.map((event) => `"${event}"`).join(' | ')
+  }
   }`
     )
     .join('\n')}

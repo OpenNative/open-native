@@ -1,6 +1,5 @@
 import { DemoSharedBase } from '../utils';
-import {  NativeModules } from '@open-native/core';
-
+import { NativeModules } from '@open-native/core';
 
 async function measure(name: string, action: () => Promise<void>) {
   const start = performance.now();
