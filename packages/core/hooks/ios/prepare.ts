@@ -71,11 +71,11 @@ export async function autolinkIos({
   );
 
   await Promise.all([
-    await writeRNPodspecsHeaderFile({
-      importDecls: autolinkingInfo.map(({ importDecl }) => importDecl),
-      headerEntries: autolinkingInfo.map(({ headerEntry }) => headerEntry),
-      outputHeaderPath,
-    }),
+    // await writeRNPodspecsHeaderFile({
+    //   importDecls: autolinkingInfo.map(({ importDecl }) => importDecl),
+    //   headerEntries: autolinkingInfo.map(({ headerEntry }) => headerEntry),
+    //   outputHeaderPath,
+    // }),
 
     await writePodfile({
       autolinkedDeps: autolinkingInfo.map(({ podfileEntry }) => podfileEntry),
@@ -91,10 +91,10 @@ export async function autolinkIos({
       outputPodspecPath,
     }),
 
-    await writeModuleMapFile({
-      moduleNamesToMethodDescriptions: moduleNamesToMethodDescriptionsCombined,
-      outputModuleMapPath,
-    }),
+    // await writeModuleMapFile({
+    //   moduleNamesToMethodDescriptions: moduleNamesToMethodDescriptionsCombined,
+    //   outputModuleMapPath,
+    // }),
   ]);
 
   return autolinkingInfo.map(({ packageName }) => packageName);

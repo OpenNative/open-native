@@ -37,15 +37,15 @@ export async function extractPackageModules(folder: string) {
       const superclassName = moduleClassSignature.match(
         /(?:extends\s+|:)(\w+)/
       )?.[1];
-      if (!superclassName) {
-        continue;
-      }
-
+      // if (!superclassName) {
+      //   continue;
+      // }
       moduleDeclarationMatches.push({
         contents: file,
         match: moduleDeclarationMatch,
         superclassName,
-        isPublic: file.indexOf('public class') > -1,
+        isPublic:
+          file.indexOf('public class') > -1 || file.includes('//#kotlin'),
       });
     }
   }

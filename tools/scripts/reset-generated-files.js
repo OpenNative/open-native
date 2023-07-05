@@ -33,7 +33,7 @@ fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/Podfile
 
 fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_community/modulemap.json'), '{}\n', 'utf-8');
 
-fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_community/RNPodspecs.h'), '{}\n', 'utf-8');
+fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/lib_community/RNPodspecs.h'), '@interface RNPodspecs: NSObject\n@end\n', 'utf-8');
 
 fs.writeFileSync(path.resolve(monorepoRoot, 'packages/core/platforms/ios/React-Native-Podspecs.podspec'), '{}\n', 'utf-8');
 
@@ -53,7 +53,7 @@ if (distExists) {
 
   fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/platforms/ios/lib_community/modulemap.json'), '{}\n', 'utf-8');
 
-  fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/platforms/ios/lib_community/RNPodspecs.h'), '{}\n', 'utf-8');
+  fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/platforms/ios/lib_community/RNPodspecs.h'), '@interface RNPodspecs: NSObject\n@end\n', 'utf-8');
 
   fs.writeFileSync(path.resolve(monorepoRoot, 'dist/packages/core/platforms/ios/React-Native-Podspecs.podspec'), '{}\n', 'utf-8');
 }

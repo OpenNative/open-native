@@ -130,7 +130,6 @@ export interface ModuleNamesToMethodDescriptionsMinimal {
 }
 
 export type OpenNativeConfig = {
-  patchAndroidApplication?: boolean;
   modules: {
     [name: string]: {
       ios: {

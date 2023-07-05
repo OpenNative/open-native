@@ -3,6 +3,9 @@ package com.testmodule;
 
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.Promise;
@@ -10,6 +13,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableMap;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -36,6 +40,21 @@ public class RNTestModule extends ReactContextBaseJavaModule {
     constants.put(DURATION_SHORT_KEY, Toast.LENGTH_SHORT);
     constants.put(DURATION_LONG_KEY, Toast.LENGTH_LONG);
     return constants;
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  public boolean testSyncMethod() {
+    return true;
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  public ReadableMap testMethodNonNull(@NonNull ReadableMap map) {
+    return map;
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  public ReadableMap testMethodNullable(@Nullable ReadableMap map) {
+    return map;
   }
 
   @ReactMethod

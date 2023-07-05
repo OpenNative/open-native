@@ -108,49 +108,49 @@ export async function autolinkAndroid({
       outputIncludeGradlePath,
     }),
 
-    await writeModuleMapFile({
-      // The autolinking info is essentially an array where each member
-      // describes a package. Each package can have several modules, so we
-      // reduce all the modules across all the packages into a single module
-      // map.
-      moduleMap: autolinkingInfo.reduce((acc, { modules }) => {
-        modules.forEach(
-          ({
-            exportedMethods,
-            exportedModuleName,
-            exportsConstants,
-            moduleImportNameJs,
-          }) => {
-            acc[exportedModuleName] = {
-              e: exportsConstants,
-              j: moduleImportNameJs,
-              m: exportedMethods.reduce(
-                (
-                  innerAcc,
-                  {
-                    exportedMethodName,
-                    isBlockingSynchronousMethod,
-                    methodNameJs,
-                    methodTypesParsed,
-                  }
-                ) => {
-                  innerAcc[exportedMethodName] = {
-                    b: isBlockingSynchronousMethod,
-                    j: methodNameJs,
-                    t: methodTypesParsed,
-                  };
-                  return innerAcc;
-                },
-                {}
-              ),
-            };
-          }
-        );
+    // await writeModuleMapFile({
+    //   // The autolinking info is essentially an array where each member
+    //   // describes a package. Each package can have several modules, so we
+    //   // reduce all the modules across all the packages into a single module
+    //   // map.
+    //   moduleMap: autolinkingInfo.reduce((acc, { modules }) => {
+    //     modules.forEach(
+    //       ({
+    //         exportedMethods,
+    //         exportedModuleName,
+    //         exportsConstants,
+    //         moduleImportNameJs,
+    //       }) => {
+    //         acc[exportedModuleName] = {
+    //           e: exportsConstants,
+    //           j: moduleImportNameJs,
+    //           m: exportedMethods.reduce(
+    //             (
+    //               innerAcc,
+    //               {
+    //                 exportedMethodName,
+    //                 isBlockingSynchronousMethod,
+    //                 methodNameJs,
+    //                 methodTypesParsed,
+    //               }
+    //             ) => {
+    //               innerAcc[exportedMethodName] = {
+    //                 b: isBlockingSynchronousMethod,
+    //                 j: methodNameJs,
+    //                 t: methodTypesParsed,
+    //               };
+    //               return innerAcc;
+    //             },
+    //             {}
+    //           ),
+    //         };
+    //       }
+    //     );
 
-        return acc;
-      }, {}),
-      outputModuleMapPath,
-    }),
+    //     return acc;
+    //   }, {}),
+    //   outputModuleMapPath,
+    // }),
   ]);
 
   return autolinkingInfo.map(({ packageName }) => packageName);

@@ -47,5 +47,12 @@ export function extractClassDeclarationForModule(file: string) {
   const moduleMatch = file.match(
     /class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ReactContextBaseJavaModule/
   );
-  return moduleMatch;
+
+  if (moduleMatch) return moduleMatch;
+
+  const ktModuleMatch = file.match(
+    /class\s+(\w+)(\s+|)\(.*\)(\s+|):(\s+|)ReactContextBaseJavaModule/gm
+  );
+
+  return ktModuleMatch;
 }

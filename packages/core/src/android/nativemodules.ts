@@ -8,34 +8,18 @@ import {
   toJSValue,
   toNativeArguments,
 } from './converter';
+import { ModuleMetadata, parseModuleMetadata } from './metadata';
 import { BaseJavaModule, Bridge } from './types';
-import {
-  isPromise,
-  RNNativeModuleMetadata,
-  TModuleMethodsType,
-  TNativeModuleMap,
-} from './utils';
-
-const NativeModuleMap =
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require('../../react-android/bridge/modulemap.json') as TNativeModuleMap;
+import { isPromise } from './utils';
 
 class NativeModuleHolder implements Partial<NativeModule> {
-  /**
-   * The JSModuleInvoker in JSModules() will be indexing into NativeModuleHolder
-   * to call methods upon it, so the class needs an index signature expressing
-   * the union of all possible values for keys on the class.
-   */
-  [key: string]: typeof key extends keyof NativeModuleHolder
-    ? { [P in keyof NativeModuleHolder]: NativeModuleHolder[P] }
-    : ((...args: unknown[]) => number) | JSONSerialisable;
-
   private readonly bridge: Bridge = getCurrentBridge();
-  private readonly moduleMetadata: RNNativeModuleMetadata | undefined;
+  private readonly moduleMetadata: ModuleMetadata | undefined;
   private nativeModuleInstance: com.facebook.react.bridge.BaseJavaModule | null;
+  public constants: { [name: string]: JSONSerialisable } = {};
 
   constructor(public moduleName: string) {
-    this.moduleMetadata = NativeModuleMap[this.moduleName];
+    this.moduleMetadata = parseModuleMetadata(moduleName);
 
     if (!this.moduleMetadata) {
       console.warn(
@@ -43,13 +27,9 @@ class NativeModuleHolder implements Partial<NativeModule> {
       );
     }
 
-    if (this.moduleMetadata?.e) {
-      this.loadConstants();
-    }
+    this.loadConstants();
 
-    if (this.moduleMetadata?.m) {
-      this.wrapNativeMethods(this.moduleMetadata?.m);
-    }
+    this.wrapNativeMethods();
   }
 
   addListener = (...args: any[]) => {
@@ -69,16 +49,6 @@ class NativeModuleHolder implements Partial<NativeModule> {
    * loaded upon access by a method call.
    */
   get nativeModule(): BaseJavaModule {
-    // I'm unclear whether we need to look up via the Obj-C name or the exported
-    // name. Looking up 'RCTLinkingManager' (the Obj-C and JS name) fails, but
-    // 'LinkingManager' (the exported name, or perhaps just the Obj-C name with
-    // 'RCT' stripped) succeeds.
-    //
-    // If we ever find that this fails to find modules with aliased names, then
-    // I think we can conclude that it's instead the Obj-C name (which is
-    // identical to the jsName exposed in the modulemap) with 'RCT' removed.
-    // We'll know it's failed because we'll see the warning.
-
     this.nativeModuleInstance =
       this.nativeModuleInstance ||
       (this.bridge.getModuleByName(this.moduleName) as BaseJavaModule);
@@ -96,27 +66,18 @@ class NativeModuleHolder implements Partial<NativeModule> {
     const exportedConstants:
       | java.util.Map<string, JavaJSONEquivalent>
       | undefined = this.nativeModule.getConstants?.();
-    if (!exportedConstants) {
-      console.warn(
-        `${this.moduleName} specifies that it has exported constants, but has returned ${exportedConstants}.`
-      );
-      return;
-    }
 
+    if (!exportedConstants) return;
     // Convert the constants from Obj-C to JS.
-    const constantsAsJs = toJSValue(exportedConstants) as Record<
+    this.constants = toJSValue(exportedConstants) as Record<
       string,
       JSONSerialisable
     >;
-    if (!constantsAsJs) {
-      console.warn(
-        `${this.moduleName} specifies that it has exported constants, but they weren't serialisable.`
-      );
-      return;
-    }
-    this.constants = constantsAsJs;
-    for (const key in constantsAsJs) {
-      this[key] = constantsAsJs[key];
+
+    if (!this.constants) return;
+
+    for (const key in this.constants) {
+      this[key] = this.constants[key];
     }
   }
 
@@ -124,33 +85,45 @@ class NativeModuleHolder implements Partial<NativeModule> {
     return this.constants;
   }
 
-  private wrapNativeMethods(moduleMethods: TModuleMethodsType): void {
-    for (const exportedMethodName in moduleMethods) {
-      const { j: jsName, t: methodTypes } = moduleMethods[exportedMethodName];
+  private wrapNativeMethods(): void {
+    for (const exportedMethodName in this.moduleMetadata) {
+      const { types } = this.moduleMetadata[exportedMethodName];
       this[exportedMethodName] = (...args: RNNativeModuleArgType[]) => {
         if (!this.nativeModule) {
           throw new Error(
             `Unable to wrap method "${exportedMethodName}" on module "${this.moduleName}" as the module was not found in the bridge.`
           );
         }
-
-        if (isPromise(moduleMethods, exportedMethodName)) {
-          return promisify(this.nativeModule, jsName, methodTypes, args);
+        if (isPromise(types)) {
+          return promisify(this.nativeModule, exportedMethodName, types, args);
         }
-        return this.nativeModule[jsName]?.(
-          ...toNativeArguments(methodTypes, args)
+
+        return toJSValue(
+          this.nativeModule[exportedMethodName]?.(
+            ...toNativeArguments(types, args)
+          )
         );
       };
     }
   }
 }
 
-export const NativeModules = Object.keys(NativeModuleMap).reduce(
-  (acc, moduleName) => {
-    acc[moduleName] = new NativeModuleHolder(moduleName);
-    return acc;
+const nativeModuleProxyHandle: ProxyHandler<{}> = {
+  get: (target, prop) => {
+    if (target[prop]) return target[prop];
+    if (!getCurrentBridge().isModuleAvailable(prop as string)) {
+      console.warn(
+        `Trying to get a Native Module "${
+          prop as string
+        }" does not exist in the native module registry.`
+      );
+      return null;
+    }
+
+    return (target[prop] = new NativeModuleHolder(prop as string));
   },
-  {}
-);
+};
+
+export const NativeModules = new Proxy({}, nativeModuleProxyHandle);
 global.__turboModulesProxy = NativeModules;
 export const load = () => null;

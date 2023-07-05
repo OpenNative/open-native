@@ -1,5 +1,7 @@
 package com.facebook.react.uimanager;
 
-public class ViewManager {
+import android.view.View;
+
+public class ViewManager<T extends View, C extends ReactShadowNode> {
 
 }

@@ -1,6 +1,5 @@
 import type { HookArgs } from './hookArgs';
 import { writeSettingsGradleFile } from './android/writers/settings-gradle';
-import { writeAndroidApplication } from './android/writers/android-application';
 import { resolvePackagePath } from '@rigor789/resolve-package-path';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -13,9 +12,6 @@ const logPrefix = '[@open-native/core/hooks/before-prepareNativeApp.js]';
 export = async function (hookArgs: HookArgs) {
   const platformName = hookArgs?.prepareData?.platform;
 
-  const patchAndroidApplication =
-    hookArgs.projectData.nsConfig?.['open-native']?.patchAndroidApplication;
-
   if (platformName !== 'android' && platformName !== 'ios') {
     console.warn(
       `${logPrefix} Unrecognised platform, ${platformName} - unable to link React Native native modules.`
@@ -25,9 +21,6 @@ export = async function (hookArgs: HookArgs) {
   const { projectDir } = hookArgs.projectData;
   if (platformName === 'android') {
     await writeSettingsGradleFile(projectDir);
-    if (patchAndroidApplication) {
-      await writeAndroidApplication(projectDir);
-    }
     try {
       const reactNativeDir = resolvePackagePath('react-native', {
         paths: [projectDir],

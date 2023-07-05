@@ -1,103 +1,6 @@
 /// <reference path="android-declarations.d.ts"/>
 
 declare module com {
-  export module auth0 {
-    export module react {
-      export class A0Auth0Module
-        extends com.facebook.react.bridge.ReactContextBaseJavaModule
-        implements com.facebook.react.bridge.ActivityEventListener
-      {
-        public static class: java.lang.Class<com.auth0.react.A0Auth0Module>;
-        public getConstants(): java.util.Map<string, any>;
-        public constructor(
-          param0: com.facebook.react.bridge.ReactApplicationContext
-        );
-        public getName(): string;
-        public onCatalystInstanceDestroy(): void;
-        public oauthParameters(
-          param0: com.facebook.react.bridge.Callback
-        ): void;
-        public constructor();
-        public showUrl(
-          param0: string,
-          param1: boolean,
-          param2: com.facebook.react.bridge.Callback
-        ): void;
-        public hide(): void;
-        public initialize(): void;
-        public canOverrideExistingModule(): boolean;
-        public onNewIntent(param0: globalAndroid.content.Intent): void;
-        public invalidate(): void;
-        public onActivityResult(
-          param0: globalAndroid.app.Activity,
-          param1: number,
-          param2: number,
-          param3: globalAndroid.content.Intent
-        ): void;
-      }
-    }
-  }
-}
-
-declare module com {
-  export module auth0 {
-    export module react {
-      export class A0Auth0Package extends com.facebook.react.ReactPackage {
-        public static class: java.lang.Class<com.auth0.react.A0Auth0Package>;
-        public createNativeModules(
-          param0: com.facebook.react.bridge.ReactApplicationContext
-        ): java.util.List<com.facebook.react.bridge.NativeModule>;
-        public createViewManagers(
-          param0: com.facebook.react.bridge.ReactApplicationContext
-        ): java.util.List<com.facebook.react.uimanager.ViewManager>;
-        public constructor();
-      }
-    }
-  }
-}
-
-declare module com {
-  export module auth0 {
-    export module react {
-      export class AuthenticationActivity {
-        public static class: java.lang.Class<com.auth0.react.AuthenticationActivity>;
-        public onCreate(param0: globalAndroid.os.Bundle): void;
-        public onResume(): void;
-        public onNewIntent(param0: globalAndroid.content.Intent): void;
-        public onSaveInstanceState(param0: globalAndroid.os.Bundle): void;
-        public constructor();
-      }
-    }
-  }
-}
-
-declare module com {
-  export module auth0 {
-    export module react {
-      export class BuildConfig {
-        public static class: java.lang.Class<com.auth0.react.BuildConfig>;
-        public static DEBUG: boolean;
-        public static LIBRARY_PACKAGE_NAME: string;
-        public static BUILD_TYPE: string;
-        public constructor();
-      }
-    }
-  }
-}
-
-declare module com {
-  export module auth0 {
-    export module react {
-      export class RedirectActivity {
-        public static class: java.lang.Class<com.auth0.react.RedirectActivity>;
-        public onCreate(param0: globalAndroid.os.Bundle): void;
-        public constructor();
-      }
-    }
-  }
-}
-
-declare module com {
   export module bridge {
     export class Bridge {
       public static class: java.lang.Class<com.bridge.Bridge>;
@@ -112,11 +15,15 @@ declare module com {
         param0: com.facebook.react.bridge.ReactApplicationContext
       );
       public loadModulesForPackage(param0: string): void;
+      public isModuleAvailable(param0: string): boolean;
       public getModuleByName(
         param0: string
       ): com.facebook.react.bridge.NativeModule;
       public loadModules(): void;
       public hasNativeModule(param0: java.lang.Class<any>): boolean;
+      public getModuleMethods(
+        param0: string
+      ): java.util.Map<string, java.util.Map<string, any>>;
       public getModuleForClass(
         param0: java.lang.Class<any>
       ): com.facebook.react.bridge.NativeModule;
@@ -281,6 +188,39 @@ declare module com {
             com.facebook.react.turbomodule.core.interfaces.TurboModule
         {
           public static class: java.lang.Class<com.facebook.fbreact.specs.NativeDeviceInfoSpec>;
+          public getConstants(): java.util.Map<string, any>;
+          public onCatalystInstanceDestroy(): void;
+          public constructor();
+          public getName(): string;
+          public canOverrideExistingModule(): boolean;
+          public constructor(
+            param0: com.facebook.react.bridge.ReactApplicationContext
+          );
+          public initialize(): void;
+          public getTypedExportedConstants(): java.util.Map<string, any>;
+          public invalidate(): void;
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module fbreact {
+      export module specs {
+        export abstract class NativeDialogManagerAndroidSpec
+          extends com.facebook.react.bridge.ReactContextBaseJavaModule
+          implements
+            com.facebook.react.bridge.ReactModuleWithSpec,
+            com.facebook.react.turbomodule.core.interfaces.TurboModule
+        {
+          public static class: java.lang.Class<com.facebook.fbreact.specs.NativeDialogManagerAndroidSpec>;
+          public showAlert(
+            param0: com.facebook.react.bridge.ReadableMap,
+            param1: com.facebook.react.bridge.Callback,
+            param2: com.facebook.react.bridge.Callback
+          ): void;
           public getConstants(): java.util.Map<string, any>;
           public onCatalystInstanceDestroy(): void;
           public constructor();
@@ -615,6 +555,40 @@ declare module com {
 declare module com {
   export module facebook {
     export module react {
+      export abstract class HeadlessJsTaskService
+        implements com.facebook.react.jstasks.HeadlessJsTaskEventListener
+      {
+        public static class: java.lang.Class<com.facebook.react.HeadlessJsTaskService>;
+        public onHeadlessJsTaskFinish(param0: number): void;
+        public onBind(
+          param0: globalAndroid.content.Intent
+        ): globalAndroid.os.IBinder;
+        public onStartCommand(
+          param0: globalAndroid.content.Intent,
+          param1: number,
+          param2: number
+        ): number;
+        public getTaskConfig(
+          param0: globalAndroid.content.Intent
+        ): com.facebook.react.jstasks.HeadlessJsTaskConfig;
+        public static acquireWakeLockNow(
+          param0: globalAndroid.content.Context
+        ): void;
+        public onHeadlessJsTaskStart(param0: number): void;
+        public getReactNativeHost(): com.facebook.react.ReactNativeHost;
+        public onDestroy(): void;
+        public startTask(
+          param0: com.facebook.react.jstasks.HeadlessJsTaskConfig
+        ): void;
+        public constructor();
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
       export class RNCoreModulesPackage extends com.facebook.react
         .ReactPackage {
         public static class: java.lang.Class<com.facebook.react.RNCoreModulesPackage>;
@@ -623,8 +597,99 @@ declare module com {
         ): java.util.List<com.facebook.react.bridge.NativeModule>;
         public createViewManagers(
           param0: com.facebook.react.bridge.ReactApplicationContext
-        ): java.util.List<com.facebook.react.uimanager.ViewManager>;
+        ): java.util.List<com.facebook.react.uimanager.ViewManager<any, any>>;
         public constructor();
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export class ReactApplication {
+        public static class: java.lang.Class<com.facebook.react.ReactApplication>;
+        /**
+         * Constructs a new instance of the com.facebook.react.ReactApplication interface with the provided implementation. An empty constructor exists calling super() when extending the interface class.
+         */
+        public constructor(implementation: {
+          getReactNativeHost(): com.facebook.react.ReactNativeHost;
+        });
+        public constructor();
+        public getReactNativeHost(): com.facebook.react.ReactNativeHost;
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export class ReactCustomApplication
+        extends android.app.Application
+        implements com.facebook.react.ReactApplication
+      {
+        public static class: java.lang.Class<com.facebook.react.ReactCustomApplication>;
+        public static mReactNativeHost: com.facebook.react.ReactNativeHost;
+        public getReactNativeHost(): com.facebook.react.ReactNativeHost;
+        public constructor();
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export class ReactInstanceManager {
+        public static class: java.lang.Class<com.facebook.react.ReactInstanceManager>;
+        public addReactInstanceEventListener(
+          param0: com.facebook.react.ReactInstanceManager.ReactInstanceEventListener
+        ): void;
+        public hasStartedCreatingInitialContext(): boolean;
+        public getCurrentReactContext(): com.facebook.react.bridge.ReactContext;
+        public setupReactContext(
+          param0: com.facebook.react.bridge.ReactApplicationContext
+        ): void;
+        public removeReactInstanceEventListener(
+          param0: com.facebook.react.ReactInstanceManager.ReactInstanceEventListener
+        ): void;
+        public getJsExecutorName(): string;
+        public createReactContextInBackground(): void;
+      }
+      export module ReactInstanceManager {
+        export class ReactInstanceEventListener {
+          public static class: java.lang.Class<com.facebook.react.ReactInstanceManager.ReactInstanceEventListener>;
+          /**
+           * Constructs a new instance of the com.facebook.react.ReactInstanceManager$ReactInstanceEventListener interface with the provided implementation. An empty constructor exists calling super() when extending the interface class.
+           */
+          public constructor(implementation: {
+            onReactContextInitialized(
+              param0: com.facebook.react.bridge.ReactContext
+            ): void;
+          });
+          public constructor();
+          public onReactContextInitialized(
+            param0: com.facebook.react.bridge.ReactContext
+          ): void;
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export class ReactNativeHost {
+        public static class: java.lang.Class<com.facebook.react.ReactNativeHost>;
+        public constructor(param0: globalAndroid.app.Application);
+        public createReactInstanceManager(): com.facebook.react.ReactInstanceManager;
+        public clear(): void;
+        public getReactInstanceManager(): com.facebook.react.ReactInstanceManager;
+        public getApplication(): globalAndroid.app.Application;
+        public getShouldRequireActivity(): boolean;
+        public hasInstance(): boolean;
       }
     }
   }
@@ -644,7 +709,7 @@ declare module com {
           ): java.util.List<com.facebook.react.bridge.NativeModule>;
           createViewManagers(
             param0: com.facebook.react.bridge.ReactApplicationContext
-          ): java.util.List<com.facebook.react.uimanager.ViewManager>;
+          ): java.util.List<com.facebook.react.uimanager.ViewManager<any, any>>;
         });
         public constructor();
         public createNativeModules(
@@ -652,7 +717,7 @@ declare module com {
         ): java.util.List<com.facebook.react.bridge.NativeModule>;
         public createViewManagers(
           param0: com.facebook.react.bridge.ReactApplicationContext
-        ): java.util.List<com.facebook.react.uimanager.ViewManager>;
+        ): java.util.List<com.facebook.react.uimanager.ViewManager<any, any>>;
       }
     }
   }
@@ -670,13 +735,13 @@ declare module com {
         ): com.facebook.react.bridge.NativeModule;
         public getViewManagers(
           param0: com.facebook.react.bridge.ReactApplicationContext
-        ): java.util.List<com.facebook.react.uimanager.ViewManager>;
+        ): java.util.List<com.facebook.react.uimanager.ViewManager<any, any>>;
         public createNativeModules(
           param0: com.facebook.react.bridge.ReactApplicationContext
         ): java.util.List<com.facebook.react.bridge.NativeModule>;
         public createViewManagers(
           param0: com.facebook.react.bridge.ReactApplicationContext
-        ): java.util.List<com.facebook.react.uimanager.ViewManager>;
+        ): java.util.List<com.facebook.react.uimanager.ViewManager<any, any>>;
         public getReactModuleInfoProvider(): com.facebook.react.module.model.ReactModuleInfoProvider;
         public constructor();
       }
@@ -768,6 +833,33 @@ declare module com {
         export class AssertionException {
           public static class: java.lang.Class<com.facebook.react.bridge.AssertionException>;
           public constructor(param0: string);
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module bridge {
+        export class BaseActivityEventListener extends com.facebook.react.bridge
+          .ActivityEventListener {
+          public static class: java.lang.Class<com.facebook.react.bridge.BaseActivityEventListener>;
+          public onNewIntent(param0: globalAndroid.content.Intent): void;
+          public constructor();
+          public onActivityResult(
+            param0: globalAndroid.app.Activity,
+            param1: number,
+            param2: number,
+            param3: globalAndroid.content.Intent
+          ): void;
+          /** @deprecated */
+          public onActivityResult(
+            param0: number,
+            param1: number,
+            param2: globalAndroid.content.Intent
+          ): void;
         }
       }
     }
@@ -1098,6 +1190,25 @@ declare module com {
             param0: string
           ): com.facebook.react.bridge.JSIModuleType;
           public static values(): androidNative.Array<com.facebook.react.bridge.JSIModuleType>;
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module bridge {
+        export class JSONUtils {
+          public static class: java.lang.Class<com.facebook.react.bridge.JSONUtils>;
+          public static fromHashMap(
+            param0: java.util.Map<string, any>
+          ): com.facebook.react.bridge.WritableMap;
+          public static fromArrayList(
+            param0: java.util.List<any>
+          ): com.facebook.react.bridge.WritableArray;
+          public constructor();
         }
       }
     }
@@ -2285,6 +2396,104 @@ declare module com {
   export module facebook {
     export module react {
       export module common {
+        export class MapBuilder {
+          public static class: java.lang.Class<com.facebook.react.common.MapBuilder>;
+          public static of(param0: any, param1: any): java.util.Map<any, any>;
+          public static of(
+            param0: any,
+            param1: any,
+            param2: any,
+            param3: any,
+            param4: any,
+            param5: any,
+            param6: any,
+            param7: any,
+            param8: any,
+            param9: any,
+            param10: any,
+            param11: any,
+            param12: any,
+            param13: any
+          ): java.util.Map<any, any>;
+          public static of(
+            param0: any,
+            param1: any,
+            param2: any,
+            param3: any
+          ): java.util.Map<any, any>;
+          public static of(
+            param0: any,
+            param1: any,
+            param2: any,
+            param3: any,
+            param4: any,
+            param5: any,
+            param6: any,
+            param7: any
+          ): java.util.Map<any, any>;
+          public static newHashMap(): java.util.HashMap<any, any>;
+          public constructor();
+          public static builder(): com.facebook.react.common.MapBuilder.Builder<
+            any,
+            any
+          >;
+          public static of(): java.util.Map<any, any>;
+          public static of(
+            param0: any,
+            param1: any,
+            param2: any,
+            param3: any,
+            param4: any,
+            param5: any
+          ): java.util.Map<any, any>;
+          public static of(
+            param0: any,
+            param1: any,
+            param2: any,
+            param3: any,
+            param4: any,
+            param5: any,
+            param6: any,
+            param7: any,
+            param8: any,
+            param9: any,
+            param10: any,
+            param11: any
+          ): java.util.Map<any, any>;
+          public static of(
+            param0: any,
+            param1: any,
+            param2: any,
+            param3: any,
+            param4: any,
+            param5: any,
+            param6: any,
+            param7: any,
+            param8: any,
+            param9: any
+          ): java.util.Map<any, any>;
+        }
+        export module MapBuilder {
+          export class Builder<K, V> extends java.lang.Object {
+            public static class: java.lang.Class<
+              com.facebook.react.common.MapBuilder.Builder<any, any>
+            >;
+            public build(): java.util.Map<K, V>;
+            public put(
+              param0: K,
+              param1: V
+            ): com.facebook.react.common.MapBuilder.Builder<K, V>;
+          }
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module common {
         export class ReactConstants {
           public static class: java.lang.Class<com.facebook.react.common.ReactConstants>;
           public static TAG: string;
@@ -2683,29 +2892,6 @@ declare module com {
     export module react {
       export module modules {
         export module core {
-          export class RCTNativeAppEventEmitter extends com.facebook.react
-            .bridge.JavaScriptModule {
-            public static class: java.lang.Class<com.facebook.react.modules.core.RCTNativeAppEventEmitter>;
-            /**
-             * Constructs a new instance of the com.facebook.react.modules.core.RCTNativeAppEventEmitter interface with the provided implementation. An empty constructor exists calling super() when extending the interface class.
-             */
-            public constructor(implementation: {
-              emit(param0: string, param1: any): void;
-            });
-            public constructor();
-            public emit(param0: string, param1: any): void;
-          }
-        }
-      }
-    }
-  }
-}
-
-declare module com {
-  export module facebook {
-    export module react {
-      export module modules {
-        export module core {
           export class DeviceEventManagerModule extends com.facebook.react
             .bridge.ReactContextBaseJavaModule {
             public static class: java.lang.Class<com.facebook.react.modules.core.DeviceEventManagerModule>;
@@ -2850,6 +3036,127 @@ declare module com {
   export module facebook {
     export module react {
       export module modules {
+        export module core {
+          export class RCTNativeAppEventEmitter extends com.facebook.react
+            .bridge.JavaScriptModule {
+            public static class: java.lang.Class<com.facebook.react.modules.core.RCTNativeAppEventEmitter>;
+            /**
+             * Constructs a new instance of the com.facebook.react.modules.core.RCTNativeAppEventEmitter interface with the provided implementation. An empty constructor exists calling super() when extending the interface class.
+             */
+            public constructor(implementation: {
+              emit(param0: string, param1: any): void;
+            });
+            public constructor();
+            public emit(param0: string, param1: any): void;
+          }
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module modules {
+        export module dialog {
+          export class AlertFragment {
+            public static class: java.lang.Class<com.facebook.react.modules.dialog.AlertFragment>;
+            public constructor();
+            public constructor(
+              param0: com.facebook.react.modules.dialog.DialogModule.AlertFragmentListener,
+              param1: globalAndroid.os.Bundle
+            );
+            public onDismiss(
+              param0: globalAndroid.content.DialogInterface
+            ): void;
+            public onClick(
+              param0: globalAndroid.content.DialogInterface,
+              param1: number
+            ): void;
+            public onCreateDialog(
+              param0: globalAndroid.os.Bundle
+            ): globalAndroid.app.Dialog;
+            public static createDialog(
+              param0: globalAndroid.content.Context,
+              param1: globalAndroid.os.Bundle,
+              param2: globalAndroid.content.DialogInterface.OnClickListener
+            ): globalAndroid.app.Dialog;
+          }
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module modules {
+        export module dialog {
+          export class DialogModule
+            extends com.facebook.fbreact.specs.NativeDialogManagerAndroidSpec
+            implements com.facebook.react.bridge.LifecycleEventListener
+          {
+            public static class: java.lang.Class<com.facebook.react.modules.dialog.DialogModule>;
+            public static NAME: string;
+            public constructor();
+            public onHostDestroy(): void;
+            public invalidate(): void;
+            public constructor(
+              param0: com.facebook.react.bridge.ReactApplicationContext
+            );
+            public canOverrideExistingModule(): boolean;
+            public initialize(): void;
+            public getTypedExportedConstants(): java.util.Map<string, any>;
+            public showAlert(
+              param0: com.facebook.react.bridge.ReadableMap,
+              param1: com.facebook.react.bridge.Callback,
+              param2: com.facebook.react.bridge.Callback
+            ): void;
+            public onCatalystInstanceDestroy(): void;
+            public onHostResume(): void;
+            public getName(): string;
+            public onHostPause(): void;
+          }
+          export module DialogModule {
+            export class AlertFragmentListener {
+              public static class: java.lang.Class<com.facebook.react.modules.dialog.DialogModule.AlertFragmentListener>;
+              public onDismiss(
+                param0: globalAndroid.content.DialogInterface
+              ): void;
+              public onClick(
+                param0: globalAndroid.content.DialogInterface,
+                param1: number
+              ): void;
+              public constructor(
+                param0: com.facebook.react.modules.dialog.DialogModule,
+                param1: com.facebook.react.bridge.Callback
+              );
+            }
+            export class FragmentManagerHelper {
+              public static class: java.lang.Class<com.facebook.react.modules.dialog.DialogModule.FragmentManagerHelper>;
+              public showNewAlert(
+                param0: globalAndroid.os.Bundle,
+                param1: com.facebook.react.bridge.Callback
+              ): void;
+              public constructor(
+                param0: com.facebook.react.modules.dialog.DialogModule,
+                param1: androidx.fragment.app.FragmentManager
+              );
+              public showPendingAlert(): void;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module modules {
         export module intent {
           export class IntentModule extends com.facebook.fbreact.specs
             .NativeIntentAndroidSpec {
@@ -2941,6 +3248,86 @@ declare module com {
 declare module com {
   export module facebook {
     export module react {
+      export module modules {
+        export module systeminfo {
+          export class AndroidInfoHelpers {
+            public static class: java.lang.Class<com.facebook.react.modules.systeminfo.AndroidInfoHelpers>;
+            public static EMULATOR_LOCALHOST: string;
+            public static GENYMOTION_LOCALHOST: string;
+            public static DEVICE_LOCALHOST: string;
+            public static METRO_HOST_PROP_NAME: string;
+            public static getAdbReverseTcpCommand(
+              param0: java.lang.Integer
+            ): string;
+            public constructor();
+            public static getInspectorProxyHost(
+              param0: globalAndroid.content.Context
+            ): string;
+            public static getFriendlyDeviceName(): string;
+            public static getServerHost(param0: java.lang.Integer): string;
+            public static getServerHost(
+              param0: globalAndroid.content.Context
+            ): string;
+            public static getAdbReverseTcpCommand(
+              param0: globalAndroid.content.Context
+            ): string;
+          }
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module modules {
+        export module systeminfo {
+          export class AndroidInfoModule
+            extends com.facebook.fbreact.specs
+              .NativePlatformConstantsAndroidSpec
+            implements
+              com.facebook.react.turbomodule.core.interfaces.TurboModule
+          {
+            public static class: java.lang.Class<com.facebook.react.modules.systeminfo.AndroidInfoModule>;
+            public static NAME: string;
+            public constructor();
+            public invalidate(): void;
+            public constructor(
+              param0: com.facebook.react.bridge.ReactApplicationContext
+            );
+            public canOverrideExistingModule(): boolean;
+            public initialize(): void;
+            public getTypedExportedConstants(): java.util.Map<string, any>;
+            public onCatalystInstanceDestroy(): void;
+            public getAndroidID(): string;
+            public getName(): string;
+          }
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
+      export module modules {
+        export module systeminfo {
+          export class ReactNativeVersion {
+            public static class: java.lang.Class<com.facebook.react.modules.systeminfo.ReactNativeVersion>;
+            public static VERSION: java.util.Map<string, any>;
+            public constructor();
+          }
+        }
+      }
+    }
+  }
+}
+
+declare module com {
+  export module facebook {
+    export module react {
       export module turbomodule {
         export module core {
           export module interfaces {
@@ -2968,8 +3355,8 @@ declare module com {
   export module facebook {
     export module react {
       export module uimanager {
-        export class ViewManager {
-          public static class: java.lang.Class<com.facebook.react.uimanager.ViewManager>;
+        export class ReactShadowNode {
+          public static class: java.lang.Class<com.facebook.react.uimanager.ReactShadowNode>;
           public constructor();
         }
       }
@@ -2978,162 +3365,15 @@ declare module com {
 }
 
 declare module com {
-  export module reactnativecommunity {
-    export module asyncstorage {
-      export class AsyncLocalStorageUtil {
-        public static class: java.lang.Class<com.reactnativecommunity.asyncstorage.AsyncLocalStorageUtil>;
-        public static verifyAndForceSqliteCheckpoint(
-          param0: globalAndroid.content.Context
-        ): void;
-        public static getItemImpl(
-          param0: globalAndroid.database.sqlite.SQLiteDatabase,
-          param1: string
-        ): string;
-        public constructor();
-      }
-    }
-  }
-}
-
-declare module com {
-  export module reactnativecommunity {
-    export module asyncstorage {
-      export class AsyncStorageErrorUtil {
-        public static class: java.lang.Class<com.reactnativecommunity.asyncstorage.AsyncStorageErrorUtil>;
-        public constructor();
-      }
-    }
-  }
-}
-
-declare module com {
-  export module reactnativecommunity {
-    export module asyncstorage {
-      export class AsyncStorageExpoMigration {
-        public static class: java.lang.Class<com.reactnativecommunity.asyncstorage.AsyncStorageExpoMigration>;
-        public static migrate(param0: globalAndroid.content.Context): void;
-        public constructor();
-      }
-    }
-  }
-}
-
-declare module com {
-  export module reactnativecommunity {
-    export module asyncstorage {
-      export class AsyncStorageModule
-        extends com.facebook.react.bridge.ReactContextBaseJavaModule
-        implements
-          com.facebook.react.modules.common.ModuleDataCleaner.Cleanable,
-          com.facebook.react.bridge.LifecycleEventListener
-      {
-        public static class: java.lang.Class<com.reactnativecommunity.asyncstorage.AsyncStorageModule>;
-        public static NAME: string;
-        public onHostResume(): void;
-        public multiRemove(
-          param0: com.facebook.react.bridge.ReadableArray,
-          param1: com.facebook.react.bridge.Callback
-        ): void;
-        public constructor(
-          param0: com.facebook.react.bridge.ReactApplicationContext
-        );
-        public getName(): string;
-        public clear(param0: com.facebook.react.bridge.Callback): void;
-        public onCatalystInstanceDestroy(): void;
-        public multiMerge(
-          param0: com.facebook.react.bridge.ReadableArray,
-          param1: com.facebook.react.bridge.Callback
-        ): void;
-        public constructor();
-        public clearSensitiveData(): void;
-        public initialize(): void;
-        public multiSet(
-          param0: com.facebook.react.bridge.ReadableArray,
-          param1: com.facebook.react.bridge.Callback
-        ): void;
-        public canOverrideExistingModule(): boolean;
-        public onHostPause(): void;
-        public invalidate(): void;
-        public getAllKeys(param0: com.facebook.react.bridge.Callback): void;
-        public onHostDestroy(): void;
-        public multiGet(
-          param0: com.facebook.react.bridge.ReadableArray,
-          param1: com.facebook.react.bridge.Callback
-        ): void;
-      }
-    }
-  }
-}
-
-declare module com {
-  export module reactnativecommunity {
-    export module asyncstorage {
-      export class AsyncStoragePackage extends com.facebook.react.ReactPackage {
-        public static class: java.lang.Class<com.reactnativecommunity.asyncstorage.AsyncStoragePackage>;
-        public createNativeModules(
-          param0: com.facebook.react.bridge.ReactApplicationContext
-        ): java.util.List<com.facebook.react.bridge.NativeModule>;
-        public createJSModules(): java.util.List<java.lang.Class<any>>;
-        public createViewManagers(
-          param0: com.facebook.react.bridge.ReactApplicationContext
-        ): java.util.List<com.facebook.react.uimanager.ViewManager>;
-        public constructor();
-      }
-    }
-  }
-}
-
-declare module com {
-  export module reactnativecommunity {
-    export module asyncstorage {
-      export class BuildConfig {
-        public static class: java.lang.Class<com.reactnativecommunity.asyncstorage.BuildConfig>;
-        public static DEBUG: boolean;
-        public static LIBRARY_PACKAGE_NAME: string;
-        public static BUILD_TYPE: string;
-        public static AsyncStorage_db_size: java.lang.Long;
-        public static AsyncStorage_useDedicatedExecutor: boolean;
-        public static AsyncStorage_useNextStorage: boolean;
-        public constructor();
-      }
-    }
-  }
-}
-
-declare module com {
-  export module reactnativecommunity {
-    export module asyncstorage {
-      export class ReactDatabaseSupplier {
-        public static class: java.lang.Class<com.reactnativecommunity.asyncstorage.ReactDatabaseSupplier>;
-        public static DATABASE_NAME: string;
-        public setMaximumSize(param0: number): void;
-        public static deleteInstance(): void;
-        public clearAndCloseDatabase(): void;
-        public static getInstance(
-          param0: globalAndroid.content.Context
-        ): com.reactnativecommunity.asyncstorage.ReactDatabaseSupplier;
-        public closeDatabase(): void;
-        public onCreate(
-          param0: globalAndroid.database.sqlite.SQLiteDatabase
-        ): void;
-        public onUpgrade(
-          param0: globalAndroid.database.sqlite.SQLiteDatabase,
-          param1: number,
-          param2: number
-        ): void;
-        public get(): globalAndroid.database.sqlite.SQLiteDatabase;
-      }
-    }
-  }
-}
-
-declare module com {
-  export module reactnativecommunity {
-    export module asyncstorage {
-      export class SerialExecutor {
-        public static class: java.lang.Class<com.reactnativecommunity.asyncstorage.SerialExecutor>;
-        public execute(param0: java.lang.Runnable): void;
-        public constructor(param0: java.util.concurrent.Executor);
+  export module facebook {
+    export module react {
+      export module uimanager {
+        export class ViewManager<T, C> extends java.lang.Object {
+          public static class: java.lang.Class<
+            com.facebook.react.uimanager.ViewManager<any, any>
+          >;
+          public constructor();
+        }
       }
     }
   }
@@ -3147,6 +3387,35 @@ declare module com {
       public static LIBRARY_PACKAGE_NAME: string;
       public static BUILD_TYPE: string;
       public constructor();
+    }
+  }
+}
+
+declare module com {
+  export module testmodule {
+    export class RNKtTestModule extends com.facebook.react.bridge
+      .ReactContextBaseJavaModule {
+      public static class: java.lang.Class<com.testmodule.RNKtTestModule>;
+      public static NAME: string;
+      public constructor(
+        param0: com.facebook.react.bridge.ReactApplicationContext
+      );
+      public multiply(
+        param0: number,
+        param1: number,
+        param2: com.facebook.react.bridge.Promise
+      ): void;
+      public invalidate(): void;
+      public getName(): string;
+      public initialize(): void;
+      public constructor();
+      public onCatalystInstanceDestroy(): void;
+      public canOverrideExistingModule(): boolean;
+    }
+    export module RNKtTestModule {
+      export class Companion {
+        public static class: java.lang.Class<com.testmodule.RNKtTestModule.Companion>;
+      }
     }
   }
 }
@@ -3199,14 +3468,53 @@ declare module com {
       public constructor(
         param0: com.facebook.react.bridge.ReactApplicationContext
       );
-      public invalidate(): void;
-      public getName(): string;
+      public testMethodNonNull(
+        param0: com.facebook.react.bridge.ReadableMap
+      ): com.facebook.react.bridge.ReadableMap;
+      public testJavaDouble(
+        param0: java.lang.Double,
+        param1: com.facebook.react.bridge.Promise
+      ): void;
       public testCallback(param0: com.facebook.react.bridge.Callback): void;
+      public testJavaFloat(
+        param0: java.lang.Float,
+        param1: com.facebook.react.bridge.Promise
+      ): void;
       public testPromise(param0: com.facebook.react.bridge.Promise): void;
-      public show(param0: string, param1: number): void;
-      public initialize(): void;
+      public testFloat(
+        param0: number,
+        param1: com.facebook.react.bridge.Promise
+      ): void;
       public constructor();
       public getConstants(): java.util.Map<string, any>;
+      public testMethodNullable(
+        param0: com.facebook.react.bridge.ReadableMap
+      ): com.facebook.react.bridge.ReadableMap;
+      public testDouble(
+        param0: number,
+        param1: com.facebook.react.bridge.Promise
+      ): void;
+      public testInt(
+        param0: number,
+        param1: com.facebook.react.bridge.Promise
+      ): void;
+      public invalidate(): void;
+      public getName(): string;
+      public testSyncMethod(): boolean;
+      public show(param0: string, param1: number): void;
+      public testBoolean(
+        param0: java.lang.Boolean,
+        param1: com.facebook.react.bridge.Promise
+      ): void;
+      public initialize(): void;
+      public testJavaBoolean(
+        param0: boolean,
+        param1: com.facebook.react.bridge.Promise
+      ): void;
+      public testInteger(
+        param0: java.lang.Integer,
+        param1: com.facebook.react.bridge.Promise
+      ): void;
       public onCatalystInstanceDestroy(): void;
       public canOverrideExistingModule(): boolean;
     }
@@ -3222,7 +3530,7 @@ declare module com {
       ): java.util.List<com.facebook.react.bridge.NativeModule>;
       public createViewManagers(
         param0: com.facebook.react.bridge.ReactApplicationContext
-      ): java.util.List<com.facebook.react.uimanager.ViewManager>;
+      ): java.util.List<com.facebook.react.uimanager.ViewManager<any, any>>;
       public constructor();
     }
   }
@@ -3231,3 +3539,5 @@ declare module com {
 //Generics information:
 //com.facebook.react.bridge.GuardedAsyncTask:2
 //com.facebook.react.bridge.GuardedResultAsyncTask:1
+//com.facebook.react.common.MapBuilder.Builder:2
+//com.facebook.react.uimanager.ViewManager:2

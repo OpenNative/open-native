@@ -13,12 +13,16 @@ const REACT_METHOD_ANNOTATION = '@ReactMethod';
 export async function loadModuleContents(modulePath: string) {
   const contents = await readFile(modulePath, { encoding: 'utf-8' });
   const matchedPrivateMethods = contents.match(ANDROID_PRIVATE_METHOD_REGEX);
+  let updatedContents = contents;
+  if (modulePath.endsWith('.kt')) {
+    updatedContents += `\n//#kotlin`;
+  }
 
   // If module has private @ReactMethod annotations, we make them public
   // so that they are available in JS.
   if (matchedPrivateMethods) {
-    const tokens = contents.split('\n');
-    const updatedContent = tokens
+    const tokens = updatedContents.split('\n');
+    updatedContents = tokens
       .map((token, index) => {
         if (
           token.match(/private[\s\S]*?[{;]/gm) &&
@@ -30,11 +34,10 @@ export async function loadModuleContents(modulePath: string) {
         return token;
       })
       .join('\n');
-    await writeFile(modulePath, updatedContent, {
+    await writeFile(modulePath, updatedContents, {
       encoding: 'utf-8',
     });
-    return updatedContent;
+    return updatedContents;
   }
-
-  return contents;
+  return updatedContents;
 }

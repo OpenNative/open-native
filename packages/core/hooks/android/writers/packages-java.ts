@@ -79,10 +79,9 @@ export async function writePackagesJavaFile({
               ? `moduleClasses.put("${m.exportedModuleName}", ${m.moduleClassName}.class);`
               : `// Module ${m.moduleClassName} is private and will be loaded via it's package instead.`
           }`,
-          `    modulePackageMap.put("${m.moduleClassName}", "${packageImportPath
-            ?.split('.')
-            ?.pop()
-            ?.replace(';', '')}");`,
+          `    modulePackageMap.put("${
+            m.exportedModuleName
+          }", "${packageImportPath?.split('.')?.pop()?.replace(';', '')}");`,
         ].join('\n')
       )
     ),

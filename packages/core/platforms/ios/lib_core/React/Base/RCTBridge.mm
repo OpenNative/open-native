@@ -187,4 +187,93 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
   // Most probably not needed by any modules.
 }
 
+-(id)callMethodInvocation:(NSInvocation *)invocation
+                args:(NSArray *)args
+                sync:(BOOL)sync
+                r:(RCTPromiseResolveBlock _Nullable)r
+                rI: (int)rI
+                rej:(RCTPromiseRejectBlock _Nullable)rej
+                rejI: (int)rejI
+                cb: (RCTResponseSenderBlock _Nullable)cb
+                cbI: (int)cbI
+                e: (RCTResponseErrorBlock _Nullable)e
+                eI:(int)eI {
+    
+    
+    for ( int i = 0; i < [args count]; i++)
+    {
+        if (i == rI || i == rejI || i == cbI || i == eI) continue;
+        id argument = [args objectAtIndex: i];
+        [invocation setArgument: &argument atIndex: i+2];
+    }
+    
+    if (!sync) {
+        if (r != nil) {
+            [invocation setArgument: &r atIndex: rI+2];
+        }
+        if (rej != nil) {
+            [invocation setArgument: &rej atIndex: rejI+2];
+        }
+        if (cb != nil) {
+            [invocation setArgument: &cb atIndex: cbI+2];
+        }
+        if (e != nil) {
+            [invocation setArgument: &e atIndex: eI+2];
+        }
+    }
+    
+    id<RCTBridgeModule> nativeModule =  invocation.target;
+    if ([nativeModule respondsToSelector:NSSelectorFromString(@"methodQueue")] ) {
+        dispatch_async([nativeModule methodQueue], ^{
+            [invocation invoke];
+        });
+    } else {
+        [invocation invoke];
+    }
+    
+    if (sync) {
+        void *ret;
+        [invocation getReturnValue:&ret];
+        id result = (__bridge id) ret;
+        return result;
+    }
+    
+    return nil;
+}
+
+
+
+-(NSDictionary *)getModuleMethodObjcNames:(NSString *)name {
+    
+    Class cls = RCTGetModuleClassForName(name);
+    unsigned int methodCount;
+    NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
+    
+    while (cls && cls != [NSObject class] && cls != [NSProxy class]) {
+      Method *methods = class_copyMethodList(object_getClass(cls), &methodCount);
+
+      for (unsigned int i = 0; i < methodCount; i++) {
+        Method method = methods[i];
+        SEL selector = method_getName(method);
+          
+        if ([NSStringFromSelector(selector) hasPrefix:@"__rct_export__"]) {
+            IMP imp = method_getImplementation(method);
+            auto exportedMethod = ((const RCTMethodInfo *(*)(id, SEL))imp)(cls, selector);
+            NSMutableDictionary *methodInfo = [[NSMutableDictionary alloc] init];
+            [methodInfo setValue:[NSString stringWithCString:exportedMethod->jsName encoding:NSUTF8StringEncoding] forKey:@"jsName"];
+            [methodInfo setValue:exportedMethod->isSync ? @YES : @NO forKey:@"isSync"];
+            [dic setValue:methodInfo forKey: [NSString stringWithCString:exportedMethod->objcName encoding:NSUTF8StringEncoding]];
+        }
+      }
+
+      free(methods);
+      cls = class_getSuperclass(cls);
+    }
+
+    return dic;
+    
+}
+
+
+
 @end

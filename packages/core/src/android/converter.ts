@@ -179,19 +179,12 @@ function createJSPromise(resolve, reject) {
 }
 
 export function toNativeArguments(
-  methodTypes: RNJavaSerialisableType[],
+  argumentTypes: RNJavaSerialisableType[],
   args: JSValuePassableIntoJava[],
   resolve?: (value: JSONSerialisable) => void,
   reject?: (reason: Error) => void
 ): RNNativeModuleMethodArg[] {
   const nativeArguments: RNNativeModuleMethodArg[] = [];
-
-  assert(
-    methodTypes.length,
-    'Method signature empty, so unable to call native method.'
-  );
-
-  const argumentTypes = methodTypes.slice(1);
 
   // I don't think this check should be added,
   // arguments will not be equal to argument types as
