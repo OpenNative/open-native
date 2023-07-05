@@ -12,7 +12,7 @@ import { writeModulesJsonFile } from './writers/modules-json';
 import { writePackagesJavaFile } from './writers/packages-java';
 import { writeIncludeGradleFile } from './writers/include-gradle';
 import { writeModuleMapFile } from './writers/modulemap';
-
+import { writeViewManagerTypes } from './writers/write-view-manager-types';
 export type AutolinkAndroidParams = {
   packageDir: string;
   dependencies: string[];
@@ -21,6 +21,7 @@ export type AutolinkAndroidParams = {
   outputModuleMapPath: string;
   outputPackagesJavaPath: string;
   outputIncludeGradlePath: string;
+  outputViewManagerTypesPath: string;
 };
 
 /**
@@ -47,6 +48,7 @@ export async function autolinkAndroid({
   outputModuleMapPath,
   outputPackagesJavaPath,
   outputIncludeGradlePath,
+  outputViewManagerTypesPath,
 }: AutolinkAndroidParams) {
   const packageJson = JSON.parse(
     await readFile(path.join(packageDir, '/package.json'), {
@@ -83,6 +85,7 @@ export async function autolinkAndroid({
         packageName: npmPackageName,
       })
     );
+
   await Promise.all([
     await writeSettingsGradleFile(projectDir),
     await writeModulesJsonFile({
@@ -100,57 +103,107 @@ export async function autolinkAndroid({
       packages: autolinkingInfo,
       outputPackagesJavaPath,
     }),
-
+    await writeViewManagerTypes({
+      modules: autolinkingInfo.reduce((acc, { modules }) => {
+        modules.forEach(
+          ({
+            exportedMethods,
+            exportedModuleName,
+            exportsConstants,
+            moduleImportNameJs,
+            isReactViewManager,
+          }) => {
+            acc[exportedModuleName] = {
+              e: exportsConstants,
+              j: moduleImportNameJs,
+              v: isReactViewManager,
+              m: exportedMethods.reduce(
+                (
+                  innerAcc,
+                  {
+                    exportedMethodName,
+                    isBlockingSynchronousMethod,
+                    methodNameJs,
+                    methodTypesParsed,
+                    prop,
+                    nativeDefinition,
+                  }
+                ) => {
+                  innerAcc[exportedMethodName] = {
+                    b: isBlockingSynchronousMethod,
+                    j: methodNameJs,
+                    t: methodTypesParsed,
+                    p: prop,
+                    nd: nativeDefinition,
+                  };
+                  return innerAcc;
+                },
+                {}
+              ),
+            };
+          }
+        );
+    
+        return acc;
+      }, {}),
+      outputViewManagerTypesPath: outputViewManagerTypesPath,
+    }),
     await writeIncludeGradleFile({
       projectNames: autolinkingInfo.map(
         ({ androidProjectName }) => androidProjectName
       ),
       outputIncludeGradlePath,
     }),
+//     await writeModuleMapFile({
+//       // The autolinking info is essentially an array where each member
+//       // describes a package. Each package can have several modules, so we
+//       // reduce all the modules across all the packages into a single module
+//       // map.
+//       moduleMap: autolinkingInfo.reduce((acc, { modules }) => {
+//         modules.forEach(
+//           ({
+//             exportedMethods,
+//             exportedModuleName,
+//             exportsConstants,
+//             moduleImportNameJs,
+//             isReactViewManager,
+//           }) => {
+//             acc[exportedModuleName] = {
+//               e: exportsConstants,
+//               j: moduleImportNameJs,
+//               v: isReactViewManager,
+//               m: exportedMethods.reduce(
+//                 (
+//                   innerAcc,
+//                   {
+//                     exportedMethodName,
+//                     isBlockingSynchronousMethod,
+//                     methodNameJs,
+//                     methodTypesParsed,
+//                     prop,
+//                     defaultValue
+//                   }
+//                 ) => {
+//                   innerAcc[exportedMethodName] = {
+//                     b: isBlockingSynchronousMethod,
+//                     j: methodNameJs,
+//                     t: methodTypesParsed,
+//                     p: prop,
+//                     d: defaultValue
+//                   };
+//                   return innerAcc;
+//                 },
+//                 {}
+//               ),
+//             };
+//           }
+//         ); 
+//         return acc;
+//       }, {}),
+//       outputModuleMapPath,
+//     }),
 
-    // await writeModuleMapFile({
-    //   // The autolinking info is essentially an array where each member
-    //   // describes a package. Each package can have several modules, so we
-    //   // reduce all the modules across all the packages into a single module
-    //   // map.
-    //   moduleMap: autolinkingInfo.reduce((acc, { modules }) => {
-    //     modules.forEach(
-    //       ({
-    //         exportedMethods,
-    //         exportedModuleName,
-    //         exportsConstants,
-    //         moduleImportNameJs,
-    //       }) => {
-    //         acc[exportedModuleName] = {
-    //           e: exportsConstants,
-    //           j: moduleImportNameJs,
-    //           m: exportedMethods.reduce(
-    //             (
-    //               innerAcc,
-    //               {
-    //                 exportedMethodName,
-    //                 isBlockingSynchronousMethod,
-    //                 methodNameJs,
-    //                 methodTypesParsed,
-    //               }
-    //             ) => {
-    //               innerAcc[exportedMethodName] = {
-    //                 b: isBlockingSynchronousMethod,
-    //                 j: methodNameJs,
-    //                 t: methodTypesParsed,
-    //               };
-    //               return innerAcc;
-    //             },
-    //             {}
-    //           ),
-    //         };
-    //       }
-    //     );
 
-    //     return acc;
-    //   }, {}),
-    //   outputModuleMapPath,
-    // }),
   ]);
 
   return autolinkingInfo.map(({ packageName }) => packageName);

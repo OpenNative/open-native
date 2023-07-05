@@ -2,7 +2,9 @@ import { logPrefix, ModuleNamesToMethodDescriptions } from '../common';
 import { getSwiftInterfaceImplementationContents } from '../getters/swift-interface-impl';
 import { extractExtendedClassMethods } from './extended-class-methods';
 import { extractObjcMethodContents } from './method';
+import { extractMethodParamTypes } from './method-param-types';
 import { extractModuleAliasedName } from './module-aliased-name';
+
 /**
  * Extracts interfaces representing the methods added to any RCTBridgeModule by
  * macros (e.g. RCT_EXPORT_METHOD).
@@ -158,31 +160,71 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
       ...fullMatch.matchAll(
         /^\s*RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD\((.|[\r\n])*?\)*\{/gm
       ),
-    ].map((match) => {
-      const isSync = match[0].includes('BLOCKING_SYNCHRONOUS');
-      const [
-        ,
-        /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject) {' */
-        fromMethodName,
-      ] = match[0].split(
-        isSync
-          ? /RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD\(\s*/
-          : /RCT_EXPORT_METHOD\(\s*/
-      );
+    ]
+      .map((match) => {
+        const isSync = match[0].includes('BLOCKING_SYNCHRONOUS');
+        const [
+          ,
+          /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject) {' */
+          fromMethodName,
+        ] = match[0].split(
+          isSync
+            ? /RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD\(\s*/
+            : /RCT_EXPORT_METHOD\(\s*/
+        );
 
-      /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject' */
-      const methodNameAndArgs = fromMethodName
-        .split(')')
-        .slice(0, -1)
-        .join(')');
-      const methodName = methodNameAndArgs.split(':')[0].trim();
-      return extractObjcMethodContents(methodNameAndArgs, methodName, isSync);
+        /** @example 'show : (RCTPromiseResolveBlock)resolve\n    withRejecter : (RCTPromiseRejectBlock)reject' */
+        const methodNameAndArgs = fromMethodName
+          .split(')')
+          .slice(0, -1)
+          .join(')');
+        const methodName = methodNameAndArgs.split(':')[0].trim();
+        return methodName === 'name'
+          ? null
+          : extractObjcMethodContents(methodNameAndArgs, methodName, isSync);
+      })
+      .filter((method) => method !== null);
+
+    /**
+     * Extract the signatures of any methods registered using RCT_EXPORT_METHOD.
+     * @example
+     * ['- (void)show:(RCTPromiseResolveBlock)resolve withRejecter:(RCTPromiseRejectBlock)reject']
+     */
+    const quickExportedMethods = [
+      ...fullMatch.matchAll(
+        /(?<=(QUICK_RCT_EXPORT_COMMAND_METHOD|QUICK_RCT_EXPORT_COMMAND_METHOD_PARAMS)\()(.*)(?=\))/gm
+      ),
+    ]
+      .map((match) => {
+        const [name, type] = match[0].split(',');
+
+        const methodNameAndArgs = `${name}:(nonnull NSNumber *)reactTag${
+          type ? ` ${type}` : ''
+        }`;
+        return name === 'name'
+          ? null
+          : extractObjcMethodContents(methodNameAndArgs, name, false);
+      })
+      .filter((method) => method !== null);
+
+    const viewProps = [
+      ...fullMatch.matchAll(
+        /(?<=(RCT_EXPORT_VIEW_PROPERTY|RCT_CUSTOM_VIEW_PROPERTY)\()(.*)(?=\))/gm
+      ),
+    ].map((match) => {
+      const [name, type] = match[0].split(',');
+
+      return {
+        name: name.trim(),
+        type: extractMethodParamTypes(type.trim()),
+      };
     });
 
     const allMethods = [
       ...remappedMethods,
       ...exportedMethods,
       ...externMethods,
+      ...quickExportedMethods,
     ];
 
     if (!allMethods.length) {
@@ -206,6 +248,7 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
       hasMethodQueue,
       methods: allMethods,
       isSwiftModule: isSwiftModuleInterface,
+      viewProps: viewProps,
     };
 
     return acc;

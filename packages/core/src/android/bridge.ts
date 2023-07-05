@@ -38,8 +38,59 @@ function RCTDeviceEventEmitter() {
 
 function RCTNativeAppEventEmitter() {
   return new com.facebook.react.modules.core.RCTNativeAppEventEmitter({
-    emit: emit,
+    emit(eventType, params) {
+      const data = toJSValue(params);
+      setTimeout(() => {
+        DeviceEventEmitter.emit(eventType, data);
+      }, 1);
+    },
   });
+}
+
+const viewRegistry = {};
+
+function RCTEventEmitter() {
+  return new com.facebook.react.uimanager.events.RCTEventEmitter({
+    receiveTouches(param0, param1, param2) {
+      console.warn('receiveTouches unimplemented');
+    },
+    receiveEvent(viewTag, eventName, params) {
+      const data = toJSValue(params);
+      setTimeout(() => {
+        const view = viewRegistry[viewTag];
+        if (view) {
+          view.receiveEvent(eventName, data);
+        }
+      }, 1);
+    },
+  });
+}
+
+function RCTModernEventEmitter() {
+  return new com.facebook.react.uimanager.events.RCTModernEventEmitter({
+    receiveTouches(param0, param1, param2) {
+      console.warn('receiveTouches unimplemented');
+    },
+    receiveEvent(...params) {
+      if (params.length === 3) {
+        (
+          getJSModules().getJSModuleByName(
+            'RCTEventEmitter'
+          ) as com.facebook.react.uimanager.events.RCTEventEmitter
+        ).receiveEvent(params[0], params[1], params[2]);
+      } else {
+        (
+          getJSModules().getJSModuleByName(
+            'RCTEventEmitter'
+          ) as com.facebook.react.uimanager.events.RCTEventEmitter
+        ).receiveEvent(params[1], params[2], params[5]);
+      }
+    },
+  });
+}
+
+export function registerView(tag: number, view: any) {
+  viewRegistry[tag] = view;
 }
 
 /**
@@ -61,20 +112,30 @@ export function getCurrentBridge() {
       'AppRegistry',
       AppRegistry.appRegistryJSModule
     );
+    getJSModules().registerJSModule('RCTEventEmitter', RCTEventEmitter());
+    getJSModules().registerJSModule(
+      'RCTModernEventEmitter',
+      RCTModernEventEmitter()
+    );
+    getJSModules().registerJSModule(
+      'RCTNativeAppEventEmitter',
+      RCTNativeAppEventEmitter()
+    );
     const reactApplicationContext =
       new com.facebook.react.bridge.ReactApplicationContext(
         Utils.android.getApplicationContext()
       );
 
+    global.reactNativeBridgeAndroid = new com.bridge.Bridge(
+      reactApplicationContext
+    );
     const catalysInstance = new CatalystInstance(
       reactApplicationContext,
       getJSModules(),
       global.reactNativeBridgeAndroid
     );
     reactApplicationContext.initializeWithInstance(catalysInstance.instance);
-    global.reactNativeBridgeAndroid = new com.bridge.Bridge(
-      reactApplicationContext
-    );
+
     if (Utils.android.getApplication().getReactNativeHost) {
       const reactNativeHost = Utils.android
         .getApplication()
@@ -86,6 +147,14 @@ export function getCurrentBridge() {
     attachActivityLifecycleListeners(reactApplicationContext);
   }
   return global.reactNativeBridgeAndroid;
+}
+
+export function getThemedReactContext(moduleName: string, surfaceId) {
+  return new com.facebook.react.uimanager.ThemedReactContext(
+    getCurrentBridge().reactContext as never,
+    Utils.android.getApplicationContext(),
+    moduleName
+  );
 }
 
 function getActivityName(activity: android.app.Activity) {
@@ -151,29 +220,6 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
         args.resultCode,
         args.intent
       );
-      // const callback = (_args: Partial<AndroidActivityNewIntentEventData>) => {
-      //   reactContext.onActivityResult(
-      //     args.activity,
-      //     args.requestCode,
-      //     args.resultCode,
-      //     _args.intent
-      //   );
-      //   Application.android.off(
-      //     AndroidApplication.activityNewIntentEvent,
-      //     callback
-      //   );
-      // };
-      // Application.android.on(
-      //   AndroidApplication.activityNewIntentEvent,
-      //   callback
-      // );
-      // setTimeout(() => {
-      //   Application.android.off(
-      //     AndroidApplication.activityNewIntentEvent,
-      //     callback
-      //   );
-      //   callback({ intent: args.activity.getIntent() });
-      // }, 1000);
     }
   );
 }

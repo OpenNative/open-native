@@ -117,6 +117,7 @@ export async function getPackageAutolinkInfo({
       exportedModuleName,
       exportsConstants,
       moduleImportPath,
+      isReactViewManager,
       isPublic,
     }) => {
       const moduleImportName = `${moduleImportPath}.${moduleClassName}`;
@@ -152,6 +153,10 @@ export async function getPackageAutolinkInfo({
          * @example 'com.test.RNTestModule'
          */
         moduleImportNameJs,
+        /**
+         * Is this module a React View Manager?
+         */
+        isReactViewManager,
         /**
          * Whether this module is public or private.
          */

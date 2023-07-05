@@ -4,6 +4,7 @@ import type { IOptions } from 'glob';
 import * as path from 'path';
 import { promisify } from 'util';
 export const readFile = promisify(fs.readFile);
+export const readFileSync = fs.readFileSync;
 export const exists = promisify(fs.exists);
 export const _writeFile = promisify(fs.writeFile);
 
@@ -86,4 +87,27 @@ export enum RNJavaSerialisableType {
   Callback, // @Nullable Callback
   nonnullCallback, // Callback
   Promise, // Promise
+}
+
+export type ModuleMap = {
+  [exportedModuleName: string]: {
+    /** jsModuleName */
+    j: string;
+    /** exportsConstants */
+    e: boolean;
+    /** methods */
+    v: boolean;
+    m: {
+      [methodName: string]: {
+        /** isBlockingSynchronousMethod */
+        b: boolean;
+        /** jsMethodName */
+        j: string;
+        /** types */
+        t: RNJavaSerialisableType[];
+        p: string;
+        nd: string
+      };
+    };
+  };
 }

@@ -38,9 +38,19 @@ export function extractClassDeclarationForModule(file: string) {
     );
   if (turboModuleMatch) return turboModuleMatch;
 
+  const viewManagerMatch = file.match(
+    /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*SimpleViewManager/
+  );
+
+  if (viewManagerMatch) {
+    return viewManagerMatch
+  }
+
+
   // Match any class that extends ReactContextBaseJavaModule and is public.
   const publicModuleMatch = file.match(
-    /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ReactContextBaseJavaModule/
+    file.match(
+    /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*(ReactContextBaseJavaModule | SimpleViewManager)/
   );
   if (publicModuleMatch) return publicModuleMatch;
 

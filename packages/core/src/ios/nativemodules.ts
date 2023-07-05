@@ -12,7 +12,8 @@ import { ModuleMetadata, parseModuleMetadata } from './metadata';
 
 class NativeModuleHolder implements Partial<NativeModule> {
   private readonly bridge: RCTBridge = getCurrentBridge();
-  private readonly moduleMetadata: ModuleMetadata | undefined;
+  public readonly moduleMetadata: ModuleMetadata | undefined;
+
   private nativeModuleInstance: RCTBridgeModule;
   private __invocationCache: { [name: string]: NSInvocation } = {};
   public constants: { [name: string]: JSONSerialisable } = {};
@@ -93,6 +94,7 @@ class NativeModuleHolder implements Partial<NativeModule> {
     }
   }
 }
+
 
 let MODULE_CLASS_NAMES = [];
 const nativeModuleProxyHandle: ProxyHandler<{}> = {

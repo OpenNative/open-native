@@ -20,6 +20,14 @@ export interface TModuleMethodsType {
      * @example [1, 14, 15]
      */
     t: RNJavaSerialisableType[];
+    /**
+     * ReactProp this method is attached with.
+     */
+    p: string;
+    /**
+     * Default value for the prop.
+     */
+    d: boolean | number | undefined
   };
 }
 
@@ -45,6 +53,10 @@ export interface RNNativeModuleMetadata {
    * name.
    */
   m: TModuleMethodsType;
+  /**
+   * Is this module a ViewManager
+   */
+  v: boolean;
 }
 
 /**

@@ -14,7 +14,7 @@ import { isPromise } from './utils';
 
 class NativeModuleHolder implements Partial<NativeModule> {
   private readonly bridge: Bridge = getCurrentBridge();
-  private readonly moduleMetadata: ModuleMetadata | undefined;
+  public readonly moduleMetadata: ModuleMetadata | undefined;
   private nativeModuleInstance: com.facebook.react.bridge.BaseJavaModule | null;
   public constants: { [name: string]: JSONSerialisable } = {};
 
@@ -49,9 +49,14 @@ class NativeModuleHolder implements Partial<NativeModule> {
    * loaded upon access by a method call.
    */
   get nativeModule(): BaseJavaModule {
+
     this.nativeModuleInstance =
       this.nativeModuleInstance ||
-      (this.bridge.getModuleByName(this.moduleName) as BaseJavaModule);
+      (this.bridge.getModuleByName(
+        this.moduleName,
+        //@ts-ignore
+        this.moduleMetadata.v || false
+      ) as BaseJavaModule);
 
     if (!this.nativeModuleInstance) {
       console.warn(
@@ -94,6 +99,26 @@ class NativeModuleHolder implements Partial<NativeModule> {
             `Unable to wrap method "${exportedMethodName}" on module "${this.moduleName}" as the module was not found in the bridge.`
           );
         }
+        
+// TODO
+//         if (this.moduleMetadata.v) {
+//           // In case of ViewManagers, the first argument is always the Native View instance followed by
+//           // the props.
+//           if (methodTypes.length === 2) {
+//             this.nativeModule[jsName]?.(args[0]);
+//           } else {
+//             this.nativeModule[jsName]?.(
+//               args[0],
+//               ...toNativeArguments(
+//                 [methodTypes[0], ...methodTypes.slice(2)],
+//                 args.slice(1)
+//               )
+//             );
+//           }
+//           return;
+//         }
+
+
         if (isPromise(types)) {
           return promisify(this.nativeModule, exportedMethodName, types, args);
         }
@@ -125,5 +150,6 @@ const nativeModuleProxyHandle: ProxyHandler<{}> = {
 };
 
 export const NativeModules = new Proxy({}, nativeModuleProxyHandle);
+
 global.__turboModulesProxy = NativeModules;
 export const load = () => null;

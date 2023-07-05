@@ -5,7 +5,7 @@ import { writeModuleMapFile } from './writers/modulemap';
 import { writePodfile } from './writers/podfile';
 import { writeReactNativePodspecFile } from './writers/react-native-podspec';
 import { writeRNPodspecsHeaderFile } from './writers/rn-podspecs-header';
-
+import { writeViewManagerTypes } from './writers/write-view-manager-types';
 type AutolinkIosParams = {
   packageDir: string;
   dependencies: string[];
@@ -14,6 +14,7 @@ type AutolinkIosParams = {
   outputPodfilePath: string;
   outputPodspecPath: string;
   outputModuleMapPath: string;
+  outputViewManagerTypesPath: string;
   config: OpenNativeConfig;
 };
 
@@ -40,6 +41,7 @@ export async function autolinkIos({
   outputPodfilePath,
   outputPodspecPath,
   outputModuleMapPath,
+  outputViewManagerTypesPath,
   config,
 }: AutolinkIosParams) {
   const packageJson = JSON.parse(
@@ -90,7 +92,10 @@ export async function autolinkIos({
         .flat(),
       outputPodspecPath,
     }),
-
+    await writeViewManagerTypes({
+      modules: moduleNamesToMethodDescriptionsCombined,
+      outputViewManagerTypesPath: outputViewManagerTypesPath,
+    }),
     // await writeModuleMapFile({
     //   moduleNamesToMethodDescriptions: moduleNamesToMethodDescriptionsCombined,
     //   outputModuleMapPath,

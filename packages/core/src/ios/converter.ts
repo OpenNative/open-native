@@ -21,6 +21,16 @@ type RCTFunctionBlocks = [
   number
 ];
 
+function fromJSON(value: string) {
+  if (typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    console.warn(e.message, e, value);
+    return value;
+  }
+}
+
 export function toNativeArguments(
   argumentTypes: RNObjcSerialisableType[],
   args: JSValuePassableIntoObjc[],
@@ -41,6 +51,7 @@ export function toNativeArguments(
 
   for (let i = 0; i < argumentTypes.length; i++) {
     const argType = argumentTypes[i];
+
     const data = args[i];
 
     switch (argType) {
@@ -60,6 +71,7 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullArray: {
+        data = fromJSON(data as string);
         assert(
           Array.isArray(data),
           `Argument at index ${i} expected an Array value, but got ${data}`
@@ -76,6 +88,7 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullObject: {
+        data = fromJSON(data as string);
         assert(
           data?.constructor === Object,
           `Argument at index ${i} expected an object value, but got ${data}`
@@ -97,6 +110,7 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullBoolean:
+        data = fromJSON(data as string);
         assert(
           typeof data === 'boolean',
           `Argument at index ${i} expected a boolean, but got ${data}`
@@ -137,6 +151,7 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullNumber:
+        data = fromJSON(data as string);
         assert(
           typeof data === 'number',
           `Argument at index ${i} expected a number, but got ${data}`
@@ -167,7 +182,7 @@ export function toNativeArguments(
             : [];
 
           // Call back to the consumer with an array of JS values.
-          data(...callbackArgs);
+          (data as Function)(...callbackArgs);
         };
         blocks[5] = i;
         break;
@@ -190,9 +205,10 @@ export function toNativeArguments(
           // returning the NSError as-is should give us the best API
           // compatibility with a React Native JS Error until we see a counter
           // case. We'll also get a nice stack trace as a result.
-          data(value);
+          (data as Function)(value);
         };
         blocks[7] = i;
+
         break;
       }
 

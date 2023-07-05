@@ -8,6 +8,9 @@
 package com.facebook.react.bridge;
 
 import androidx.annotation.Nullable;
+
+import com.facebook.common.internal.DoNotStrip;
+
 import java.util.Collection;
 
 /**
@@ -46,4 +49,7 @@ public interface CatalystInstance {
    */
 
   void setTurboModuleManager(JSIModule getter);
+
+  @DoNotStrip
+  void callFunction(String module, String method, ReadableNativeArray arguments);
 }

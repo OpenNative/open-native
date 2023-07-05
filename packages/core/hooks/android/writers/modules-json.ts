@@ -21,6 +21,7 @@ export async function writeModulesJsonFile({
   }[];
   outputModulesJsonPath: string;
 }) {
+  
   return await writeFile(
     outputModulesJsonPath,
     JSON.stringify(modules, null, 2),

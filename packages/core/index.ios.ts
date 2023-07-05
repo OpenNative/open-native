@@ -10,6 +10,9 @@ export { NativeModules } from './src/ios/nativemodules';
 export const DeviceEventEmitter = RCTDeviceEventEmitter;
 export { Dimensions } from './Libraries/Utilities/Dimensions';
 export { Alert } from './Libraries/Alert/Alert';
+export { ViewManagersIOS, requireNativeViewIOS } from './src/ios/viewmanagers';
+import { load as loadViewManagers } from './src/ios/viewmanagers';
+
 /**
  * Loads all modules eagerly in a specific ReactPackage.
  *
@@ -19,6 +22,7 @@ export const loadModulesForPackage = (name: string) => undefined;
 export const TurboModuleRegistry = _TurboModuleRegistry;
 export function init() {
   load();
+  loadViewManagers();
 }
 
 export const Image = {
