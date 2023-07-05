@@ -118,6 +118,7 @@ export async function getPackageAutolinkInfo({
       exportsConstants,
       moduleImportPath,
       isReactViewManager,
+      isPublic,
     }) => {
       const moduleImportName = `${moduleImportPath}.${moduleClassName}`;
       // Unlike with Obj-C methods, NativeScript doesn't have to sanitise Java
@@ -155,7 +156,11 @@ export async function getPackageAutolinkInfo({
         /**
          * Is this module a React View Manager?
          */
-        isReactViewManager
+        isReactViewManager,
+        /**
+         * Whether this module is public or private.
+         */
+        isPublic,
       };
     }
   );

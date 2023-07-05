@@ -189,19 +189,12 @@ function fromJSON(value: string) {
 }
 
 export function toNativeArguments(
-  methodTypes: RNJavaSerialisableType[],
+  argumentTypes: RNJavaSerialisableType[],
   args: JSValuePassableIntoJava[],
   resolve?: (value: JSONSerialisable) => void,
   reject?: (reason: Error) => void
 ): RNNativeModuleMethodArg[] {
   const nativeArguments: RNNativeModuleMethodArg[] = [];
-
-  assert(
-    methodTypes.length,
-    'Method signature empty, so unable to call native method.'
-  );
-
-  const argumentTypes = methodTypes.slice(1);
 
   // I don't think this check should be added,
   // arguments will not be equal to argument types as
@@ -287,24 +280,47 @@ export function toNativeArguments(
         break;
       }
 
-      case RNJavaSerialisableType.boolean:
+      case RNJavaSerialisableType.javaBoolean:
         if (isNullOrUndefined(data)) {
-          nativeArguments.push(null);
+          nativeArguments.push(toNativeValue(false, true) as java.lang.Boolean);
           break;
         }
-        // nullable booleans are java.lang.Booleans
-        // the runtime sometimes doesn't marshall primitives to their objects
+
         nativeArguments.push(toNativeValue(data, true) as java.lang.Boolean);
         break;
-      case RNJavaSerialisableType.nonnullBoolean:
-        data = fromJSON(data as string);
+
+      case RNJavaSerialisableType.nonnullJavaBoolean:
         assert(
-          typeof data === 'boolean',
+          typeof data === 'boolean' || isNullOrUndefined(data),
           `Argument at index ${i} expected a boolean, but got ${data}`
         );
 
-        // booleans are auto-marshalled to BOOL.
-        nativeArguments.push(data);
+        nativeArguments.push(
+          isNullOrUndefined(data)
+            ? (toNativeValue(false, true) as java.lang.Boolean)
+            : (toNativeValue(data, true) as java.lang.Boolean)
+        );
+        break;
+
+      case RNJavaSerialisableType.boolean:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(toNativeValue(false, false) as boolean);
+          break;
+        }
+
+        nativeArguments.push(toNativeValue(data, false) as boolean);
+        break;
+
+      case RNJavaSerialisableType.nonnullBoolean:
+        data = fromJSON(data as string);
+        assert(
+          typeof data === 'boolean' || isNullOrUndefined(data),
+          `Argument at index ${i} expected a boolean, but got ${data}`
+        );
+
+        nativeArguments.push(
+          isNullOrUndefined(data) ? false : (data as boolean)
+        );
         break;
 
       case RNJavaSerialisableType.string:
@@ -323,22 +339,59 @@ export function toNativeArguments(
         nativeArguments.push(data);
         break;
 
-      case RNJavaSerialisableType.int:
-        data = fromJSON(data as string);
+      case RNJavaSerialisableType.javaInteger:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(new java.lang.Integer(0));
+          break;
+        }
+        nativeArguments.push(new java.lang.Integer(data as number));
+        break;
+      case RNJavaSerialisableType.nonnullJavaInteger:
         assert(
-          typeof data === 'number',
+          typeof data === 'number' || isNullOrUndefined(data),
           `Argument at index ${i} expected a number, but got ${data}`
         );
-        nativeArguments.push(new java.lang.Integer(data));
+        nativeArguments.push(
+          isNullOrUndefined(data)
+            ? new java.lang.Integer(0)
+            : new java.lang.Integer(data as number)
+        );
+        break;
+
+      case RNJavaSerialisableType.int:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(0);
+          break;
+        }
+        nativeArguments.push(data as number);
         break;
       case RNJavaSerialisableType.nonnullInt:
         data = fromJSON(data as string);
         assert(
-          typeof data === 'number',
+          typeof data === 'number' || isNullOrUndefined(data),
           `Argument at index ${i} expected a number, but got ${data}`
         );
-        nativeArguments.push(data);
+        nativeArguments.push(isNullOrUndefined(data) ? 0 : (data as number));
         break;
+
+      case RNJavaSerialisableType.javaFloat:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(new java.lang.Float(0));
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
+      case RNJavaSerialisableType.nonnullJavaFloat:
+        assert(
+          typeof data === 'number' || isNullOrUndefined(data),
+          `Argument at index ${i} expected a number, but got ${data}`
+        );
+        nativeArguments.push(
+          isNullOrUndefined(data)
+            ? new java.lang.Float(0)
+            : new java.lang.Float(data as number)
+        );
+        break;
+
       case RNJavaSerialisableType.float:
         if (isNullOrUndefined(data)) {
           nativeArguments.push(float(0));
@@ -348,10 +401,29 @@ export function toNativeArguments(
       case RNJavaSerialisableType.nonnullFloat:
         data = fromJSON(data as string);
         assert(
-          typeof data === 'number',
+          typeof data === 'number' || isNullOrUndefined(data),
           `Argument at index ${i} expected a number, but got ${data}`
         );
-        nativeArguments.push(float(data));
+        nativeArguments.push(
+          isNullOrUndefined(data) ? float(0) : float(data as number)
+        );
+        break;
+      case RNJavaSerialisableType.javaDouble:
+        if (isNullOrUndefined(data)) {
+          nativeArguments.push(new java.lang.Double(0));
+          break;
+        }
+      // eslint-disable-next-line no-fallthrough
+      case RNJavaSerialisableType.nonnullJavaDouble:
+        assert(
+          typeof data === 'number' || isNullOrUndefined(data),
+          `Argument at index ${i} expected a number, but got ${data}`
+        );
+        nativeArguments.push(
+          isNullOrUndefined(data)
+            ? new java.lang.Double(0)
+            : new java.lang.Double(data as number)
+        );
         break;
       case RNJavaSerialisableType.double:
         if (isNullOrUndefined(data)) {
@@ -362,10 +434,12 @@ export function toNativeArguments(
       case RNJavaSerialisableType.nonnullDouble:
         data = fromJSON(data as string);
         assert(
-          typeof data === 'number',
+          typeof data === 'number' || isNullOrUndefined(data),
           `Argument at index ${i} expected a number, but got ${data}`
         );
-        nativeArguments.push(double(data));
+        nativeArguments.push(
+          isNullOrUndefined(data) ? double(0) : double(data as number)
+        );
         break;
       case RNJavaSerialisableType.Callback:
         if (isNullOrUndefined(data)) {

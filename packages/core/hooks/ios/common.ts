@@ -6,6 +6,7 @@ import type { IOptions } from 'glob';
 import * as glob from 'glob';
 export const execFile = promisify(cp.execFile);
 export const readFile = promisify(fs.readFile);
+export const readFileSync = fs.readFileSync;
 const _writeFile = promisify(fs.writeFile);
 
 /**
@@ -140,3 +141,13 @@ export interface ModuleNamesToMethodDescriptionsMinimal {
     v: boolean;
   };
 }
+
+export type OpenNativeConfig = {
+  modules: {
+    [name: string]: {
+      ios: {
+        podSubspecs?: string[];
+      };
+    };
+  };
+};

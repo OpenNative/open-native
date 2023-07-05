@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 
 const ANDROID_GET_NAME_FN = /getName\(\)[\s\S]*?\{[^}]*\}/gm;
-const GET_NAME_RETURN_VALUE = /(?<=return ).*(?=;)/gm;
+const GET_NAME_RETURN_VALUE = /(?<=return ).*(?=(;|))/gm;
 const MODULE_NAME_ANNOTATION = /(?<=@ReactModule\(name.*=).*(?=\))/gm;
 
 /**
@@ -17,6 +17,13 @@ export function getModuleName(
     moduleContents
       .match(ANDROID_GET_NAME_FN)?.[0]
       ?.match(GET_NAME_RETURN_VALUE)?.[0]
+      ?.trim()
+      .replace(/;/g, '') ||
+    // Kotlin function without curly braces.
+    // override fun getName() = RNKtTestModule.NAME
+    // override fun getName() = "RNKtTestModule"
+    moduleContents
+      .match(/(?<=override fun getName\(\)\s+=).*(?=)/gm)?.[0]
       ?.trim();
   // The module doesn't have a getName() method at all. It may be a spec, or not
   // a ReactModule in the first place.
@@ -24,8 +31,9 @@ export function getModuleName(
     return null;
   }
   let variableDefinitionLine;
-  if (getNameFunctionReturnValue.startsWith(`"`))
+  if (getNameFunctionReturnValue.startsWith(`"`)) {
     return getNameFunctionReturnValue.replace(/"/g, '');
+  }
 
   // Handle scoped variables such as RNTestCaseScopedNameVariable.NAME;
   // This will extract moduleName from the correct class by searching
@@ -39,17 +47,22 @@ export function getModuleName(
         variableDefinitionLine = fs
           .readFileSync(file, { encoding: 'utf-8' })
           .split('\n')
-          .find((line) =>
-            line.includes(`String ${getNameFunctionReturnValue}`)
+          .find(
+            (line) =>
+              line.includes(`String ${getNameFunctionReturnValue}`) ||
+              line.includes(`val ${getNameFunctionReturnValue}`)
           );
       }
     }
   }
-
   if (!variableDefinitionLine) {
     variableDefinitionLine = moduleContents
       .split('\n')
-      .find((line) => line.includes(`String ${getNameFunctionReturnValue}`));
+      .find(
+        (line) =>
+          line.includes(`String ${getNameFunctionReturnValue}`) ||
+          line.includes(`val ${getNameFunctionReturnValue}`)
+      );
   }
 
   return variableDefinitionLine.split(`"`)[1];

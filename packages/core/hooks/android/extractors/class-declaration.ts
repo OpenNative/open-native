@@ -26,9 +26,7 @@ export function extractClassDeclarationForModule(file: string) {
   const reactModuleMatch = file.match(
     /@ReactModule[\s\S]*public class\s+(\w+[^(\s]*)[\s\w():]*.*{/
   );
-  if (reactModuleMatch) {
-    return reactModuleMatch;
-  }
+  if (reactModuleMatch) return reactModuleMatch;
 
   // Match any class that implements TurboModule.
   const turboModuleMatch =
@@ -38,9 +36,7 @@ export function extractClassDeclarationForModule(file: string) {
     file.match(
       /class\s+(\w+[^(\s]*)[\s\w():]*(\s+implements\s+|:)[\s\w():,]*[^{]*TurboModule/
     );
-  if (turboModuleMatch) {
-    return turboModuleMatch;
-  }
+  if (turboModuleMatch) return turboModuleMatch;
 
   const viewManagerMatch = file.match(
     /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*SimpleViewManager/
@@ -50,8 +46,23 @@ export function extractClassDeclarationForModule(file: string) {
     return viewManagerMatch
   }
 
-  // Match any class that extends ReactContextBaseJavaModule or SimpleViewManager.
-  return file.match(
+
+  // Match any class that extends ReactContextBaseJavaModule and is public.
+  const publicModuleMatch = file.match(
+    file.match(
     /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*(ReactContextBaseJavaModule | SimpleViewManager)/
   );
+  if (publicModuleMatch) return publicModuleMatch;
+
+  const moduleMatch = file.match(
+    /class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ReactContextBaseJavaModule/
+  );
+
+  if (moduleMatch) return moduleMatch;
+
+  const ktModuleMatch = file.match(
+    /class\s+(\w+)(\s+|)\(.*\)(\s+|):(\s+|)ReactContextBaseJavaModule/gm
+  );
+
+  return ktModuleMatch;
 }

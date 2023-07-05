@@ -27,13 +27,21 @@ export enum RNJavaSerialisableType {
   string, // @Nullable String
   nonnullString, // String
   boolean, // Boolean
-  nonnullBoolean, // boolean
+  nonnullBoolean,
+  javaBoolean,
+  nonnullJavaBoolean, // boolean
   int, // Integer (deprecated)
-  nonnullInt, // int (deprecated)
+  nonnullInt,
+  javaInteger,
+  nonnullJavaInteger, // int (deprecated)
   double, // double
-  nonnullDouble, // Double
+  nonnullDouble,
+  javaDouble,
+  nonnullJavaDouble, // Double
   float, // Float (deprecated)
-  nonnullFloat, // float (deprecated)
+  nonnullFloat,
+  javaFloat,
+  nonnullJavaFloat, // float (deprecated)
   nonnullObject, // ReadableMap
   object, // @Nullable ReadableMap
   array, // @Nullable ReadableArray

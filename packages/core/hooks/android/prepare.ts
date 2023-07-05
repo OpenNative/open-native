@@ -154,56 +154,56 @@ export async function autolinkAndroid({
       ),
       outputIncludeGradlePath,
     }),
+//     await writeModuleMapFile({
+//       // The autolinking info is essentially an array where each member
+//       // describes a package. Each package can have several modules, so we
+//       // reduce all the modules across all the packages into a single module
+//       // map.
+//       moduleMap: autolinkingInfo.reduce((acc, { modules }) => {
+//         modules.forEach(
+//           ({
+//             exportedMethods,
+//             exportedModuleName,
+//             exportsConstants,
+//             moduleImportNameJs,
+//             isReactViewManager,
+//           }) => {
+//             acc[exportedModuleName] = {
+//               e: exportsConstants,
+//               j: moduleImportNameJs,
+//               v: isReactViewManager,
+//               m: exportedMethods.reduce(
+//                 (
+//                   innerAcc,
+//                   {
+//                     exportedMethodName,
+//                     isBlockingSynchronousMethod,
+//                     methodNameJs,
+//                     methodTypesParsed,
+//                     prop,
+//                     defaultValue
+//                   }
+//                 ) => {
+//                   innerAcc[exportedMethodName] = {
+//                     b: isBlockingSynchronousMethod,
+//                     j: methodNameJs,
+//                     t: methodTypesParsed,
+//                     p: prop,
+//                     d: defaultValue
+//                   };
+//                   return innerAcc;
+//                 },
+//                 {}
+//               ),
+//             };
+//           }
+//         ); 
+//         return acc;
+//       }, {}),
+//       outputModuleMapPath,
+//     }),
 
-    await writeModuleMapFile({
-      // The autolinking info is essentially an array where each member
-      // describes a package. Each package can have several modules, so we
-      // reduce all the modules across all the packages into a single module
-      // map.
-      moduleMap: autolinkingInfo.reduce((acc, { modules }) => {
-        modules.forEach(
-          ({
-            exportedMethods,
-            exportedModuleName,
-            exportsConstants,
-            moduleImportNameJs,
-            isReactViewManager,
-          }) => {
-            acc[exportedModuleName] = {
-              e: exportsConstants,
-              j: moduleImportNameJs,
-              v: isReactViewManager,
-              m: exportedMethods.reduce(
-                (
-                  innerAcc,
-                  {
-                    exportedMethodName,
-                    isBlockingSynchronousMethod,
-                    methodNameJs,
-                    methodTypesParsed,
-                    prop,
-                    defaultValue
-                  }
-                ) => {
-                  innerAcc[exportedMethodName] = {
-                    b: isBlockingSynchronousMethod,
-                    j: methodNameJs,
-                    t: methodTypesParsed,
-                    p: prop,
-                    d: defaultValue
-                  };
-                  return innerAcc;
-                },
-                {}
-              ),
-            };
-          }
-        );
-    
-        return acc;
-      }, {}),
-      outputModuleMapPath,
-    }),
+
   ]);
 
   return autolinkingInfo.map(({ packageName }) => packageName);

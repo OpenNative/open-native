@@ -1,4 +1,41 @@
+import { Utils } from '@nativescript/core';
 import { RNObjcSerialisableType } from '../common';
+
+export type ModuleMetadata = {
+  [name: string]: {
+    selector: string;
+    types: number[];
+    sync: boolean;
+  };
+};
+
+export function parseModuleMetadata(className: string): ModuleMetadata {
+  const methods = Utils.dataDeserialize(
+    //@ts-ignore
+    global.reactNativeBridgeIOS.getModuleMethodObjcNames(className)
+  );
+
+  const metadata = {};
+  for (const method in methods) {
+    const parts = method.matchAll(/\w+(\s+|.):/gm);
+    let str = '';
+    for (const part of parts) {
+      str += part[0].replace(/\s+/g, '');
+    }
+    if (!str) str = method;
+    metadata[methods[method].jsName || str.split(':')[0]] = {
+      selector: str,
+      types: [...method.matchAll(/\(.*?\)/g)]
+        .map((match) => match[0].replace(/[()]/g, ''))
+        .map((type) => {
+          return extractMethodParamTypes(type.replace(/\s+/g, ''));
+        }),
+      sync: methods[method].isSync,
+    };
+  }
+  console.log(metadata);
+  return metadata;
+}
 
 export function extractMethodParamTypes(
   objcType: string
@@ -66,10 +103,6 @@ export function extractMethodParamTypes(
     case 'nonnull RCTPromiseRejectBlock':
     case 'RCTPromiseRejectBlock':
       return RNObjcSerialisableType.RCTPromiseRejectBlock;
-    case 'RCTDirectEventBlock':
-    case 'RCTBubblingEventBlock':
-    case 'RCTCapturingEventBlock':
-      return RNObjcSerialisableType.RCTEventType;
     case 'int':
       return RNObjcSerialisableType.int;
     default:

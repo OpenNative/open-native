@@ -68,14 +68,6 @@ export interface RNNativeModuleMetadata {
  * Evaluates whether a given React Native native module method should return a
  * Promise, based on its method types.
  */
-export function isPromise(
-  moduleMethods: TModuleMethodsType,
-  methodName: string
-): boolean {
-  // We search for RCTPromiseResolveBlock only from index 1 onwards, as index 0
-  // holds the return type rather than the params.
-  return moduleMethods[methodName].t.includes(
-    RNObjcSerialisableType.RCTPromiseResolveBlock,
-    1
-  );
+export function isPromise(types: RNObjcSerialisableType[]): boolean {
+  return types.includes(RNObjcSerialisableType.RCTPromiseResolveBlock);
 }

@@ -36,11 +36,13 @@
     "@babel/core": "^7.18.13",
     "@babel/runtime": "^7.18.9",
     "@nativescript/core": "~8.3.5",
+    "@nativescript/ios": "8.5.2",
     "@nativescript/plugin-tools": "4.1.1",
     "@nativescript/types": "~8.3.1",
     "@nativescript/webpack": "~5.0.5",
     "@nrwl/react-native": "14.7.5",
     "@react-native-community/eslint-config": "^3.1.0",
+    "@rigor789/resolve-package-path": "1.0.5",
     "@types/glob": "^8.0.0",
     "@types/jest": "28.1.8",
     "@types/react-native": "^0.67.8",
@@ -59,8 +61,7 @@
     "react-test-renderer": "^17.0.2",
     "rxjs": "~7.5.0",
     "typescript": "~4.7.3",
-    "zone.js": "~0.11.1",
-    "@rigor789/resolve-package-path": "1.0.5"
+    "zone.js": "~0.11.1"
   },
   "lint-staged": {
     "**/*.{js,ts,scss,json,html}": [

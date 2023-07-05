@@ -1,4 +1,28 @@
+import { Utils } from '@nativescript/core';
 import { RNJavaSerialisableType } from '../common';
+
+export type ModuleMetadata = {
+  [name: string]: {
+    types: number[];
+    sync: boolean;
+  };
+};
+
+export function parseModuleMetadata(moduleName: string): ModuleMetadata {
+  const methods = Utils.dataDeserialize(
+    global.reactNativeBridgeAndroid.getModuleMethods(moduleName)
+  );
+  const metadata = {};
+  for (const method in methods) {
+    metadata[method] = {
+      types: methods[method].types.map((type) => {
+        return extractMethodParamTypes(type);
+      }),
+      sync: methods[method].isSync,
+    };
+  }
+  return metadata;
+}
 
 export function extractMethodParamTypes(
   javaType: string

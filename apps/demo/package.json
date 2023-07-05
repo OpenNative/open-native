@@ -4,15 +4,22 @@
   "license": "SEE LICENSE IN <your-license-filename>",
   "repository": "<fill-your-repository-here>",
   "dependencies": {
+    "@baronha/react-native-multiple-image-picker": "^1.0.0",
     "@nativescript/core": "file:../../node_modules/@nativescript/core",
     "@open-native/core": "file:../../packages/core",
     "react-native-module-test": "file:../../packages/react-native-module-test",
-    "react-native-webview": "^12.2.0"
+    "react-native-webview": "^12.2.0",
+    "react-native-module-test": "file:../../packages/react-native-module-test"
+
   },
   "devDependencies": {
-    "@nativescript/android": "~8.4.0",
+    "@nativescript/android": "~8.5.0",
     "@nativescript/ios": "~8.4.0",
     "@rigor789/resolve-package-path": "1.0.5",
     "metro-react-native-babel-preset": "file:../../node_modules/metro-react-native-babel-preset"
+  },
+  "scripts": {
+    "clean:android": "cd platforms/android && ./gradlew clean",
+    "clean:ios": "cd platforms/ios && rm -rf build && rm -rf DerivedData"
   }
 }

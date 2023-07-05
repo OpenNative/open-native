@@ -11,6 +11,8 @@ module.exports = (env) => {
     config.resolve.alias.set('react-native', '@open-native/core');
     config.resolve.alias.set('crypto', 'crypto-js');
 
+    config.entry('application').add('./application.android');
+
     config.module
       .rule('rnmodules')
       .include.add(/node_modules(.*[/\\])+react-native-auth0/)

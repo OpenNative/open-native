@@ -22,6 +22,7 @@ export function extractObjcMethodContents(
   const signature = `- (${isSync ? 'id' : 'void'})${contents
     .trim()
     .replace(/\s+/g, ' ') // Standardise all whitespace to a single space
+    .replace(/__unused /g, '') // Remove __unused
     .replace(/\s?\*\s?/g, '*') // Collapse (NSString *) or similar to (NSString*)
     .replace(/\s*:\s*/g, ':')};`;
 

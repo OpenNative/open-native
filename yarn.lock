@@ -1659,6 +1659,11 @@
     "glob" "^7.1.0"
     "mkdirp" "^1.0.4"
 
+"@nativescript/ios@8.5.2":
+  "integrity" "sha512-IqWcvkw7eKxnAjY+Kmbn3Cc5qRC/2LcALeoH9CQnpNDd3INGudFQz+KGfEHnK3VK9uUgnj+16TaIPj0LFLQKew=="
+  "resolved" "https://registry.npmjs.org/@nativescript/ios/-/ios-8.5.2.tgz"
+  "version" "8.5.2"
+
 "@nativescript/nx@^4.0.2":
   "integrity" "sha512-OLfzwhtuJGEUFfyhx2xZKyOXOmdR1SL/2qREIsQhylsFCFj30X6mIF5Wd8r6lTO0wXvNIT4ZjIwOBY9s3mENYQ=="
   "resolved" "https://registry.npmjs.org/@nativescript/nx/-/nx-4.0.2.tgz"

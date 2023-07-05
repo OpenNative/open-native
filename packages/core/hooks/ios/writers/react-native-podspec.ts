@@ -34,7 +34,7 @@ export async function writeReactNativePodspecFile({
     `  s.source_files  = "lib_community/**/*.{h,m,mm,swift}"`,
     ``,
     `  s.dependency 'React-Core'`,
-    ...podspecNames.map((name) => `  s.dependency '${name}'`),
+    // ...podspecNames.map((name) => `  s.dependency '${name}'`),
     `end`,
     ``,
   ].join('\n');

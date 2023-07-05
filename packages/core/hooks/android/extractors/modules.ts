@@ -1,10 +1,12 @@
-import { globProm, readFileSync } from '../common';
+import * as path from 'path';
+import { globProm } from '../common';
 import { getModuleImportPath } from '../getters/module-import-path';
 import { getModuleName, resolveVariableValue } from '../getters/module-name';
+import { loadModuleContents } from '../writers/load-module-contents';
+
 import { extractClassDeclarationForModule } from './class-declaration';
 import { extractMethodParamTypes } from './module-param-types';
 import { extractClassDeclarationForPackage } from './package-class-declaration';
-import * as path from 'path';
 
 const ANDROID_REACT_PROP_REGEX = /(?<=@ReactProp\(name.*= ")(.*)(?=")/gm;
 const ANDROID_REACT_PROP_DEFAULT_VALUE =
@@ -17,8 +19,9 @@ const ANDROID_METHOD_REGEX =
 export async function extractPackageModules(folder: string) {
   let filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
   filePaths = filePaths.map((filePath) => path.join(folder, filePath));
+
   const files = filePaths.map((filePath) => ({
-    contents: readFileSync(filePath, 'utf8'),
+    contents: loadModuleContents(filePath),
     path: filePath,
   }));
 
@@ -30,6 +33,7 @@ export async function extractPackageModules(folder: string) {
     match: RegExpMatchArray;
     superclassName: string;
     path: string;
+    isPublic: boolean;
   }[] = [];
 
   for (const file of files) {
@@ -38,7 +42,7 @@ export async function extractPackageModules(folder: string) {
         file.contents
       );
     }
-
+    
     const moduleDeclarationMatch = extractClassDeclarationForModule(
       file.contents
     );
@@ -48,15 +52,16 @@ export async function extractPackageModules(folder: string) {
       const superclassName = moduleClassSignature.match(
         /(?:extends\s+|:)(\w+)/
       )?.[1];
-      if (!superclassName) {
-        continue;
-      }
-
+      // if (!superclassName) {
+      //   continue;
+      // }
       moduleDeclarationMatches.push({
         contents: file.contents,
         match: moduleDeclarationMatch,
         superclassName,
         path: file.path,
+        isPublic:
+          file.indexOf('public class') > -1 || file.includes('//#kotlin'),
       });
     }
   }
@@ -102,6 +107,7 @@ export async function extractPackageModules(folder: string) {
         match: moduleDeclarationMatch,
         superclassName,
         path,
+        isPublic,
       }) => {
         const [, moduleClassName] = moduleDeclarationMatch;
 
@@ -136,7 +142,9 @@ export async function extractPackageModules(folder: string) {
              * @example ['@Override @DoNotStrip public abstract void getInitialURL(Promise promise);']
              */
             raw = raw.replace(/\s+/g, ' ');
+            
             const nativeDefinition = raw.split('{')[0].trim() + ';';
+
             const hasReactMethodAnnotation =
               raw.includes('@ReactMethod ') || raw.includes('@ReactMethod(');
             const hasReactPropAnnotation = raw.includes('@ReactProp');
@@ -299,6 +307,7 @@ export async function extractPackageModules(folder: string) {
           moduleImportPath,
           /** @example @ReactProp(name = "color") */
           isReactViewManager: moduleContents.includes('@ReactProp'),
+          isPublic: isPublic,
         };
       }
     );

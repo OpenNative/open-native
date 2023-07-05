@@ -21,15 +21,17 @@ export function getJSModules() {
   return global.jsModulesAndroid;
 }
 
+function emit(eventType, params) {
+  const data = toJSValue(params);
+  setTimeout(() => {
+    DeviceEventEmitter.emit(eventType, data);
+  }, 1);
+}
+
 function RCTDeviceEventEmitter() {
   return new com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter(
     {
-      emit(eventType, params) {
-        const data = toJSValue(params);
-        setTimeout(() => {
-          DeviceEventEmitter.emit(eventType, data);
-        }, 1);
-      },
+      emit: emit,
     }
   );
 }
@@ -46,6 +48,7 @@ function RCTNativeAppEventEmitter() {
 }
 
 const viewRegistry = {};
+
 function RCTEventEmitter() {
   return new com.facebook.react.uimanager.events.RCTEventEmitter({
     receiveTouches(param0, param1, param2) {
@@ -100,6 +103,10 @@ export function getCurrentBridge() {
     getJSModules().registerJSModule(
       'RCTDeviceEventEmitter',
       RCTDeviceEventEmitter()
+    );
+    getJSModules().registerJSModule(
+      'RCTNativeAppEventEmitter',
+      RCTNativeAppEventEmitter()
     );
     getJSModules().registerJSModule(
       'AppRegistry',
@@ -207,38 +214,12 @@ function attachActivityLifecycleListeners(reactContext: ReactContext) {
   Application.android.on(
     AndroidApplication.activityResultEvent,
     (args: AndroidActivityResultEventData) => {
-      if (args.activity.getIntent().getData()) {
-        reactContext.onActivityResult(
-          args.activity,
-          args.requestCode,
-          args.resultCode,
-          args.activity.getIntent()
-        );
-        return;
-      }
-      const callback = (_args: Partial<AndroidActivityNewIntentEventData>) => {
-        reactContext.onActivityResult(
-          args.activity,
-          args.requestCode,
-          _args.intent.getData() ? -1 : args.resultCode,
-          _args.intent
-        );
-        Application.android.off(
-          AndroidApplication.activityNewIntentEvent,
-          callback
-        );
-      };
-      Application.android.on(
-        AndroidApplication.activityNewIntentEvent,
-        callback
+      reactContext.onActivityResult(
+        args.activity,
+        args.requestCode,
+        args.resultCode,
+        args.intent
       );
-      setTimeout(() => {
-        Application.android.off(
-          AndroidApplication.activityNewIntentEvent,
-          callback
-        );
-        callback({ intent: args.activity.getIntent() });
-      }, 1000);
     }
   );
 }

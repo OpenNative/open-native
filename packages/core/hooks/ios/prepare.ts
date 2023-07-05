@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { readFile } from './common';
+import { OpenNativeConfig, readFile } from './common';
 import { getPackageAutolinkInfo } from './getters/autolink-info';
 import { writeModuleMapFile } from './writers/modulemap';
 import { writePodfile } from './writers/podfile';
@@ -15,6 +15,7 @@ type AutolinkIosParams = {
   outputPodspecPath: string;
   outputModuleMapPath: string;
   outputViewManagerTypesPath: string;
+  config: OpenNativeConfig;
 };
 
 /**
@@ -41,6 +42,7 @@ export async function autolinkIos({
   outputPodspecPath,
   outputModuleMapPath,
   outputViewManagerTypesPath,
+  config,
 }: AutolinkIosParams) {
   const packageJson = JSON.parse(
     await readFile(path.join(packageDir, '/package.json'), {
@@ -55,6 +57,7 @@ export async function autolinkIos({
           ownPackageName: packageJson.name,
           packageName,
           projectDir,
+          config,
         })
       )
     )
@@ -70,11 +73,11 @@ export async function autolinkIos({
   );
 
   await Promise.all([
-    await writeRNPodspecsHeaderFile({
-      importDecls: autolinkingInfo.map(({ importDecl }) => importDecl),
-      headerEntries: autolinkingInfo.map(({ headerEntry }) => headerEntry),
-      outputHeaderPath,
-    }),
+    // await writeRNPodspecsHeaderFile({
+    //   importDecls: autolinkingInfo.map(({ importDecl }) => importDecl),
+    //   headerEntries: autolinkingInfo.map(({ headerEntry }) => headerEntry),
+    //   outputHeaderPath,
+    // }),
 
     await writePodfile({
       autolinkedDeps: autolinkingInfo.map(({ podfileEntry }) => podfileEntry),
@@ -82,19 +85,21 @@ export async function autolinkIos({
     }),
 
     await writeReactNativePodspecFile({
-      podspecNames: autolinkingInfo.map(({ podspecName }) => podspecName),
+      podspecNames: autolinkingInfo
+        .map(({ podspecName, subspecNames }) => {
+          return podspecName ? [podspecName, ...subspecNames] : subspecNames;
+        })
+        .flat(),
       outputPodspecPath,
     }),
-
-    await writeModuleMapFile({
-      moduleNamesToMethodDescriptions: moduleNamesToMethodDescriptionsCombined,
-      outputModuleMapPath,
-    }),
-
     await writeViewManagerTypes({
       modules: moduleNamesToMethodDescriptionsCombined,
       outputViewManagerTypesPath: outputViewManagerTypesPath,
     }),
+    // await writeModuleMapFile({
+    //   moduleNamesToMethodDescriptions: moduleNamesToMethodDescriptionsCombined,
+    //   outputModuleMapPath,
+    // }),
   ]);
 
   return autolinkingInfo.map(({ packageName }) => packageName);

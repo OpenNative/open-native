@@ -27,6 +27,7 @@ export async function writePackagesJavaFile({
       exportedModuleName: string;
       moduleImportName: string;
       moduleClassName: string;
+      isPublic: boolean;
     }[];
   }[];
   outputPackagesJavaPath: string;
@@ -41,7 +42,11 @@ export async function writePackagesJavaFile({
     '',
     '// Import all module classes',
     ...packages.flatMap(({ modules }) =>
-      modules.map((m) => `import ${m.moduleImportName};`)
+      modules.map((m) =>
+        !m.isPublic
+          ? `// Module ${m.moduleClassName} is private and will be loaded via it's package instead.`
+          : `import ${m.moduleImportName};`
+      )
     ),
     '',
     'import java.util.ArrayList;',
@@ -69,11 +74,14 @@ export async function writePackagesJavaFile({
     ...packages.flatMap(({ modules, packageImportPath }) =>
       modules.map((m) =>
         [
-          `    moduleClasses.put("${m.exportedModuleName}", ${m.moduleClassName}.class);`,
-          `    modulePackageMap.put("${m.moduleClassName}", "${packageImportPath
-            ?.split('.')
-            ?.pop()
-            ?.replace(';', '')}");`,
+          `    ${
+            m.isPublic
+              ? `moduleClasses.put("${m.exportedModuleName}", ${m.moduleClassName}.class);`
+              : `// Module ${m.moduleClassName} is private and will be loaded via it's package instead.`
+          }`,
+          `    modulePackageMap.put("${
+            m.exportedModuleName
+          }", "${packageImportPath?.split('.')?.pop()?.replace(';', '')}");`,
         ].join('\n')
       )
     ),
