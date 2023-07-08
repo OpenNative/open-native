@@ -1,6 +1,8 @@
 package com.bridge;
 
+import android.util.JsonWriter;
 import android.util.Log;
+import android.view.View;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.BaseJavaModule;
@@ -8,12 +10,19 @@ import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 
+import com.facebook.react.uimanager.BaseViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewManager;
 
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.uimanager.annotations.ReactProp;
+import com.facebook.react.uimanager.annotations.ReactPropGroup;
 
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Native;
@@ -24,16 +33,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class Bridge {
   public static String TAG = "RNBridge";
   public static Packages packages = new Packages();
   public HashMap<String, NativeModule> modules = new HashMap<>();
   public ReactApplicationContext reactContext;
+  public HashMap<String, String> metadataCache = new HashMap<>();
 
   public Bridge(ReactApplicationContext context) {
     reactContext = context;
     Packages.init();
+    new Thread(() -> {
+      for (String module: Packages.moduleClasses.keySet()) {
+          metadataCache.put(module, getModuleMethods(module));
+      }
+    }).start();
   }
 
   /**
@@ -57,8 +73,8 @@ public class Bridge {
             module.initialize();
           }
 
-          for (NativeModule module: modules_chunk2) {
-            modules.put(module.getName() + "Manager",module);
+          for (NativeModule module : modules_chunk2) {
+            modules.put(module.getName() + "Manager", module);
             module.initialize();
           }
         }
@@ -82,45 +98,84 @@ public class Bridge {
     }
   }
 
+  public String getModuleMethods(String name) {
+    if (metadataCache.containsKey(name)) return metadataCache.get(name);
+    try {
+      JSONObject methods = new JSONObject();
 
-  public Map<String, Map<String, Object>> getModuleMethods(String name) {
-    Map methods = new HashMap();
+      Class clazz = Packages.moduleClasses.get(name);
 
-    Class clazz = Packages.moduleClasses.get(name);
+      if (clazz == null) {
+        // The module is private therefore we need to load the
+        // module through it's Package to get method metadata.
+        NativeModule module = getModuleByName(name);
+        clazz = module.getClass();
+      }
 
-    if (clazz == null) {
-      // The module is private therefore we need to load the
-      // module through it's Package to get method metadata.
-      NativeModule module = getModuleByName(name);
-      clazz = module.getClass();
-    }
-    while (clazz != ReactContextBaseJavaModule.class) {
-      for (final Method method : clazz.getDeclaredMethods()) {
-        if (method.isAnnotationPresent(ReactMethod.class)) {
-          Map methodInfo = new HashMap();
-          ReactMethod reactMethod = method.getAnnotation(ReactMethod.class);
-          methodInfo.put("sync", reactMethod.isBlockingSynchronousMethod());
-          methods.put(method.getName(), methodInfo);
-          ArrayList<String> types = new ArrayList<>();
-          Class<?>[] paramTypes = method.getParameterTypes();
-          Annotation[][] annotations = method.getParameterAnnotations();
-          for (int i = 0; i < paramTypes.length; i++) {
-            Annotation[] paramAnnotations = annotations[i];
-            String paramType = "";
-            for (Annotation annotation : paramAnnotations) {
-              paramType += "@" + annotation.getClass().getSimpleName() + " ";
-            }
-            paramType += paramTypes[i].getSimpleName();
-            types.add(paramType);
+      JSONArray superClasses = new JSONArray();
+      while (clazz != ReactContextBaseJavaModule.class && clazz != BaseJavaModule.class && clazz != BaseViewManager.class) {
+        superClasses.put(clazz.getName());
+        Method[] declaredMethods = clazz.getDeclaredMethods();
+
+        for (final Method method : declaredMethods) {
+          JSONObject methodInfo = new JSONObject();
+          JSONArray types = new JSONArray();
+          boolean isAnnotationPresent = false;
+
+          if (method.isAnnotationPresent(ReactMethod.class)) {
+            isAnnotationPresent = true;
+            ReactMethod reactMethod = method.getAnnotation(ReactMethod.class);
+            methodInfo.put("sync", reactMethod.isBlockingSynchronousMethod());
           }
 
-          methodInfo.put("types", types);
-        }
-      }
-      clazz = clazz.getSuperclass();
-    }
+          if (method.isAnnotationPresent(ReactProp.class)) {
+            isAnnotationPresent = true;
+            ReactProp reactProp = method.getAnnotation(ReactProp.class);
+            methodInfo.put("prop", reactProp.name());
+            methodInfo.put("defaultBoolean", reactProp.defaultBoolean());
+            methodInfo.put("defaultDouble", reactProp.defaultDouble());
+            methodInfo.put("defaultInt", reactProp.defaultInt());
+            methodInfo.put("defaultFloat", reactProp.defaultFloat());
+          }
 
-    return methods;
+          if (method.isAnnotationPresent(ReactPropGroup.class)) {
+            ReactPropGroup reactPropGroup = method.getAnnotation(ReactPropGroup.class);
+            for (String propName : reactPropGroup.names()) {
+              methodInfo.put("prop", propName);
+              methodInfo.put("defaultDouble", reactPropGroup.defaultDouble());
+              methodInfo.put("defaultInt", reactPropGroup.defaultInt());
+              methodInfo.put("defaultFloat", reactPropGroup.defaultFloat());
+            }
+          }
+
+          if (isAnnotationPresent) {
+            Class<?>[] paramTypes = method.getParameterTypes();
+            //Annotation[][] annotations = method.getParameterAnnotations();
+            for (int i = 0; i < paramTypes.length; i++) {
+//              Annotation[] paramAnnotations = annotations[i];
+//              String paramType = "";
+//              for (Annotation annotation : paramAnnotations) {
+//                paramType += "@" + annotation.getClass().getSimpleName() + " ";
+//              }
+//              paramType += paramTypes[i].getSimpleName();
+              types.put(paramTypes[i].getSimpleName());
+              methods.put(method.getName(), methodInfo);
+              methodInfo.put("methodDefinition", method.toString());
+              methodInfo.put("types", types);
+            }
+          }
+        }
+        clazz = clazz.getSuperclass();
+      }
+
+      JSONObject metadata = new JSONObject();
+      metadata.put("methods", methods);
+      metadata.put("superClasses", superClasses);
+
+      return metadata.toString();
+    } catch (Exception e) {
+      return "";
+    }
   }
 
 
@@ -128,23 +183,23 @@ public class Bridge {
     return Packages.moduleClasses.get(name) != null || Packages.modulePackageMap.get(name) != null;
   }
 
-  public NativeModule getModuleByName(String name, boolean isViewManager) {
+  public NativeModule getModuleByName(String name) {
 
     if (modules.containsKey(name)) return modules.get(name);
-    return loadModuleByName(name, isViewManager);
+    return loadModuleByName(name);
   }
 
-  public NativeModule getModuleForClass(Class clazz, boolean isViewManager) {
+  public NativeModule getModuleForClass(Class clazz) {
     for (String moduleName : modules.keySet()) {
       NativeModule module = modules.get(moduleName);
       if (module.getClass().equals(clazz)) {
         return module;
       }
     }
-    return loadModuleForClass(clazz,isViewManager);
+    return loadModuleForClass(clazz);
   }
 
-  NativeModule loadModuleByName(String name, boolean isViewManager) {
+  NativeModule loadModuleByName(String name) {
     Class moduleClass = Packages.moduleClasses.get(name);
     if (moduleClass == null) {
       // If module is not found, we look for it's package
@@ -157,15 +212,18 @@ public class Bridge {
       }
       return null;
     }
-    return loadModuleForClass(moduleClass,isViewManager);
+    return loadModuleForClass(moduleClass);
   }
 
   public boolean hasNativeModule(Class clazz) {
     return !Packages.moduleClasses.containsValue(clazz);
   }
 
-  NativeModule loadModuleForClass(Class moduleClass, boolean isViewManager) {
+
+
+  NativeModule loadModuleForClass(Class<NativeModule> moduleClass) {
     try {
+
       if (!Packages.moduleClasses.containsValue(moduleClass)) {
         Log.d(TAG, "Module for class" + moduleClass.getName() + "not found");
         return null;
@@ -175,17 +233,17 @@ public class Bridge {
         if (constructor.getParameterTypes().length == 1 &&
           (constructor.getParameterTypes()[0] == ReactContext.class ||
             constructor.getParameterTypes()[0] == ReactApplicationContext.class)) {
-          
+
           NativeModule module = (NativeModule) constructor.newInstance(reactContext);
           modules.put(module.getName(), module);
           module.initialize();
           return module;
-        } else if (isViewManager) {
+        } else if (constructor.getParameterTypes().length == 0) {
           NativeModule module = (NativeModule) constructor.newInstance();
-          modules.put(module.getName() + "Manager", module);
+          modules.put(module.getName(), module);
           module.initialize();
           return module;
-        } else  {
+        } else {
           /**
            * Load the package for the module instead if
            * we are not able to load the module without the
@@ -197,10 +255,10 @@ public class Bridge {
            */
           String pkgName = Packages.modulePackageMap.get(moduleClass.getSimpleName());
           loadModulesForPackage(pkgName);
-          return getModuleForClass(moduleClass,isViewManager);
+          return getModuleForClass(moduleClass);
         }
       }
-    } catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+    } catch (Exception e) {
       Log.d(TAG, "Failed to load module for class" + moduleClass.getName());
       e.printStackTrace();
     }

@@ -8,11 +8,17 @@ package com.facebook.react.uimanager;
 
 import static com.facebook.react.uimanager.common.UIManagerType.DEFAULT;
 
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.UIManager;
+import com.facebook.react.bridge.UIManagerListener;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.module.annotations.ReactModule;
 import com.facebook.react.uimanager.common.ViewUtil;
@@ -20,14 +26,71 @@ import com.facebook.react.uimanager.events.Event;
 import com.facebook.react.uimanager.events.EventDispatcher;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
+import java.util.List;
+
 
 @ReactModule(name = UIManagerModule.NAME)
-public class UIManagerModule extends ReactContextBaseJavaModule  {
+public class UIManagerModule extends ReactContextBaseJavaModule implements UIManager {
 
   public static final String NAME = "UIManager";
 
   public UIManagerModule(ReactApplicationContext context) {
     super(context);
+  }
+
+  @Override
+  public <T extends View> int addRootView(T rootView, WritableMap initialProps, @Nullable String initialUITemplate) {
+    return 0;
+  }
+
+  @Override
+  public <T extends View> int startSurface(T rootView, String moduleName, WritableMap initialProps, int widthMeasureSpec, int heightMeasureSpec) {
+    return 0;
+  }
+
+  @Override
+  public void stopSurface(int surfaceId) {
+
+  }
+
+  @Override
+  public void updateRootLayoutSpecs(int rootTag, int widthMeasureSpec, int heightMeasureSpec, int offsetX, int offsetY) {
+
+  }
+
+  @Override
+  public void dispatchCommand(int reactTag, int commandId, @Nullable ReadableArray commandArgs) {
+
+  }
+
+  @Override
+  public void dispatchCommand(int reactTag, String commandId, @Nullable ReadableArray commandArgs) {
+
+  }
+
+  @Override
+  public void synchronouslyUpdateViewOnUIThread(int reactTag, ReadableMap props) {
+
+  }
+
+  @Override
+  public void sendAccessibilityEvent(int reactTag, int eventType) {
+
+  }
+
+  @Override
+  public void addUIManagerEventListener(UIManagerListener listener) {
+
+  }
+
+  @Override
+  public void removeUIManagerEventListener(UIManagerListener listener) {
+
+  }
+
+  @Override
+  public View resolveView(int reactTag) {
+    return null;
   }
 
   public void receiveEvent(int reactTag, String eventName, @Nullable WritableMap event) {
@@ -40,6 +103,17 @@ public class UIManagerModule extends ReactContextBaseJavaModule  {
     getReactApplicationContext()
         .getJSModule(RCTEventEmitter.class)
         .receiveEvent(reactTag, eventName, event);
+  }
+
+  @Nullable
+  @Override
+  public String resolveCustomDirectEventName(@Nullable String eventName) {
+    return null;
+  }
+
+  @Override
+  public void preInitializeViewManagers(List<String> viewManagerNames) {
+
   }
 
   public EventDispatcher getEventDispatcher() {

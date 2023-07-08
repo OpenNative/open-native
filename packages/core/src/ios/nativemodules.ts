@@ -10,7 +10,7 @@ import {
 } from './converter';
 import { ModuleMetadata, parseModuleMetadata } from './metadata';
 
-class NativeModuleHolder implements Partial<NativeModule> {
+export class NativeModuleHolder implements Partial<NativeModule> {
   private readonly bridge: RCTBridge = getCurrentBridge();
   public readonly moduleMetadata: ModuleMetadata | undefined;
 
@@ -77,8 +77,9 @@ class NativeModuleHolder implements Partial<NativeModule> {
   }
 
   private wrapNativeMethods(): void {
-    for (const exportedMethodName in this.moduleMetadata) {
-      const { types, sync, selector } = this.moduleMetadata[exportedMethodName];
+    for (const exportedMethodName in this.moduleMetadata.methods) {
+      const { types, sync, selector } =
+        this.moduleMetadata.methods[exportedMethodName];
 
       this[exportedMethodName] = (...args: RNNativeModuleArgType[]) => {
         if (!this.nativeModule) {
@@ -94,7 +95,6 @@ class NativeModuleHolder implements Partial<NativeModule> {
     }
   }
 }
-
 
 let MODULE_CLASS_NAMES = [];
 const nativeModuleProxyHandle: ProxyHandler<{}> = {

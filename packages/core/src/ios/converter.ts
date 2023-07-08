@@ -35,7 +35,8 @@ export function toNativeArguments(
   argumentTypes: RNObjcSerialisableType[],
   args: JSValuePassableIntoObjc[],
   resolve?: (value: JSONSerialisable) => void,
-  reject?: (reason: Error) => void
+  reject?: (reason: Error) => void,
+  strict = true
 ): { arguments: RNNativeModuleMethodArg[]; blocks: RCTFunctionBlocks } {
   const nativeArguments: RNNativeModuleMethodArg[] = [];
   const blocks: RCTFunctionBlocks = [
@@ -52,16 +53,21 @@ export function toNativeArguments(
   for (let i = 0; i < argumentTypes.length; i++) {
     const argType = argumentTypes[i];
 
-    const data = args[i];
+    let data = args[i];
 
     switch (argType) {
       case RNObjcSerialisableType.returnType: {
         break;
       }
       case RNObjcSerialisableType.other: {
-        throw new Error(
-          `Unexpected type 'other' at index ${i} - the autolinker must have failed to parse the native module.`
-        );
+        if (strict) {
+          throw new Error(
+            `Unexpected type 'other' at index ${i} - the autolinker must have failed to parse the native module.`
+          );
+        } else {
+          nativeArguments.push(undefined);
+          break;
+        }
       }
 
       case RNObjcSerialisableType.array:

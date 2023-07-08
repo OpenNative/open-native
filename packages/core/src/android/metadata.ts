@@ -1,26 +1,36 @@
-import { Utils } from '@nativescript/core';
 import { RNJavaSerialisableType } from '../common';
 
 export type ModuleMetadata = {
-  [name: string]: {
-    types: number[];
-    sync: boolean;
+  methods: {
+    [name: string]: {
+      types: number[];
+      sync?: boolean;
+      prop?: string;
+      defaultBoolean?: boolean;
+      defaultInt?: number;
+      defautlDouble?: number;
+      defaultFloat?: number;
+    };
   };
+  viewManager: boolean;
+  superClasses: string[];
 };
 
 export function parseModuleMetadata(moduleName: string): ModuleMetadata {
-  const methods = Utils.dataDeserialize(
-    global.reactNativeBridgeAndroid.getModuleMethods(moduleName)
-  );
-  const metadata = {};
-  for (const method in methods) {
-    metadata[method] = {
-      types: methods[method].types.map((type) => {
-        return extractMethodParamTypes(type);
-      }),
-      sync: methods[method].isSync,
-    };
+  const get = global.reactNativeBridgeAndroid.getModuleMethods(
+    moduleName
+  ) as unknown as any;
+
+  const metadata = JSON.parse(get);
+
+  for (const method in metadata.methods) {
+    metadata.methods[method].types = metadata.methods[method].types.map(
+      (type) => {
+        return extractMethodParamTypes(type as string);
+      }
+    );
   }
+
   return metadata;
 }
 
@@ -30,7 +40,6 @@ export function extractMethodParamTypes(
   // Splitting before the generic should be redundant (we erased them earlier),
   // but just in case the implementation changes in future.
   const splitBeforeGeneric = javaType.split('<')[0];
-
   if (splitBeforeGeneric.includes('@NonNull String')) {
     return RNJavaSerialisableType.nonnullString;
   }

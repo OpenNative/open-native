@@ -42,7 +42,7 @@ export async function extractPackageModules(folder: string) {
         file.contents
       );
     }
-    
+
     const moduleDeclarationMatch = extractClassDeclarationForModule(
       file.contents
     );
@@ -61,7 +61,8 @@ export async function extractPackageModules(folder: string) {
         superclassName,
         path: file.path,
         isPublic:
-          file.indexOf('public class') > -1 || file.includes('//#kotlin'),
+          file.contents.indexOf('public class') > -1 ||
+          file.contents.includes('//#kotlin'),
       });
     }
   }
@@ -142,7 +143,7 @@ export async function extractPackageModules(folder: string) {
              * @example ['@Override @DoNotStrip public abstract void getInitialURL(Promise promise);']
              */
             raw = raw.replace(/\s+/g, ' ');
-            
+
             const nativeDefinition = raw.split('{')[0].trim() + ';';
 
             const hasReactMethodAnnotation =

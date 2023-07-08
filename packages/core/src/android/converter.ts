@@ -213,26 +213,14 @@ export function toNativeArguments(
     const argType = argumentTypes[i];
     let data = args[i];
 
-    // assert(
-    //   typeof data !== 'undefined',
-    //   `Unexpected \`undefined\` value passed in at index ${i} for argument type "${RNJavaSerialisableType[argType]}". Note that Obj-C does not have an equivalent to undefined.`
-    // );
-
-    // if (
-    //   argType === RNJavaSerialisableType.nonnullArray ||
-    //   argType === RNJavaSerialisableType.nonnullBoolean ||
-    //   argType === RNJavaSerialisableType.nonnullDouble ||
-    //   argType === RNJavaSerialisableType.nonnullFloat ||
-    //   argType === RNJavaSerialisableType.nonnullInt ||
-    //   argType === RNJavaSerialisableType.nonnullObject ||
-    //   argType === RNJavaSerialisableType.nonnullString ||
-    //   argType === RNJavaSerialisableType.nonnullCallback
-    // ) {
-    //   assert(
-    //     data !== null,
-    //     `Unexpectedly got null for nonnull argument type "${RNJavaSerialisableType[argType]}."`
-    //   );
-    // }
+    if (
+      argType !== RNJavaSerialisableType.string &&
+      argType !== RNJavaSerialisableType.nonnullString &&
+      argType !== RNJavaSerialisableType.Callback &&
+      argType !== RNJavaSerialisableType.Promise
+    ) {
+      data = fromJSON(data as string);
+    }
 
     switch (argType) {
       case RNJavaSerialisableType.other: {
@@ -248,7 +236,6 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullArray: {
-        data = fromJSON(data as string);
         assert(
           data === null || Array.isArray(data),
           `Argument at index ${i} expected an Array value, but got ${data}`
@@ -265,7 +252,6 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullObject: {
-        data = fromJSON(data as string);
         assert(
           data === null || data?.constructor === Object,
           `Argument at index ${i} expected an object value, but got ${data}`
@@ -312,7 +298,6 @@ export function toNativeArguments(
         break;
 
       case RNJavaSerialisableType.nonnullBoolean:
-        data = fromJSON(data as string);
         assert(
           typeof data === 'boolean' || isNullOrUndefined(data),
           `Argument at index ${i} expected a boolean, but got ${data}`
@@ -366,7 +351,6 @@ export function toNativeArguments(
         nativeArguments.push(data as number);
         break;
       case RNJavaSerialisableType.nonnullInt:
-        data = fromJSON(data as string);
         assert(
           typeof data === 'number' || isNullOrUndefined(data),
           `Argument at index ${i} expected a number, but got ${data}`
@@ -399,7 +383,6 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullFloat:
-        data = fromJSON(data as string);
         assert(
           typeof data === 'number' || isNullOrUndefined(data),
           `Argument at index ${i} expected a number, but got ${data}`
@@ -432,7 +415,6 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNJavaSerialisableType.nonnullDouble:
-        data = fromJSON(data as string);
         assert(
           typeof data === 'number' || isNullOrUndefined(data),
           `Argument at index ${i} expected a number, but got ${data}`

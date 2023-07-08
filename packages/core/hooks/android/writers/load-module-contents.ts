@@ -1,4 +1,4 @@
-import { readFile, writeFile } from '../common';
+import { readFileSync, writeFile } from '../common';
 
 const ANDROID_PRIVATE_METHOD_REGEX =
   /(?:@Override|@ReactMethod)[\s\S]*?private[\s\S]*?[{;]/gm;
@@ -10,8 +10,8 @@ const REACT_METHOD_ANNOTATION = '@ReactMethod';
  * @param modulePath Absolute path to the module file
  * @returns
  */
-export async function loadModuleContents(modulePath: string) {
-  const contents = await readFile(modulePath, { encoding: 'utf-8' });
+export function loadModuleContents(modulePath: string) {
+  const contents = readFileSync(modulePath, { encoding: 'utf-8' });
   const matchedPrivateMethods = contents.match(ANDROID_PRIVATE_METHOD_REGEX);
   let updatedContents = contents;
   if (modulePath.endsWith('.kt')) {
@@ -34,7 +34,7 @@ export async function loadModuleContents(modulePath: string) {
         return token;
       })
       .join('\n');
-    await writeFile(modulePath, updatedContents, {
+    writeFile(modulePath, updatedContents, {
       encoding: 'utf-8',
     });
     return updatedContents;

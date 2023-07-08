@@ -2,20 +2,38 @@ import { Utils } from '@nativescript/core';
 import { RNObjcSerialisableType } from '../common';
 
 export type ModuleMetadata = {
-  [name: string]: {
-    selector: string;
-    types: number[];
-    sync: boolean;
+  methods: {
+    [name: string]: {
+      selector: string;
+      types: number[];
+      sync: boolean;
+    };
+  };
+  props: {
+    [name: string]: {
+      type: string;
+      jsType: number;
+      keyPath: string;
+      customSetter: string;
+      setter: string;
+      getter: string;
+      key: string;
+      defaultValue?: any;
+      setDefaultValue?: boolean;
+    };
   };
 };
 
 export function parseModuleMetadata(className: string): ModuleMetadata {
-  const methods = Utils.dataDeserialize(
-    //@ts-ignore
+  const data = Utils.dataDeserialize(
     global.reactNativeBridgeIOS.getModuleMethodObjcNames(className)
   );
-
-  const metadata = {};
+  const methods = data.methods;
+  const props = data.props;
+  const metadata = {
+    methods: {},
+    props: {},
+  };
   for (const method in methods) {
     const parts = method.matchAll(/\w+(\s+|.):/gm);
     let str = '';
@@ -23,7 +41,7 @@ export function parseModuleMetadata(className: string): ModuleMetadata {
       str += part[0].replace(/\s+/g, '');
     }
     if (!str) str = method;
-    metadata[methods[method].jsName || str.split(':')[0]] = {
+    metadata.methods[methods[method].jsName || str.split(':')[0]] = {
       selector: str,
       types: [...method.matchAll(/\(.*?\)/g)]
         .map((match) => match[0].replace(/[()]/g, ''))
@@ -33,7 +51,13 @@ export function parseModuleMetadata(className: string): ModuleMetadata {
       sync: methods[method].isSync,
     };
   }
-  console.log(metadata);
+  for (const prop in props) {
+    props[prop].jsType = extractMethodParamTypes(props[prop].type);
+    props[prop].key = props[prop].keyPath?.includes('.')
+      ? props[prop].keyPath.split('.')[1]
+      : undefined;
+  }
+  metadata.props = props;
   return metadata;
 }
 
@@ -105,6 +129,10 @@ export function extractMethodParamTypes(
       return RNObjcSerialisableType.RCTPromiseRejectBlock;
     case 'int':
       return RNObjcSerialisableType.int;
+    case 'RCTDirectEventBlock':
+    case 'RCTBubblingEventBlock':
+    case 'RCTCapturingEventBlock':
+      return RNObjcSerialisableType.RCTEventType;
     default:
       return RNObjcSerialisableType.other;
   }

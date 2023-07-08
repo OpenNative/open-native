@@ -12,10 +12,13 @@ export const DeviceEventEmitter = RCTDeviceEventEmitter;
 export { Dimensions } from './Libraries/Utilities/Dimensions';
 export { Alert } from './Libraries/Alert/Alert';
 export {
-  ViewManagersAndroid as ViewManagers,
-  requireNativeViewAndroid as requireNativeView,
+  ViewManagersAndroid,
+  requireNativeViewAndroid,
 } from './src/android/viewmanagers';
 import { load as loadViewManagers } from './src/android/viewmanagers';
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export const requireNativeViewIOS = () => {};
+
 /**
  * Loads all modules eagerly in a specific ReactPackage.
  *

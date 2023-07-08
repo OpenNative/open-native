@@ -6,20 +6,20 @@ import { promisify } from 'util';
 export const readFile = promisify(fs.readFile);
 export const readFileSync = fs.readFileSync;
 export const exists = promisify(fs.exists);
-export const _writeFile = promisify(fs.writeFile);
+export const _writeFile = fs.writeFileSync;
 
 export const logPrefix = '[@open-native/core/hooks/prepare-android.js]';
 /**
  * A writeFile wrapper that only writes the file
  * if the contents have changed.
  */
-export async function writeFile(
+export function writeFile(
   output: fs.PathOrFileDescriptor,
   contents: string | NodeJS.ArrayBufferView,
   options: fs.WriteFileOptions
 ) {
   if (fs.existsSync(output as fs.PathLike)) {
-    const readContents = await readFile(output, options);
+    const readContents = readFileSync(output, options);
     if (readContents === contents) return;
   }
   console.log(
@@ -27,7 +27,7 @@ export async function writeFile(
       output as string
     )}`
   );
-  return await _writeFile(output, contents, options);
+  return _writeFile(output, contents, options);
 }
 
 export function globProm(
@@ -106,8 +106,8 @@ export type ModuleMap = {
         /** types */
         t: RNJavaSerialisableType[];
         p: string;
-        nd: string
+        nd: string;
       };
     };
   };
-}
+};

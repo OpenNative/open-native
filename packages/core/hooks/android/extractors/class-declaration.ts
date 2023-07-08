@@ -43,13 +43,11 @@ export function extractClassDeclarationForModule(file: string) {
   );
 
   if (viewManagerMatch) {
-    return viewManagerMatch
+    return viewManagerMatch;
   }
-
 
   // Match any class that extends ReactContextBaseJavaModule and is public.
   const publicModuleMatch = file.match(
-    file.match(
     /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*(ReactContextBaseJavaModule | SimpleViewManager)/
   );
   if (publicModuleMatch) return publicModuleMatch;

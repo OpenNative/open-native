@@ -1,9 +1,46 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { View } from '@nativescript/core';
-import { getThemedReactContext, registerView } from './bridge';
+import {
+  getCurrentBridge,
+  getThemedReactContext,
+  registerView,
+} from './bridge';
 import { toJSValue } from './converter';
-import { NativeModuleHolder, NativeModuleMap } from './nativemodules';
+import { NativeModuleHolder } from './nativemodules';
 import type { ViewManagers as ViewManagerInterfaces } from './view-manager-types';
+import { RNJavaSerialisableType, isNullOrUndefined } from '../common';
+import { ModuleMetadata } from './metadata';
+
+function getDefaultValue(method: ModuleMetadata['methods']['name']) {
+  const type = method.types[1];
+  if (type === undefined) return;
+  switch (type) {
+    case RNJavaSerialisableType.boolean:
+    case RNJavaSerialisableType.nonnullBoolean:
+    case RNJavaSerialisableType.javaBoolean:
+    case RNJavaSerialisableType.nonnullJavaBoolean:
+      return method.defaultBoolean;
+    case RNJavaSerialisableType.float:
+    case RNJavaSerialisableType.nonnullFloat:
+    case RNJavaSerialisableType.javaFloat:
+      return method.defaultFloat;
+    case RNJavaSerialisableType.int:
+    case RNJavaSerialisableType.nonnullInt:
+    case RNJavaSerialisableType.nonnullJavaInteger:
+    case RNJavaSerialisableType.javaInteger:
+      return method.defaultInt;
+    case RNJavaSerialisableType.double:
+    case RNJavaSerialisableType.nonnullDouble:
+    case RNJavaSerialisableType.nonnullJavaFloat:
+    case RNJavaSerialisableType.javaDouble:
+      return method.defautlDouble;
+  }
+}
+
+type PropSetter = {
+  method: string;
+  defaultValue: any;
+};
 
 class ViewManagerHolder
   extends NativeModuleHolder
@@ -12,8 +49,9 @@ class ViewManagerHolder
       Omit<com.facebook.react.uimanager.ViewManager<any, any>, 'getConstants'>
     >
 {
-  props: { [name: string]: string } = {};
-  propDefaults: { [name: string]: any } = {};
+  props: {
+    [name: string]: PropSetter;
+  } = {};
   directEvents: {
     [name: string]: {
       registrationName: string;
@@ -28,15 +66,18 @@ class ViewManagerHolder
   };
   mappedEvents: { [name: string]: string } = {};
   themedReactContext: any;
+  public viewManager = true;
   static id = 0;
 
   constructor(name) {
     super(name);
-    if (this.moduleMetadata.m) {
-      for (const method in this.moduleMetadata.m) {
-        this.props[this.moduleMetadata.m[method].p] = method;
-        this.propDefaults[this.moduleMetadata.m[method].p] =
-          this.moduleMetadata.m[method].d;
+    for (const methodName in this.moduleMetadata.methods) {
+      const method = this.moduleMetadata.methods[methodName];
+      if (method.prop) {
+        this.props[method.prop] = {
+          method: methodName,
+          defaultValue: getDefaultValue(method),
+        };
       }
     }
   }
@@ -101,7 +142,7 @@ class ViewManagerHolder
 
   public setNativeProp(view: any, prop: string, ...params: any[]) {
     if (this.props[prop]) {
-      this[this.props[prop]]?.(view, ...params);
+      this[this.props[prop].method]?.(view, ...params);
       return;
     }
     console.warn(
@@ -118,43 +159,32 @@ class ViewManagerHolder
   }
 }
 
-export const ViewManagersAndroid: { [name: string]: ViewManagerHolder } =
-  Object.keys(NativeModuleMap).reduce((acc, moduleName) => {
-    if (NativeModuleMap[moduleName].v) {
-      acc[moduleName] = new ViewManagerHolder(moduleName);
-    }
-    return acc;
-  }, {});
-
-global.__viewManagerProxy = ViewManagersAndroid;
-export const load = () => null;
-
-const _nativeViewCache = {};
 type ViewProps<K extends keyof ViewManagerInterfaces> =
   keyof ViewManagerInterfaces[K];
+
+const NATIVE_VIEW_CACHE = {};
 export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
   key: T
 ): Omit<View, ViewProps<T>> & ViewManagerInterfaces[T] {
   if (!ViewManagersAndroid[key as any]) {
     throw new Error(`ViewManager with name ${name} was not found.`);
   }
-  if (_nativeViewCache[key as string]) return _nativeViewCache[key as string];
+  if (NATIVE_VIEW_CACHE[key as string]) return NATIVE_VIEW_CACHE[key as string];
 
-  return (_nativeViewCache[key as string] = class extends View {
+  return (NATIVE_VIEW_CACHE[key as string] = class extends View {
     nativeProps: { [name: string]: any[] } = {};
     _viewTag: number;
-    _viewManager = ViewManagersAndroid[key as any];
+    _viewManager: ViewManagerHolder = ViewManagersAndroid[key as any];
     constructor() {
       super();
-      const viewManager = ViewManagersAndroid[key as any];
+      const viewManager = ViewManagersAndroid[key as any] as ViewManagerHolder;
       for (const prop in viewManager.props) {
         Object.defineProperty(this, prop, {
           set(newValue) {
-            console.log(prop, newValue);
             if (newValue === this.nativeProps[prop]) return;
             this.nativeProps[prop] =
               newValue === undefined
-                ? this._viewManager.propDefaults[prop]
+                ? this._viewManager.props[prop].defaultValue
                 : newValue;
             if (this.nativeViewProtected) {
               viewManager.setNativeProp(
@@ -180,21 +210,17 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
     }
 
     initNativeView(): void {
-      if (this.nativeViewProtected) {
-        for (const prop in this._viewManager.propDefaults) {
-          if (
-            this.nativeProps[prop] === undefined &&
-            typeof this._viewManager.propDefaults[prop] !== 'undefined'
-          )
-            this.nativeProps[prop] = this._viewManager.propDefaults[prop];
-        }
-        for (const prop in this.nativeProps) {
-          this._viewManager.setNativeProp(
-            this.nativeViewProtected,
-            prop,
-            this.nativeProps[prop]
-          );
-        }
+      if (!this.nativeViewProtected) return;
+
+      for (const prop in this._viewManager.props) {
+        if (isNullOrUndefined(this.nativeProps[prop])) continue;
+        this._viewManager.setNativeProp(
+          this.nativeViewProtected,
+          prop,
+          isNullOrUndefined(this.nativeProps[prop])
+            ? this._viewManager.props[prop].defaultValue
+            : this.nativeProps[prop]
+        );
       }
     }
 
@@ -216,3 +242,24 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
   }) as unknown as Omit<View, keyof ViewManagerInterfaces[T]> &
     ViewManagerInterfaces[T];
 }
+
+const viewManagersProxyHandle: ProxyHandler<{}> = {
+  get: (target, prop) => {
+    if (target[prop]) return target[prop];
+    if (!getCurrentBridge().isModuleAvailable(prop as string)) {
+      console.warn(
+        `Trying to get ViewManager "${
+          prop as string
+        }" that does not exist in the View Manager registry.`
+      );
+      return null;
+    }
+    return (target[prop] = new ViewManagerHolder(prop as string));
+  },
+};
+
+export const ViewManagersAndroid = new Proxy({}, viewManagersProxyHandle);
+
+global.__viewManagerProxy = ViewManagersAndroid;
+
+export const load = () => null;

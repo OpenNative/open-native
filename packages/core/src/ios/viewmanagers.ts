@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { NativeModuleHolder, NativeModuleMap } from './nativemodules';
-import { toJSValue, toNativeArguments } from './converter';
+import { EventData, Utils, View } from '@nativescript/core';
+import { RNObjcSerialisableType, isNullOrUndefined } from '../common';
 import { getCurrentBridge } from './bridge';
+import { toJSValue, toNativeArguments } from './converter';
+import { NativeModuleHolder } from './nativemodules';
 import type { ViewManagers as ViewManagerInterfaces } from './view-manager-types';
-import { EventData, View } from '@nativescript/core';
-import { RNObjcSerialisableType } from '../common';
 
 type ViewEventReciever = { subscribe: () => void; unsubscribe: () => void };
 type ViewProps<K extends keyof ViewManagerInterfaces> =
   keyof ViewManagerInterfaces[K];
 
-function isEventProp(prop) {
-  return prop.t === RNObjcSerialisableType.RCTEventType;
+function isEventProp(type: number) {
+  return type === RNObjcSerialisableType.RCTEventType;
 }
 
 class ViewManagerHolder extends NativeModuleHolder {
@@ -21,16 +21,14 @@ class ViewManagerHolder extends NativeModuleHolder {
 
   constructor(name) {
     super(name);
-    if (this.moduleMetadata.p) {
-      for (const prop of this.moduleMetadata.p) {
-        if (isEventProp(prop)) {
-          this.viewEvents[this.__getJSEventName(prop.j)] = {
-            nativeName: prop.j,
-            type: prop.t as number,
-          };
-          continue;
-        }
-        this.props[prop.j] = prop.t;
+
+    for (const propName in this.moduleMetadata.props) {
+      const prop = this.moduleMetadata.props[propName];
+      if (isEventProp(prop.jsType)) {
+        this.viewEvents[this.__getJSEventName(propName)] = {
+          nativeName: propName,
+          type: prop.jsType,
+        };
       }
     }
   }
@@ -63,21 +61,59 @@ class ViewManagerHolder extends NativeModuleHolder {
   }
 
   public isNativeProp(prop: string) {
-    return !!this.props[prop];
+    return !!this.moduleMetadata.props[prop];
   }
 
   public setNativeProp(view: any, prop: string, ...params: any[]) {
-    if (this.props[prop]) {
-      const nativeParams = toNativeArguments(
-        [0, this.props[prop]] as never,
-        params
+    const propInfo = this.moduleMetadata.props[prop];
+    if (!propInfo) {
+      console.warn(
+        `Setter for prop ${prop} on view $${this.moduleName} not found`
       );
-      view[prop] = nativeParams[0];
       return;
     }
-    console.warn(
-      `Setter for prop ${prop} on view $${this.moduleName} not found`
+
+    const requiresRCTConvert = propInfo.jsType == RNObjcSerialisableType.other;
+    const propKey = propInfo.key || prop;
+    if (
+      !propInfo.setDefaultValue &&
+      (view as UIView).respondsToSelector(propInfo.getter || prop)
+    ) {
+      propInfo.defaultValue = view.valueForKey(propKey);
+      propInfo.setDefaultValue = true;
+    }
+    const nativeParams = toNativeArguments(
+      [propInfo.jsType] as never,
+      params,
+      undefined,
+      undefined,
+      false
     );
+
+    if (!isNullOrUndefined(nativeParams.arguments[0])) {
+      if (requiresRCTConvert) {
+        (this.nativeModule as RCTViewManager).convertAndSetOnViewTypeJson(
+          propInfo.setter,
+          view,
+          `${propInfo.type}:`,
+          nativeParams[0]
+        );
+      } else {
+        const param = nativeParams.arguments[0];
+        if (propInfo.keyPath === '__custom__') {
+          (this.nativeModule as RCTViewManager).callCustomSetterOnViewWithProp(
+            propInfo.customSetter,
+            view,
+            param
+          );
+        } else {
+          view.setValueForKey(param, propKey);
+        }
+      }
+    } else {
+      view.setValueForKey(propInfo.defaultValue, propKey);
+    }
+    return;
   }
 
   public getExportedViewConstants(): any {
@@ -87,14 +123,30 @@ class ViewManagerHolder extends NativeModuleHolder {
     return exportedConstants ? toJSValue(exportedConstants) : {};
   }
 }
+// TODO
+let MODULE_CLASS_NAMES = [];
+const viewManagerProxyHandle: ProxyHandler<{}> = {
+  get: (target, prop) => {
+    if (target[prop]) return target[prop];
 
-export const ViewManagersIOS: { [name: string]: ViewManagerHolder } =
-  Object.keys(NativeModuleMap).reduce((acc, moduleName) => {
-    if (NativeModuleMap[moduleName].v) {
-      acc[moduleName] = new ViewManagerHolder(moduleName);
+    if (!MODULE_CLASS_NAMES.length)
+      MODULE_CLASS_NAMES = Utils.ios.collections.nsArrayToJSArray(
+        RCTGetModuleClasses().allKeys
+      );
+    if (MODULE_CLASS_NAMES.indexOf(prop as string) === -1) {
+      console.warn(
+        `Trying to get a View Manager "${
+          prop as string
+        }" does not exist in the view manager registry.`
+      );
+      return null;
     }
-    return acc;
-  }, {});
+
+    return (target[prop] = new ViewManagerHolder(prop as string));
+  },
+};
+
+export const ViewManagersIOS = new Proxy({}, viewManagerProxyHandle);
 global.__viewManagerProxy = ViewManagersIOS;
 export const load = () => null;
 
@@ -122,7 +174,7 @@ export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
     constructor() {
       super();
       const viewManager = ViewManagersIOS[key as any];
-      for (const prop in viewManager.props) {
+      for (const prop in viewManager.moduleMetadata.props) {
         Object.defineProperty(this, prop, {
           set(newValue) {
             if (newValue === this.nativeProps[prop]) return;

@@ -91,4 +91,6 @@ typedef void (^RCTViewManagerUIBlock)(RCTUIManager *uiManager, NSDictionary<NSNu
   RCT_REMAP_SHADOW_PROPERTY(name, __custom__, type)       \
   -(void)set_##name : (id)json forShadowView : (viewClass *)view RCT_DYNAMIC
 
+- (void) callCustomSetter:(NSString *)selectorString onView:(id<RCTComponent>)view withProp:(id)json;
+- (void) convertAndSet:(NSString *)selector onView:(id<RCTComponent>)target type:(NSString *)type json:(id)json;
 @end

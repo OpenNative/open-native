@@ -30,7 +30,9 @@ export function getModuleName(
   if (!getNameFunctionReturnValue) {
     return null;
   }
+
   let variableDefinitionLine;
+
   if (getNameFunctionReturnValue.startsWith(`"`)) {
     return getNameFunctionReturnValue.replace(/"/g, '');
   }
@@ -40,7 +42,7 @@ export function getModuleName(
   // the classes in the Package.
   if (getNameFunctionReturnValue.indexOf('.') > -1) {
     const split = getNameFunctionReturnValue.split('.');
-    const className = split[0] + '.java';
+    const className = split[0] + '.';
     getNameFunctionReturnValue = split[1];
     for (const file of files) {
       if (file.includes(`/${className}`)) {
@@ -69,7 +71,8 @@ export function getModuleName(
 }
 
 export function resolveVariableValue(variable: string, files: string[]) {
-  if (variable.startsWith('"') && variable.endsWith('"')) return variable.split('"')[1];
+  if (variable.startsWith('"') && variable.endsWith('"'))
+    return variable.split('"')[1];
   if (!variable.includes('.')) return variable;
   let variableDefinitionLine = undefined;
   const split = variable.split('.');

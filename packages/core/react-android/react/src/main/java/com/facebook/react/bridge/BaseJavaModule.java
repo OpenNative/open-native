@@ -43,7 +43,7 @@ public abstract class BaseJavaModule implements NativeModule {
   public static final String METHOD_TYPE_ASYNC = "async";
   public static final String METHOD_TYPE_PROMISE = "promise";
   public static final String METHOD_TYPE_SYNC = "sync";
-
+  public static boolean VIEW_MANAGER = false;
   /** @return a map of constants this module exports to JS. Supports JSON types. */
   public @Nullable Map<String, Object> getConstants() {
     return null;

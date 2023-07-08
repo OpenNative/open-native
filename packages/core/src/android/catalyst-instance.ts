@@ -34,12 +34,9 @@ export default class CatalystInstance {
       },
       getNativeModule(param0: unknown): NativeModule {
         if (typeof param0 === 'string') {
-          return bridge.getModuleByName(param0 as string, false);
+          return bridge.getModuleByName(param0 as string);
         } else {
-          return bridge.getModuleForClass(
-            param0 as java.lang.Class<any>,
-            false
-          );
+          return bridge.getModuleForClass(param0 as java.lang.Class<any>);
         }
       },
 

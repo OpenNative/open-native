@@ -13,6 +13,9 @@ export { Alert } from './Libraries/Alert/Alert';
 export { ViewManagersIOS, requireNativeViewIOS } from './src/ios/viewmanagers';
 import { load as loadViewManagers } from './src/ios/viewmanagers';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export const requireNativeViewAndroid = () => {};
+
 /**
  * Loads all modules eagerly in a specific ReactPackage.
  *

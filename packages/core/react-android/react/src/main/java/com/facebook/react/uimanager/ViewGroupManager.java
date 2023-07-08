@@ -23,6 +23,7 @@ public abstract class ViewGroupManager<T extends ViewGroup>
     parent.addView(child, index);
   }
 
+
   /**
    * Convenience method for batching a set of addView calls Note that this adds the views to the
    * beginning of the ViewGroup
