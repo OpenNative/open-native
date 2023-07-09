@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { View, CustomLayoutView, LayoutBase } from '@nativescript/core';
+import {
+  View,
+  CustomLayoutView,
+  LayoutBase,
+  ViewBase,
+} from '@nativescript/core';
 import {
   getCurrentBridge,
   getThemedReactContext,
@@ -109,7 +114,7 @@ class ViewManagerHolder
             any,
             any
           >
-        ).getExportedCustomDirectEventTypeConstants()
+        ).getExportedCustomDirectEventTypeConstants?.() || {}
       ) as any;
       this.bubblingEvents = toJSValue(
         (
@@ -117,7 +122,7 @@ class ViewManagerHolder
             any,
             any
           >
-        ).getExportedCustomBubblingEventTypeConstants()
+        ).getExportedCustomBubblingEventTypeConstants?.() || {}
       ) as any;
     }
     return (
@@ -187,7 +192,6 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
     throw new Error(`ViewManager with name ${name} was not found.`);
   }
   if (NATIVE_VIEW_CACHE[key as string]) return NATIVE_VIEW_CACHE[key as string];
-  console.log(key, isViewGroup);
   const ViewClass = class extends (isViewGroup ? LayoutBase : View) {
     nativeProps: { [name: string]: any[] } = {};
     _viewTag: number;
@@ -261,6 +265,32 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
       },
     });
   }
+
+  if (isViewGroup) {
+    ViewClass.prototype._addViewToNativeVisualTree = function (child, atIndex) {
+      if (child.nativeViewProtected) {
+        this._viewManager.nativeModule.addView(
+          this.nativeViewProtected,
+          child.nativeViewProtected,
+          atIndex
+        );
+        return true;
+      }
+      return false;
+    };
+
+    ViewClass.prototype._removeViewFromNativeVisualTree = function (child) {
+      if (child.nativeViewProtected) {
+        this._viewManager.nativeModule.removeView(
+          this.nativeViewProtected,
+          child.nativeViewProtected
+        );
+        return true;
+      }
+      return false;
+    };
+  }
+
   NATIVE_VIEW_CACHE[key as any] = ViewClass;
   return ViewClass as any;
 }

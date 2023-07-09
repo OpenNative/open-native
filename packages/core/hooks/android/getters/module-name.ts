@@ -66,7 +66,6 @@ export function getModuleName(
           line.includes(`val ${getNameFunctionReturnValue}`)
       );
   }
-
   return variableDefinitionLine.split(`"`)[1];
 }
 

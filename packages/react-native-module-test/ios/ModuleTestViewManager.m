@@ -19,7 +19,6 @@ RCT_CUSTOM_VIEW_PROPERTY(color, NSString, UIView)
 {
   NSString *noHashString = [stringToConvert stringByReplacingOccurrencesOfString:@"#" withString:@""];
   NSScanner *stringScanner = [NSScanner scannerWithString:noHashString];
-
   unsigned hex;
   if (![stringScanner scanHexInt:&hex]) return nil;
   int r = (hex >> 16) & 0xFF;

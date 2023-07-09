@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EventData, Utils, View } from '@nativescript/core';
+import { EventData, FlexboxLayout, View, ViewBase } from '@nativescript/core';
 import { RNObjcSerialisableType, isNullOrUndefined } from '../common';
 import { getCurrentBridge } from './bridge';
 import { toJSValue, toNativeArguments } from './converter';
@@ -8,6 +8,7 @@ import type { ViewManagers as ViewManagerInterfaces } from './view-manager-types
 
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { RNNativeViewIOS } from '@open-native/core';
+import { getModuleClasses } from './metadata';
 
 type ViewEventReciever = { subscribe: () => void; unsubscribe: () => void };
 type ViewProps<K extends keyof ViewManagerInterfaces> =
@@ -137,17 +138,12 @@ class ViewManagerHolder extends NativeModuleHolder {
     return exportedConstants ? toJSValue(exportedConstants) : {};
   }
 }
-// TODO
-let MODULE_CLASS_NAMES = [];
+
 const viewManagerProxyHandle: ProxyHandler<{}> = {
   get: (target, prop) => {
     if (target[prop]) return target[prop];
 
-    if (!MODULE_CLASS_NAMES.length)
-      MODULE_CLASS_NAMES = Utils.ios.collections.nsArrayToJSArray(
-        RCTGetModuleClasses().allKeys
-      );
-    if (MODULE_CLASS_NAMES.indexOf(prop as string) === -1) {
+    if (getModuleClasses().indexOf(prop as string) === -1) {
       console.warn(
         `Trying to get a View Manager "${
           prop as string
@@ -172,40 +168,19 @@ const NATIVE_VIEW_CACHE = {};
 export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
   key: T
 ): RNNativeViewIOS<T> {
-  if (!ViewManagersIOS[key as any]) {
-    throw new Error(`ViewManager with name ${name} was not found.`);
+  const viewManager = ViewManagersIOS[key as any];
+  if (!viewManager) {
+    throw new Error(`ViewManager with name ${key} was not found.`);
   }
   if (NATIVE_VIEW_CACHE[key as string]) return NATIVE_VIEW_CACHE[key as string];
 
-  (NATIVE_VIEW_CACHE[key as string] = class extends View {
+  (NATIVE_VIEW_CACHE[key as string] = class extends FlexboxLayout {
     nativeProps: { [name: string]: any[] } = {};
     _viewTag: number;
-    _viewManager = ViewManagersIOS[key as any];
+    _viewManager = viewManager;
     _viewEventRecievers: {
       [name: string]: ViewEventReciever;
     } = {};
-    constructor() {
-      super();
-      const viewManager = ViewManagersIOS[key as any];
-      for (const prop in viewManager.moduleMetadata.props) {
-        Object.defineProperty(this, prop, {
-          set(newValue) {
-            if (newValue === this.nativeProps[prop]) return;
-            this.nativeProps[prop] = newValue;
-            if (this.nativeViewProtected) {
-              viewManager.setNativeProp(
-                this.nativeViewProtected,
-                prop,
-                this.nativeProps[prop]
-              );
-            }
-          },
-          get() {
-            return this.nativeProps[prop];
-          },
-        });
-      }
-    }
 
     createNativeView() {
       this._viewTag = this._viewManager.__getViewId();
@@ -294,6 +269,47 @@ export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
         };
       }
     }
+
+    _addViewToNativeVisualTree(view: ViewBase, atIndex?: number): boolean {
+      super._addViewToNativeVisualTree(view, atIndex);
+      if (view.nativeViewProtected) {
+        this.nativeViewProtected.insertReactSubviewAtIndex(
+          view.nativeViewProtected,
+          atIndex
+        );
+        console.log('view added');
+        return true;
+      }
+      return false;
+    }
+
+    _removeViewFromNativeVisualTree(view: ViewBase): void {
+      super._removeViewFromNativeVisualTree(view);
+      if (view.nativeViewProtected) {
+        this.nativeViewProtected.removeReactSubview(view.nativeViewProtected);
+        console.log('view removed');
+      }
+    }
   }) as any;
+
+  for (const prop in viewManager.moduleMetadata.props) {
+    Object.defineProperty(NATIVE_VIEW_CACHE[key as string].prototype, prop, {
+      set(newValue) {
+        if (newValue === this.nativeProps[prop]) return;
+        this.nativeProps[prop] = newValue;
+        if (this.nativeViewProtected) {
+          viewManager.setNativeProp(
+            this.nativeViewProtected,
+            prop,
+            this.nativeProps[prop]
+          );
+        }
+      },
+      get() {
+        return this.nativeProps[prop];
+      },
+    });
+  }
+
   return NATIVE_VIEW_CACHE[key as string];
 }

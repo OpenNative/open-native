@@ -297,9 +297,7 @@ export async function extractPackageModules(folder: string) {
         return {
           exportedMethods,
           /** @example 'RNTestModule' or `null` if missing, e.g. for specs */
-          exportedModuleName: moduleContents.includes('@ReactProp')
-            ? exportedModuleName + 'Manager'
-            : exportedModuleName,
+          exportedModuleName,
           /** @example true */
           exportsConstants,
           /** @example 'RNTestModule' */

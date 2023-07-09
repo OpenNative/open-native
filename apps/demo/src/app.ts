@@ -14,5 +14,4 @@ if (!global.performance) {
   };
 }
 
-
 Application.run({ moduleName: 'app-root' });

@@ -1,6 +1,6 @@
 
 export interface ViewManagers {
-  "ModuleTestViewManager":{
+  "ModuleTestView":{
       
 /**
 Native definition for this prop in Java:
@@ -10,7 +10,7 @@ Native definition for this prop in Java:
 */
 color: string;
   }
-"RNCWebViewManager":{
+"RNCWebView":{
       
 /**
 Native definition for this prop in Java:

@@ -8,7 +8,11 @@ import {
   invokeNativeMethod,
   toJSValue,
 } from './converter';
-import { ModuleMetadata, parseModuleMetadata } from './metadata';
+import {
+  ModuleMetadata,
+  getModuleClasses,
+  parseModuleMetadata,
+} from './metadata';
 
 export class NativeModuleHolder implements Partial<NativeModule> {
   private readonly bridge: RCTBridge = getCurrentBridge();
@@ -96,16 +100,10 @@ export class NativeModuleHolder implements Partial<NativeModule> {
   }
 }
 
-let MODULE_CLASS_NAMES = [];
 const nativeModuleProxyHandle: ProxyHandler<{}> = {
   get: (target, prop) => {
     if (target[prop]) return target[prop];
-
-    if (!MODULE_CLASS_NAMES.length)
-      MODULE_CLASS_NAMES = Utils.ios.collections.nsArrayToJSArray(
-        RCTGetModuleClasses().allKeys
-      );
-    if (MODULE_CLASS_NAMES.indexOf(prop as string) === -1) {
+    if (getModuleClasses().indexOf(prop as string) === -1) {
       console.warn(
         `Trying to get a Native Module "${
           prop as string

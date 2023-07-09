@@ -137,3 +137,12 @@ export function extractMethodParamTypes(
       return RNObjcSerialisableType.other;
   }
 }
+
+let MODULE_CLASS_NAMES = [];
+
+export function getModuleClasses() {
+  if (MODULE_CLASS_NAMES.length) return MODULE_CLASS_NAMES;
+  return (MODULE_CLASS_NAMES = Utils.ios.collections.nsArrayToJSArray(
+    RCTGetModuleClasses().allKeys
+  ));
+}
