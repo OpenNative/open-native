@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { View } from '@nativescript/core';
+import { View, CustomLayoutView, LayoutBase } from '@nativescript/core';
 import {
   getCurrentBridge,
   getThemedReactContext,
@@ -10,6 +10,24 @@ import { NativeModuleHolder } from './nativemodules';
 import type { ViewManagers as ViewManagerInterfaces } from './view-manager-types';
 import { RNJavaSerialisableType, isNullOrUndefined } from '../common';
 import { ModuleMetadata } from './metadata';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { RNNativeViewAndroid } from '@open-native/core';
+
+type ViewProps<K extends keyof ViewManagerInterfaces> =
+  keyof ViewManagerInterfaces[K];
+
+type ViewType<T extends keyof ViewManagerInterfaces> = Omit<
+  View,
+  ViewProps<T>
+> &
+  ViewManagerInterfaces[T];
+
+declare module '@open-native/core' {
+  interface RNNativeViewAndroid<T extends keyof ViewManagerInterfaces> {
+    prototype: ViewType<T>;
+    new (): ViewType<T>;
+  }
+}
 
 function getDefaultValue(method: ModuleMetadata['methods']['name']) {
   const type = method.types[1];
@@ -159,46 +177,23 @@ class ViewManagerHolder
   }
 }
 
-type ViewProps<K extends keyof ViewManagerInterfaces> =
-  keyof ViewManagerInterfaces[K];
-
 const NATIVE_VIEW_CACHE = {};
 export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
   key: T
-): Omit<View, ViewProps<T>> & ViewManagerInterfaces[T] {
-  if (!ViewManagersAndroid[key as any]) {
+): RNNativeViewAndroid<T> {
+  const ViewManager = ViewManagersAndroid[key as any];
+  const isViewGroup = ViewManager.moduleMetadata.viewGroup;
+  if (!ViewManager) {
     throw new Error(`ViewManager with name ${name} was not found.`);
   }
   if (NATIVE_VIEW_CACHE[key as string]) return NATIVE_VIEW_CACHE[key as string];
-
-  return (NATIVE_VIEW_CACHE[key as string] = class extends View {
+  console.log(key, isViewGroup);
+  const ViewClass = class extends (isViewGroup ? LayoutBase : View) {
     nativeProps: { [name: string]: any[] } = {};
     _viewTag: number;
-    _viewManager: ViewManagerHolder = ViewManagersAndroid[key as any];
+    _viewManager: ViewManagerHolder = ViewManager;
     constructor() {
       super();
-      const viewManager = ViewManagersAndroid[key as any] as ViewManagerHolder;
-      for (const prop in viewManager.props) {
-        Object.defineProperty(this, prop, {
-          set(newValue) {
-            if (newValue === this.nativeProps[prop]) return;
-            this.nativeProps[prop] =
-              newValue === undefined
-                ? this._viewManager.props[prop].defaultValue
-                : newValue;
-            if (this.nativeViewProtected) {
-              viewManager.setNativeProp(
-                this.nativeViewProtected,
-                prop,
-                this.nativeProps[prop]
-              );
-            }
-          },
-          get() {
-            return this.nativeProps[prop];
-          },
-        });
-      }
     }
 
     createNativeView() {
@@ -239,8 +234,35 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
         ).onDropViewInstance?.(this.nativeViewProtected);
       }
     }
-  }) as unknown as Omit<View, keyof ViewManagerInterfaces[T]> &
-    ViewManagerInterfaces[T];
+  };
+
+  // as unknown as Omit<typeof View, keyof ViewManagerInterfaces[T]> &
+  // ViewManagerInterfaces[T];
+
+  const viewManager = ViewManager as ViewManagerHolder;
+  for (const prop in viewManager.props) {
+    Object.defineProperty(ViewClass.prototype, prop, {
+      set(newValue) {
+        if (newValue === this.nativeProps[prop]) return;
+        this.nativeProps[prop] =
+          newValue === undefined
+            ? this._viewManager.props[prop].defaultValue
+            : newValue;
+        if (this.nativeViewProtected) {
+          viewManager.setNativeProp(
+            this.nativeViewProtected,
+            prop,
+            this.nativeProps[prop]
+          );
+        }
+      },
+      get() {
+        return this.nativeProps[prop];
+      },
+    });
+  }
+  NATIVE_VIEW_CACHE[key as any] = ViewClass;
+  return ViewClass as any;
 }
 
 const viewManagersProxyHandle: ProxyHandler<{}> = {

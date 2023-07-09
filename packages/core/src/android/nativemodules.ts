@@ -50,11 +50,9 @@ export class NativeModuleHolder implements Partial<NativeModule> {
    * loaded upon access by a method call.
    */
   get nativeModule(): BaseJavaModule {
-    console.time('nativeModule');
     this.nativeModuleInstance =
       this.nativeModuleInstance ||
       (this.bridge.getModuleByName(this.moduleName) as BaseJavaModule);
-    console.timeEnd('nativeModule');
     if (!this.nativeModuleInstance) {
       console.warn(
         `Trying to register a React Native native module "${this.moduleName}" that could not be found in the module registry.`

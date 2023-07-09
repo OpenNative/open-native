@@ -2,6 +2,8 @@ package com.testmodule;
 
 import android.graphics.Color;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,12 +14,13 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.ViewGroupManager;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.util.Map;
 
-public class ModuleTestViewManager extends SimpleViewManager<View> {
+public class ModuleTestViewManager extends ViewGroupManager<LinearLayout> {
   public static final String REACT_CLASS = "ModuleTestView";
 
   @Override
@@ -28,8 +31,8 @@ public class ModuleTestViewManager extends SimpleViewManager<View> {
 
   @Override
   @NonNull
-  public View createViewInstance(ThemedReactContext reactContext) {
-    return new View(reactContext);
+  public LinearLayout createViewInstance(ThemedReactContext reactContext) {
+    return new LinearLayout(reactContext);
   }
 
   @ReactProp(name = "color")
@@ -42,21 +45,5 @@ public class ModuleTestViewManager extends SimpleViewManager<View> {
     reactContext
       .getJSModule(RCTEventEmitter.class)
       .receiveEvent(view.getId(), "topChange", event);
-  }
-
-  @Nullable
-  @Override
-  public Map<String, Object> getExportedCustomDirectEventTypeConstants() {
-    return super.getExportedCustomDirectEventTypeConstants();
-  }
-
-  public Map getExportedCustomBubblingEventTypeConstants() {
-    return MapBuilder.builder().put(
-      "topChange",
-      MapBuilder.of(
-        "phasedRegistrationNames",
-        MapBuilder.of("bubbled", "onChange")
-      )
-    ).build();
   }
 }

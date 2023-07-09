@@ -38,9 +38,13 @@ export function extractClassDeclarationForModule(file: string) {
     );
   if (turboModuleMatch) return turboModuleMatch;
 
-  const viewManagerMatch = file.match(
-    /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*SimpleViewManager/
-  );
+  const viewManagerMatch =
+    file.match(
+      /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*SimpleViewManager/
+    ) ||
+    file.match(
+      /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ViewGroupManager/
+    );
 
   if (viewManagerMatch) {
     return viewManagerMatch;

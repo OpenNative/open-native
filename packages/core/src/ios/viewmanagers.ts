@@ -6,12 +6,26 @@ import { toJSValue, toNativeArguments } from './converter';
 import { NativeModuleHolder } from './nativemodules';
 import type { ViewManagers as ViewManagerInterfaces } from './view-manager-types';
 
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { RNNativeViewIOS } from '@open-native/core';
+
 type ViewEventReciever = { subscribe: () => void; unsubscribe: () => void };
 type ViewProps<K extends keyof ViewManagerInterfaces> =
   keyof ViewManagerInterfaces[K];
-
 function isEventProp(type: number) {
   return type === RNObjcSerialisableType.RCTEventType;
+}
+type ViewType<T extends keyof ViewManagerInterfaces> = Omit<
+  View,
+  ViewProps<T>
+> &
+  ViewManagerInterfaces[T];
+
+declare module '@open-native/core' {
+  interface RNNativeViewIOS<T extends keyof ViewManagerInterfaces> {
+    prototype: ViewType<T>;
+    new (): ViewType<T>;
+  }
 }
 
 class ViewManagerHolder extends NativeModuleHolder {
@@ -154,17 +168,16 @@ export const load = () => null;
 // bind it with the view instance in a callback that will
 // emit the JS event through the eventEmitter.
 
-const _nativeViewCache = {};
-
+const NATIVE_VIEW_CACHE = {};
 export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
   key: T
-): Omit<View, ViewProps<T>> & ViewManagerInterfaces[T] {
+): RNNativeViewIOS<T> {
   if (!ViewManagersIOS[key as any]) {
     throw new Error(`ViewManager with name ${name} was not found.`);
   }
-  if (_nativeViewCache[key as string]) return _nativeViewCache[key as string];
+  if (NATIVE_VIEW_CACHE[key as string]) return NATIVE_VIEW_CACHE[key as string];
 
-  (_nativeViewCache[key as string] = class extends View {
+  (NATIVE_VIEW_CACHE[key as string] = class extends View {
     nativeProps: { [name: string]: any[] } = {};
     _viewTag: number;
     _viewManager = ViewManagersIOS[key as any];
@@ -281,7 +294,6 @@ export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
         };
       }
     }
-  }) as unknown as Omit<View, keyof ViewManagerInterfaces[T]> &
-    ViewManagerInterfaces[T];
-  return _nativeViewCache[key as string];
+  }) as any;
+  return NATIVE_VIEW_CACHE[key as string];
 }

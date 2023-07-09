@@ -30,6 +30,13 @@ export function parseModuleMetadata(moduleName: string): ModuleMetadata {
       }
     );
   }
+  if (
+    metadata.superClasses?.includes(
+      'com.facebook.react.uimanager.ViewGroupManager'
+    )
+  ) {
+    metadata.viewGroup = true;
+  }
 
   return metadata;
 }
