@@ -150,19 +150,12 @@ public class Bridge {
 
           if (isAnnotationPresent) {
             Class<?>[] paramTypes = method.getParameterTypes();
-            //Annotation[][] annotations = method.getParameterAnnotations();
             for (int i = 0; i < paramTypes.length; i++) {
-//              Annotation[] paramAnnotations = annotations[i];
-//              String paramType = "";
-//              for (Annotation annotation : paramAnnotations) {
-//                paramType += "@" + annotation.getClass().getSimpleName() + " ";
-//              }
-//              paramType += paramTypes[i].getSimpleName();
               types.put(paramTypes[i].getSimpleName());
-              methods.put(method.getName(), methodInfo);
-              methodInfo.put("methodDefinition", method.toString());
-              methodInfo.put("types", types);
             }
+            methodInfo.put("methodDefinition", method.toString());
+            methodInfo.put("types", types);
+            methods.put(method.getName(), methodInfo);
           }
         }
         clazz = clazz.getSuperclass();
