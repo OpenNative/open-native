@@ -1,11 +1,11 @@
 import { Utils } from '@nativescript/core';
 import { DemoSharedBase } from '../utils';
 import { NativeModules } from '@open-native/core';
-import { openPicker } from '@baronha/react-native-multiple-image-picker';
+
 async function measure(name: string, action: () => Promise<void>) {
   const start = performance.now();
 
-  await action();
+  action();
 
   const stop = performance.now();
   console.log(`${stop - start} ms (${name})`);
@@ -13,19 +13,19 @@ async function measure(name: string, action: () => Promise<void>) {
 
 export class DemoSharedOpenNative extends DemoSharedBase {
   async testPromise() {
-    console.log('launching image picker');
-    const images = [];
-    const singleSelectedMode = true;
-    openPicker({
-      selectedAssets: images,
-      isExportThumbnail: true,
-      maxVideo: 1,
-      doneTitle: 'DONE',
-      singleSelectedMode,
-      isCrop: true,
-    })
-      .then(console.log)
-      .catch(console.log);
+    // console.log('launching image picker');
+    // const images = [];
+    // const singleSelectedMode = true;
+    // openPicker({
+    //   selectedAssets: images,
+    //   isExportThumbnail: true,
+    //   maxVideo: 1,
+    //   doneTitle: 'DONE',
+    //   singleSelectedMode,
+    //   isCrop: true,
+    // })
+    //   .then(console.log)
+    //   .catch(console.log);
   }
 
   async testPrimitives() {

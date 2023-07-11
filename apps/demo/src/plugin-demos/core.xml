@@ -5,6 +5,8 @@
     </Page.actionBar>
 
     <StackLayout>
+      <Button text="Test react-native-module-test" tap="{{ testPromise }}" class="btn btn-primary"/>
+
         <ui:WebView 
         javaScriptEnabled="true" 
         source='{"uri":"https://nativescript.org"}' 
