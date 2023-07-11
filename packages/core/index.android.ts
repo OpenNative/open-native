@@ -15,6 +15,7 @@ export {
   ViewManagersAndroid,
   requireNativeViewAndroid,
 } from './src/android/viewmanagers';
+export { requireNativeComponent } from './common';
 import { load as loadViewManagers } from './src/android/viewmanagers';
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export const requireNativeViewIOS = () => {};

@@ -16,6 +16,8 @@ export {
   requireNativeViewAndroid,
 } from './src/android/viewmanagers';
 
+export { requireNativeComponent } from './common';
+
 declare global {
   // eslint-disable-next-line no-var
   var reactNativeBridgeIOS: RCTBridge;
