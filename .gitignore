@@ -13,8 +13,8 @@ packages/core/platforms/android/include.gradle
 packages/core/react-android/bridge/src/main/java/com/bridge/Packages.java
 packages/core/react-android/bridge/modules.json
 packages/core/react-android/bridge/modulemap.json
-packages/core/src/android/view-manager-types.ts
-packages/core/src/ios/view-manager-types.ts
+packages/core/src/android/view-manager-types.d.ts
+packages/core/src/ios/view-manager-types.d.ts
 packages/core/platforms/ios/Podfile
 packages/core/platforms/ios/React-Native-Podspecs.podspec
 packages/core/platforms/ios/lib_community/RNPodspecs.h
