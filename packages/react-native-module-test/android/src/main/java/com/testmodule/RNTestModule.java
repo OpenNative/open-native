@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
 
 import java.util.Map;
@@ -47,21 +48,10 @@ public class RNTestModule extends ReactContextBaseJavaModule {
     return true;
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  public ReadableMap testMethodNonNull(@NonNull ReadableMap map) {
-    return map;
-  }
-
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  public ReadableMap testMethodNullable(@Nullable ReadableMap map) {
-    return map;
-  }
-
   @ReactMethod
   public void testCallback(Callback callback) {
     callback.invoke(true);
   }
-
 
   @ReactMethod
   public void testFloat(float value, Promise promise) {
@@ -103,15 +93,24 @@ public class RNTestModule extends ReactContextBaseJavaModule {
     promise.resolve(value);
   }
 
-
   @ReactMethod
   public void testPromise(Promise promise) {
     promise.resolve(true);
   }
 
   @ReactMethod
-  public void show(String message, int duration) {
-    Toast.makeText(getReactApplicationContext(), message, duration).show();
+  public void testObject(ReadableMap map, Promise promise) {
+    promise.resolve(map);
+  }
+
+  @ReactMethod
+  public void testArray(ReadableArray array, Promise promise) {
+    promise.resolve(array);
+  }
+
+  @ReactMethod
+  public void testString(String value, Promise promise) {
+    promise.resolve(value);
   }
 
 }

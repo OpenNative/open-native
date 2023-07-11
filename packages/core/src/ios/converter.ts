@@ -180,6 +180,7 @@ export function toNativeArguments(
         //
         // The callback needs to do the opposite, of calling back with a JS
         // value.
+
         blocks[4] = (args: NSArray<NSObject> | null) => {
           // Handle null as an empty array, and coerce an NSArray into JS
           // values.
@@ -333,7 +334,6 @@ export function invokeNativeMethod(
       this.nativeModule,
       selector
     ));
-
   if (isPromise(types)) {
     return promisify.call(this, invocation, types, args);
   }

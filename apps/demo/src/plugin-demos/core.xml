@@ -1,17 +1,18 @@
 <Page xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:ui="./webview" navigatingTo="navigatingTo" class="page">
     <Page.actionBar>
-        <ActionBar title="react-native-webview?" icon="" class="action-bar">
+        <ActionBar title="React Native Modules" icon="" class="action-bar">
         </ActionBar>
     </Page.actionBar>
 
     <StackLayout>
-      <Button text="Test react-native-module-test" tap="{{ testPromise }}" class="btn btn-primary"/>
-
-        <ui:WebView 
+      <Button text="Test Primitives" tap="{{ testPrimitives }}" class="btn btn-primary"/>
+      <Button text="Test Promise" tap="{{ testPromise }}" class="btn btn-primary"/>
+      <Button text="Test Callback" tap="{{ testCallback }}" class="btn btn-primary"/>
+        <!-- <ui:WebView 
         javaScriptEnabled="true" 
         source='{"uri":"https://nativescript.org"}' 
         style="width:100%;height:100%;background-color:#f0f0f0;"
         loadingFinish="onLoaded"
-        />
+        /> -->
     </StackLayout>
 </Page>
