@@ -1,12 +1,16 @@
 ---
-title: "Open Native"
+title: 'Open Native'
 logo: logo.png
-#base_path: "/open-native"
+
 navigation:
-  - path: docs/installation.md
-  - path: docs/install-module.md
-  - path: docs/finding-modules.md
-  - path: docs/reference.md
-  - path: docs/troubleshooting.md
+  - path: installation.md
+  - path: install-module.md
+  - path: finding-modules.md
+  - path: reference.md
+  - path: troubleshooting.md
+
 colors:
-  main: "#2dd4bc"
+  main: '#2dd4bc'
+
+footer:
+  copyright: Copyright © 2023 Ammar Ahmed
