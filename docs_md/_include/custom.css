@@ -153,6 +153,15 @@ body {
 #search-box {
   font-size: 1rem;
   padding-left: 15px !important;
+  color: var(--paragraph) !important;
+  border-radius: 8px !important;
+}
+
+#search-box:focus,
+#search-box:focus-within,
+#search-box:active {
+  outline-color: var(--primary) !important;
+  outline-width: 1px !important;
 }
 
 .search-icon {
