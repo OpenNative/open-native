@@ -1,114 +1,15 @@
-<!doctype html>
-
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-
-    <title>API Reference</title>
-    <meta name="description" content="Documentation for Open Native">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico?">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Sans+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap"
-        rel="stylesheet">
-
-    <link rel="stylesheet" type="text/css" href="/open-native/assets/normalize.css?v=1674997126"
-        media="screen" />
-    <link rel="stylesheet" type="text/css" href="/open-native/assets/docgen-style.css?v=1674997126"
-        media="screen" />
-    <link rel="stylesheet" type="text/css" href="/open-native/assets/katex.css?v=1674997126" media="screen" />
-    <link rel="stylesheet" type="text/css" href="/open-native/assets/prism-ghcolors.css?v=1674997126"
-        media="screen" />
-
-    <script>
-        var DOCGEN_TIMESTAMP = "1674997126";
-        var BASE_PATH = "/open-native/";
-        var color = localStorage.getItem('docgen-color')
-
-        if (color === 'dark') {
-            document.getElementsByTagName('html')[0].classList.remove('light');
-            document.getElementsByTagName('html')[0].classList.add('dark');
-        } else {
-            document.getElementsByTagName('html')[0].classList.remove('dark');
-            document.getElementsByTagName('html')[0].classList.add('light');
-        }
-    </script>
-
-    
-</head>
-
-<body>
-    <label for='menu-toggle-switch' class='menu-toggle-button'>
-        ☰
-    </label>
-    <input type="checkbox" id="menu-toggle-switch" value='0' />
-    <div class='page'>
-        <div class='header'>
-            <div class='logo'>
-                
-                <a href="/open-native/">
-                    <img src="/open-native/logo.png" alt='Open Native logo'></img>
-                </a>
-                
-                <h2 class='project-name'>
-                    <a href="/open-native/">
-                        Open Native
-                    </a>
-                </h2>
-            </div>
-            <div class='search'>
-                <form id='search-form'>
-    <input type='text' id='search-box' autocomplete="off" placeholder="Search..."></input>
-    <span class='search-icon'>S</span>
-    <ul id='search-results'></ul>
-</form>
-
-            </div>
-            <div class='header-dummy-right'>
-            </div>
-        </div>
-        <div class='container'>
-            <div class='sidebar-left'>
-                <nav class='site-nav'>
-    <ul>
-        
-            <li><a href="/open-native/installation">Installation</a></li>
-            
-        
-            <li><a href="/open-native/install-module">Installing native modules</a></li>
-            
-        
-            <li><a href="/open-native/finding-modules">Searching for native modules</a></li>
-            
-        
-            <li><a class="active" href="/open-native/reference">API Reference</a></li>
-            
-        
-            <li><a href="/open-native/troubleshooting">Troubleshooting</a></li>
-            
-        
-    </ul>
-    <span id='light-dark-mode-switch'>
-        <svg xmlns="http://www.w3.org/2000/svg" id="dark-mode-icon" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-        </svg>
-
-        <svg xmlns="http://www.w3.org/2000/svg" id="light-mode-icon" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />
-        </svg>
-    </span>
-</nav>
-
-            </div>
-            <div class='docgen-content'>
-                <h1 id="api-reference">API Reference</h1>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>API Reference</title><meta name="description" content="Documentation for API Reference"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" type="text/css" href="/assets/normalize.97087844201bf696.css">
+<link rel="stylesheet" type="text/css" href="/assets/light.146e7c3d06d34520.css">
+<link rel="stylesheet" type="text/css" href="/assets/dark.e5addf511eda33f2.css">
+<link rel="stylesheet" type="text/css" href="/assets/style.c1e8b00faa060413.css"><script>var DOCGEN_TIMESTAMP="1689261950";var BASE_PATH="/";window.onload=function(){document.body.classList.remove("preload")};document.addEventListener("DOMContentLoaded",function(){const a=document.querySelector(`.site-nav a[href="${document.location.pathname}"]`);if(a){const b=a.closest("li");if(b)b.classList.add("active");const c=a.closest("details");if(c){c.setAttribute("open",true)}}});function setColor(){const a=localStorage.getItem("docgen-color");if(a==="dark"){document.documentElement.classList.remove("light");document.documentElement.classList.add("dark")}else{document.documentElement.classList.remove("dark");document.documentElement.classList.add("light")}}setColor()</script><link rel="stylesheet" type="text/css" href="/custom.css" />
+</head><body class="preload"><label for="menu-toggle-switch" class="menu-toggle-button">☰</label><input type="checkbox" id="menu-toggle-switch" value="0"><div class="page"><div class="header"><div class="logo"><a href="/"><img src="/logo.png" alt="Open Native logo"></a><h2 class="project-title"><a href="/">Open Native</a><span class="project-subtitle">DOCS</span></h2></div><div class="search"><form id="search-form"><input type="text" id="search-box" autocomplete="off" placeholder="Search..."><span class="search-icon">S</span><ul id="search-results"></ul></form></div><div class="header-dummy-right"></div></div><div class="container"><div class="sidebar-left"><nav class="site-nav"><ul class="tree"><li><a href="/installation">Installation</a></li><li><a href="/install-module">Installing native modules</a></li><li><a href="/finding-modules">Searching for native modules</a></li><li><a href="/reference">API Reference</a></li><li><a href="/troubleshooting">Troubleshooting</a></li></ul></nav><span id="light-dark-mode-switch"><svg xmlns="http://www.w3.org/2000/svg" id="dark-mode-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg><svg xmlns="http://www.w3.org/2000/svg" id="light-mode-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path></svg></span></div><div class="docgen-content"><h1 id="api-reference">API Reference</h1>
 <p>Open Native implements a small subset of React Native API that is enough to run Native Modules built for React Native.</p>
 <h3 id="nativemodules"><code>NativeModules</code></h3>
 <p>The <code>NativeModules</code> object holds references to all the native modules that have been initialized on app launch. This is used by react native modules javascript code to access native methods.</p>
 <p>For example the Linking Core module uses the following two modules:</p>
-<pre><code class="language-ts">// Importing from `react-native` because it is alaised by `open-native`.
-// You can do `import { NativeModules } from "@open-native/core" and
+<pre class="code">
+<code class="language-ts">// Importing from `react-native` because it is alaised by `open-native`.
+// You can do `import { NativeModules } from &quot;open-native&quot; and
 // it will work the same.
 import { NativeModules } from 'react-native';
 
@@ -117,7 +18,8 @@ const NativeIntentAndroid = NativeModules.IntentAndroid;
 </code></pre>
 <h3 id="deviceeventemitter"><code>DeviceEventEmitter</code></h3>
 <p>It is another core react native module that is used by Native Modules to emit events to JavaScript.</p>
-<pre><code class="language-ts">import { DeviceEventEmitter } from 'react-native';
+<pre class="code">
+<code class="language-ts">import { DeviceEventEmitter } from 'react-native';
 
 //To emit an event:
 
@@ -134,16 +36,18 @@ sub?.remove();
 </code></pre>
 <p>Usually react native modules will wrap these into a nicer API but sometimes you have to use raw events.</p>
 <h3 id="linking"><code>Linking</code></h3>
-<p>Linking gives you a general interface to interact with both incoming and outgoing app links. You can <a href="https://reactnative.dev/docs/linking">check out the React Native docs</a> on it's usage.</p>
-<h3 id="platform.os"><code>Platform.OS</code></h3>
+<p>Linking gives you a general interface to interact with both incoming and outgoing app links. You can <a href="https://reactnative.dev/docs/linking">check out the React Native docs</a> on it’s usage.</p>
+<h3 id="platform-os"><code>Platform.OS</code></h3>
 <p>Gets the current OS, ios or android.</p>
-<pre><code class="language-ts">import { Platform } from 'react-native';
+<pre class="code">
+<code class="language-ts">import { Platform } from 'react-native';
 
 console.log(Platform.OS);
 </code></pre>
-<h3 id="platform.select({...})"><code>Platform.select({...})</code></h3>
+<h3 id="platform-select"><code>Platform.select({...})</code></h3>
 <p>A utility function that selects platform specific values automatically.</p>
-<pre><code class="language-ts">import { Platform } from 'react-native';
+<pre class="code">
+<code class="language-ts">import { Platform } from 'react-native';
 
 const config = Platform.select({
   ios: {..},
@@ -151,101 +55,25 @@ const config = Platform.select({
 });
 </code></pre>
 <h3 id="alert"><code>Alert</code></h3>
-<p>Launches an alert dialog with the specified title and message. You can <a href="https://reactnative.dev/docs/alert">check out the React Native docs</a> for it's usage.</p>
-<h3 id="appregistry.registerheadlesstask"><code>AppRegistry.registerHeadlessTask</code></h3>
+<p>Launches an alert dialog with the specified title and message. You can <a href="https://reactnative.dev/docs/alert">check out the React Native docs</a> for it’s usage.</p>
+<h3 id="appregistry-registerheadlesstask"><code>AppRegistry.registerHeadlessTask</code></h3>
 <p>Register a headless task. A headless task is a bit of code that runs without a UI. This is a way to run tasks in JavaScript while your app is in the background. It can be used, for example, to sync fresh data, handle push notifications, or play music.
 Usually used by native modules that do work in background or wake your app to run some JS code.</p>
-<h3 id="dimensions.get"><code>Dimensions.get</code></h3>
+<h3 id="dimensions-get"><code>Dimensions.get</code></h3>
 <p>Gets the current dimensions related data. See <a href="https://reactnative.dev/docs/dimensions#get">react-native</a> docs on how to use this method.</p>
 <h3 id="init"><code>init</code></h3>
 <p>Open Native does not load modules until the first request to import a NativeModule takes place. If you want to eagerly load all modules metadata, call this method in <code>app.js</code>.</p>
-<pre><code class="language-ts">import { init } from '@open-native/core';
+<pre class="code">
+<code class="language-ts">import { init } from '@open-native/core';
 init();
 </code></pre>
 <p>Remember that this only loads the metadata, the NativeModules are always lazily loaded.</p>
-<h3 id="loadmodulesforpackage-(android-only)"><code>loadModulesForPackage (android only)</code></h3>
+<h3 id="loadmodulesforpackage-android-only"><code>loadModulesForPackage (android only)</code></h3>
 <p>Native modules on android ship in small ReactPackages. Each package can have multiple modules. Open Native by default does not load native modules this way because it breaks lazy loading modules. In case you want to load a package of modules eagerly, you can call this method.</p>
-<pre><code class="language-ts">import { loadModulesForPackage } from '@open-native/core';
+<pre class="code">
+<code class="language-ts">import { loadModulesForPackage } from '@open-native/core';
 
 loadModulesForPackage('RNTestModulePackage');
 </code></pre>
-
-            </div>
-            <div class='sidebar-right'>
-                <div class='page-nav' id='page-nav'>
-                    <p class='page-nav-header'>On this page</p>
-                    <ul>
-                        
-                        <li class='page-nav-level-1'>
-                            <a href='#api-reference'>API Reference</a>
-                        </li>
-                        
-                        <li class='page-nav-level-3'>
-                            <a href='#nativemodules'>NativeModules</a>
-                        </li>
-                        
-                        <li class='page-nav-level-3'>
-                            <a href='#deviceeventemitter'>DeviceEventEmitter</a>
-                        </li>
-                        
-                        <li class='page-nav-level-3'>
-                            <a href='#linking'>Linking</a>
-                        </li>
-                        
-                        <li class='page-nav-level-3'>
-                            <a href='#platform.os'>Platform.OS</a>
-                        </li>
-                        
-                        <li class='page-nav-level-3'>
-                            <a href='#platform.select({...})'>Platform.select({...})</a>
-                        </li>
-                        
-                        <li class='page-nav-level-3'>
-                            <a href='#alert'>Alert</a>
-                        </li>
-                        
-                        <li class='page-nav-level-3'>
-                            <a href='#appregistry.registerheadlesstask'>AppRegistry.registerHeadlessTask</a>
-                        </li>
-                        
-                        <li class='page-nav-level-3'>
-                            <a href='#dimensions.get'>Dimensions.get</a>
-                        </li>
-                        
-                        <li class='page-nav-level-3'>
-                            <a href='#init'>init</a>
-                        </li>
-                        
-                        <li class='page-nav-level-3'>
-                            <a href='#loadmodulesforpackage-(android-only)'>loadModulesForPackage (android only)</a>
-                        </li>
-                        
-                    </ul>
-                </div>
-            </div>
-            <div class='wave-container'>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-                    <path fill-opacity="0.35"
-                        d="M0,192L60,213.3C120,235,240,277,360,277.3C480,277,600,235,720,192C840,149,960,107,1080,122.7C1200,139,1320,213,1380,250.7L1440,288L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
-                    </path>
-                    <path fill-opacity="0.5"
-                        d="M0,160L60,181.3C120,203,240,245,360,229.3C480,213,600,139,720,138.7C840,139,960,213,1080,229.3C1200,245,1320,203,1380,181.3L1440,160L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
-                    </path>
-                    <path fill-opacity="0.2"
-                        d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,186.7C1200,192,1320,224,1380,240L1440,256L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z">
-                    </path>
-                </svg>
-                <p>Powered by <a href='https://docgen.streetwriters.co' target='_blank'>Docgen</a></p>
-            </div>
-        </div>
-    </div>
-    <script type="text/javascript" src="/open-native/assets/katex.js?v=1674997126"></script>
-    <script type="text/javascript" src="/open-native/assets/mermaid.js?v=1674997126"></script>
-    <script type="text/javascript" src="/open-native/assets/elasticlunr.js?v=1674997126"></script>
-    <script type="text/javascript" src="/open-native/assets/prism.js?v=1674997126"></script>
-    <script type="text/javascript" src="/open-native/assets/docgen-app.js?v=1674997126"></script>
-
-    
-</body>
-
-</html>
+</div><div class="sidebar-right"><div class="page-nav" id="page-nav"><p class="page-nav-header">On this page</p><ul><li class="page-nav-level-1"><a href="#api-reference">API Reference</a></li><li class="page-nav-level-3"><a href="#nativemodules">NativeModules</a></li><li class="page-nav-level-3"><a href="#deviceeventemitter">DeviceEventEmitter</a></li><li class="page-nav-level-3"><a href="#linking">Linking</a></li><li class="page-nav-level-3"><a href="#platform-os">Platform.OS</a></li><li class="page-nav-level-3"><a href="#platform-select">Platform.select({...})</a></li><li class="page-nav-level-3"><a href="#alert">Alert</a></li><li class="page-nav-level-3"><a href="#appregistry-registerheadlesstask">AppRegistry.registerHeadlessTask</a></li><li class="page-nav-level-3"><a href="#dimensions-get">Dimensions.get</a></li><li class="page-nav-level-3"><a href="#init">init</a></li><li class="page-nav-level-3"><a href="#loadmodulesforpackage-android-only">loadModulesForPackage (android only)</a></li></ul></div></div></div></div><footer><div class="groups"></div><div class="copyright">Copyright © 2023 Ammar Ahmed</div></footer><script id="elasticlunr.min.js" async defer type="text/javascript" src="/assets/elasticlunr.min.d5632d4ce358acab.js"></script>
+<script id="app.js" async defer type="text/javascript" src="/assets/app.f93b0a1c15e882d9.js"></script></body></html>

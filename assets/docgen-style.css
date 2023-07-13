@@ -105,10 +105,6 @@ code {
     monospace;
 }
 
-code, kbd, samp {
-  font-size: 1.1em !important;
-}
-
 pre > code[class*="language-"] {
   font-size: 1.1em !important;
   background: var(--code-bg);
@@ -123,7 +119,7 @@ pre {
   margin-bottom: 2rem;
   overflow: auto;
   color: var(--fg);
-  font-size: 1.1em !important;
+  font-size: 1.1em;
 }
 
 p code {

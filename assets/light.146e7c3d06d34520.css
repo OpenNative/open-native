@@ -1,0 +1,359 @@
+/* VLight */
+
+html.light {
+  --primary: #5871ef;
+  --primary-fg: #fff;
+  --page-bg: #f0f0f0;
+  --document-bg: #f9f9fa;
+  --document-fg: #403f53;
+  --heading: #403f53;
+  --paragraph: #403f53;
+  --link: #006ab1;
+  --code-bg: #dcdcdc66;
+  --code-fg: #403f53;
+  --blockquote-bg: #7f7f7f1a;
+  --blockquote-border: #007acc80;
+  --input-bg: #f0f0f0;
+  --input-fg: #403f53;
+  --input-border: #d9d9d9;
+  --input-placeholder: #93a1a1;
+  --hr: #d4d4d4;
+  --hover-bg: #5f6978ff;
+  --selection-bg: #7a8181ad;
+  --header-fg: #5871ef;
+  --border: #d9d9d9;
+  --border-dim: #d9d9d966;
+  --button-bg: #5f6a79;
+  --button-fg: #ffffff;
+  --fg: #403f53;
+  --fg-dim: #403f53cc;
+  --fg-dimmer: #403f5399;
+  --info: #1a85ff;
+  --info-dim: #1a85ff12;
+  --warn: #f2a60d;
+  --warn-dim: #f2a60d12;
+  --error: #e64d49;
+  --error-dim: #e64d4912;
+  --success: #49d0c5;
+  --success-dim: #49d0c512;
+}
+
+html.light pre .meta.embedded,
+html.light pre .source.groovy.embedded {
+  color: #403f53;
+}
+html.light pre .emphasis {
+  font-style: italic;
+}
+html.light pre .strong {
+  font-weight: bold;
+}
+html.light pre .header {
+  color: #000080;
+}
+html.light pre .comment {
+  color: #7c818d;
+}
+html.light pre .constant.language {
+  color: #ca1243;
+}
+html.light pre .constant.numeric,
+html.light pre .variable.other.enummember,
+html.light pre .keyword.operator.plus.exponent,
+html.light pre .keyword.operator.minus.exponent {
+  color: #ca1243;
+}
+html.light pre .constant.regexp {
+  color: #646695;
+}
+html.light pre .entity.name.tag {
+  color: #9f00bd;
+}
+html.light pre .entity.name.tag.css {
+  color: #9f00bd;
+}
+html.light pre .entity.other.attribute-name {
+  color: #0950de;
+}
+html.light pre .entity.other.attribute-name.class.css,
+html.light pre .entity.other.attribute-name.class.mixin.css,
+html.light pre .entity.other.attribute-name.id.css,
+html.light pre .entity.other.attribute-name.parent-selector.css,
+html.light pre .entity.other.attribute-name.pseudo-class.css,
+html.light pre .entity.other.attribute-name.pseudo-element.css,
+html.light pre .source.css.less entity.other.attribute-name.id,
+html.light pre .entity.other.attribute-name.attribute.scss,
+html.light pre .entity.other.attribute-name.scss {
+  color: #0950de;
+}
+html.light pre .invalid {
+  color: #f44747;
+}
+html.light pre .markup.underline {
+  color: #0950de;
+  text-decoration-line: underline;
+}
+html.light pre .markup.bold {
+  font-weight: bold;
+  color: #0950de;
+}
+html.light pre .markup.heading {
+  font-weight: bold;
+  color: #0950de;
+}
+html.light pre .markup.italic {
+  font-style: italic;
+}
+html.light pre .markup.inserted {
+  color: #107874;
+}
+html.light pre .markup.deleted {
+  color: #de3d3b;
+}
+html.light pre .markup.changed {
+  color: #0950de;
+}
+html.light pre .punctuation.definition.quote.begin.markdown {
+  color: #107874;
+}
+html.light pre .punctuation.definition.list.begin.markdown {
+  color: #0950de;
+}
+html.light pre .markup.inline.raw {
+  color: #c5226e;
+}
+html.light pre .punctuation.definition.tag {
+  color: #9f00bd;
+}
+html.light pre .meta.preprocessor,
+html.light pre .entity.name.function.preprocessor {
+  color: #0950de;
+}
+html.light pre .meta.preprocessor.string {
+  color: #188d3f;
+}
+html.light pre .meta.preprocessor.numeric {
+  color: #ca1243;
+}
+html.light pre .meta.structure.dictionary.key.python {
+  color: #9f00bd;
+}
+html.light pre .meta.diff.header {
+  color: #0950de;
+}
+html.light pre .storage {
+  color: #9f00bd;
+}
+html.light pre .storage.type {
+  color: #9f00bd;
+}
+html.light pre .storage.modifier,
+html.light pre .keyword.operator.noexcept {
+  color: #9f00bd;
+}
+html.light pre .string,
+html.light pre .meta.embedded.assembly {
+  color: #188d3f;
+}
+html.light pre .string.tag {
+  color: #188d3f;
+}
+html.light pre .string.value {
+  color: #188d3f;
+}
+html.light pre .string.regexp {
+  color: #107874;
+}
+html.light pre .punctuation.definition.template-expression.begin,
+html.light pre .punctuation.definition.template-expression.end,
+html.light pre .punctuation.section.embedded {
+  color: #0950de;
+}
+html.light pre .meta.template.expression {
+  color: #0950de;
+}
+html.light pre .support.type.vendored.property-name,
+html.light pre .support.type.property-name,
+html.light pre .variable.css,
+html.light pre .variable.other.less,
+html.light pre .source.coffee.embedded {
+  color: #9f00bd;
+}
+html.light pre .variable.scss {
+  color: #0950de;
+}
+html.light pre .keyword {
+  color: #9f00bd;
+}
+html.light pre .keyword.control {
+  color: #9f00bd;
+}
+html.light pre .keyword.operator {
+  color: #9f00bd;
+}
+html.light pre .keyword.operator.new,
+html.light pre .keyword.operator.expression,
+html.light pre .keyword.operator.cast,
+html.light pre .keyword.operator.sizeof,
+html.light pre .keyword.operator.alignof,
+html.light pre .keyword.operator.typeid,
+html.light pre .keyword.operator.alignas,
+html.light pre .keyword.operator.instanceof,
+html.light pre .keyword.operator.logical.python,
+html.light pre .keyword.operator.wordlike {
+  color: #9f00bd;
+}
+html.light pre .keyword.other.unit {
+  color: #9f00bd;
+}
+html.light pre .punctuation.section.embedded.begin.php,
+html.light pre .punctuation.section.embedded.end.php {
+  color: #ca1243;
+}
+html.light pre .support.function.git-rebase {
+  color: #9cdcfe;
+}
+html.light pre .constant.sha.git-rebase {
+  color: #b5cea8;
+}
+html.light pre .storage.modifier.import.java,
+html.light pre .variable.language.wildcard.java,
+html.light pre .storage.modifier.package.java {
+  color: #403f53;
+}
+html.light pre .variable.language {
+  color: #0950de;
+}
+html.light pre .entity.name.function,
+html.light pre .support.function,
+html.light pre .support.constant.handlebars,
+html.light pre .source.powershell variable.other.member,
+html.light pre .entity.name.operator.custom-literal {
+  color: #0950de;
+}
+html.light pre .entity.name.type.class,
+html.light pre .entity.name.type.namespace {
+  color: #0950de;
+}
+html.light pre .meta.return-type,
+html.light pre .support.class,
+html.light pre .support.type,
+html.light pre .entity.name.type,
+html.light pre .entity.name.namespace,
+html.light pre .entity.other.attribute,
+html.light pre .entity.name.scope-resolution,
+html.light pre .entity.name.class,
+html.light pre .storage.type.numeric.go,
+html.light pre .storage.type.byte.go,
+html.light pre .storage.type.boolean.go,
+html.light pre .storage.type.string.go,
+html.light pre .storage.type.uintptr.go,
+html.light pre .storage.type.error.go,
+html.light pre .storage.type.rune.go,
+html.light pre .storage.type.cs,
+html.light pre .storage.type.generic.cs,
+html.light pre .storage.type.modifier.cs,
+html.light pre .storage.type.variable.cs,
+html.light pre .storage.type.generic.java,
+html.light pre .storage.type.object.array.java,
+html.light pre .storage.type.primitive.array.java,
+html.light pre .storage.type.token.java,
+html.light pre .storage.type.groovy,
+html.light pre .storage.type.annotation.groovy,
+html.light pre .storage.type.parameters.groovy,
+html.light pre .storage.type.generic.groovy,
+html.light pre .storage.type.object.array.groovy,
+html.light pre .storage.type.primitive.array.groovy,
+html.light pre .storage.type.primitive.groovy {
+  color: #9f00bd;
+}
+html.light pre .punctuation.definition.decorator.python,
+html.light pre .meta.function.decorator.python support.type.python,
+html.light pre .entity.name.function.decorator.python,
+html.light pre .punctuation.definition.annotation.java,
+html.light pre .storage.type.annotation.java {
+  color: #4827a0;
+}
+html.light pre .meta.function-call {
+  color: #107874;
+}
+html.light pre .punctuation.definition.arguments,
+html.light pre .punctuation.definition.parameters,
+html.light pre .meta.function-call.arguments {
+  color: #403f53;
+}
+html.light pre .meta.type.cast.expr,
+html.light pre .meta.type.new.expr,
+html.light pre .support.constant.math,
+html.light pre .support.constant.dom,
+html.light pre .support.constant.json,
+html.light pre .entity.other.inherited-class {
+  color: #0950de;
+}
+html.light pre .keyword.control,
+html.light pre .source.cpp keyword.operator.new,
+html.light pre .keyword.operator.delete,
+html.light pre .keyword.other.using,
+html.light pre .keyword.other.operator,
+html.light pre .entity.name.operator {
+  color: #9f00bd;
+}
+html.light pre .variable {
+  color: #403f53;
+}
+html.light pre .meta.definition.variable.name,
+html.light pre .support.variable,
+html.light pre .entity.name.variable {
+  color: #403f53;
+}
+html.light pre .variable.other.object.property,
+html.light pre .variable.other.property {
+  color: #107874;
+}
+html.light pre .variable.other.constant,
+html.light pre .variable.other.enummember {
+  color: #0950de;
+}
+html.light pre .meta.object-literal.key {
+  color: #403f53;
+}
+html.light pre .support.constant.property-value,
+html.light pre .support.constant.font-name,
+html.light pre .support.constant.media-type,
+html.light pre .support.constant.media,
+html.light pre .constant.other.color.rgb-value,
+html.light pre .constant.other.rgb-value,
+html.light pre .support.constant.color {
+  color: #188d3f;
+}
+html.light pre .punctuation.definition.group.regexp,
+html.light pre .punctuation.definition.group.assertion.regexp,
+html.light pre .punctuation.definition.character-class.regexp,
+html.light pre .punctuation.character.set.begin.regexp,
+html.light pre .punctuation.character.set.end.regexp,
+html.light pre .keyword.operator.negation.regexp,
+html.light pre .support.other.parenthesis.regexp {
+  color: #188d3f;
+}
+html.light pre .constant.character.character-class.regexp,
+html.light pre .constant.other.character-class.set.regexp,
+html.light pre .constant.other.character-class.regexp,
+html.light pre .constant.character.set.regexp {
+  color: #188d3f;
+}
+html.light pre .keyword.operator.or.regexp,
+html.light pre .keyword.control.anchor.regexp {
+  color: #188d3f;
+}
+html.light pre .keyword.operator.quantifier.regexp {
+  color: #188d3f;
+}
+html.light pre .constant.character {
+  color: #0950de;
+}
+html.light pre .constant.character.escape {
+  color: #ca1243;
+}
+html.light pre .entity.name.label {
+  color: #c8c8c8;
+}
