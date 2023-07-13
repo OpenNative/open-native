@@ -38,14 +38,33 @@ export function extractClassDeclarationForModule(file: string) {
     );
   if (turboModuleMatch) return turboModuleMatch;
 
+  const viewManagerMatch =
+    file.match(
+      /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*SimpleViewManager/
+    ) ||
+    file.match(
+      /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ViewGroupManager/
+    );
+
+  if (viewManagerMatch) {
+    return viewManagerMatch;
+  }
+
   // Match any class that extends ReactContextBaseJavaModule and is public.
   const publicModuleMatch = file.match(
-    /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ReactContextBaseJavaModule/
+    /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*(ReactContextBaseJavaModule | SimpleViewManager)/
   );
   if (publicModuleMatch) return publicModuleMatch;
 
   const moduleMatch = file.match(
     /class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ReactContextBaseJavaModule/
   );
-  return moduleMatch;
+
+  if (moduleMatch) return moduleMatch;
+
+  const ktModuleMatch = file.match(
+    /class\s+(\w+)(\s+|)\(.*\)(\s+|):(\s+|)ReactContextBaseJavaModule/gm
+  );
+
+  return ktModuleMatch;
 }

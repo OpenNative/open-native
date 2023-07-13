@@ -92,8 +92,12 @@ export async function getPackageAutolinkInfo({
   // "" becomes []
   // "something" becomes ["something"]
   // ["something"] stays as ["something"]
-  const commonSourceFiles = [podspecParsed.source_files || []].flat().filter((v) => !!v);
-  const iosSourceFiles = [podspecParsed.ios?.source_files || []].flat().filter((v) => !!v);
+  const commonSourceFiles = [podspecParsed.source_files || []]
+    .flat()
+    .filter((v) => !!v);
+  const iosSourceFiles = [podspecParsed.ios?.source_files || []]
+    .flat()
+    .filter((v) => !!v);
   if (!podspecParsed.name) {
     console.warn(
       `${logPrefix} Podspec "${podspecFileName}" for npm package "${packageName}" did not specify a name, so using "${packageName}" instead.`
@@ -200,12 +204,12 @@ export async function getPackageAutolinkInfo({
        * Rewrite the implementation of interface in swift
        * & make the class & it's methods public.
        */
-      if (isSwiftModuleInterface) {
-        await writePublicSwiftModule(
-          moduleNamesToMethodDescriptions,
-          sourceFilePaths
-        );
-      }
+      // if (isSwiftModuleInterface) {
+      //   await writePublicSwiftModule(
+      //     moduleNamesToMethodDescriptions,
+      //     sourceFilePaths
+      //   );
+      // }
 
       return {
         interfaceDecl,

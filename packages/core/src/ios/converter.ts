@@ -1,72 +1,73 @@
-import {
-  assert,
-  isNullOrUndefined,
-  RNObjcSerialisableType,
-  warn,
-} from '../common';
+import { assert, isNullOrUndefined, RNObjcSerialisableType } from '../common';
 import {
   numberHasDecimals,
   numberIs64Bit,
 } from '@nativescript/core/utils/types';
 import { Utils } from '@nativescript/core';
+import { isPromise } from './utils';
+
+type RCTFunctionBlocks = [
+  // Resolve
+  (value: NSObject) => void | undefined,
+  number,
+  // Reject
+  (...args: any[]) => void | undefined,
+  number,
+  // Callback
+  (args: NSArray<NSObject> | null) => void | undefined,
+  number,
+  // Error callback
+  (value: NSError) => void | undefined,
+  number
+];
+
+function fromJSON(value: string) {
+  if (typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    console.warn(e.message, e, value);
+    return value;
+  }
+}
 
 export function toNativeArguments(
-  methodTypes: RNObjcSerialisableType[],
+  argumentTypes: RNObjcSerialisableType[],
   args: JSValuePassableIntoObjc[],
   resolve?: (value: JSONSerialisable) => void,
-  reject?: (reason: Error) => void
-): RNNativeModuleMethodArg[] {
+  reject?: (reason: Error) => void,
+  strict = true
+): { arguments: RNNativeModuleMethodArg[]; blocks: RCTFunctionBlocks } {
   const nativeArguments: RNNativeModuleMethodArg[] = [];
-
-  assert(
-    methodTypes.length,
-    'Method signature empty, so unable to call native method.'
-  );
-
-  const argumentTypes = methodTypes.slice(1);
-  /**
-   * Asserting here breaks promises.
-   */
-  // assert(
-  //   argumentTypes.length === args.length,
-  //   `Expected ${argumentTypes.length} arguments, but got ${args.length}. Note that Obj-C does not support optional arguments.`
-  // );
+  const blocks: RCTFunctionBlocks = [
+    undefined,
+    -1,
+    undefined,
+    -1,
+    undefined,
+    -1,
+    undefined,
+    -1,
+  ];
 
   for (let i = 0; i < argumentTypes.length; i++) {
     const argType = argumentTypes[i];
-    const data = args[i];
-    /**
-     * Asserting here breaks promises. Maybe we should let the
-     * arguments pass through to native and let it handle the
-     * rest. Also I think it is safe to convert undefined to nil or
-     * NSNull for iOS.
-     */
-    // assert(
-    //   typeof data !== 'undefined',
-    //   `Unexpected \`undefined\` value passed in at index ${i} for argument type "${RNObjcSerialisableType[argType]}". Note that Obj-C does not have an equivalent to undefined.`
-    // );
 
-    //if (
-    //   argType === RNObjcSerialisableType.nonnullArray ||
-    //   argType === RNObjcSerialisableType.nonnullBoolean ||
-    //   argType === RNObjcSerialisableType.nonnullNumber ||
-    //   argType === RNObjcSerialisableType.nonnullObject ||
-    //   argType === RNObjcSerialisableType.nonnullString
-    // ) {
-    //   assert(
-    //     data !== null,
-    //     `Unexpectedly got null for nonnull argument type "${RNObjcSerialisableType[argType]}."`
-    //   );
-    // }
+    let data = args[i];
 
     switch (argType) {
       case RNObjcSerialisableType.returnType: {
         break;
       }
       case RNObjcSerialisableType.other: {
-        throw new Error(
-          `Unexpected type 'other' at index ${i} - the autolinker must have failed to parse the native module.`
-        );
+        if (strict) {
+          throw new Error(
+            `Unexpected type 'other' at index ${i} - the autolinker must have failed to parse the native module.`
+          );
+        } else {
+          nativeArguments.push(undefined);
+          break;
+        }
       }
 
       case RNObjcSerialisableType.array:
@@ -76,6 +77,7 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullArray: {
+        data = fromJSON(data as string);
         assert(
           Array.isArray(data),
           `Argument at index ${i} expected an Array value, but got ${data}`
@@ -92,6 +94,7 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullObject: {
+        data = fromJSON(data as string);
         assert(
           data?.constructor === Object,
           `Argument at index ${i} expected an object value, but got ${data}`
@@ -113,6 +116,7 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullBoolean:
+        data = fromJSON(data as string);
         assert(
           typeof data === 'boolean',
           `Argument at index ${i} expected a boolean, but got ${data}`
@@ -153,6 +157,7 @@ export function toNativeArguments(
         }
       // eslint-disable-next-line no-fallthrough
       case RNObjcSerialisableType.nonnullNumber:
+        data = fromJSON(data as string);
         assert(
           typeof data === 'number',
           `Argument at index ${i} expected a number, but got ${data}`
@@ -175,7 +180,8 @@ export function toNativeArguments(
         //
         // The callback needs to do the opposite, of calling back with a JS
         // value.
-        nativeArguments.push((args: NSArray<NSObject> | null) => {
+
+        blocks[4] = (args: NSArray<NSObject> | null) => {
           // Handle null as an empty array, and coerce an NSArray into JS
           // values.
           const callbackArgs = args
@@ -183,8 +189,9 @@ export function toNativeArguments(
             : [];
 
           // Call back to the consumer with an array of JS values.
-          data(...callbackArgs);
-        });
+          (data as Function)(...callbackArgs);
+        };
+        blocks[5] = i;
         break;
       }
 
@@ -199,14 +206,16 @@ export function toNativeArguments(
         //
         // The callback needs to do the opposite, of calling back with a JS
         // value.
-        nativeArguments.push((value: NSError) => {
+        blocks[6] = (value: NSError) => {
           // I've seen in an example that a user calls console.log(error.domain)
           // in the error handler of their RN native module's API call, so
           // returning the NSError as-is should give us the best API
           // compatibility with a React Native JS Error until we see a counter
           // case. We'll also get a nice stack trace as a result.
-          data(value);
-        });
+          (data as Function)(value);
+        };
+        blocks[7] = i;
+
         break;
       }
 
@@ -216,10 +225,11 @@ export function toNativeArguments(
         //
         // The callback needs to do the opposite, of calling back with a JS
         // value.
-        nativeArguments.push((value: NSObject) => {
+        blocks[0] = (value: NSObject) => {
           // Marshal the Obj-C value back to JS to resolve to the consumer.
           resolve(toJSValue(value) as JSONSerialisable);
-        });
+        };
+        blocks[1] = i;
         break;
       }
 
@@ -229,39 +239,35 @@ export function toNativeArguments(
         //
         // The callback needs to do the opposite, of calling back with a JS
         // value.
-        nativeArguments.push(
-          (code: NSString, message: NSString, nativeError: NSError | null) => {
-            // The nativeError may be nil (null on our side), so unlike the
-            // RCTResponseErrorBlock, we'll need to construct an error afresh.
-            const jsError = new Error(toJSValue(message) as string);
+        blocks[2] = (
+          code: NSString,
+          message: NSString,
+          nativeError: NSError | null
+        ) => {
+          // The nativeError may be nil (null on our side), so unlike the
+          // RCTResponseErrorBlock, we'll need to construct an error afresh.
+          const jsError = new Error(toJSValue(message) as string);
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (jsError as Error & { code: string }).code = toJSValue(
-              code
-            ) as string;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (jsError as Error & { code: string }).code = toJSValue(
+            code
+          ) as string;
 
-            // In case NativeScript doesn't support the new Error 'cause' API,
-            // I'll assign it directly to be safe.
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (jsError as Error & { cause: NSError }).cause = nativeError;
+          // In case NativeScript doesn't support the new Error 'cause' API,
+          // I'll assign it directly to be safe.
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (jsError as Error & { cause: NSError }).cause = nativeError;
 
-            // Reject a JS error back to the consumer.
-            reject(jsError);
-          }
-        );
+          // Reject a JS error back to the consumer.
+          reject(jsError);
+        };
+        blocks[3] = i;
         break;
       }
     }
   }
-  /**
-   * Instead of asserting, we can show a warning here.
-   */
-  warn(
-    argumentTypes.length === nativeArguments.length,
-    `Expected ${argumentTypes.length} arguments, but got ${args.length}.`
-  );
 
-  return nativeArguments;
+  return { arguments: nativeArguments, blocks };
 }
 
 function toJSError(error: NSError) {
@@ -288,29 +294,57 @@ function toJSError(error: NSError) {
 }
 
 export function promisify(
-  module: RCTBridgeModule,
-  methodQueue: boolean,
-  methodName: string,
-  methodTypes: RNObjcSerialisableType[],
+  invocation: NSInvocation,
+  types: RNObjcSerialisableType[],
   args: JSValuePassableIntoObjc[]
 ): Promise<unknown> {
   return new Promise((resolve, reject) => {
+    const nativeArguments = toNativeArguments(types, args, resolve, reject);
+
     try {
-      if (methodQueue && module.methodQueue) {
-        dispatch_async(module.methodQueue, () => {
-          module[methodName](
-            ...toNativeArguments(methodTypes, args, resolve, reject)
-          );
-        });
-      } else {
-        module[methodName](
-          ...toNativeArguments(methodTypes, args, resolve, reject)
-        );
-      }
+      reactNativeBridgeIOS.callMethodInvocationArgsSyncRRIRejRejICbCbIEEI(
+        invocation,
+        nativeArguments.arguments,
+        false,
+        ...nativeArguments.blocks
+      );
     } catch (e) {
       reject(e);
     }
   });
+}
+
+function createInvocation(module: RCTBridgeModule, selector: string) {
+  const sig = (module as NSObject).methodSignatureForSelector(selector);
+  const invocation = NSInvocation.invocationWithMethodSignature(sig);
+  invocation.selector = selector;
+  invocation.target = module;
+  return invocation;
+}
+
+export function invokeNativeMethod(
+  selector: string,
+  types: RNObjcSerialisableType[],
+  args: never[],
+  sync: boolean
+) {
+  const invocation =
+    this.__invocationCache[selector] ||
+    (this.__invocationCache[selector] = createInvocation(
+      this.nativeModule,
+      selector
+    ));
+  if (isPromise(types)) {
+    return promisify.call(this, invocation, types, args);
+  }
+  const nativeArguments = toNativeArguments(types, args);
+
+  return reactNativeBridgeIOS.callMethodInvocationArgsSyncRRIRejRejICbCbIEEI(
+    invocation,
+    nativeArguments.arguments,
+    sync,
+    ...nativeArguments.blocks
+  );
 }
 
 export type JSONSerialisable =

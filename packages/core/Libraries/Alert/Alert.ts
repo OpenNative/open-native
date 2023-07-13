@@ -8,11 +8,9 @@
 
 import { NativeModules } from '../..';
 import { Platform } from '../Utilities/Platform';
-import RCTAlertManagerAndroid from './RCTAlertManager.android';
-import RCTAlertManagerIOS from './RCTAlertManager.ios';
-
-const RCTAlertManager =
-  Platform.OS === 'ios' ? RCTAlertManagerIOS : RCTAlertManagerAndroid;
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+import RCTAlertManager from './RCTAlertManager';
 
 export type DialogOptions = {
   title?: string;

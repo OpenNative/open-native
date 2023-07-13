@@ -17,6 +17,7 @@ export enum RNObjcSerialisableType {
   RCTResponseErrorBlock,
   RCTPromiseResolveBlock,
   RCTPromiseRejectBlock,
+  RCTEventType,
   returnType,
 }
 

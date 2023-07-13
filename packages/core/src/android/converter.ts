@@ -178,20 +178,23 @@ function createJSPromise(resolve, reject) {
   });
 }
 
+function fromJSON(value: string) {
+  if (typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    console.warn(e.message, e, value);
+    return value;
+  }
+}
+
 export function toNativeArguments(
-  methodTypes: RNJavaSerialisableType[],
+  argumentTypes: RNJavaSerialisableType[],
   args: JSValuePassableIntoJava[],
   resolve?: (value: JSONSerialisable) => void,
   reject?: (reason: Error) => void
 ): RNNativeModuleMethodArg[] {
   const nativeArguments: RNNativeModuleMethodArg[] = [];
-
-  assert(
-    methodTypes.length,
-    'Method signature empty, so unable to call native method.'
-  );
-
-  const argumentTypes = methodTypes.slice(1);
 
   // I don't think this check should be added,
   // arguments will not be equal to argument types as
@@ -208,28 +211,16 @@ export function toNativeArguments(
 
   for (let i = 0; i < argumentTypes.length; i++) {
     const argType = argumentTypes[i];
-    const data = args[i];
+    let data = args[i];
 
-    // assert(
-    //   typeof data !== 'undefined',
-    //   `Unexpected \`undefined\` value passed in at index ${i} for argument type "${RNJavaSerialisableType[argType]}". Note that Obj-C does not have an equivalent to undefined.`
-    // );
-
-    // if (
-    //   argType === RNJavaSerialisableType.nonnullArray ||
-    //   argType === RNJavaSerialisableType.nonnullBoolean ||
-    //   argType === RNJavaSerialisableType.nonnullDouble ||
-    //   argType === RNJavaSerialisableType.nonnullFloat ||
-    //   argType === RNJavaSerialisableType.nonnullInt ||
-    //   argType === RNJavaSerialisableType.nonnullObject ||
-    //   argType === RNJavaSerialisableType.nonnullString ||
-    //   argType === RNJavaSerialisableType.nonnullCallback
-    // ) {
-    //   assert(
-    //     data !== null,
-    //     `Unexpectedly got null for nonnull argument type "${RNJavaSerialisableType[argType]}."`
-    //   );
-    // }
+    if (
+      argType !== RNJavaSerialisableType.string &&
+      argType !== RNJavaSerialisableType.nonnullString &&
+      argType !== RNJavaSerialisableType.Callback &&
+      argType !== RNJavaSerialisableType.Promise
+    ) {
+      data = fromJSON(data as string);
+    }
 
     switch (argType) {
       case RNJavaSerialisableType.other: {

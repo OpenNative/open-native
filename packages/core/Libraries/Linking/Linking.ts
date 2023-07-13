@@ -13,8 +13,10 @@ import NativeEventEmitter from '../EventEmitter/NativeEventEmitter';
 import { Platform } from '../Utilities/Platform';
 import { NativeModules } from '../..';
 
-const NativeLinkingManager = NativeModules.LinkingManager;
-const NativeIntentAndroid = NativeModules.IntentAndroid;
+const NativeLinkingManager =
+  Platform.OS === 'ios' && NativeModules.LinkingManager;
+const NativeIntentAndroid =
+  Platform.OS === 'android' && NativeModules.IntentAndroid;
 
 type LinkingEventDefinitions = {
   url: [{ url: string }];

@@ -1,4 +1,4 @@
-import { RNJavaSerialisableType, writeFile } from '../common';
+import { ModuleMap,  writeFile } from '../common';
 
 /**
  * @param {object} args
@@ -10,25 +10,7 @@ export async function writeModuleMapFile({
   moduleMap,
   outputModuleMapPath,
 }: {
-  moduleMap: {
-    [exportedModuleName: string]: {
-      /** jsModuleName */
-      j: string;
-      /** exportsConstants */
-      e: boolean;
-      /** methods */
-      m: {
-        [methodName: string]: {
-          /** isBlockingSynchronousMethod */
-          b: boolean;
-          /** jsMethodName */
-          j: string;
-          /** types */
-          t: RNJavaSerialisableType[];
-        };
-      };
-    };
-  };
+  moduleMap: ModuleMap;
   outputModuleMapPath: string;
 }) {
   return await writeFile(

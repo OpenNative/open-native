@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -16,4 +15,6 @@ import com.facebook.react.bridge.JavaScriptModule;
 @DoNotStrip
 public interface RCTNativeAppEventEmitter extends JavaScriptModule {
   void emit(String eventName, @Nullable Object data);
+  
 }
+

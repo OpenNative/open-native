@@ -1,0 +1,644 @@
+/* Shades of Purple */
+
+html.dark {
+  --primary: #fad000;
+  --primary-fg: #111;
+  --page-bg: #222244;
+  --document-bg: #2d2b55;
+  --document-fg: #ffffff;
+  --heading: #ffffff;
+  --paragraph: #ffffff;
+  --link: #b362ff;
+  --code-bg: #1e1e3f;
+  --code-fg: #ffffff;
+  --blockquote-bg: #1e1e3f;
+  --blockquote-border: #6943ff;
+  --input-bg: #2d2b55;
+  --input-fg: #fad000;
+  --input-border: #1e1e3f;
+  --input-placeholder: #a599e9;
+  --hr: #a599e9;
+  --hover-bg: #a599e9;
+  --selection-bg: #b362ff;
+  --header-fg: #fad000;
+  --border: #1e1e3f;
+  --border-dim: #1e1e3f66;
+  --button-bg: #a599e9cc;
+  --button-fg: #222244;
+  --fg: #ffffff;
+  --fg-dim: #ffffffcc;
+  --fg-dimmer: #ffffff99;
+  --info: #3794ff;
+  --info-dim: #3794ff12;
+  --warn: #fad000;
+  --warn-dim: #fad00012;
+  --error: #ec3a37f5;
+  --error-dim: #ec3a3712;
+  --success: #35ad68;
+  --success-dim: #35ad6812;
+}
+
+html.dark pre .comment,
+html.dark pre .punctuation.definition.comment {
+  color: #b362ff;
+}
+html.dark pre .entity {
+  color: #fad000;
+}
+html.dark pre .constant {
+  color: #ff628c;
+}
+html.dark pre .keyword,
+storage.type.class.js {
+  color: #ff9d00;
+}
+html.dark pre .meta {
+  color: #9effff;
+}
+html.dark pre .invalid {
+  color: #ec3a37f5;
+}
+html.dark pre .meta.brace,
+html.dark pre .punctuation.definition.parameters.begin.js,
+html.dark pre .punctuation.definition.parameters.end.js {
+  color: #e1efff;
+}
+html.dark pre .punctuation {
+  color: #e1efff;
+}
+html.dark pre .punctuation.definition.parameters {
+  color: #ffee80;
+}
+html.dark pre .punctuation.definition.template-expression {
+  color: #ffee80;
+}
+html.dark pre .storage {
+  color: #fad000;
+}
+html.dark pre .storage.type.function.arrow {
+  color: #fad000;
+}
+html.dark pre .string,
+html.dark pre .punctuation.definition.string {
+  color: #a5ff90;
+}
+html.dark pre .string.template,
+html.dark pre .punctuation.definition.string.template {
+  color: #3ad900;
+}
+html.dark pre .support {
+  color: #80ffbb;
+}
+html.dark pre .support.function {
+  color: #ff9d00;
+}
+html.dark pre .support.variable.property.dom {
+  color: #9effff;
+}
+html.dark pre .variable {
+  color: #e1efff;
+}
+html.dark pre .source.ini entity,
+html.dark pre .meta.embedded.block.ini,
+html.dark pre .source.ini {
+  color: #e1efff;
+}
+html.dark pre .source.ini keyword,
+html.dark pre .keyword.other.definition.ini {
+  color: #fad000;
+}
+html.dark pre .source.ini punctuation.definition {
+  color: #ffee80;
+}
+html.dark pre .source.ini punctuation.separator,
+html.dark pre .punctuation.separator.key-value.ini {
+  color: #ff9d00;
+}
+html.dark pre .source.css entity,
+html.dark pre .source.stylus entity {
+  color: #3ad900;
+}
+html.dark pre .entity.other.attribute-name.class.css {
+  color: #9effff;
+}
+html.dark pre .entity.other.attribute-name.id.css,
+html.dark pre .entity.other.attribute-name.pseudo-class.css {
+  color: #ffb454;
+}
+html.dark pre .entity.name.tag {
+  color: #9effff;
+}
+html.dark pre .source.css support,
+html.dark pre .entity.name.tag.css,
+html.dark pre .source.stylus support {
+  color: #a5ff90;
+}
+html.dark pre .source.css constant,
+html.dark pre .source.css support.constant,
+html.dark pre .source.stylus constant,
+html.dark pre .source.stylus support.constant {
+  color: #ffee80;
+}
+html.dark pre .source.css string,
+html.dark pre .source.css punctuation.definition.string,
+html.dark pre .source.stylus string,
+html.dark pre .source.stylus punctuation.definition.string {
+  color: #ffee80;
+}
+html.dark pre .source.css variable,
+html.dark pre .source.stylus variable {
+  color: #9effff;
+}
+html.dark pre .text.html.basic entity.name,
+html.dark pre .punctuation.definition.tag.html,
+html.dark pre .entity.name.tag.inline.any.html,
+html.dark pre .meta.tag.other.html,
+html.dark pre .meta.tag.inline.any.html,
+html.dark pre .punctuation.definition.tag.begin.html,
+html.dark pre .punctuation.definition.tag.end.html,
+html.dark pre .entity.name.tag,
+html.dark pre .meta.tag.other.html,
+html.dark pre .meta.tag.other.js,
+html.dark pre .meta.tag.other.tsx,
+html.dark pre .entity.name.tag.tsx,
+html.dark pre .entity.name.tag.js,
+html.dark pre .entity.name.tag,
+html.dark pre .meta.tag.js,
+html.dark pre .meta.tag.tsx,
+html.dark pre .meta.tag.html {
+  color: #9effff;
+}
+html.dark pre .meta.toc-list.id.html {
+  color: #a5ff90;
+}
+html.dark pre .text.html.basic entity.other {
+  color: #fad000;
+}
+html.dark pre .meta.tag.metadata.script.html entity.name.tag.html {
+  color: #fad000;
+}
+html.dark pre .punctuation.definition.string.begin,
+punctuation.definition.string.end {
+  color: #92fc79;
+}
+html.dark pre .meta.tag.inline.any.html,
+html.dark pre .meta.tag.other {
+  color: #ff9d00;
+}
+html.dark pre .source.json support {
+  color: #fad000;
+}
+html.dark pre .source.json string,
+html.dark pre .source.json punctuation.definition.string {
+  color: #92fc79;
+}
+html.dark pre .source.js storage.type.function {
+  color: #fb94ff;
+}
+html.dark pre .variable.language,
+entity.name.type.class.js {
+  color: #fb94ff;
+}
+html.dark pre .entity.other.inherited-class {
+  color: #ffee80;
+}
+html.dark pre .storage.type.extends.js,
+html.dark pre .storage.type.class.jsdoc {
+  color: #ff9d00;
+}
+html.dark pre .punctuation.definition.block.tag.jsdoc {
+  color: #ff9d00;
+}
+html.dark pre .variable.other.jsdoc,
+html.dark pre .entity.name.type.instance.jsdoc {
+  color: #9effff;
+}
+html.dark pre .variable.other.constant {
+  color: #9effff;
+}
+html.dark pre .punctuation.definition.tag.begin.js,
+html.dark pre .punctuation.definition.tag.end.js {
+  color: #9effff;
+}
+html.dark pre .meta.jsx.children.js {
+  color: #ffffff;
+}
+html.dark pre .storage.type,
+html.dark pre .storage.type.class,
+html.dark pre .storage.modifier,
+html.dark pre .keyword.control,
+html.dark pre .keyword.operator {
+  color: #ff9d00;
+}
+html.dark pre .punctuation.definition.bracket.curly {
+  color: #494685;
+}
+html.dark pre .keyword.operator.assignment.tsx,
+html.dark pre .keyword.operator.assignment.jsx {
+  color: #ff9d00;
+}
+html.dark pre .keyword.operator.assignment {
+  color: #ff9d00;
+}
+html.dark pre .meta.jsx.children.tsx {
+  color: #ffffff;
+}
+html.dark pre .meta.object-literal.key.js {
+  color: #80ffbb;
+}
+html.dark pre .entity.name.type.class.tsx,
+html.dark pre .entity.name.type.class.jsx,
+html.dark pre .variable.other.readwrite.alias.tsx,
+html.dark pre .variable.other.readwrite.tsx,
+html.dark pre .variable.other.readwrite.alias.ts,
+html.dark pre .variable.other.readwrite.alias.jsx,
+html.dark pre .variable.other.readwrite.alias.js,
+html.dark pre .variable.other.object.tsx,
+html.dark pre .variable.other.object.jsx,
+html.dark pre .variable.other.object,
+html.dark pre .support.class.component.tsx,
+html.dark pre .support.class.component.jsx,
+html.dark pre .entity.name.type.tsx,
+html.dark pre .entity.name.type.jsx,
+html.dark pre .variable.other.readwrite,
+html.dark pre .variable.other.object.js {
+  color: #9effff;
+}
+html.dark pre .variable.other.property,
+html.dark pre .variable.other.object.property {
+  color: #ffee80;
+}
+html.dark pre .JSXNested {
+  color: #ffffff;
+}
+html.dark pre .variable.parameter {
+  color: #9effff;
+}
+html.dark pre .variable.parameter.function.language.special.self.python {
+  color: #9effff;
+}
+html.dark pre .meta.function-call.python,
+html.dark pre .meta.function-call.generic.python,
+html.dark pre .support.function.builtin.python {
+  color: #fad000;
+}
+html.dark pre .source.ts entity.name.type {
+  color: #80ffbb;
+}
+html.dark pre .source.ts keyword {
+  color: #fad000;
+}
+html.dark pre .source.ts punctuation.definition.parameters {
+  color: #e1efff;
+}
+html.dark pre .meta.arrow.ts punctuation.definition.parameters {
+  color: #ffee80;
+}
+html.dark pre .source.ts storage {
+  color: #9effff;
+}
+html.dark pre .entity.name.section.markdown,
+html.dark pre .markup.heading.setext_1.markdown,
+html.dark pre .markup.heading.setext_2.markdown {
+  color: #fad000;
+  font-weight: bold;
+}
+html.dark pre .markup.inserted.diff,
+html.dark pre .punctuation.definition.inserted.diff {
+  color: #8efa00;
+}
+html.dark pre .markup.deleted.diff,
+html.dark pre .punctuation.definition.deleted.diff {
+  color: #f16e6b;
+}
+html.dark pre .meta.embedded.block.diff {
+  color: #ffffff;
+}
+html.dark pre .meta.paragraph.markdown {
+  color: #ffffff;
+}
+html.dark pre .punctuation.definition.from-file.diff,
+html.dark pre .meta.diff.header.from-file {
+  color: #b362ff;
+}
+html.dark pre .markup.inline.raw.string.markdown {
+  color: #a599e9;
+}
+html.dark pre .beginning.punctuation.definition.quote.markdown {
+  color: #fad000;
+}
+html.dark pre .markup.quote.markdown meta.paragraph.markdown,
+html.dark pre .punctuation.definition.quote.begin.markdown {
+  color: #a599e9;
+}
+html.dark pre .meta.separator.markdown {
+  color: #fad000;
+}
+html.dark pre .markup.bold.markdown {
+  font-weight: bold;
+}
+html.dark pre .markup.italic.markdown {
+  font-style: italic;
+}
+html.dark pre .beginning.punctuation.definition.list.markdown,
+html.dark pre .punctuation.definition.list.begin.markdown,
+html.dark pre .markup.list.unnumbered.markdown {
+  color: #fad000;
+}
+html.dark
+  pre
+  .string.other.link.description.title.markdown
+  punctuation.definition.string.markdown,
+html.dark
+  pre
+  .meta.link.inline.markdown
+  string.other.link.description.title.markdown,
+html.dark
+  pre
+  .string.other.link.description.title.markdown
+  punctuation.definition.string.begin.markdown,
+html.dark
+  pre
+  .string.other.link.description.title.markdown
+  punctuation.definition.string.end.markdown,
+html.dark
+  pre
+  .meta.image.inline.markdown
+  string.other.link.description.title.markdown {
+  color: #a5ff90;
+}
+html.dark pre .meta.link.inline.markdown string.other.link.title.markdown,
+html.dark pre .meta.link.reference.markdown string.other.link.title.markdown,
+html.dark pre .meta.link.reference.def.markdown markup.underline.link.markdown {
+  color: #fad000;
+  text-decoration-line: underline;
+}
+html.dark pre .markup.underline.link.markdown,
+html.dark pre .string.other.link.description.title.markdown {
+  color: #a599e9;
+}
+html.dark pre .fenced_code.block.language,
+html.dark pre .markup.inline.raw.markdown {
+  color: #9effff;
+}
+html.dark pre .punctuation.definition.markdown,
+html.dark pre .punctuation.definition.raw.markdown,
+html.dark pre .punctuation.definition.heading.markdown,
+html.dark pre .punctuation.definition.bold.markdown,
+html.dark pre .punctuation.definition.italic.markdown {
+  color: #494685;
+}
+html.dark
+  pre
+  .meta.link.inline.markdown
+  punctuation.definition.string.begin.markdown,
+html.dark
+  pre
+  .meta.link.inline.markdown
+  punctuation.definition.string.end.markdown,
+html.dark
+  pre
+  .meta.link.reference.markdown
+  punctuation.definition.string.begin.markdown,
+html.dark
+  pre
+  .meta.link.reference.markdown
+  punctuation.definition.string.end.markdown,
+html.dark pre .string.other.link.description.markdown {
+  color: #fad000;
+}
+html.dark
+  pre
+  .meta.image.inline.markdown
+  punctuation.definition.string.begin.markdown,
+html.dark
+  pre
+  .meta.image.inline.markdown
+  punctuation.definition.string.end.markdown,
+html.dark pre .string.other.link.description.markdown {
+  color: #ff9d00;
+}
+html.dark pre .markup.underline.link.markdown,
+html.dark pre .punctuation.definition.metadata.markdown,
+html.dark pre .markup.underline.link.image.markdown,
+html.dark pre .constant.other.reference.link.markdown,
+html.dark pre .punctuation.definition.constant.markdown,
+html.dark pre .punctuation.definition.constant.begin.markdown,
+html.dark pre .punctuation.definition.constant.end.markdown {
+  color: #a599e9;
+}
+html.dark pre .text.jade entity.name {
+  color: #9effff;
+}
+html.dark pre .storage.type.function.pug {
+  color: #ff9d00;
+}
+html.dark pre .variable.parameter.function.js {
+  color: #9effff;
+}
+html.dark pre .variable.control.import.include.pug {
+  color: #92fc79;
+}
+html.dark pre .text.jade string.interpolated {
+  color: #ffee80;
+}
+html.dark pre .storage.type.cs {
+  color: #9effff;
+}
+html.dark pre .entity.name.variable.property.cs {
+  color: #9effff;
+}
+html.dark pre .storage.modifier.cs {
+  color: #80ffbb;
+}
+html.dark pre .source.php entity,
+html.dark pre .variable.other.class.php {
+  color: #9effff;
+}
+html.dark pre .keyword.other.phpdoc.php {
+  color: #ff9d00;
+}
+html.dark pre .entity.name.function.php,
+html.dark pre .support.function.basic_functions.php,
+html.dark pre .meta.function-call.php,
+html.dark pre .variable.other.property {
+  color: #fad000;
+}
+html.dark pre .variable.other.php,
+html.dark pre .punctuation.definition.variable.php,
+html.dark pre .variable.other.global.php,
+html.dark pre .variable.language.this.php {
+  color: #9effff;
+}
+html.dark pre .storage.modifier.php,
+html.dark pre .keyword.other.namespace.php {
+  color: #ff9d00;
+}
+html.dark pre .entity.name.tag.yaml {
+  color: #fad000;
+}
+html.dark pre .punctuation.definition.block.sequence.item.yaml {
+  color: #e1efff;
+}
+html.dark pre .storage.type.function.php,
+html.dark pre .meta.function.parameters.php {
+  color: #fb94ff;
+}
+html.dark pre .keyword.blade {
+  color: #ff9d00;
+}
+html.dark pre .begin.bracket.round.blade.php,
+html.dark pre .end.bracket.round.blade.php {
+  color: #e1efff;
+}
+html.dark pre .support.function.construct.begin.blade,
+html.dark pre .support.function.construct.end.blade {
+  color: #ffee80;
+}
+html.dark pre .keyword.package.go,
+html.dark pre .keyword.import.go {
+  color: #ff9d00;
+}
+html.dark pre .keyword.function.go {
+  color: #fb94ff;
+}
+html.dark pre .variable.other.assignment.go {
+  color: #9effff;
+}
+html.dark pre .punctuation.definition.string.begin.go,
+html.dark pre .punctuation.definition.string.end.go,
+html.dark pre .support.function.go {
+  color: #fad000;
+}
+html.dark pre .punctuation.section.embedded.end.ruby,
+html.dark pre .punctuation.section.embedded.begin.ruby,
+html.dark pre .punctuation.section.scope.begin.ruby,
+html.dark pre .punctuation.section.scope.end.ruby {
+  color: #ffee80;
+}
+html.dark pre .variable.other.constant.ruby {
+  color: #80ffbb;
+}
+html.dark pre .entity.name.type.class.ruby {
+  color: #fb94ff;
+}
+html.dark pre .variable.other.block.ruby,
+html.dark pre .variable.other.ruby {
+  color: #9effff;
+}
+html.dark pre .punctuation.separator.other.ruby {
+  color: #ff9d00;
+}
+html.dark pre .keyword.other.special-method.ruby {
+  color: #ffee80;
+}
+html.dark pre .storage.type.function.shell {
+  color: #fb94ff;
+}
+html.dark pre .variable.other.special.shell,
+html.dark pre .punctuation.definition.variable.shell {
+  color: #ff9d00;
+}
+html.dark pre .variable.graphql {
+  color: #faefa5;
+}
+html.dark pre .keyword.operation.graphql {
+  color: #fb94ff;
+}
+html.dark pre .source.sql {
+  color: #e1efff;
+}
+html.dark pre .source.sql keyword.other,
+html.dark pre .support.function.mysqli.php {
+  color: #faefa5;
+}
+html.dark pre .support.function.mysqli.php,
+html.dark pre .source.sql support.function {
+  color: #fad000;
+}
+html.dark pre .string.regexp,
+html.dark pre .string.regexp keyword.other {
+  color: #e1efff;
+}
+html.dark pre .keyword.other.DML.sql {
+  color: #ff9d00;
+}
+html.dark pre .punctuation.definition.table.array.toml {
+  color: #e1efff;
+}
+html.dark pre .entity.other.attribute-name.table.array.toml,
+html.dark pre .entity.other.attribute-name.table.toml {
+  color: #ff9d00;
+}
+html.dark pre .keyword.key.toml {
+  color: #fad000;
+}
+html.dark pre .keyword.other.special-method.dockerfile {
+  color: #fad000;
+}
+html.dark pre .keyword.other.rust {
+  color: #ff9d00;
+}
+html.dark pre .keyword.other.fn.rust {
+  color: #fb94ff;
+}
+html.dark pre .keyword.other.env {
+  color: #ff9d00;
+}
+html.dark pre .variable.other.env {
+  color: #fad000;
+}
+html.dark pre .source.env {
+  color: #e1efff;
+}
+html.dark pre .keyword.other.template.begin.env,
+html.dark pre .keyword.other.template.end.env,
+html.dark pre .keyword.operator.assignment.env {
+  color: #ff9d00;
+}
+html.dark pre .variable.object.property {
+  color: #9effff;
+}
+html.dark pre .string.regexp.js {
+  color: #fb94ff;
+}
+html.dark pre .keyword.rainbow2 {
+  color: #ff9d00;
+}
+html.dark pre .keyword.other.nim,
+html.dark pre .keyword.other {
+  color: #ff9d00;
+}
+html.dark pre .keyword.boolean {
+  color: #ff628c;
+}
+html.dark pre .punctuation.pragma.start.nim,
+html.dark pre .punctuation.pragma.end.nim,
+html.dark pre .entity.name.function.nim {
+  color: #fad000;
+}
+html.dark pre .markup.deleted {
+  color: #f16e6b;
+}
+html.dark pre .markup.inserted {
+  color: #8efa00;
+}
+html.dark pre .markup.underline {
+  text-decoration-line: underline;
+}
+html.dark pre .modifier,
+html.dark pre .this,
+html.dark pre .comment,
+html.dark pre .storage.modifier,
+html.dark pre .entity.other.attribute-name,
+html.dark pre .entity.other.attribute-name.html,
+html.dark pre .punctuation.definition.comment,
+html.dark pre .text.html.basic entity.other,
+html.dark pre .entity.other.attribute-name,
+html.dark pre .markup.quote.markdown meta.paragraph.markdown,
+html.dark pre .markup.italic.markdown,
+html.dark pre .text.jade entity.other.attribute-name.tag,
+html.dark pre .keyword.control.from,
+html.dark pre .entity.other.attribute-name.tag.pug {
+  font-style: italic;
+}

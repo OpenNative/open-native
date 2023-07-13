@@ -1,3 +1,4 @@
+import { toJSValue } from './converter';
 import { JSModules } from './js-modules';
 import {
   Bridge,
@@ -55,7 +56,13 @@ export default class CatalystInstance {
         return;
       },
       getJavaScriptContextHolder(): JavaScriptContextHolder {
-        return null;
+        return new com.facebook.react.bridge.JavaScriptContextHolder();
+      },
+      callFunction(name, method, args) {
+        const module = jsModules.getJSModuleByName(name);
+        if (module && module[method]) {
+          module[method](...((toJSValue(args) || []) as []));
+        }
       },
     });
   }

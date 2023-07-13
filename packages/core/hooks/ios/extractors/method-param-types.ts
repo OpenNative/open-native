@@ -66,6 +66,10 @@ export function extractMethodParamTypes(
     case 'nonnull RCTPromiseRejectBlock':
     case 'RCTPromiseRejectBlock':
       return RNObjcSerialisableType.RCTPromiseRejectBlock;
+    case 'RCTDirectEventBlock':
+    case 'RCTBubblingEventBlock':
+    case 'RCTCapturingEventBlock':
+      return RNObjcSerialisableType.RCTEventType;
     case 'int':
       return RNObjcSerialisableType.int;
     default:

@@ -70,6 +70,7 @@ export enum RNObjcSerialisableType {
   RCTResponseErrorBlock,
   RCTPromiseResolveBlock,
   RCTPromiseRejectBlock,
+  RCTEventType,
   returnType,
 }
 
@@ -80,6 +81,7 @@ export interface ModuleNamesToMethodDescriptions {
     hasMethodQueue: boolean;
     methods: MethodDescription[];
     isSwiftModule: boolean;
+    viewProps: { name: string; type: number | string }[];
   };
 }
 
@@ -104,6 +106,11 @@ export interface MethodDescriptionsMinimal {
   };
 }
 
+export interface ViewPropMinimal {
+  j: string;
+  t: RNObjcSerialisableType | string;
+}
+
 export interface ModuleNamesToMethodDescriptionsMinimal {
   [exportedModuleName: string]: {
     /**
@@ -126,11 +133,16 @@ export interface ModuleNamesToMethodDescriptionsMinimal {
      * Whether the module defines it's own methodQueue.
      */
     mq: boolean;
+    /**
+     * View Manager Props
+     */
+    p: ViewPropMinimal[];
+
+    v: boolean;
   };
 }
 
 export type OpenNativeConfig = {
-  patchAndroidApplication?: boolean;
   modules: {
     [name: string]: {
       ios: {

@@ -10,8 +10,12 @@
   },
   "devDependencies": {
     "@nativescript/android": "~8.5.0",
-    "@nativescript/ios": "~8.4.0",
+    "@nativescript/ios": "~8.5.2",
     "@rigor789/resolve-package-path": "1.0.5",
     "metro-react-native-babel-preset": "file:../../node_modules/metro-react-native-babel-preset"
+  },
+  "scripts": {
+    "clean:android": "cd platforms/android && ./gradlew clean",
+    "clean:ios": "cd platforms/ios && rm -rf build && rm -rf DerivedData"
   }
 }
