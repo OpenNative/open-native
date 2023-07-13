@@ -3,9 +3,10 @@ title: Searching for native modules
 ---
 
 # Searching for native modules
+
 The best place to look for react native native modules is on Github. There are some directories such as [react native directory](https://reactnative.directory/?search=push+notification) however I have always found it incomplete and missing many modules out there.
 
-For example, let's say you want to implement auth in your app and you need a native module for it. You can go to Github and search `react native auth`. Prefixing your search with `react native` will  most often show up a module if it exists.
+For example, let's say you want to implement auth in your app and you need a native module for it. You can go to Github and search `react native auth`. Prefixing your search with `react native` will most often show up a module if it exists.
 
 ![finding-modules](/finding-modules.png)
 
