@@ -139,6 +139,7 @@ pre {
 
 .tabgroup {
   border-width: 0px;
+  padding-bottom: 0px !important;
 }
 
 .code {
@@ -170,4 +171,15 @@ body {
 
 #light-dark-mode-switch {
   margin-left: 15px !important;
+}
+
+.callout-title {
+  background-color: transparent !important;
+  padding-top: 10px !important;
+}
+
+.callout {
+  padding: 10px !important;
+  background-color: var(--page-bg) !important;
+  border: 1px solid var(--primary) !important;
 }

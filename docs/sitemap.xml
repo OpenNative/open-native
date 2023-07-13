@@ -1,27 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 	<url>
+		<loc>https://open-native.org/extending-main-application-and-app-delegate</loc>
+		<lastmod>2023-07-13T19:03:50+00:00</lastmod>
+	</url>
+	<url>
 		<loc>https://open-native.org/finding-modules</loc>
-		<lastmod>2023-07-13T16:21:47+00:00</lastmod>
+		<lastmod>2023-07-13T18:24:29+00:00</lastmod>
 	</url>
 	<url>
 		<loc>https://open-native.org/install-module</loc>
-		<lastmod>2023-07-13T16:21:47+00:00</lastmod>
+		<lastmod>2023-07-13T18:38:07+00:00</lastmod>
 	</url>
 	<url>
 		<loc>https://open-native.org/installation</loc>
-		<lastmod>2023-07-13T16:21:47+00:00</lastmod>
+		<lastmod>2023-07-13T18:36:23+00:00</lastmod>
 	</url>
 	<url>
 		<loc>https://open-native.org/reference</loc>
-		<lastmod>2023-07-13T16:21:47+00:00</lastmod>
+		<lastmod>2023-07-13T18:47:18+00:00</lastmod>
 	</url>
 	<url>
 		<loc>https://open-native.org/troubleshooting</loc>
-		<lastmod>2023-07-13T16:21:47+00:00</lastmod>
+		<lastmod>2023-07-13T18:24:29+00:00</lastmod>
 	</url>
 	<url>
 		<loc>https://open-native.org/</loc>
-		<lastmod>2023-07-13T16:21:47+00:00</lastmod>
+		<lastmod>2023-07-13T18:24:29+00:00</lastmod>
 	</url>
 </urlset>

@@ -9,6 +9,7 @@ navigation:
   - path: installation.md
   - path: install-module.md
   - path: finding-modules.md
+  - path: extending-main-application-and-app-delegate.md
   - path: reference.md
   - path: troubleshooting.md
 

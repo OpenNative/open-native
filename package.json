@@ -24,7 +24,7 @@
     "start:rna": "nx run demo-react-native:run-android",
     "start:rni": "nx run demo-react-native:run-ios",
     "test:hooks": "yarn demo:hooks && node ./packages/core/test_hook.js",
-    "build:docs": "docgen build --release && cp -r ./site ./docs"
+    "build:docs": "docgen build --release && cp -a ./site/. ./docs/"
   },
   "private": true,
   "dependencies": {

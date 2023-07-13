@@ -32,9 +32,9 @@ Create `App_Resources/Android/before-plugins.gradle` and install `open-native.gr
 apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/open-native.gradle");
 ```
 
-> info
+> info open-native.gradle
 >
-> `open-native.gradle` plugin aliases `react-native` with `open-native` so any native modules will use `open-native` sources to compile & run.
+> The `open-native.gradle` plugin aliases `react-native` with `open-native` so all native modules will use `open-native` java sources to compile & run.
 
 ### Installing native_modules.gradle plugin
 
@@ -44,11 +44,11 @@ Create `App_Resources/Android/settings.gradle` and install `native_modules.gradl
 apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/native_modules.gradle");
 ```
 
-> info
+> info native-modules.gradle
 >
-> `native-modules.gradle` plugin auto links open-native & local react-native module projects to your android at compile time.
+> The `native-modules.gradle` plugin auto links open-native & local react-native module android sources to your android app project at compile time.
 
-Finally we will run our app to confirm everything is functional.
+Finally we will run our app to confirm everything is running normally.
 
 # [Android](#/tab/android)
 
@@ -64,15 +64,17 @@ ns run ios
 
 ---
 
-As your app builds, you will see logs like below, congratulations!
+As your app builds, you will see logs like below:
+
 ![terminal-autolink-react-native-module](terminal-picture.png)
-Open Native is working.
+
+Awesome! Open Native is working.
 
 ## Confirm that Open Native is functional at runtime
 
 Once you have installed Open Native, you must want to know whether everything is setup correctly without installing any native modules. To do that, we are going to invoke a method from one of the core `Linking` module.
 
-```ts
+```js
 import { Linking } from 'react-native'; // react-native?? yes we alias react-native with open-native so don't worry, you have not installed react-native :P
 
 // Invoke the method on Linking module to open a URL.
@@ -81,8 +83,8 @@ Linking.openURL('https://github.com/OpenNative/open-native');
 
 This should open up Open Native github in your mobile/emulator browser.
 
-I hope that was simple to do. Your project is now ready for installation of react-native modules.
+I hope the installation was simple. Your project is now ready to install of react-native modules.
 
 ## What's next
 
-Now that you are all setup, Let's [install a native module](/install-module) in your NativeScript app.
+Let's [install a native module](/install-module) in your NativeScript app.

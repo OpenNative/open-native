@@ -30,7 +30,6 @@ yarn add react-native-gzip
 
 ---
 
-
 And then we are going to use it in our [Svelte Native](https://svelte-native.technology/) app.
 
 ```html
@@ -64,13 +63,13 @@ And then we are going to use it in our [Svelte Native](https://svelte-native.tec
 
 It's that simple. If you go to react-native-gzip documentation, you will find the same steps mentioned there too!
 
-| iOS                                | Android                                 |
-| ---------------------------------- | --------------------------------------- |
+| iOS                                        | Android                                            |
+| ------------------------------------------ | -------------------------------------------------- |
 | ![Gzip example iOS](/gzip-example-ios.png) | ![Gzip example Android](/gzip-example-android.png) |
 
 See the full gzip example on [github](https://github.com/OpenNative/examples/tree/main/gzip-example).
 
-Okay, that was a really simple module with just two functions lol. Let's try something more complex. 
+Okay, that was a really simple module with just two functions. Let's try something more complex.
 
 #### react-native-device-info
 
@@ -96,39 +95,40 @@ And then we can follow the documentation and use DeviceInfo methods in our [Nati
 
 ```html
 <template>
-    <Page>
-        <ActionBar>
-            <Label text="DeviceInfo example"/>
-        </ActionBar>
-        <FlexboxLayout class="container">
-            <Label class="info" :text="name"/>
+  <Page>
+    <ActionBar>
+      <label text="DeviceInfo example" />
+    </ActionBar>
+    <FlexboxLayout class="container">
+      <label class="info" :text="name" />
 
-            <Label class="info" :text="version"/>
+      <label class="info" :text="version" />
 
-            <Label class="info" :text="carrier"/>
-        </FlexboxLayout>
-    </Page>
+      <label class="info" :text="carrier" />
+    </FlexboxLayout>
+  </Page>
 </template>
 
 <script>
-  import { getApplicationName, getVersion, getCarrierSync } from "react-native-device-info";
+  import { getApplicationName, getVersion, getCarrierSync } from 'react-native-device-info';
   export default {
     computed: {
       name() {
-        return "App name:" + getApplicationName();
+        return 'App name:' + getApplicationName();
       },
       version() {
-        return "App version:" + getVersion();
+        return 'App version:' + getVersion();
       },
       carrier() {
-        return "Carrier:" + getCarrierSync()
-      }
-    }
+        return 'Carrier:' + getCarrierSync();
+      },
+    },
   };
 </script>
 ```
-| iOS                                | Android                                 |
-| ---------------------------------- | --------------------------------------- |
+
+| iOS                                                    | Android                                                        |
+| ------------------------------------------------------ | -------------------------------------------------------------- |
 | ![Deviceinfo example iOS](/deviceinfo-example-ios.png) | ![Deviceinfo example android](/deviceinfo-example-android.png) |
 
 See the full react-native-device-info example on [github](https://github.com/OpenNative/examples/tree/main/deviceinfo-example).
@@ -138,5 +138,5 @@ See the full react-native-device-info example on [github](https://github.com/Ope
 Oh but the native world has never been so straight forward. You might run into some issues when installing different modules. Check out our quick [troubleshooting guide](/troubleshooting) to fix common problems.
 
 ### Other resources
- - [How to find react native modules](/finding-modules)
 
+- [How to find react native modules](/finding-modules)
