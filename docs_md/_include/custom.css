@@ -114,7 +114,7 @@ nav li:not(li.nested):hover {
 }
 
 nav li.active {
-  color: var(--primary);
+  color: var(--primary) !important;
   background-color: rgba(45, 212, 188, 0.2) !important;
   box-shadow: none !important;
 }
