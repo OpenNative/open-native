@@ -1,6 +1,9 @@
 ---
 title: 'Open Native'
 logo: logo.png
+docs_dir: ./docs_md
+edit_root: https://github.com/OpenNative/open-native/tree/main/docs_md/
+base_url: https://open-native.org
 
 navigation:
   - path: installation.md
