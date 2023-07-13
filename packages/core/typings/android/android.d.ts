@@ -450,7 +450,7 @@ declare module com {
 declare module com {
 	export module facebook {
 		export module react {
-			export class ReactCustomApplication implements com.facebook.react.ReactApplication {
+			export class ReactCustomApplication implements com.facebook.react.ReactApplication extends android.app.Application {
 				public static class: java.lang.Class<com.facebook.react.ReactCustomApplication>;
 				public static mReactNativeHost: com.facebook.react.ReactNativeHost;
 				public getReactNativeHost(): com.facebook.react.ReactNativeHost;

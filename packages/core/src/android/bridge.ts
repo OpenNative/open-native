@@ -136,10 +136,14 @@ export function getCurrentBridge() {
     );
     reactApplicationContext.initializeWithInstance(catalysInstance.instance);
 
-    if (Utils.android.getApplication().getReactNativeHost) {
-      const reactNativeHost = Utils.android
-        .getApplication()
-        .getReactNativeHost();
+    if (
+      (
+        Utils.android.getApplication() as com.facebook.react.ReactCustomApplication
+      ).getReactNativeHost
+    ) {
+      const reactNativeHost = (
+        Utils.android.getApplication() as com.facebook.react.ReactCustomApplication
+      ).getReactNativeHost();
       reactNativeHost
         .getReactInstanceManager?.()
         .setupReactContext?.(reactApplicationContext);
