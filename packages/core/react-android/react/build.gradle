@@ -6,6 +6,10 @@ def safeExtGet = {prop, fallback ->
         rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
 
+def androidXCoreVersion = safeExtGet("androidXCoreVersion","1.8.0");
+def androidXCompatVersion = safeExtGet("androidXCompatVersion","1.5.1");
+def okHttpVersion = safeExtGet("okHttpVersion", null);
+
 repositories {
   google()
   mavenCentral()
@@ -29,11 +33,17 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+  sourceSets {
+    main {
+      if (okHttpVersion) {
+        java.srcDirs += ['src/network/java']
+      }
+    }
+  }
 }
 
-def androidXCoreVersion = safeExtGet("androidXCoreVersion","1.8.0");
-def androidXCompatVersion = safeExtGet("androidXCompatVersion","1.5.1");
-def okHttpVersion = safeExtGet("okHttpVersion", null);
+
 
 dependencies {
     api("androidx.core:core:${androidXCoreVersion}")
@@ -46,6 +56,7 @@ dependencies {
     if (okHttpVersion) {
       api("com.squareup.okhttp3:okhttp:${okHttpVersion}")
       api("com.squareup.okhttp3:okhttp-urlconnection:${okHttpVersion}")
+
     }
     api("com.facebook.fresco:fresco:2.5.0")
 }
