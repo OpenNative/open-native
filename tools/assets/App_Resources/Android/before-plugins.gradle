@@ -1,1 +1,5 @@
 apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/open-native.gradle");
+
+ext {
+  okHttpVersion = "4.9.2"
+}

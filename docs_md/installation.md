@@ -32,6 +32,14 @@ Create `App_Resources/Android/before-plugins.gradle` and install `open-native.gr
 apply from: new File(["node", "--print", "require.resolve('@open-native/core/package.json')"].execute(null, rootDir).text.trim(), "../scripts/open-native.gradle");
 ```
 
+If you are planning to install a react native module that would make network requests, it's best to also enable okHttp in `App_Resources/Android/before-plugins.gradle`.
+
+```groovy
+ext {
+  okHttpVersion = "4.9.2"
+}
+```
+
 > info open-native.gradle
 >
 > The `open-native.gradle` plugin aliases `react-native` with `open-native` so all native modules will use `open-native` java sources to compile & run.

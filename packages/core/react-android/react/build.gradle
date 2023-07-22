@@ -33,20 +33,21 @@ android {
 
 def androidXCoreVersion = safeExtGet("androidXCoreVersion","1.8.0");
 def androidXCompatVersion = safeExtGet("androidXCompatVersion","1.5.1");
+def okHttpVersion = safeExtGet("okHttpVersion", null);
 
 dependencies {
     api("androidx.core:core:${androidXCoreVersion}")
     api("androidx.appcompat:appcompat:${androidXCompatVersion}")
     api("androidx.appcompat:appcompat-resources:${androidXCompatVersion}")
-
     api('com.facebook.infer.annotation:infer-annotation:0.18.0')
     api("com.facebook.yoga:proguard-annotations:1.19.0")
-    api('com.google.code.findbugs:jsr305:3.0.2')
-    api("com.squareup.okhttp3:okhttp:4.9.2")
-    api("com.squareup.okhttp3:okhttp-urlconnection:4.9.2")
-    api("com.squareup.okio:okio:2.9.0")
-    api("com.squareup.okio:okio:2.9.0")
-    api("com.facebook.fresco:fresco:2.5.0")
+    //api('com.google.code.findbugs:jsr305:3.0.2')
+
+    if (okHttpVersion) {
+      api("com.squareup.okhttp3:okhttp:${okHttpVersion}")
+      api("com.squareup.okhttp3:okhttp-urlconnection:${okHttpVersion}")
+    }
+
 }
 
 
