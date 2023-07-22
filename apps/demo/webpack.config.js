@@ -15,8 +15,8 @@ module.exports = (env) => {
 
     config.module
       .rule('rnmodules')
-      .include.add(/node_modules(.*[/\\])+react-native-auth0/)
-      .end()
+      // .include.add(/node_modules(.*[/\\])+react-native-module/)
+      // .end()
       .use('babel-loader')
       .before('ts-loader')
       .loader('babel-loader')

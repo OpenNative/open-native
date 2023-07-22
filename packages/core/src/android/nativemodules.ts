@@ -1,3 +1,4 @@
+import { Utils } from '@nativescript/core';
 import { NativeModule } from '../../Libraries/EventEmitter/NativeEventEmitter';
 import { getCurrentBridge } from './bridge';
 import {
@@ -8,7 +9,11 @@ import {
   toJSValue,
   toNativeArguments,
 } from './converter';
-import { ModuleMetadata, parseModuleMetadata } from './metadata';
+import {
+  getModuleClasses,
+  ModuleMetadata,
+  parseModuleMetadata,
+} from './metadata';
 import { BaseJavaModule, Bridge } from './types';
 import { isPromise } from './utils';
 
@@ -115,25 +120,25 @@ export class NativeModuleHolder implements Partial<NativeModule> {
       };
     }
   }
+
+  toString() {
+    return `${this.moduleName}(${this.nativeModule})`;
+  }
 }
 
-const nativeModuleProxyHandle: ProxyHandler<{}> = {
-  get: (target, prop) => {
-    if (target[prop]) return target[prop];
-    if (!getCurrentBridge().isModuleAvailable(prop as string)) {
-      console.warn(
-        `Trying to get a Native Module "${
-          prop as string
-        }" does not exist in the native module registry.`
-      );
-      return null;
-    }
+const ModuleInstances = {};
+const Modules = {};
+for (const module of getModuleClasses() as string[]) {
+  Object.defineProperty(Modules, module, {
+    get() {
+      if (ModuleInstances[module]) return ModuleInstances[module];
+      return (ModuleInstances[module] = new NativeModuleHolder(
+        module as string
+      ));
+    },
+  });
+}
+export const NativeModules = Modules;
+global.__turboModulesProxy = Modules;
 
-    return (target[prop] = new NativeModuleHolder(prop as string));
-  },
-};
-
-export const NativeModules = new Proxy({}, nativeModuleProxyHandle);
-
-global.__turboModulesProxy = NativeModules;
 export const load = () => null;

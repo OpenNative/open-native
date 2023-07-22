@@ -139,24 +139,19 @@ class ViewManagerHolder extends NativeModuleHolder {
   }
 }
 
-const viewManagerProxyHandle: ProxyHandler<{}> = {
-  get: (target, prop) => {
-    if (target[prop]) return target[prop];
-
-    if (getModuleClasses().indexOf(prop as string) === -1) {
-      console.warn(
-        `Trying to get a View Manager "${
-          prop as string
-        }" does not exist in the view manager registry.`
-      );
-      return null;
-    }
-
-    return (target[prop] = new ViewManagerHolder(prop as string));
-  },
-};
-
-export const ViewManagersIOS = new Proxy({}, viewManagerProxyHandle);
+const ViewManagerInstances = {};
+const ViewManagerModules = {};
+for (const module of getModuleClasses() as string[]) {
+  Object.defineProperty(ViewManagerModules, module, {
+    get() {
+      if (ViewManagerInstances[module]) return ViewManagerInstances[module];
+      return (ViewManagerInstances[module] = new ViewManagerHolder(
+        module as string
+      ));
+    },
+  });
+}
+export const ViewManagersIOS = ViewManagerModules;
 global.__viewManagerProxy = ViewManagersIOS;
 export const load = () => null;
 

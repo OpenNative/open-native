@@ -100,22 +100,18 @@ export class NativeModuleHolder implements Partial<NativeModule> {
   }
 }
 
-const nativeModuleProxyHandle: ProxyHandler<{}> = {
-  get: (target, prop) => {
-    if (target[prop]) return target[prop];
-    if (getModuleClasses().indexOf(prop as string) === -1) {
-      console.warn(
-        `Trying to get a Native Module "${
-          prop as string
-        }" does not exist in the native module registry.`
-      );
-      return null;
-    }
-
-    return (target[prop] = new NativeModuleHolder(prop as string));
-  },
-};
-
-export const NativeModules = new Proxy({}, nativeModuleProxyHandle);
+const ModuleInstances = {};
+const Modules = {};
+for (const module of getModuleClasses() as string[]) {
+  Object.defineProperty(Modules, module, {
+    get() {
+      if (ModuleInstances[module]) return ModuleInstances[module];
+      return (ModuleInstances[module] = new NativeModuleHolder(
+        module as string
+      ));
+    },
+  });
+}
+export const NativeModules = Modules;
 global.__turboModulesProxy = NativeModules;
 export const load = () => null;

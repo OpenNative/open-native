@@ -14,7 +14,7 @@ import { toJSValue } from './converter';
 import { NativeModuleHolder } from './nativemodules';
 import type { ViewManagers as ViewManagerInterfaces } from './view-manager-types';
 import { RNJavaSerialisableType, isNullOrUndefined } from '../common';
-import { ModuleMetadata } from './metadata';
+import { ModuleMetadata, getModuleClasses } from './metadata';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { RNNativeViewAndroid } from '@open-native/core';
 
@@ -295,23 +295,19 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
   return ViewClass as any;
 }
 
-const viewManagersProxyHandle: ProxyHandler<{}> = {
-  get: (target, prop) => {
-    if (target[prop]) return target[prop];
-    if (!getCurrentBridge().isModuleAvailable(prop as string)) {
-      console.warn(
-        `Trying to get ViewManager "${
-          prop as string
-        }" that does not exist in the View Manager registry.`
-      );
-      return null;
-    }
-    return (target[prop] = new ViewManagerHolder(prop as string));
-  },
-};
-
-export const ViewManagersAndroid = new Proxy({}, viewManagersProxyHandle);
-
+const ViewManagerInstances = {};
+const ViewManagerModules = {};
+for (const module of getModuleClasses() as string[]) {
+  Object.defineProperty(ViewManagerModules, module, {
+    get() {
+      if (ViewManagerInstances[module]) return ViewManagerInstances[module];
+      return (ViewManagerInstances[module] = new ViewManagerHolder(
+        module as string
+      ));
+    },
+  });
+}
+export const ViewManagersAndroid = ViewManagerModules;
 global.__viewManagerProxy = ViewManagersAndroid;
 
 export const load = () => null;

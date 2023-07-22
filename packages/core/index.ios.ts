@@ -10,9 +10,15 @@ export { NativeModules } from './src/ios/nativemodules';
 export const DeviceEventEmitter = RCTDeviceEventEmitter;
 export { Dimensions } from './Libraries/Utilities/Dimensions';
 export { Alert } from './Libraries/Alert/Alert';
-export { requireNativeComponent } from './common';
 export { ViewManagersIOS, requireNativeViewIOS } from './src/ios/viewmanagers';
-import { load as loadViewManagers } from './src/ios/viewmanagers';
+import {
+  load as loadViewManagers,
+  requireNativeViewIOS,
+} from './src/ios/viewmanagers';
+
+export function requireNativeComponent(viewName: string) {
+  return requireNativeViewIOS(viewName as never);
+}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export const requireNativeViewAndroid = () => {};

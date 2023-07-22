@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "paths": {
       "@open-native/core": ["../../packages/core/index.d.ts"],
-      "react-native-module-test": ["../../packages/react-native-module-test/index.ts"]
+      "react-native-module-test": ["../../packages/react-native-module-test/index.ts"],
+      "*": ["../../apps/demo/node_modules/*"]
     }
   }
 }

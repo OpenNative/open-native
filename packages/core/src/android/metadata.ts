@@ -1,4 +1,6 @@
+import { Utils } from '@nativescript/core';
 import { RNJavaSerialisableType } from '../common';
+import { getCurrentBridge } from './bridge';
 
 export type ModuleMetadata = {
   methods: {
@@ -145,4 +147,13 @@ export function extractMethodParamTypes(
   }
 
   return RNJavaSerialisableType.other;
+}
+
+let MODULE_NAMES = [];
+
+export function getModuleClasses() {
+  if (MODULE_NAMES.length) return MODULE_NAMES;
+  return (MODULE_NAMES = Utils.android.collections.stringSetToStringArray(
+    getCurrentBridge().moduleNames()
+  ));
 }
