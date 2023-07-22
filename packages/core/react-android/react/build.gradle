@@ -47,7 +47,7 @@ dependencies {
       api("com.squareup.okhttp3:okhttp:${okHttpVersion}")
       api("com.squareup.okhttp3:okhttp-urlconnection:${okHttpVersion}")
     }
-
+    api("com.facebook.fresco:fresco:2.5.0")
 }
 
 
