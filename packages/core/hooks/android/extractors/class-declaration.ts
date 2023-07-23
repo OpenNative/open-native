@@ -44,7 +44,8 @@ export function extractClassDeclarationForModule(file: string) {
     ) ||
     file.match(
       /public class\s+(\w+[^(\s]*)[\s\w():]*(\s+extends\s+|:)[\s\w():,]*[^{]*ViewGroupManager/
-    );
+    ) ||
+    file.match(/class\s+(\w+)(\s+|)\(.*\)(\s+|):(\s+|)ViewGroupManager/);
 
   if (viewManagerMatch) {
     return viewManagerMatch;

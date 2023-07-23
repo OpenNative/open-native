@@ -26,7 +26,8 @@ declare module com {
         param0: string
       ): java.util.Map<string, java.util.Map<string, any>>;
       public getModuleForClass(
-        param0: java.lang.Class<any>
+        param0: java.lang.Class<any>,
+        param1: string
       ): com.facebook.react.bridge.NativeModule;
       public moduleNames(): java.util.Set<string>;
     }

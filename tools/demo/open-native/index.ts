@@ -4,15 +4,6 @@ import { Platform } from 'react-native';
 
 const RNTestModule = NativeModules.RNTestModule;
 
-async function measure(name: string, action: () => Promise<void>) {
-  const start = performance.now();
-
-  action();
-
-  const stop = performance.now();
-  console.log(`${stop - start} ms (${name})`);
-}
-
 export class DemoSharedOpenNative extends DemoSharedBase {
   async testPromise() {
     console.log('testPromise', await RNTestModule.testPromise());

@@ -1,8 +1,6 @@
 package com.bridge;
 
-import android.util.JsonWriter;
 import android.util.Log;
-import android.view.View;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.BaseJavaModule;
@@ -10,41 +8,37 @@ import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import com.facebook.react.uimanager.BaseViewManager;
-import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.ViewManager;
 
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.annotations.ReactPropGroup;
+import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.Native;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 public class Bridge {
   public static String TAG = "RNBridge";
   public static Packages packages = new Packages();
   public HashMap<String, NativeModule> modules = new HashMap<>();
   public ReactApplicationContext reactContext;
+  public static ReactApplicationContext reactContextStatic;
   public HashMap<String, String> metadataCache = new HashMap<>();
 
   public Bridge(ReactApplicationContext context) {
     reactContext = context;
+    reactContextStatic = reactContext;
     Packages.init();
     new Thread(() -> {
       for (String module: Packages.moduleClasses.keySet()) {
@@ -75,7 +69,7 @@ public class Bridge {
           }
 
           for (NativeModule module : modules_chunk2) {
-            modules.put(module.getName() + "Manager", module);
+            modules.put(module.getName(), module);
             module.initialize();
           }
         }
@@ -186,14 +180,14 @@ public class Bridge {
     return loadModuleByName(name);
   }
 
-  public NativeModule getModuleForClass(Class clazz) {
+  public NativeModule getModuleForClass(Class clazz, String name) {
     for (String moduleName : modules.keySet()) {
       NativeModule module = modules.get(moduleName);
       if (module.getClass().equals(clazz)) {
         return module;
       }
     }
-    return loadModuleForClass(clazz);
+    return loadModuleForClass(clazz, name);
   }
 
   NativeModule loadModuleByName(String name) {
@@ -209,16 +203,14 @@ public class Bridge {
       }
       return null;
     }
-    return loadModuleForClass(moduleClass);
+    return loadModuleForClass(moduleClass, name);
   }
 
   public boolean hasNativeModule(Class clazz) {
     return !Packages.moduleClasses.containsValue(clazz);
   }
 
-
-
-  NativeModule loadModuleForClass(Class<NativeModule> moduleClass) {
+  NativeModule loadModuleForClass(Class<NativeModule> moduleClass, String moduleName) {
     try {
 
       if (!Packages.moduleClasses.containsValue(moduleClass)) {
@@ -241,6 +233,19 @@ public class Bridge {
           module.initialize();
           return module;
         } else {
+          String name = moduleName;
+          if (moduleName.equals("")) {
+            if (Packages.moduleClasses.containsValue(moduleClass)) {
+              for (java.util.Map.Entry<String, Class> keyValuePair: Packages.moduleClasses.entrySet()) {
+                if (keyValuePair.getValue().equals(moduleClass)) {
+                  name = keyValuePair.getKey();
+                }
+              }
+            }
+          }
+
+          if (name == null || name.equals("")) return null;
+
           /**
            * Load the package for the module instead if
            * we are not able to load the module without the
@@ -250,9 +255,9 @@ public class Bridge {
            * 2. has greater than 1 parameter
            * 3. it's only parameter is not ReactContext/ReactApplicationContext or a class that extends it.
            */
-          String pkgName = Packages.modulePackageMap.get(moduleClass.getSimpleName());
+          String pkgName = Packages.modulePackageMap.get(name);
           loadModulesForPackage(pkgName);
-          return getModuleForClass(moduleClass);
+          return modules.get(name);
         }
       }
     } catch (Exception e) {

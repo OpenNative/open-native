@@ -36,7 +36,7 @@ export default class CatalystInstance {
         if (typeof param0 === 'string') {
           return bridge.getModuleByName(param0 as string);
         } else {
-          return bridge.getModuleForClass(param0 as java.lang.Class<any>);
+          return bridge.getModuleForClass(param0 as java.lang.Class<any>, '');
         }
       },
 

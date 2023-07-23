@@ -117,10 +117,6 @@ export function getCurrentBridge() {
       'RCTModernEventEmitter',
       RCTModernEventEmitter()
     );
-    getJSModules().registerJSModule(
-      'RCTNativeAppEventEmitter',
-      RCTNativeAppEventEmitter()
-    );
     const reactApplicationContext =
       new com.facebook.react.bridge.ReactApplicationContext(
         Utils.android.getApplicationContext()

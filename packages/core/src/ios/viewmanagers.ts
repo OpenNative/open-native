@@ -272,7 +272,6 @@ export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
           view.nativeViewProtected,
           atIndex
         );
-        console.log('view added');
         return true;
       }
       return false;
@@ -282,10 +281,13 @@ export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
       super._removeViewFromNativeVisualTree(view);
       if (view.nativeViewProtected) {
         this.nativeViewProtected.removeReactSubview(view.nativeViewProtected);
-        console.log('view removed');
       }
     }
   }) as any;
+
+  for (const event of Object.keys(viewManager.viewEvents || {})) {
+    NATIVE_VIEW_CACHE[key as string][event + 'Event'] = event;
+  }
 
   for (const prop in viewManager.moduleMetadata.props) {
     Object.defineProperty(NATIVE_VIEW_CACHE[key as string].prototype, prop, {

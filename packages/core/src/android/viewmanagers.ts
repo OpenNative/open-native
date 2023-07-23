@@ -107,24 +107,7 @@ class ViewManagerHolder
 
   _createViewInstance(surfaceId = -1): any {
     this.themedReactContext = getThemedReactContext(this.moduleName, surfaceId);
-    if (!this.directEvents) {
-      this.directEvents = toJSValue(
-        (
-          this.nativeModule as com.facebook.react.uimanager.ViewManager<
-            any,
-            any
-          >
-        ).getExportedCustomDirectEventTypeConstants?.() || {}
-      ) as any;
-      this.bubblingEvents = toJSValue(
-        (
-          this.nativeModule as com.facebook.react.uimanager.ViewManager<
-            any,
-            any
-          >
-        ).getExportedCustomBubblingEventTypeConstants?.() || {}
-      ) as any;
-    }
+
     return (
       this.nativeModule as com.facebook.react.uimanager.ViewManager<any, any>
     )?.createViewInstance?.(this.themedReactContext);
@@ -179,6 +162,44 @@ class ViewManagerHolder
     )?.getExportedViewConstants();
 
     return exportedConstants ? toJSValue(exportedConstants) : {};
+  }
+
+  public getEvents(): any {
+    if (!this.directEvents) {
+      this.directEvents = toJSValue(
+        (
+          this.nativeModule as com.facebook.react.uimanager.ViewManager<
+            any,
+            any
+          >
+        ).getExportedCustomDirectEventTypeConstants?.() || {}
+      ) as any;
+      this.bubblingEvents = toJSValue(
+        (
+          this.nativeModule as com.facebook.react.uimanager.ViewManager<
+            any,
+            any
+          >
+        ).getExportedCustomBubblingEventTypeConstants?.() || {}
+      ) as any;
+    }
+
+    const events = [];
+    for (const name of Object.keys(this.directEvents)) {
+      events.push(
+        this.__getJSEventName(this.directEvents[name].registrationName)
+      );
+    }
+
+    for (const name of Object.keys(this.bubblingEvents)) {
+      events.push(
+        this.__getJSEventName(
+          this.bubblingEvents[name].phasedRegistrationNames.bubbled
+        )
+      );
+    }
+
+    return events;
   }
 }
 
@@ -240,10 +261,12 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
     }
   };
 
-  // as unknown as Omit<typeof View, keyof ViewManagerInterfaces[T]> &
-  // ViewManagerInterfaces[T];
-
   const viewManager = ViewManager as ViewManagerHolder;
+  const events = viewManager.getEvents() || [];
+  for (const event of events) {
+    ViewClass[event + 'Event'] = event;
+  }
+
   for (const prop in viewManager.props) {
     Object.defineProperty(ViewClass.prototype, prop, {
       set(newValue) {

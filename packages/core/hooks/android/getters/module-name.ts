@@ -69,10 +69,22 @@ export function getModuleName(
   return variableDefinitionLine.split(`"`)[1];
 }
 
-export function resolveVariableValue(variable: string, files: string[]) {
+export function resolveVariableValue(
+  variable: string,
+  moduleContents: string,
+  files: string[]
+) {
   if (variable.startsWith('"') && variable.endsWith('"'))
     return variable.split('"')[1];
-  if (!variable.includes('.')) return variable;
+
+  if (!variable.includes('.')) {
+    const variableDefinitionLine = moduleContents
+      .split('\n')
+      .find((line) => line.includes(`String ${variable}`));
+
+    return variableDefinitionLine.split(`"`)?.[1] || variable;
+  }
+
   let variableDefinitionLine = undefined;
   const split = variable.split('.');
   const className = split[0] + '.java';
@@ -85,5 +97,6 @@ export function resolveVariableValue(variable: string, files: string[]) {
         .find((line) => line.includes(`String ${variable}`));
     }
   }
+
   return variableDefinitionLine.split(`"`)[1];
 }

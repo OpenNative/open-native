@@ -8,13 +8,26 @@ import { extractClassDeclarationForModule } from './class-declaration';
 import { extractMethodParamTypes } from './module-param-types';
 import { extractClassDeclarationForPackage } from './package-class-declaration';
 
-const ANDROID_REACT_PROP_REGEX = /(?<=@ReactProp\(name.*= ")(.*)(?=")/gm;
+const ANDROID_REACT_PROP_REGEX = /(?<=@ReactProp\(name.*=)(.*)(?=\))/gm;
+const ANDROID_REACT_PROP_REGEX_2 = /(?<=@ReactProp\(name.*=)(.*)(?=,)/gm;
+
 const ANDROID_REACT_PROP_DEFAULT_VALUE =
   /(?<=(defaultBoolean|defaultFloat|defaultDouble|defaultInt).*= )(.*)(?=\))/gm;
 const ANDROID_REACT_PROP_METHOD_REGEX =
   /(?:@ReactProp\(name*.*\))[\s\S]*?public[\s\S]*?[{;]/gm;
+const ANDROID_REACT_PROP_METHOD_REGEX_KT =
+  /(?:@ReactProp\(name*.*\))[\s\S]*?fun[\s\S]*?[{;]/gm;
+
 const ANDROID_METHOD_REGEX =
   /(?:@Override|@ReactMethod)[\s\S]*?public[\s\S]*?[{;]/gm;
+
+function matchReactProp(method: string) {
+  const annotation = method.split(')')[0] + ')';
+  if (annotation.includes(',')) {
+    return annotation.match(ANDROID_REACT_PROP_REGEX_2)[0].trim();
+  }
+  return annotation.match(ANDROID_REACT_PROP_REGEX)[0].trim();
+}
 
 export async function extractPackageModules(folder: string) {
   let filePaths = await globProm('**/+(*.java|*.kt)', { cwd: folder });
@@ -111,7 +124,6 @@ export async function extractPackageModules(folder: string) {
         isPublic,
       }) => {
         const [, moduleClassName] = moduleDeclarationMatch;
-
         if (!reactMethods[moduleClassName]) {
           reactMethods[moduleClassName] = new Set();
         }
@@ -130,7 +142,9 @@ export async function extractPackageModules(folder: string) {
           ([
             ...(moduleContents.match(ANDROID_METHOD_REGEX) || []),
             ...(moduleContents.match(ANDROID_REACT_PROP_METHOD_REGEX) || []),
+            ...(moduleContents.match(ANDROID_REACT_PROP_METHOD_REGEX_KT) || []),
           ] as RegExpMatchArray) ?? ([] as unknown as RegExpMatchArray);
+
         const exportsConstants =
           /getConstants\(\s*\)\s*{/m.test(moduleContents) ||
           exportedConstants[superclassName];
@@ -159,23 +173,22 @@ export async function extractPackageModules(folder: string) {
             let methodPropName = undefined;
             let defaultPropValue = undefined;
             if (hasReactPropAnnotation) {
+              const prop = matchReactProp(raw);
               methodPropName = resolveVariableValue(
-                raw
-                  .split('public')[0]
-                  .match(ANDROID_REACT_PROP_REGEX)[0]
-                  .trim(),
+                prop,
+                moduleContents,
                 filePaths
               );
+
               defaultPropValue = raw
                 .split('public')[0]
                 .match(ANDROID_REACT_PROP_DEFAULT_VALUE)?.[0];
               if (defaultPropValue) {
-                if (defaultPropValue?.endsWith('f')) defaultPropValue = 0.0;
                 if (
                   defaultPropValue !== 'true' &&
                   defaultPropValue !== 'false'
                 ) {
-                  defaultPropValue = defaultPropValue.include('.')
+                  defaultPropValue = defaultPropValue.includes('.')
                     ? parseFloat(defaultPropValue)
                     : parseInt(defaultPropValue);
                 } else {
@@ -194,7 +207,9 @@ export async function extractPackageModules(folder: string) {
              * @example ['public void testCallback(Callback callback) {']
              * @example ['public abstract void getInitialURL(Promise promise);']
              */
-            raw = 'public' + raw.split('public')[1];
+            raw = raw.includes('fun ')
+              ? 'fun' + raw.split('fun')[1]
+              : 'public' + raw.split('public')[1];
 
             /**
              * Remove the trailing brace.
@@ -266,7 +281,6 @@ export async function extractPackageModules(folder: string) {
             else if (!reactMethods[superclassName]?.has(methodNameJava)) {
               return null;
             }
-
             return {
               exportedMethodName: methodNameJava,
               isBlockingSynchronousMethod,
