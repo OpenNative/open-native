@@ -92,9 +92,18 @@ export class NativeModuleHolder implements Partial<NativeModule> {
           );
         }
 
-        return toJSValue(
-          invokeNativeMethod.call(this, selector, types, args, sync)
-        );
+        if (
+          this.nativeModule.methodQueue &&
+          this.nativeModule.methodQueue !== dispatch_get_current_queue()
+        ) {
+          dispatch_async(this.nativeModule.methodQueue, () => {
+            invokeNativeMethod.call(this, selector, types, args, sync);
+          });
+        } else {
+          return toJSValue(
+            invokeNativeMethod.call(this, selector, types, args, sync)
+          );
+        }
       };
     }
   }

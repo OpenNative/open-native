@@ -169,7 +169,7 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
         if (RCT_DEBUG && _requiresMainQueueSetup) {
           RCTAssertMainQueue();
         }
-        
+
         _instance = _moduleProvider ? _moduleProvider() : nil;
         if (!_instance) {
           // Module init returned nil, probably because automatic instantiation
@@ -197,7 +197,7 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
       [self setCallableJSModulesForInstance];
     }
 
-    [self setUpMethodQueue];
+    //[self setUpMethodQueue];
 
     if (shouldSetup) {
       [self _initializeModule];
@@ -222,13 +222,13 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
     _requiresMainQueueSetup = NO;
   }
 
- 
+
 }
 
 - (void)setBridgeForInstance
 {
   if ([_instance respondsToSelector:@selector(bridge)] && _instance.bridge != _bridge) {
-    
+
     @try {
       [(id)_instance setValue:_bridge forKey:@"bridge"];
     } @catch (NSException *exception) {
@@ -238,7 +238,7 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
            "or provide your own setter method.",
           self.name);
     }
-   
+
   }
 }
 
@@ -262,7 +262,7 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
 {
   if ([_instance respondsToSelector:@selector(viewRegistry_DEPRECATED)] &&
       _instance.viewRegistry_DEPRECATED != _viewRegistry_DEPRECATED) {
-    
+
     @try {
       [(id)_instance setValue:_viewRegistry_DEPRECATED forKey:@"viewRegistry_DEPRECATED"];
     } @catch (NSException *exception) {
@@ -272,14 +272,14 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
            "or provide your own setter method.",
           self.name);
     }
-    
+
   }
 }
 
 - (void)setBundleManagerForInstance
 {
   if ([_instance respondsToSelector:@selector(bundleManager)] && _instance.bundleManager != _bundleManager) {
-    
+
     @try {
       [(id)_instance setValue:_bundleManager forKey:@"bundleManager"];
     } @catch (NSException *exception) {
@@ -289,7 +289,7 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
            "or provide your own setter method.",
           self.name);
     }
-    
+
   }
 }
 
@@ -297,7 +297,7 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
 {
   if ([_instance respondsToSelector:@selector(callableJSModules)] &&
       _instance.callableJSModules != _callableJSModules) {
-    
+
     @try {
       [(id)_instance setValue:_callableJSModules forKey:@"callableJSModules"];
     } @catch (NSException *exception) {
@@ -307,7 +307,7 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
            "or provide your own setter method.",
           self.name);
     }
-  
+
   }
 }
 
@@ -328,32 +328,32 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
 
 - (void)setUpMethodQueue
 {
-  if (_instance && !_methodQueue && _bridge) {
-    BOOL implementsMethodQueue = [_instance respondsToSelector:@selector(methodQueue)];
-    if (implementsMethodQueue && _bridge) {
-      _methodQueue = _instance.methodQueue;
-    }
-    if (!_methodQueue && _bridge) {
-      // Create new queue (store queueName, as it isn't retained by dispatch_queue)
-      _queueName = [NSString stringWithFormat:@"com.facebook.react.%@Queue", self.name];
-      _methodQueue = dispatch_queue_create(_queueName.UTF8String, DISPATCH_QUEUE_SERIAL);
+  // if (_instance && !_methodQueue && _bridge) {
+  //   BOOL implementsMethodQueue = [_instance respondsToSelector:@selector(methodQueue)];
+  //   if (implementsMethodQueue && _bridge) {
+  //     _methodQueue = _instance.methodQueue;
+  //   }
+  //   if (!_methodQueue && _bridge) {
+  //     // Create new queue (store queueName, as it isn't retained by dispatch_queue)
+  //     _queueName = [NSString stringWithFormat:@"com.facebook.react.%@Queue", self.name];
+  //     _methodQueue = dispatch_queue_create(_queueName.UTF8String, DISPATCH_QUEUE_SERIAL);
 
-      // assign it to the module
-      if (implementsMethodQueue) {
-        @try {
-          [(id)_instance setValue:_methodQueue forKey:@"methodQueue"];
-        } @catch (NSException *exception) {
-          RCTLogError(
-              @"%@ is returning nil for its methodQueue, which is not "
-               "permitted. You must either return a pre-initialized "
-               "queue, or @synthesize the methodQueue to let the bridge "
-               "create a queue for you.",
-              self.name);
-        }
-      }
-    }
-  
-  }
+  //     // assign it to the module
+  //     if (implementsMethodQueue) {
+  //       @try {
+  //         [(id)_instance setValue:_methodQueue forKey:@"methodQueue"];
+  //       } @catch (NSException *exception) {
+  //         RCTLogError(
+  //             @"%@ is returning nil for its methodQueue, which is not "
+  //              "permitted. You must either return a pre-initialized "
+  //              "queue, or @synthesize the methodQueue to let the bridge "
+  //              "create a queue for you.",
+  //             self.name);
+  //       }
+  //     }
+  //   }
+
+  // }
 }
 
 - (void)calculateMethods
@@ -375,15 +375,15 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
 - (id<RCTBridgeModule>)instance
 {
   int32_t requestId = getUniqueId();
-    
+
   if (!_setupComplete) {
-   
+
     if (_requiresMainQueueSetup) {
       // The chances of deadlock here are low, because module init very rarely
       // calls out to other threads, however we can't control when a module might
       // get accessed by client code during bridge setup, and a very low risk of
       // deadlock is better than a fairly high risk of an assertion being thrown.
-        
+
       if (!RCTIsMainQueue()) {
         RCTLogWarn(@"RCTBridge required dispatch_sync to load %@. This may lead to deadlocks", _moduleClass);
       }
@@ -391,11 +391,11 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
       RCTUnsafeExecuteOnMainQueueSync(^{
         [self setUpInstanceAndBridge:requestId];
       });
-     
+
     } else {
       [self setUpInstanceAndBridge:requestId];
     }
-   
+
   }
 
   return _instance;
@@ -415,7 +415,7 @@ RCT_NOT_IMPLEMENTED(-(instancetype)init);
 {
 
   if (_hasConstantsToExport && !_constantsToExport) {
-  
+
     (void)[self instance];
 
     if (!RCTIsMainQueueExecutionOfConstantsToExportDisabled() && _requiresMainQueueSetup) {
