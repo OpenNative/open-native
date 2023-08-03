@@ -1,4 +1,5 @@
 {
+  "name": "react-native-module-test",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/react-native-module-test",
@@ -35,7 +36,7 @@
       ]
     },
     "build.all": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "commands": ["node tools/scripts/build-finish.ts react-native-module-test"],
         "parallel": false
@@ -53,7 +54,7 @@
       ]
     },
     "focus": {
-      "executor": "@nrwl/workspace:run-commands",
+      "executor": "nx:run-commands",
       "options": {
         "commands": ["nx g @nativescript/plugin-tools:focus-packages react-native-module-test"],
         "parallel": false
