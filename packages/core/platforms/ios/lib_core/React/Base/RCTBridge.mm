@@ -54,7 +54,7 @@ void RCTRegisterModule(Class moduleClass)
         RCTModuleClassesSyncQueue =
         dispatch_queue_create("com.facebook.react.ModuleClassesSyncQueue", DISPATCH_QUEUE_CONCURRENT);
     });
-    
+
     RCTAssert(
               [moduleClass conformsToProtocol:@protocol(RCTBridgeModule)],
               @"%@ does not conform to the RCTBridgeModule protocol",
@@ -76,12 +76,12 @@ NSString *RCTBridgeModuleNameForClass(Class cls)
               @"Bridge module `%@` does not conform to RCTBridgeModule",
               cls);
 #endif
-    
+
     NSString *name = [cls moduleName];
     if (name.length == 0) {
         name = NSStringFromClass(cls);
     }
-    
+
     return RCTDropReactPrefixes(name);
 }
 
@@ -126,19 +126,19 @@ NSMutableDictionary<NSString *, RCTModuleData *> *nativeModules = nil;
     if (moduleData.instance)
         return moduleData.instance;
     Class moduleClass = RCTGetModuleClassForName(moduleName);
-    
+
     if (!moduleClass)
         return nil;
-    
+
     moduleData = [[RCTModuleData alloc] initWithModuleClass:moduleClass
                                                      bridge:self
                                              moduleRegistry:moduleRegistry
                                     viewRegistry_DEPRECATED:NULL
                                               bundleManager:NULL
                                           callableJSModules:_callableJSModules];
-    
+
     [nativeModules setObject:moduleData forKey:moduleName];
-    
+
     return moduleData.instance;
 }
 
@@ -200,15 +200,15 @@ completion:(dispatch_block_t)completion
                       cbI: (int)cbI
                         e: (RCTResponseErrorBlock _Nullable)e
                        eI:(int)eI {
-    
-    
+
+
     for ( int i = 0; i < [args count]; i++)
     {
         if (i == rI || i == rejI || i == cbI || i == eI) continue;
         id argument = [args objectAtIndex: i];
         [invocation setArgument: &argument atIndex: i+2];
     }
-    
+
     if (!sync) {
         if (r != nil) {
             [invocation setArgument: &r atIndex: rI+2];
@@ -223,37 +223,29 @@ completion:(dispatch_block_t)completion
             [invocation setArgument: &e atIndex: eI+2];
         }
     }
-    
-    id<RCTBridgeModule> nativeModule =  invocation.target;
-    
-    if ([nativeModule respondsToSelector:NSSelectorFromString(@"methodQueue")] ) {
-        dispatch_async([nativeModule methodQueue], ^{
-            [invocation invoke];
-        });
-    } else {
-        [invocation invoke];
-    }
-    
+
+    [invocation invoke];
+
     if (sync) {
         void *ret;
         [invocation getReturnValue:&ret];
         id result = (__bridge id) ret;
         return result;
     }
-    
+
     return nil;
 }
 
 
 -(NSDictionary *)getModuleMethodObjcNames:(NSString *)name {
-    
+
     Class cls = RCTGetModuleClassForName(name);
     unsigned int methodCount;
     NSMutableDictionary *_methods = [[NSMutableDictionary alloc] init];
     NSMutableDictionary *props = [[NSMutableDictionary alloc] init];
     while (cls && cls != [NSObject class] && cls != [NSProxy class]) {
         Method *methods = class_copyMethodList(object_getClass(cls), &methodCount);
-        
+
         for (unsigned int i = 0; i < methodCount; i++) {
             Method method = methods[i];
             NSMutableDictionary *info;
@@ -268,7 +260,7 @@ completion:(dispatch_block_t)completion
                 [_methods setValue:info forKey: [NSString stringWithCString:exportedMethod->objcName encoding:NSUTF8StringEncoding]];
                 continue;
             }
-            
+
             if (strncmp(selectorName, "propConfig", strlen("propConfig")) != 0) {
                 continue;
             }
@@ -277,22 +269,22 @@ completion:(dispatch_block_t)completion
             if (!underscorePos) {
                 continue;
             }
-            
+
             NSString *name = @(underscorePos + 1);
             NSArray<NSString *> *typeAndKeyPath = ((NSArray<NSString *> * (*)(id, SEL)) objc_msgSend)(cls, selector);
             NSString * type = typeAndKeyPath[0];
             NSString * keyPath = typeAndKeyPath.count > 1 ? typeAndKeyPath[1] : nil;
-            
+
             info = [[NSMutableDictionary alloc] init];
             info[@"type"] = type;
             info[@"keyPath"] = keyPath;
-            
+
             if (keyPath != nil && [keyPath isEqualToString:@"__custom__"]) {
                 NSString * selectorString = [NSString stringWithFormat:@"set_%@:for%@View:withDefaultView:", name, @""];
                 info[@"customSetter"] = selectorString;
             } else {
                 NSString *key = name;
-                
+
                 if (keyPath != nil) {
                     NSArray<NSString *> *parts = [keyPath componentsSeparatedByString:@"."];
                     if (parts) {
@@ -300,24 +292,24 @@ completion:(dispatch_block_t)completion
                         parts = [parts subarrayWithRange:(NSRange){0, parts.count - 1}];
                     }
                 }
-                
+
                 info[@"setter"] = [NSString stringWithFormat:@"set%@%@:", [key substringToIndex:1].uppercaseString, [key substringFromIndex:1]];
                 info[@"getter"] = key;
-                
+
             }
-            
+
             props[name] = info;
         }
-        
+
         free(methods);
         cls = class_getSuperclass(cls);
     }
-    
+
     return @{
         @"methods": _methods,
         @"props": props
     };
-    
+
 }
 
 
