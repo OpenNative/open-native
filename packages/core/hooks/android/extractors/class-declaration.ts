@@ -23,9 +23,13 @@
  */
 export function extractClassDeclarationForModule(file: string) {
   // Match any class with the @ReactModule annotation.
-  const reactModuleMatch = file.match(
-    /@ReactModule[\s\S]*public class\s+(\w+[^(\s]*)[\s\w():]*.*{/
-  );
+  const reactModuleMatch =
+    file.match(
+      /@ReactModule\([\s\S]*public class\s+(\w+[^(\s]*)[\s\w():]*.*{/
+    ) ||
+    file.match(
+      /@ReactModule\([\s\S]*public final class\s+(\w+[^(\s]*)[\s\w():]*.*{/
+    );
   if (reactModuleMatch) return reactModuleMatch;
 
   // Match any class that implements TurboModule.

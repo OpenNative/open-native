@@ -75,6 +75,7 @@ export async function extractPackageModules(folder: string) {
         path: file.path,
         isPublic:
           file.contents.indexOf('public class') > -1 ||
+          file.contents.indexOf('public final class') > -1 ||
           file.contents.includes('//#kotlin'),
       });
     }
@@ -308,6 +309,7 @@ export async function extractPackageModules(folder: string) {
          */
         const exportedModuleName = getModuleName(moduleContents, filePaths);
         const moduleImportPath = getModuleImportPath(moduleContents);
+
         return {
           exportedMethods,
           /** @example 'RNTestModule' or `null` if missing, e.g. for specs */
