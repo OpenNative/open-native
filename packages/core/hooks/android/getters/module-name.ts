@@ -4,6 +4,30 @@ const ANDROID_GET_NAME_FN = /getName\(\)[\s\S]*?\{[^}]*\}/gm;
 const GET_NAME_RETURN_VALUE = /(?<=return ).*(?=(;|))/gm;
 const MODULE_NAME_ANNOTATION = /(?<=@ReactModule\(name.*=).*(?=\))/gm;
 
+function resolveKtModuleName(moduleContents: string) {
+  return (
+    moduleContents
+      .match(/(?<=override fun getName\(\)\s+=).*(?=)/gm)?.[0]
+      ?.trim() ||
+    moduleContents
+      .match(ANDROID_GET_NAME_FN)?.[0]
+      ?.match(GET_NAME_RETURN_VALUE)?.[0]
+      ?.trim()
+      .replace(/;/g, '')
+  );
+}
+
+function resolveJavaModuleName(moduleContents: string) {
+  return (
+    moduleContents.match(MODULE_NAME_ANNOTATION)?.[0]?.trim() ||
+    moduleContents
+      .match(ANDROID_GET_NAME_FN)?.[0]
+      ?.match(GET_NAME_RETURN_VALUE)?.[0]
+      ?.trim()
+      .replace(/;/g, '')
+  );
+}
+
 /**
  * Gets the exported name for the module, or null if there's no such match.
  * @example 'IntentAndroid', for the class named 'IntentModule'.
@@ -12,19 +36,10 @@ export function getModuleName(
   moduleContents: string,
   files: string[]
 ): string | null {
-  let getNameFunctionReturnValue =
-    moduleContents.match(MODULE_NAME_ANNOTATION)?.[0]?.trim() ||
-    moduleContents
-      .match(ANDROID_GET_NAME_FN)?.[0]
-      ?.match(GET_NAME_RETURN_VALUE)?.[0]
-      ?.trim()
-      .replace(/;/g, '') ||
-    // Kotlin function without curly braces.
-    // override fun getName() = RNKtTestModule.NAME
-    // override fun getName() = "RNKtTestModule"
-    moduleContents
-      .match(/(?<=override fun getName\(\)\s+=).*(?=)/gm)?.[0]
-      ?.trim();
+  let getNameFunctionReturnValue = moduleContents?.includes('//#kotlin')
+    ? resolveKtModuleName(moduleContents)
+    : resolveJavaModuleName(moduleContents);
+
   // The module doesn't have a getName() method at all. It may be a spec, or not
   // a ReactModule in the first place.
   if (!getNameFunctionReturnValue) {
@@ -32,7 +47,6 @@ export function getModuleName(
   }
 
   let variableDefinitionLine;
-
   if (getNameFunctionReturnValue.startsWith(`"`)) {
     return getNameFunctionReturnValue.replace(/"/g, '');
   }
@@ -66,6 +80,7 @@ export function getModuleName(
           line.includes(`val ${getNameFunctionReturnValue}`)
       );
   }
+
   return variableDefinitionLine.split(`"`)[1];
 }
 
