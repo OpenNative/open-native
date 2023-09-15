@@ -91,8 +91,8 @@ export class NativeModuleHolder implements Partial<NativeModule> {
             `Unable to wrap method "${exportedMethodName}" on module "${this.moduleName}" as the module was not found in the bridge.`
           );
         }
-
         if (
+          this.nativeModule.respondsToSelector('methodQueue') &&
           this.nativeModule.methodQueue &&
           this.nativeModule.methodQueue !== dispatch_get_current_queue()
         ) {
