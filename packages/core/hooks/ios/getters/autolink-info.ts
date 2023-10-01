@@ -10,7 +10,7 @@ import {
 import { getPodspecFilePath } from './podspec-path';
 import { getSourceFilePaths } from './source-file-paths';
 import { extractInterfaces } from '../extractors/interface';
-import { writePublicSwiftModule } from '../writers/swift-module';
+import { migratePodspecFile } from '../writers/podspec';
 import { resolvePackagePath } from '@rigor789/resolve-package-path';
 
 /**
@@ -63,6 +63,9 @@ export async function getPackageAutolinkInfo({
     packagePath,
     podspecs,
   });
+
+  await migratePodspecFile(podspecFilePath);
+
   const { stdout: podspecContents } = await execFile('pod', [
     'ipc',
     'spec',
