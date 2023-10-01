@@ -51,6 +51,7 @@ dependencies {
     api("androidx.appcompat:appcompat-resources:${androidXCompatVersion}")
     api('com.facebook.infer.annotation:infer-annotation:0.18.0')
     api("com.facebook.yoga:proguard-annotations:1.19.0")
+    api("javax.inject:javax.inject:1")
     //api('com.google.code.findbugs:jsr305:3.0.2')
 
     if (okHttpVersion) {

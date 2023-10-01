@@ -7,6 +7,7 @@
 
 package com.facebook.react;
 
+import com.facebook.react.bridge.ModuleSpec;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.module.model.ReactModuleInfoProvider;
@@ -37,7 +38,7 @@ public abstract class TurboReactPackage implements ReactPackage {
    * @param reactContext react application context that can be used to create View Managers.
    * @return list of module specs that can create the View Managers.
    */
-  protected List<ViewManager> getViewManagers(ReactApplicationContext reactContext) {
+  protected List<ModuleSpec> getViewManagers(ReactApplicationContext reactContext) {
     return Collections.emptyList();
   }
 
