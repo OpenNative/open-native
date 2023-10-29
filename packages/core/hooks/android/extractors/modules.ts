@@ -24,9 +24,10 @@ const ANDROID_METHOD_REGEX =
 function matchReactProp(method: string) {
   const annotation = method.split(')')[0] + ')';
   if (annotation.includes(',')) {
-    return annotation.match(ANDROID_REACT_PROP_REGEX_2)[0].trim();
+    return annotation.match(ANDROID_REACT_PROP_REGEX_2)?.[0]?.trim();
   }
-  return annotation.match(ANDROID_REACT_PROP_REGEX)[0].trim();
+
+  return annotation.match(ANDROID_REACT_PROP_REGEX)?.[0]?.trim();
 }
 
 export async function extractPackageModules(folder: string) {
@@ -173,8 +174,10 @@ export async function extractPackageModules(folder: string) {
               );
             let methodPropName = undefined;
             let defaultPropValue = undefined;
-            if (hasReactPropAnnotation) {
-              const prop = matchReactProp(raw);
+
+            const prop = hasReactPropAnnotation ? matchReactProp(raw) : null;
+
+            if (prop) {
               methodPropName = resolveVariableValue(
                 prop,
                 moduleContents,
