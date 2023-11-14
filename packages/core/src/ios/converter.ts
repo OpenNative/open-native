@@ -156,6 +156,10 @@ export function toNativeArguments(
           break;
         }
       // eslint-disable-next-line no-fallthrough
+      case RNObjcSerialisableType.CGFloat:
+      case RNObjcSerialisableType.NSInteger:
+      case RNObjcSerialisableType.double:
+      case RNObjcSerialisableType.float:
       case RNObjcSerialisableType.nonnullNumber:
         data = fromJSON(data as string);
         assert(
@@ -277,8 +281,8 @@ function toJSError(error: NSError) {
   const jsError = new Error(
     toJSValue(
       error.localizedDescription ||
-        error.localizedFailureReason ||
-        'Unknown error'
+      error.localizedFailureReason ||
+      'Unknown error'
     ) as string
   );
 
@@ -302,9 +306,10 @@ export function promisify(
     const nativeArguments = toNativeArguments(types, args, resolve, reject);
 
     try {
-      reactNativeBridgeIOS.callMethodInvocationArgsSyncRRIRejRejICbCbIEEI(
+      reactNativeBridgeIOS.callMethodInvocationArgsTypesSyncRRIRejRejICbCbIEEI(
         invocation,
         nativeArguments.arguments,
+        types,
         false,
         ...nativeArguments.blocks
       );
@@ -339,9 +344,10 @@ export function invokeNativeMethod(
   }
   const nativeArguments = toNativeArguments(types, args);
 
-  return reactNativeBridgeIOS.callMethodInvocationArgsSyncRRIRejRejICbCbIEEI(
+  return reactNativeBridgeIOS.callMethodInvocationArgsTypesSyncRRIRejRejICbCbIEEI(
     invocation,
     nativeArguments.arguments,
+    types,
     sync,
     ...nativeArguments.blocks
   );

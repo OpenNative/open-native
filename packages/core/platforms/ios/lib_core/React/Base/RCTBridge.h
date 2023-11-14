@@ -38,15 +38,16 @@ typedef void (
 - (id)moduleForClass:(Class)moduleClass;
 - (void)setJSModuleInvokerCallback:(RCTCallbackBlock)callback;
 -(id)callMethodInvocation:(NSInvocation *)invocation
-                args:(NSArray *)args
-                sync:(BOOL)sync
-                r:(RCTPromiseResolveBlock _Nullable)r
-                rI: (int)rI
-                rej:(RCTPromiseRejectBlock _Nullable)rej
-                rejI: (int)rejI
-                cb: (RCTResponseSenderBlock _Nullable)cb
-                cbI: (int)cbI
-                e: (RCTResponseErrorBlock _Nullable)e
+                     args:(NSArray *)args
+                     types:(NSArray *)types
+                     sync:(BOOL)sync
+                        r:(RCTPromiseResolveBlock _Nullable)r
+                       rI: (int)rI
+                      rej:(RCTPromiseRejectBlock _Nullable)rej
+                     rejI: (int)rejI
+                       cb: (RCTResponseSenderBlock _Nullable)cb
+                      cbI: (int)cbI
+                        e: (RCTResponseErrorBlock _Nullable)e
                        eI:(int)eI;
 -(NSDictionary *)getModuleMethodObjcNames:(NSString *)name;
 @end

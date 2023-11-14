@@ -10,17 +10,18 @@ export async function migratePodspecFile(path: string) {
   let modifed = false;
   for (const line of lines) {
     const trimmedLine = line.trim();
-    if (
-      trimmedLine.includes(DEPRECATED_REACT_DEP) ||
-      trimmedLine.includes(DEPRECATED_REACT_DEP2) ||
-      trimmedLine.includes(`install_modules_dependencies`)
-    ) {
-      if (
-        !originalContents.includes(`s.dependency 'React-Core'`) &&
-        !originalContents.includes(`s.dependency "React-Core"`)
-      ) {
+    if (trimmedLine.includes(DEPRECATED_REACT_DEP) ||
+      trimmedLine.includes(DEPRECATED_REACT_DEP2)) {
+      if (!originalContents.includes(`s.dependency 'React-Core'`) &&
+        !originalContents.includes(`s.dependency "React-Core"`)) {
         newContent.push(`  s.dependency 'React-Core'`);
       }
+      modifed = true;
+      continue;
+    }
+
+    if (trimmedLine.includes(`install_modules_dependencies`) &&
+      !originalContents.includes(`respond_to?(:install_modules_dependencies`)) {
       modifed = true;
       continue;
     }

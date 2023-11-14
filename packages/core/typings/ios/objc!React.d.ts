@@ -150,9 +150,10 @@ declare class RCTBridge extends NSObject {
 
   readonly uiManager: RCTUIManager;
 
-  callMethodInvocationArgsSyncRRIRejRejICbCbIEEI(
+  callMethodInvocationArgsTypesSyncRRIRejRejICbCbIEEI(
     invocation: NSInvocation,
     args: NSArray<any> | any[],
+    types: NSArray<any> | any[],
     sync: boolean,
     r: (p1: any) => void,
     rI: number,

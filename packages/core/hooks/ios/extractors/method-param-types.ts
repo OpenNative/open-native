@@ -47,10 +47,13 @@ export function extractMethodParamTypes(
     case 'void': // This is only of relevance for parsing the return type.
       return RNObjcSerialisableType.void;
     case 'double':
+      return RNObjcSerialisableType.double;
     case 'float': // deprecated
+      return RNObjcSerialisableType.float;
     case 'CGFloat': // deprecated
+      return RNObjcSerialisableType.CGFloat;
     case 'NSInteger': // deprecated
-      return RNObjcSerialisableType.nonnullNumber;
+      return RNObjcSerialisableType.NSInteger;
     case 'BOOL*':
     case 'BOOL':
       return RNObjcSerialisableType.nonnullBoolean;

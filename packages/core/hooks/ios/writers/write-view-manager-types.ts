@@ -24,15 +24,20 @@ const ObjCTypeToTSTypeMap = {
   6: 'number',
   7: 'number',
   8: 'number',
-  9: 'any[]',
-  10: 'any[]',
-  11: 'any',
-  12: ' any',
-  13: 'any',
+  9: 'number',
+  10: 'number',
+  11: 'number',
+  12: 'number',
+  13: 'any[]',
   14: 'any',
-  15: 'any',
+  15: ' any',
   16: 'any',
   17: 'any',
+  18: 'any',
+  19: 'any',
+  20: 'any',
+  21: 'any',
+  22: 'any',
 };
 
 /**
@@ -79,18 +84,17 @@ export async function writeViewManagerTypes({
   const output = `
 export interface ViewManagers {
   ${Object.keys(interfaces)
-    .map(
-      (module) => `"${module}":{
+      .map(
+        (module) => `"${module}":{
       ${interfaces[module].props.join('\n')}
 
-  viewEventNames: ${
-    interfaces[module].events.length === 0
-      ? '""'
-      : interfaces[module].events.map((event) => `"${event}"`).join(' | ')
-  }
+  viewEventNames: ${interfaces[module].events.length === 0
+            ? '""'
+            : interfaces[module].events.map((event) => `"${event}"`).join(' | ')
+          }
   }`
-    )
-    .join('\n')}
+      )
+      .join('\n')}
 }`;
 
   return await writeFile(outputViewManagerTypesPath, output, {

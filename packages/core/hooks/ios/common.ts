@@ -60,6 +60,10 @@ export enum RNObjcSerialisableType {
   nonnullBoolean, // BOOL
   number, // NSNumber*
   nonnullNumber, // nonnull NSNumber*, double (and the deprecated float,
+  float,
+  double,
+  CGFloat,
+  NSInteger,
   // CGFloat, and NSInteger)
   int, // Not documented but is used by some modules, just int.
   array, // NSArray*

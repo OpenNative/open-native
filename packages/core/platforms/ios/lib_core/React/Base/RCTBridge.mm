@@ -191,6 +191,7 @@ completion:(dispatch_block_t)completion
 
 -(id)callMethodInvocation:(NSInvocation *)invocation
                      args:(NSArray *)args
+                     types:(NSArray *)types
                      sync:(BOOL)sync
                         r:(RCTPromiseResolveBlock _Nullable)r
                        rI: (int)rI
@@ -205,8 +206,25 @@ completion:(dispatch_block_t)completion
     for ( int i = 0; i < [args count]; i++)
     {
         if (i == rI || i == rejI || i == cbI || i == eI) continue;
-        id argument = [args objectAtIndex: i];
-        [invocation setArgument: &argument atIndex: i+2];
+        if ([[types objectAtIndex:i] isEqualToNumber:@8]) {
+            float arg = [[args objectAtIndex:i] floatValue];
+            [invocation setArgument: &arg atIndex: i+2];
+        } else if ([[types objectAtIndex:i] isEqualToNumber:@9]) {
+            double arg = [[args objectAtIndex:i] doubleValue];
+            [invocation setArgument: &arg atIndex: i+2];
+        } else if ([[types objectAtIndex:i] isEqualToNumber:@10]) {
+            CGFloat arg = [[args objectAtIndex:i] floatValue];
+            [invocation setArgument: &arg atIndex: i+2];
+        } else if ([[types objectAtIndex:i] isEqualToNumber:@11]) {
+            NSInteger arg = [[args objectAtIndex:i] integerValue];
+            [invocation setArgument: &arg atIndex: i+2];
+        } else if ([[types objectAtIndex:i] isEqualToNumber:@12]) {
+            int arg = [[args objectAtIndex:i] intValue];
+            [invocation setArgument: &arg atIndex: i+2];
+        }  else  {
+            id argument = [args objectAtIndex: i];
+            [invocation setArgument: &argument atIndex: i+2];
+        }
     }
 
     if (!sync) {
