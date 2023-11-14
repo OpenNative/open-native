@@ -45,7 +45,7 @@ function createJSPromise(resolve, reject) {
     },
     reject(...args: any[]) {
       //  void reject(String message);
-      if (args.length === 1 && args[0] instanceof java.lang.String) {
+      if (args.length === 1 && typeof args[0] === "string") {
         reject(new Error(toJSValue(args[0]) as string));
         return;
       }
@@ -63,7 +63,7 @@ function createJSPromise(resolve, reject) {
       //  void reject(String code, Throwable throwable);
       if (
         args.length === 2 &&
-        args[0] instanceof java.lang.String &&
+        typeof args[0] === 'string' &&
         args[1] instanceof java.lang.Throwable
       ) {
         const throwable = args[1];
@@ -78,8 +78,8 @@ function createJSPromise(resolve, reject) {
       //  void reject(String code, String message);
       if (
         args.length === 2 &&
-        args[0] instanceof java.lang.String &&
-        args[1] instanceof java.lang.String
+        typeof args[0] === 'string' &&
+        typeof args[1] === 'string'
       ) {
         reject({
           code: toJSValue(args[0]),
@@ -91,8 +91,8 @@ function createJSPromise(resolve, reject) {
       // void reject(String code, String message, Throwable throwable);
       if (
         args.length === 3 &&
-        args[0] instanceof java.lang.String &&
-        args[1] instanceof java.lang.String &&
+        typeof args[0] === 'string' &&
+        typeof args[1] === 'string' &&
         args[2] instanceof java.lang.Throwable
       ) {
         reject({
@@ -119,7 +119,7 @@ function createJSPromise(resolve, reject) {
       // void reject(String code, @NonNull WritableMap userInfo);
       if (
         args.length === 2 &&
-        args[0] instanceof java.lang.String &&
+        typeof args[0] === 'string' &&
         args[1] instanceof com.facebook.react.bridge.WritableMap
       ) {
         reject({
@@ -132,7 +132,7 @@ function createJSPromise(resolve, reject) {
       //void reject(String code, Throwable throwable, WritableMap userInfo);
       if (
         args.length === 3 &&
-        args[0] instanceof java.lang.String &&
+        typeof args[0] === 'string' &&
         args[1] instanceof java.lang.Throwable &&
         args[2] instanceof com.facebook.react.bridge.WritableMap
       ) {
@@ -147,8 +147,8 @@ function createJSPromise(resolve, reject) {
       // void reject(String code, String message, @NonNull WritableMap userInfo);
       if (
         args.length === 2 &&
-        args[0] instanceof java.lang.String &&
-        args[1] instanceof java.lang.String &&
+        typeof args[0] === 'string' &&
+        typeof args[1] === 'string' &&
         args[2] instanceof com.facebook.react.bridge.WritableMap
       ) {
         reject({
@@ -161,8 +161,8 @@ function createJSPromise(resolve, reject) {
       //  void reject(String code, String message, Throwable throwable, WritableMap userInfo)
       if (
         args.length === 2 &&
-        args[0] instanceof java.lang.String &&
-        args[1] instanceof java.lang.String &&
+        typeof args[0] === 'string' &&
+        typeof args[1] === 'string' &&
         args[2] instanceof java.lang.Throwable &&
         args[3] instanceof com.facebook.react.bridge.WritableMap
       ) {
