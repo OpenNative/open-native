@@ -34,6 +34,36 @@ RCT_EXPORT_METHOD(testNumber:(NSNumber *)value resolve:(RCTPromiseResolveBlock)r
     resolve(value);
 }
 
+RCT_EXPORT_METHOD(testInteger:(NSInteger)value resolve:(RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject)
+
+{
+    resolve([[NSNumber alloc] initWithInteger:value]);
+}
+
+RCT_EXPORT_METHOD(testCGFloat:(CGFloat)value resolve:(RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject)
+
+{
+    resolve([[NSNumber alloc] initWithFloat:value]);
+}
+
+RCT_EXPORT_METHOD(testInt:(int)value resolve:(RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject)
+
+{
+    resolve([[NSNumber alloc] initWithInt:value]);
+}
+
+RCT_EXPORT_METHOD(testFloat:(float)value resolve:(RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject)
+
+{
+    resolve([[NSNumber alloc] initWithFloat:value]);
+}
+
+RCT_EXPORT_METHOD(testDouble:(double)value resolve:(RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject)
+
+{
+    resolve([[NSNumber alloc] initWithDouble:value]);
+}
+
 RCT_EXPORT_METHOD(testObject:(NSDictionary *)value resolve:(RCTPromiseResolveBlock)resolve withRejecter : (RCTPromiseRejectBlock)reject)
 
 {

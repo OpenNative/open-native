@@ -99,6 +99,16 @@ public class RNTestModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void testPromiseReject(Promise promise) {
+    promise.reject("Rejected promise");
+  }
+
+  @ReactMethod
+  public void testPromiseReject2(Promise promise) {
+    promise.reject(new Exception("test exception"));
+  }
+
+  @ReactMethod
   public void testObject(ReadableMap map, Promise promise) {
     promise.resolve(map);
   }
