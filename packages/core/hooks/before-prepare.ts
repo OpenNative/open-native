@@ -2,6 +2,8 @@ import * as path from 'path';
 import type { HookArgs } from './hookArgs';
 import { autolinkAndroid } from './android/prepare';
 import { autolinkIos } from './ios/prepare';
+import * as fs from 'fs';
+import { OpenNativeConfig } from './ios/common';
 
 const green = '\x1b[32m';
 const reset = '\x1b[0m';
@@ -12,7 +14,9 @@ const logPrefix = reset + '[@open-native/core/hooks/before-prepare.js]' + reset;
  */
 export = async function (hookArgs: HookArgs) {
   const normalizedPlatformName = hookArgs?.prepareData?.platform;
-  const openNativeConfig = hookArgs.projectData.nsConfig?.['open-native'];
+
+  const openNativeConfig: OpenNativeConfig =
+    hookArgs.projectData.nsConfig?.['open-native'];
 
   if (
     normalizedPlatformName !== 'android' &&
@@ -26,10 +30,51 @@ export = async function (hookArgs: HookArgs) {
 
   const { devDependencies, dependencies, ignoredDependencies, projectDir } =
     hookArgs.projectData;
+
+  const projectPackageJson = path.join(projectDir, 'package.json');
+  const packageJson = fs.existsSync(projectPackageJson)
+    ? fs.readFileSync(projectPackageJson, 'utf8')
+    : undefined;
+
+  const packageJsonObj: {
+    devDependencies: Record<string, string>;
+    dependencies: Record<string, string>;
+  } = packageJson
+    ? JSON.parse(packageJson)
+    : { devDependencies: {}, dependencies: {} };
+
   const ignoredDepsSet = new Set(ignoredDependencies);
-  const depsArr = Object.keys({ ...devDependencies, ...dependencies }).filter(
-    (key) => !ignoredDepsSet.has(key)
-  );
+
+  const depsArr = Object.keys({
+    ...packageJsonObj.dependencies,
+    ...packageJsonObj.devDependencies,
+    ...devDependencies,
+    ...dependencies,
+  }).filter((key) => !ignoredDepsSet.has(key));
+
+  
+  if (openNativeConfig?.modules) {
+    const customDefinedModules = Object.keys(openNativeConfig.modules);
+    customDefinedModules.forEach((moduleName) => {
+      const module = openNativeConfig.modules[moduleName];
+      const index = depsArr.indexOf(moduleName);
+
+      if (module === null || module[normalizedPlatformName] === null) {
+        if (index > -1) {
+          console.log(`${logPrefix} Skipped ${moduleName}${reset}!`);
+          depsArr.splice(index, 1);
+        }
+      } else if (module && module[normalizedPlatformName]) {
+        if (depsArr.indexOf(moduleName) === -1) {
+          console.log(
+            `${logPrefix} Will force link ${green}${moduleName}${reset}!`
+          );
+          depsArr.push(moduleName);
+        }
+      }
+    });
+  }
+
   let packageNames: Array<string>;
 
   /**

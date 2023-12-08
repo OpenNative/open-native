@@ -151,7 +151,8 @@ export type OpenNativeConfig = {
     [name: string]: {
       ios: {
         podSubspecs?: string[];
-      };
+      } | null;
+      android: { } | null
     };
   };
 };
