@@ -28,6 +28,7 @@ export function parseModuleMetadata(className: string): ModuleMetadata {
   const data = Utils.dataDeserialize(
     global.reactNativeBridgeIOS.getModuleMethodObjcNames(className)
   );
+
   const methods = data.methods;
   const props = data.props;
   const metadata = {
@@ -46,7 +47,7 @@ export function parseModuleMetadata(className: string): ModuleMetadata {
       types: [...method.matchAll(/\(.*?\)/g)]
         .map((match) => match[0].replace(/[()]/g, ''))
         .map((type) => {
-          return extractMethodParamTypes(type.replace(/\s+/g, ''));
+          return extractMethodParamTypes(type.trim());
         }),
       sync: methods[method].isSync,
     };
@@ -115,7 +116,7 @@ export function extractMethodParamTypes(
     return RNObjcSerialisableType.CGFloat;
     case 'NSInteger': // deprecated
       return RNObjcSerialisableType.NSInteger;
-    case 'BOOL*':
+    case 'BOOL *':
     case 'BOOL':
       return RNObjcSerialisableType.nonnullBoolean;
     case 'nonnull RCTResponseSenderBlock':
