@@ -7,6 +7,7 @@ export type { TurboModule } from './Libraries/TurboModule/RCTExport';
 import { load as loadNativeModules } from './src/android/nativemodules';
 export { NativeModules } from './src/android/nativemodules';
 export { AppRegistry } from './Libraries/ReactNative/AppRegistry';
+export {BatchedBridge} from "./Libraries/BatchedBridge/BatchedBridge";
 export { Linking } from './Libraries/Linking/Linking';
 export const DeviceEventEmitter = RCTDeviceEventEmitter;
 export { Dimensions } from './Libraries/Utilities/Dimensions';

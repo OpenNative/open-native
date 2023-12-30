@@ -163,7 +163,7 @@ const NATIVE_VIEW_CACHE = {};
 export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
   key: T
 ): RNNativeViewIOS<T> {
-  const viewManager = ViewManagersIOS[key as any];
+  const viewManager = ViewManagersIOS[key as any] as ViewManagerHolder;
   if (!viewManager) {
     throw new Error(`ViewManager with name ${key} was not found.`);
   }
@@ -287,6 +287,22 @@ export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
 
   for (const event of Object.keys(viewManager.viewEvents || {})) {
     NATIVE_VIEW_CACHE[key as string][event + 'Event'] = event;
+  }
+
+  for (const method in viewManager.moduleMetadata.methods) {
+    const firstParamType = viewManager.moduleMetadata.methods[method].types[0];
+    Object.defineProperty(NATIVE_VIEW_CACHE[key as string].prototype, method, {
+      value: function (...args: any[]) {
+        if (
+          firstParamType !== RNObjcSerialisableType.number &&
+          firstParamType !== RNObjcSerialisableType.nonnullNumber
+        ) {
+          viewManager[method](...args);
+        } else {
+          viewManager[method](this._viewTag, ...args);
+        }
+      },
+    });
   }
 
   for (const prop in viewManager.moduleMetadata.props) {

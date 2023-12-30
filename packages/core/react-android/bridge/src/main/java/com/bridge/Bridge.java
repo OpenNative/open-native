@@ -69,7 +69,7 @@ public class Bridge {
           }
 
           for (NativeModule module : modules_chunk2) {
-            modules.put(module.getName(), module);
+            modules.put("$$" + module.getName(), module);
             module.initialize();
           }
         }
@@ -224,12 +224,12 @@ public class Bridge {
             constructor.getParameterTypes()[0] == ReactApplicationContext.class)) {
 
           NativeModule module = (NativeModule) constructor.newInstance(reactContext);
-          modules.put(module.getName(), module);
+          modules.put(moduleName, module);
           module.initialize();
           return module;
         } else if (constructor.getParameterTypes().length == 0) {
           NativeModule module = (NativeModule) constructor.newInstance();
-          modules.put(module.getName(), module);
+          modules.put(moduleName, module);
           module.initialize();
           return module;
         } else {

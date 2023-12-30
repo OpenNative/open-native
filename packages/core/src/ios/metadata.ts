@@ -117,8 +117,11 @@ export function extractMethodParamTypes(
     case 'NSInteger': // deprecated
       return RNObjcSerialisableType.NSInteger;
     case 'BOOL *':
+    case "nullable BOOL *":
     case 'BOOL':
+    case "bool":
       return RNObjcSerialisableType.nonnullBoolean;
+    
     case 'nonnull RCTResponseSenderBlock':
     case 'RCTResponseSenderBlock':
       return RNObjcSerialisableType.RCTResponseSenderBlock;

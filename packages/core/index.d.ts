@@ -11,12 +11,17 @@ import EventEmitter from './Libraries/vendor/emitter/EventEmitter';
 export { AppRegistry } from './Libraries/ReactNative/AppRegistry';
 export { Alert } from './Libraries/Alert/Alert';
 export { ViewManagersIOS, requireNativeViewIOS } from './src/ios/viewmanagers';
+export {BatchedBridge} from "./Libraries/BatchedBridge/BatchedBridge";
 export {
   ViewManagersAndroid,
   requireNativeViewAndroid,
 } from './src/android/viewmanagers';
 
 export { requireNativeComponent } from './common';
+
+export type NativeSyntheticEvent<T> = {
+  nativeEvent: T
+}
 
 declare global {
   // eslint-disable-next-line no-var

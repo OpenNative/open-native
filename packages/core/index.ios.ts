@@ -8,6 +8,7 @@ export type { TurboModule } from './Libraries/TurboModule/RCTExport';
 export { Platform } from './Libraries/Utilities/Platform';
 export { NativeModules } from './src/ios/nativemodules';
 export const DeviceEventEmitter = RCTDeviceEventEmitter;
+export {BatchedBridge} from "./Libraries/BatchedBridge/BatchedBridge";
 export { Dimensions } from './Libraries/Utilities/Dimensions';
 export { Alert } from './Libraries/Alert/Alert';
 export { ViewManagersIOS, requireNativeViewIOS } from './src/ios/viewmanagers';

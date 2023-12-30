@@ -111,7 +111,7 @@ export function toNativeArguments(
 
       case RNObjcSerialisableType.boolean:
         if (isNullOrUndefined(data)) {
-          nativeArguments.push(false);
+          nativeArguments.push(0);
           break;
         }
       // eslint-disable-next-line no-fallthrough
@@ -123,7 +123,7 @@ export function toNativeArguments(
         );
 
         // booleans are auto-marshalled to BOOL.
-        nativeArguments.push(data);
+        nativeArguments.push(data === true ? 1 : 0);
         break;
       case RNObjcSerialisableType.int:
         assert(
@@ -343,7 +343,7 @@ export function invokeNativeMethod(
     return promisify.call(this, invocation, types, args);
   }
   const nativeArguments = toNativeArguments(types, args);
-
+  console.log(nativeArguments.arguments);
   return reactNativeBridgeIOS.callMethodInvocationArgsTypesSyncRRIRejRejICbCbIEEI(
     invocation,
     nativeArguments.arguments,

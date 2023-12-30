@@ -28,6 +28,7 @@ export async function writePackagesJavaFile({
       moduleImportName: string;
       moduleClassName: string;
       isPublic: boolean;
+      isReactViewManager: boolean;
     }[];
   }[];
   outputPackagesJavaPath: string;
@@ -76,11 +77,17 @@ export async function writePackagesJavaFile({
         [
           `    ${
             m.isPublic
-              ? `moduleClasses.put("${m.exportedModuleName}", ${m.moduleClassName}.class);`
+              ? `moduleClasses.put("${
+                  m.isReactViewManager
+                    ? `$$${m.exportedModuleName}`
+                    : m.exportedModuleName
+                }", ${m.moduleClassName}.class);`
               : `// Module ${m.moduleClassName} is private and will be loaded via it's package instead.`
           }`,
           `    modulePackageMap.put("${
-            m.exportedModuleName
+            m.isReactViewManager
+              ? `$$${m.exportedModuleName}`
+              : m.exportedModuleName
           }", "${packageImportPath?.split('.')?.pop()?.replace(';', '')}");`,
         ].join('\n')
       )

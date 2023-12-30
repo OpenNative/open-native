@@ -12,11 +12,11 @@ import { JSMethodRecord } from '../../src/ios/js-modules';
 const getJSModules =
   Platform.OS === 'ios' ? getJSModulesIOS : getJSModulesAndroid;
 
-const BatchedBridge = {
+export const BatchedBridge = {
   registerCallableModule: (name: string, callbacks: JSMethodRecord) => {
     Platform.OS === 'ios' ? getCurrentBridgeIOS() : getCurrentBridgeAndroid();
     getJSModules().registerJSModule(name, callbacks);
   },
 };
 
-export default BatchedBridge;
+

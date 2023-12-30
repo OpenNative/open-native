@@ -129,6 +129,7 @@ export class NativeModuleHolder implements Partial<NativeModule> {
 const ModuleInstances = {};
 const Modules = {};
 for (const module of getModuleClasses() as string[]) {
+  if (module.startsWith("$$")) continue;
   Object.defineProperty(Modules, module, {
     get() {
       if (ModuleInstances[module]) return ModuleInstances[module];

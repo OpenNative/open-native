@@ -1,22 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  View,
-  CustomLayoutView,
-  LayoutBase,
-  ViewBase,
-} from '@nativescript/core';
-import {
-  getCurrentBridge,
-  getThemedReactContext,
-  registerView,
-} from './bridge';
-import { toJSValue } from './converter';
+import { LayoutBase, Utils, View } from '@nativescript/core';
+import { RNJavaSerialisableType, isNullOrUndefined } from '../common';
+import { getThemedReactContext, registerView } from './bridge';
+import { toJSValue, toNativeValue } from './converter';
+import { ModuleMetadata, getModuleClasses } from './metadata';
 import { NativeModuleHolder } from './nativemodules';
 import type { ViewManagers as ViewManagerInterfaces } from './view-manager-types';
-import { RNJavaSerialisableType, isNullOrUndefined } from '../common';
-import { ModuleMetadata, getModuleClasses } from './metadata';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { RNNativeViewAndroid } from '@open-native/core';
+import { ReadableArray } from './types';
 
 type ViewProps<K extends keyof ViewManagerInterfaces> =
   keyof ViewManagerInterfaces[K];
@@ -234,6 +226,7 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
 
       for (const prop in this._viewManager.props) {
         if (isNullOrUndefined(this.nativeProps[prop])) continue;
+
         this._viewManager.setNativeProp(
           this.nativeViewProtected,
           prop,
@@ -242,6 +235,13 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
             : this.nativeProps[prop]
         );
       }
+      (
+        this._viewManager
+          .nativeModule as com.facebook.react.uimanager.ViewManager<any, any>
+      ).addEventEmitters(
+        this._viewManager.themedReactContext,
+        this.nativeViewProtected
+      );
     }
 
     receiveEvent(eventName: string, data: unknown) {
@@ -265,6 +265,33 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
   const events = viewManager.getEvents() || [];
   for (const event of events) {
     ViewClass[event + 'Event'] = event;
+  }
+
+  const commands = (
+    viewManager.nativeModule as com.facebook.react.uimanager.ViewManager<
+      any,
+      any
+    >
+  ).getCommandsMap();
+
+  const commandNames = Utils.android.collections.stringSetToStringArray(
+    commands.keySet()
+  );
+  for (const commandName of commandNames as string[]) {
+    ViewClass.prototype[commandName] = function (...args: any[]) {
+      if (!this.nativeViewProtected) return;
+      
+      (
+        viewManager.nativeModule as com.facebook.react.uimanager.ViewManager<
+          any,
+          any
+        >
+      ).receiveCommand(
+        this.nativeViewProtected,
+        commandName,
+        toNativeValue(args || [], false) as ReadableArray
+      );
+    };
   }
 
   for (const prop in viewManager.props) {
@@ -321,7 +348,8 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
 const ViewManagerInstances = {};
 const ViewManagerModules = {};
 for (const module of getModuleClasses() as string[]) {
-  Object.defineProperty(ViewManagerModules, module, {
+  if (!module.startsWith("$$")) continue;
+  Object.defineProperty(ViewManagerModules, module.slice(2), {
     get() {
       if (ViewManagerInstances[module]) return ViewManagerInstances[module];
       return (ViewManagerInstances[module] = new ViewManagerHolder(
