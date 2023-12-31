@@ -170,7 +170,7 @@ export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
   if (NATIVE_VIEW_CACHE[key as string]) return NATIVE_VIEW_CACHE[key as string];
 
   (NATIVE_VIEW_CACHE[key as string] = class extends FlexboxLayout {
-    nativeProps: { [name: string]: any[] } = {};
+    nativeProps: { [name: string]: any } = {};
     _viewTag: number;
     _viewManager = viewManager;
     _viewEventRecievers: {

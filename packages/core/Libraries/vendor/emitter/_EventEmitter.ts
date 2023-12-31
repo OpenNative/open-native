@@ -21,6 +21,8 @@ import EventSubscriptionVendor from './_EventSubscriptionVendor';
  * mechanism on top of which extra functionality can be composed. For example, a
  * more advanced emitter may use an EventHolder and EventFactory.
  */
+
+let isFirstEventFired = false;
 export default class EventEmitter {
   /**
    * The JSModuleInvoker in JSModules() will be indexing into EventEmitter to
@@ -130,13 +132,29 @@ export default class EventEmitter {
    *
    *   emitter.emit('someEvent', 'abc'); // logs 'abc'
    */
+
   emit(eventType: string, ...args: unknown[]): void {
-    this._subscriber
-      .getSubscriptionsForType(eventType)
-      .forEach((subscription) =>
-        // The subscription may have been removed during this event loop.
-        subscription?.listener.apply(subscription.context, args)
-      );
+    if (!isFirstEventFired) {
+      // Since this can be called from native, we don't want to dispatch immediately on first load since
+      // we are probably not done setting up listeners yet (possibly) as JS & Native are running on the
+      // same thread.
+      setTimeout(() => {
+        isFirstEventFired = true;
+        this._subscriber
+          .getSubscriptionsForType(eventType)
+          .forEach((subscription) =>
+            // The subscription may have been removed during this event loop.
+            subscription?.listener.apply(subscription.context, args)
+          );
+      }, 0);
+    } else {
+      this._subscriber
+        .getSubscriptionsForType(eventType)
+        .forEach((subscription) =>
+          // The subscription may have been removed during this event loop.
+          subscription?.listener.apply(subscription.context, args)
+        );
+    }
   }
 
   /**

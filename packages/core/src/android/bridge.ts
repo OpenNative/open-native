@@ -23,9 +23,7 @@ export function getJSModules() {
 
 function emit(eventType, params) {
   const data = toJSValue(params);
-  setTimeout(() => {
-    DeviceEventEmitter.emit(eventType, data);
-  }, 1);
+  DeviceEventEmitter.emit(eventType, data);
 }
 
 function RCTDeviceEventEmitter() {
@@ -40,9 +38,7 @@ function RCTNativeAppEventEmitter() {
   return new com.facebook.react.modules.core.RCTNativeAppEventEmitter({
     emit(eventType, params) {
       const data = toJSValue(params);
-      setTimeout(() => {
-        DeviceEventEmitter.emit(eventType, data);
-      }, 1);
+      DeviceEventEmitter.emit(eventType, data);
     },
   });
 }
@@ -56,12 +52,10 @@ function RCTEventEmitter() {
     },
     receiveEvent(viewTag, eventName, params) {
       const data = toJSValue(params);
-      setTimeout(() => {
-        const view = viewRegistry[viewTag];
-        if (view) {
-          view.receiveEvent(eventName, data);
-        }
-      }, 1);
+      const view = viewRegistry[viewTag];
+      if (view) {
+        view.receiveEvent(eventName, data);
+      }
     },
   });
 }

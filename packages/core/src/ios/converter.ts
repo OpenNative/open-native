@@ -343,7 +343,6 @@ export function invokeNativeMethod(
     return promisify.call(this, invocation, types, args);
   }
   const nativeArguments = toNativeArguments(types, args);
-  console.log(nativeArguments.arguments);
   return reactNativeBridgeIOS.callMethodInvocationArgsTypesSyncRRIRejRejICbCbIEEI(
     invocation,
     nativeArguments.arguments,
