@@ -1,3 +1,4 @@
+import { getRegisteredViewForTag } from './bridge';
 import { toJSValue } from './converter';
 import { JSModules } from './js-modules';
 import {
@@ -64,6 +65,9 @@ export default class CatalystInstance {
           module[method](...((toJSValue(args) || []) as []));
         }
       },
+      resolveView(param0) {
+        return getRegisteredViewForTag(param0) || null;
+      }
     });
   }
 }

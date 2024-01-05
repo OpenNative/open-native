@@ -267,31 +267,35 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
     ViewClass[event + 'Event'] = event;
   }
 
-  const commands = (
+  const commandsMap = (
     viewManager.nativeModule as com.facebook.react.uimanager.ViewManager<
       any,
       any
     >
   ).getCommandsMap();
 
-  const commandNames = Utils.android.collections.stringSetToStringArray(
-    commands.keySet()
-  );
-  for (const commandName of commandNames as string[]) {
-    ViewClass.prototype[commandName] = function (...args: any[]) {
-      if (!this.nativeViewProtected) return;
-      
-      (
-        viewManager.nativeModule as com.facebook.react.uimanager.ViewManager<
-          any,
-          any
-        >
-      ).receiveCommand(
-        this.nativeViewProtected,
-        commandName,
-        toNativeValue(args || [], false) as ReadableArray
-      );
-    };
+  if (commandsMap) {
+    const commandNames = Utils.android.collections.stringSetToStringArray(
+      commandsMap.keySet()
+    );
+    const commands = {};
+    for (const commandName of commandNames as string[]) {
+      commands[commandName] = function (...args: any[]) {
+        if (!this.nativeViewProtected) return;
+
+        (
+          viewManager.nativeModule as com.facebook.react.uimanager.ViewManager<
+            any,
+            any
+          >
+        ).receiveCommand(
+          this.nativeViewProtected,
+          commandName,
+          toNativeValue(args || [], false) as ReadableArray
+        );
+      };
+    }
+    ViewClass.prototype['commands'] = commands;
   }
 
   for (const prop in viewManager.props) {
@@ -348,7 +352,7 @@ export function requireNativeViewAndroid<T extends keyof ViewManagerInterfaces>(
 const ViewManagerInstances = {};
 const ViewManagerModules = {};
 for (const module of getModuleClasses() as string[]) {
-  if (!module.startsWith("$$")) continue;
+  if (!module.startsWith('$$')) continue;
   Object.defineProperty(ViewManagerModules, module.slice(2), {
     get() {
       if (ViewManagerInstances[module]) return ViewManagerInstances[module];

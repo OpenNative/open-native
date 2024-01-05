@@ -10,6 +10,7 @@ import static com.facebook.react.uimanager.common.UIManagerType.DEFAULT;
 
 import android.view.View;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -34,8 +35,11 @@ public class UIManagerModule extends ReactContextBaseJavaModule implements UIMan
 
   public static final String NAME = "UIManager";
 
+  private NativeViewHierarchyManager viewHierarchyManager;
+
   public UIManagerModule(ReactApplicationContext context) {
     super(context);
+    viewHierarchyManager = new NativeViewHierarchyManager(this.getReactApplicationContext());
   }
 
   @Override
@@ -88,9 +92,16 @@ public class UIManagerModule extends ReactContextBaseJavaModule implements UIMan
 
   }
 
+  public void addUIBlock(UIBlock block) {
+    block.execute(this.viewHierarchyManager);
+  }
+  public void prependUIBlock(UIBlock block) {
+    block.execute(this.viewHierarchyManager);
+  }
+
   @Override
   public View resolveView(int reactTag) {
-    return null;
+    return this.viewHierarchyManager.resolveView(reactTag);
   }
 
   public void receiveEvent(int reactTag, String eventName, @Nullable WritableMap event) {

@@ -112,14 +112,20 @@ export async function getPackageAutolinkInfo({
 
   const subspecPaths = [];
   const subspecs = {};
-  if (packageConfig?.podSubspecs) {
-    for (const subspecName of packageConfig.podSubspecs) {
+
+  const podSubspecs = packageConfig?.podSubspecs || (podspecParsed['subspecs']?.length === 1 && !podspecHasSourceFiles ? podspecParsed['subspecs'].map(name => name.name) : []);
+  if (podSubspecs) {
+    for (const subspecName of podSubspecs) {
       const subspec = podspecParsed['subspecs']?.find(
         (subspec) => subspec.name === subspecName
       );
       if (subspec) {
         subspecs[subspecName] = subspec;
-        subspecPaths.push(...subspec.source_files);
+        if (typeof subspec.source_files === 'string') {
+          subspecPaths.push(subspec.source_files);
+        } else {
+          subspecPaths.push(...subspec.source_files);
+        }
       } else {
         console.warn(
           `${logPrefix} Subspec ${subspecName} was not found in "${podspecFileName}" for npm package "${packageName}".`
@@ -136,6 +142,7 @@ export async function getPackageAutolinkInfo({
     iosSourceFiles,
     cwd: path.dirname(podspecFilePath),
   });
+
   // In a complicated pod setup, e.g. with subspecs, there may be special cases
   // to handle. In practice, this is redundant for core modules (we don't
   // augment the header at present), but it's good to be prepared for a future

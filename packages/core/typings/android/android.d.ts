@@ -944,6 +944,7 @@ declare module com {
             setTurboModuleManager(
               param0: com.facebook.react.bridge.JSIModule
             ): void;
+            resolveView(param0: number): android.view.View;
             callFunction(
               param0: string,
               param1: string,

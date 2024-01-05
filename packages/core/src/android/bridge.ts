@@ -45,6 +45,10 @@ function RCTNativeAppEventEmitter() {
 
 const viewRegistry = {};
 
+export function getRegisteredViewForTag(tag: number) {
+  return viewRegistry[tag];
+}
+
 function RCTEventEmitter() {
   return new com.facebook.react.uimanager.events.RCTEventEmitter({
     receiveTouches(param0, param1, param2) {

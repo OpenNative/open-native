@@ -1,21 +1,21 @@
 import RCTDeviceEventEmitter from './Libraries/EventEmitter/RCTDeviceEventEmitter';
 import * as _TurboModuleRegistry from './Libraries/TurboModule/TurboModuleRegistry';
 import { load } from './src/ios/nativemodules';
-export { default as NativeEventEmitter } from './Libraries/EventEmitter/NativeEventEmitter';
-export { Linking } from './Libraries/Linking/Linking';
-export { AppRegistry } from './Libraries/ReactNative/AppRegistry';
-export type { TurboModule } from './Libraries/TurboModule/RCTExport';
-export { Platform } from './Libraries/Utilities/Platform';
-export { NativeModules } from './src/ios/nativemodules';
-export const DeviceEventEmitter = RCTDeviceEventEmitter;
-export {BatchedBridge} from "./Libraries/BatchedBridge/BatchedBridge";
-export { Dimensions } from './Libraries/Utilities/Dimensions';
-export { Alert } from './Libraries/Alert/Alert';
-export { ViewManagersIOS, requireNativeViewIOS } from './src/ios/viewmanagers';
 import {
   load as loadViewManagers,
   requireNativeViewIOS,
 } from './src/ios/viewmanagers';
+export { Alert } from './Libraries/Alert/Alert';
+export { BatchedBridge } from "./Libraries/BatchedBridge/BatchedBridge";
+export { default as NativeEventEmitter } from './Libraries/EventEmitter/NativeEventEmitter';
+export { Linking } from './Libraries/Linking/Linking';
+export { AppRegistry } from './Libraries/ReactNative/AppRegistry';
+export type { TurboModule } from './Libraries/TurboModule/RCTExport';
+export { Dimensions } from './Libraries/Utilities/Dimensions';
+export { Platform } from './Libraries/Utilities/Platform';
+export { NativeModules } from './src/ios/nativemodules';
+export { ViewManagersIOS, requireNativeViewIOS } from './src/ios/viewmanagers';
+export const DeviceEventEmitter = RCTDeviceEventEmitter;
 
 export function requireNativeComponent(viewName: string) {
   return requireNativeViewIOS(viewName as never);

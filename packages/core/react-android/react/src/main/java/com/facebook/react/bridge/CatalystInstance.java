@@ -7,6 +7,8 @@
 
 package com.facebook.react.bridge;
 
+import android.view.View;
+
 import androidx.annotation.Nullable;
 
 import com.facebook.common.internal.DoNotStrip;
@@ -36,6 +38,8 @@ public interface CatalystInstance {
   NativeModule getNativeModule(String moduleName);
 
   JSIModule getJSIModule(JSIModuleType moduleType);
+
+  View resolveView(int tag);
 
   Collection<NativeModule> getNativeModules();
 

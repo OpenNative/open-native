@@ -29,7 +29,7 @@ require('../../apps/demo/scripts/before-prepare')({
     dependencies: nsDemoPackageJson.dependencies,
     ignoredDependencies: [],
     projectDir: nsDemoProjectDir,
-    platform,
+    platform
   },
   prepareData: {
     platform,

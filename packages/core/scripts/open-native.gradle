@@ -10,6 +10,7 @@ ext {
    targetSdkVersion = safeExtGetOpenNative("NS_DEFAULT_COMPILE_SDK_VERSION", 32) as int
    androidXCoreVersion = safeExtGetOpenNative("ns_default_androidx_core_version", "1.8.0") 
    androidXCompatVersion = safeExtGetOpenNative("ns_default_androidx_appcompat_version",  "1.5.1")
+   kotlinVersion = safeExtGetOpenNative("ns_default_kotlin_version", "1.7.10")
 }
 
 allprojects {

@@ -60,11 +60,12 @@ export async function extractPackageModules(folder: string) {
     const moduleDeclarationMatch = extractClassDeclarationForModule(
       file.contents
     );
+
     if (moduleDeclarationMatch) {
       const [moduleClassSignature] = moduleDeclarationMatch;
-
+      
       const superclassName = moduleClassSignature.match(
-        /(?:extends\s+|:)(\w+)/
+        /(?:extends\s+|\s+:\s+)(\w+)/
       )?.[1];
       // if (!superclassName) {
       //   continue;

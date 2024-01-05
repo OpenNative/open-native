@@ -10,6 +10,7 @@ import { extractModuleAliasedName } from './module-aliased-name';
  * macros (e.g. RCT_EXPORT_METHOD).
  */
 export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
+
   /**
    * Every swift module interface file should have this piece of code.
    */
@@ -36,14 +37,20 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
    *    ]
    * }
    */
+
+
   const moduleNamesToMethodDescriptions = [
     ...sourceCode.matchAll(
       isSwiftModuleInterface
         ? /\s*@interface\s+RCT_EXTERN_MODULE\(\s*([A-z0-9$]+),\s+(?:.|[\r\n])*?@end/gm
         : /\s*@implementation\s+([A-z0-9$]+)\s+(?:.|[\r\n])*?@end/gm
     ),
+    ...sourceCode.matchAll(
+      /\s*@interface\s+RCT_EXTERN_MODULE\s+\(\s*([A-z0-9$]+),\s+(?:.|[\r\n])*?@end/gm
+    ),
   ].reduce<ModuleNamesToMethodDescriptions>((acc, matches) => {
     const [match, objcClassName] = matches;
+
     if (!objcClassName) {
       return acc;
     }
@@ -74,9 +81,11 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
           ''
         );
 
+
     if (!exportedModuleName) {
       return acc;
     }
+
 
     /**
      * Extract the signatures of any methods registered using RCT_EXTERN_METHOD.
@@ -227,11 +236,11 @@ export function extractInterfaces(sourceCode: string, sourceFiles: string[]) {
       ...quickExportedMethods,
     ];
 
-    if (!allMethods.length) {
-      console.warn(
-        `${logPrefix} Unable to extract any methods from RCTBridgeModule named "${exportedModuleName}".`
-      );
-    }
+    // if (!allMethods.length) {
+    //   console.warn(
+    //     `${logPrefix} Unable to extract any methods from RCTBridgeModule named "${exportedModuleName}".`
+    //   );
+    // }
 
     const exportsConstants = isSwiftModuleInterface
       ? swiftImplContents?.includes('func constantsToExport()') || false

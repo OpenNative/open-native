@@ -180,7 +180,7 @@ export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
     createNativeView() {
       this._viewTag = this._viewManager.__getViewId();
       const nativeView = this._viewManager._createViewInstance();
-      this._viewManager.__registerView(this._viewTag, this);
+      this._viewManager.__registerView(this._viewTag, nativeView);
       return nativeView;
     }
 
@@ -288,22 +288,18 @@ export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
   for (const event of Object.keys(viewManager.viewEvents || {})) {
     NATIVE_VIEW_CACHE[key as string][event + 'Event'] = event;
   }
-
+  const commands = {};
   for (const method in viewManager.moduleMetadata.methods) {
-    const firstParamType = viewManager.moduleMetadata.methods[method].types[0];
-    Object.defineProperty(NATIVE_VIEW_CACHE[key as string].prototype, method, {
+    Object.defineProperty(commands, method, {
       value: function (...args: any[]) {
-        if (
-          firstParamType !== RNObjcSerialisableType.number &&
-          firstParamType !== RNObjcSerialisableType.nonnullNumber
-        ) {
-          viewManager[method](...args);
-        } else {
-          viewManager[method](this._viewTag, ...args);
-        }
+        viewManager[method](...args);
       },
     });
   }
+
+  Object.defineProperty(NATIVE_VIEW_CACHE[key as string].prototype, 'commands', {
+    value: commands,
+  })
 
   for (const prop in viewManager.moduleMetadata.props) {
     Object.defineProperty(NATIVE_VIEW_CACHE[key as string].prototype, prop, {

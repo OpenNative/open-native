@@ -8,20 +8,37 @@ export type {
 } from './Libraries/Utilities/Platform';
 export { Linking } from './Libraries/Linking/Linking';
 import EventEmitter from './Libraries/vendor/emitter/EventEmitter';
+import { View } from '@nativescript/core';
 export { AppRegistry } from './Libraries/ReactNative/AppRegistry';
 export { Alert } from './Libraries/Alert/Alert';
 export { ViewManagersIOS, requireNativeViewIOS } from './src/ios/viewmanagers';
-export {BatchedBridge} from "./Libraries/BatchedBridge/BatchedBridge";
+export { BatchedBridge } from './Libraries/BatchedBridge/BatchedBridge';
 export {
   ViewManagersAndroid,
   requireNativeViewAndroid,
 } from './src/android/viewmanagers';
 
-export { requireNativeComponent } from './common';
+export type OpenNativeBaseView<Props extends {}, Commands extends {}> = View & {
+  nativeProps: { [name: string]: any };
+  _viewTag: number;
+  _viewManager: {
+    setNativeProp(view: any, prop: string, ...params: any[]): void;
+  };
+  commands: {
+    [K in keyof Commands]: (...args: any[]) => void;
+  };
+  prototype: OpenNativeBaseView<Props, Commands>;
+  new (): OpenNativeBaseView<Props, Commands>;
+} & Props &
+  Commands;
+
+export function requireNativeComponent(
+  componentName: string
+): OpenNativeBaseView<{}, {}>;
 
 export type NativeSyntheticEvent<T> = {
-  nativeEvent: T
-}
+  nativeEvent: T;
+};
 
 declare global {
   // eslint-disable-next-line no-var
