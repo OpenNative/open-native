@@ -76,9 +76,10 @@ export function extractClassDeclarationForModule(file: string) {
 
   let ktModuleMatch =
     file.match(
-      /class\s+(\w+)(\s+|)\(.*\)(\s+|):(\s+|)ReactContextBaseJavaModule/gm
+      /class\s+(\w+)(\s+|)\(.*\)(\s+|):(\s+|)ReactContextBaseJavaModule/
     ) ||
-    file.match(/class\s+(\w+)(\s+|)\(.*\)(\s+|):(\s+|)(\w+Spec)/g);
+    file.match(/class\s+(\w+)(\s+|)(\s+|):(\s+|)(ViewGroupManager)/) ||
+    file.match(/class\s+(\w+)(\s+|)\(.*\)(\s+|):(\s+|)(\w+Spec)/);
 
   return ktModuleMatch;
 }

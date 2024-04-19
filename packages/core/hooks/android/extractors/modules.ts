@@ -67,6 +67,7 @@ export async function extractPackageModules(folder: string) {
       const superclassName = moduleClassSignature.match(
         /(?:extends\s+|\s+:\s+)(\w+)/
       )?.[1];
+
       // if (!superclassName) {
       //   continue;
       // }

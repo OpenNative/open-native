@@ -7,7 +7,7 @@ const MODULE_NAME_ANNOTATION = /(?<=@ReactModule\(name.*=).*(?=\))/gm;
 function resolveKtModuleName(moduleContents: string) {
   return (
     moduleContents
-      .match(/(?<=override fun getName\(\)\s+=).*(?=)/gm)?.[0]
+      .match(/(?<=override fun getName\(\)(:\s+String|)\s+=).*(?=)/gm)?.[0]
       ?.trim() ||
     moduleContents
       .match(ANDROID_GET_NAME_FN)?.[0]
@@ -39,6 +39,8 @@ export function getModuleName(
   let getNameFunctionReturnValue = moduleContents?.includes('//#kotlin')
     ? resolveKtModuleName(moduleContents)
     : resolveJavaModuleName(moduleContents);
+
+
 
   // The module doesn't have a getName() method at all. It may be a spec, or not
   // a ReactModule in the first place.

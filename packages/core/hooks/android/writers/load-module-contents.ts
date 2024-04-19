@@ -14,7 +14,7 @@ export function loadModuleContents(modulePath: string) {
   const contents = readFileSync(modulePath, { encoding: 'utf-8' });
   const matchedPrivateMethods = contents.match(ANDROID_PRIVATE_METHOD_REGEX);
   let updatedContents = contents;
-  if (modulePath.endsWith('.kt')) {
+  if (modulePath.endsWith('.kt') && !contents.includes('//#kotlin')) {
     updatedContents += `\n//#kotlin`;
   }
 
