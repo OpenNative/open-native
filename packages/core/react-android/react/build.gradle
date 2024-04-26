@@ -2,6 +2,11 @@ plugins {
     id 'com.android.library'
 }
 
+import com.android.Version
+
+def agpVersion = Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger()
+
+
 def safeExtGet = {prop, fallback ->
         rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
@@ -16,6 +21,10 @@ repositories {
 }
 
 android {
+    if (agpVersion >= 7) {
+      namespace "com.facebook.react"
+    }
+
     compileSdk safeExtGet("compileSdkVersion",31)
     defaultConfig {
         minSdkVersion safeExtGet('minSdkVersion',21)

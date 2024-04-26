@@ -37,7 +37,7 @@
     "@babel/plugin-proposal-decorators": "^7.22.7",
     "@babel/plugin-syntax-decorators": "^7.22.5",
     "@babel/runtime": "^7.18.9",
-    "@nativescript/core": "~8.5.0",
+    "@nativescript/core": "^8.7.3-next-04-24-2024-8819749399",
     "@nativescript/plugin-tools": "5.1.0",
     "@nativescript/types": "~8.5.0",
     "@nativescript/webpack": "^5.0.14",

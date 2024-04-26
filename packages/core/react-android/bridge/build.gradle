@@ -6,7 +6,14 @@ def safeExtGet = {prop, fallback ->
 }
 
 import groovy.json.JsonSlurper
+import com.android.Version
+
+def agpVersion = Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger()
+
 android {
+    if (agpVersion >= 7) {
+      namespace "com.bridge"
+    }
     compileSdk safeExtGet("compileSdkVersion",31)
     
     defaultConfig {

@@ -1822,10 +1822,10 @@
     type-detect "^4.0.3"
     yargs "17.5.1"
 
-"@nativescript/core@~8.5.0":
-  version "8.5.9"
-  resolved "https://registry.yarnpkg.com/@nativescript/core/-/core-8.5.9.tgz#fd0d75375808f6c973fd39adc8e08c849c6861e8"
-  integrity sha512-7dHa0cG6GZaBCcjPWhkcSAdvjVevgZN7+3frxO6Rv7c7e1lUDL7yJXy3WnhWZL+iCEG0lLWwQNXkeYsixHie6g==
+"@nativescript/core@^8.7.3-next-04-24-2024-8819749399":
+  version "8.7.3-next-04-24-2024-8819749399"
+  resolved "https://registry.yarnpkg.com/@nativescript/core/-/core-8.7.3-next-04-24-2024-8819749399.tgz#80067bdf56dfc76fdf6abb7482dfaf3fb6d73500"
+  integrity sha512-D2Znf+JIWo2z2xHxd0uxB/TXw3REGu52ZQ8VB9KMfZSR4o4HdOf4cfDOEqdF3zjycbjk3S/2LnA38Lv1b60vFQ==
   dependencies:
     "@nativescript/hook" "~2.0.0"
     acorn "^8.7.0"

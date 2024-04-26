@@ -1,3 +1,8 @@
+import com.android.Version
+
+def agpVersion = Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger()
+
+
 buildscript {
     ext.safeExtGet = { prop, fallback ->
         return rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -22,6 +27,11 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+
+     if (agpVersion >= 7) {
+      namespace "com.testmodule"
+    }
+
     compileSdkVersion safeExtGet('compileSdkVersion', 31)
     buildToolsVersion safeExtGet('buildToolsVersion', '31.0.0')
 
@@ -29,7 +39,14 @@ android {
         minSdkVersion safeExtGet('minSdkVersion', 21)
         targetSdkVersion safeExtGet('targetSdkVersion', 31)
     }
+
+    compileOptions {
+      sourceCompatibility JavaVersion.VERSION_17
+      targetCompatibility JavaVersion.VERSION_17
+    }
 }
+
+
 
 repositories {
     google()

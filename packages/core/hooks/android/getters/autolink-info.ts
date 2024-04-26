@@ -7,6 +7,7 @@ import { extractLibraryName } from '../extractors/library-name';
 import { extractComponentDescriptors } from '../extractors/component-descriptors';
 import { createAndroidPackageName } from './project-name';
 import { resolvePackagePath } from '@rigor789/resolve-package-path';
+import { getBuildGradlePath } from './build-gradle-path';
 /**
  * @param {object} args
  * @param args.npmPackageName The package name, e.g. 'react-native-module-test'.
@@ -64,12 +65,18 @@ export async function getPackageAutolinkInfo({
     : userConfig.manifestPath
     ? path.join(sourceDir, userConfig.manifestPath)
     : await getManifestPath(sourceDir);
+
   if (!manifestPath) {
     return;
   }
 
+  const buildGradlePath = isCore
+    ? path.join(packagePath, 'react-android/react/build.gradle')
+    : await getBuildGradlePath(sourceDir);
+
   const androidPackageName =
-    userConfig.packageName || (await getAndroidPackageName(manifestPath));
+    userConfig.packageName ||
+    (await getAndroidPackageName(manifestPath, buildGradlePath));
   const parsed = await extractPackageModules(sourceDir);
   if (!parsed) {
     return null;
