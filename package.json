@@ -40,7 +40,7 @@
     "@nativescript/core": "^8.7.3-next-04-24-2024-8819749399",
     "@nativescript/plugin-tools": "5.1.0",
     "@nativescript/types": "~8.5.0",
-    "@nativescript/webpack": "^5.0.14",
+    "@nativescript/webpack": "5.0.21",
     "@nrwl/react-native": "15.8.1",
     "@react-native-community/eslint-config": "^3.1.0",
     "@rigor789/resolve-package-path": "1.0.5",

@@ -1912,10 +1912,10 @@
     "@nativescript/types-android" "~8.5.0"
     "@nativescript/types-ios" "~8.5.0"
 
-"@nativescript/webpack@^5.0.14":
-  version "5.0.16"
-  resolved "https://registry.yarnpkg.com/@nativescript/webpack/-/webpack-5.0.16.tgz#65e3873640628c0a2ec304d4dc8ce65af24e2d64"
-  integrity sha512-+BvLRLebtGQWGdMFaqMQSXC7fiBADiOg52a/iPiXTTI9vvWiljNgxkjBxsrAg+aDmoNWXtreG5GjlIfZQxWtgA==
+"@nativescript/webpack@5.0.21":
+  version "5.0.21"
+  resolved "https://registry.yarnpkg.com/@nativescript/webpack/-/webpack-5.0.21.tgz#157bf862c06f57950df78033e006f843f26c42b1"
+  integrity sha512-DNV7D/ComhzYm7HIdiC/0MFDQDFEELPNzvc/AlPEIBe4gRqUNAWCxfOJv3cCjqvDa8ZFnYSw4CPQ6Nck0Hgslg==
   dependencies:
     "@babel/core" "^7.0.0"
     "@pmmmwh/react-refresh-webpack-plugin" "~0.5.7"
@@ -1941,6 +1941,7 @@
     sass "^1.0.0"
     sass-loader "^13.0.0"
     sax "^1.0.0"
+    semver "^7.0.0 || ^6.0.0"
     source-map "^0.7.0"
     terser-webpack-plugin "^5.0.0"
     ts-dedent "^2.0.0"
@@ -11458,6 +11459,13 @@ semver@^6.0.0, semver@^6.3.0, semver@^6.3.1:
   version "6.3.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.3.1.tgz#556d2ef8689146e46dcea4bfdd095f3434dffcb4"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
+
+"semver@^7.0.0 || ^6.0.0":
+  version "7.6.0"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-7.6.0.tgz#1a46a4db4bffcccd97b743b5005c8325f23d4e2d"
+  integrity sha512-EnwXhrlwXMk9gKu5/flx5sv/an57AkRplG3hTK68W7FRDN+k+OWBj65M7719OkA82XLBxrcX0KSHj+X5COhOVg==
+  dependencies:
+    lru-cache "^6.0.0"
 
 semver@^7.3.4, semver@^7.3.5, semver@^7.3.7, semver@^7.3.8, semver@^7.5.3:
   version "7.5.4"
