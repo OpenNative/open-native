@@ -8,8 +8,8 @@
     "build-android": {
       "executor": "@nrwl/react-native:build-android",
       "outputs": [
-        "apps/demo-react-native/android/app/build/outputs/bundle",
-        "apps/demo-react-native/android/app/build/outputs/apk"
+        "{projectRoot}/android/app/build/outputs/bundle",
+        "{projectRoot}/android/app/build/outputs/apk"
       ],
       "options": {}
     },
@@ -23,7 +23,7 @@
     },
     "bundle-ios": {
       "executor": "@nrwl/react-native:bundle",
-      "outputs": ["apps/demo-react-native/build"],
+      "outputs": ["{projectRoot}/build"],
       "options": {
         "entryFile": "apps/demo-react-native/index.js",
         "platform": "ios",
@@ -39,10 +39,7 @@
       "options": {}
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["apps/demo-react-native/**/*.{js,ts,tsx}"]
-      }
+      "executor": "@nx/eslint:lint"
     },
     "start": {
       "executor": "@nrwl/react-native:start",
@@ -51,7 +48,7 @@
       }
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nx/jest:jest",
       "options": {
         "jestConfig": "apps/demo-react-native/jest.config.js",
         "passWithNoTests": true

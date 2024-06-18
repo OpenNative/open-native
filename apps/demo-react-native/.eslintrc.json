@@ -1,5 +1,5 @@
 {
-  "extends": ["plugin:@nrwl/nx/react", "../../.eslintrc.json"],
+  "extends": ["plugin:@nx/react", "../../.eslintrc.json"],
   "plugins": ["simple-import-sort"],
   "ignorePatterns": ["!**/*", "public", ".cache", "node_modules"],
   "overrides": [
