@@ -6,7 +6,7 @@ import { toJSValue, toNativeValue } from './converter';
 import { ModuleMetadata, getModuleClasses } from './metadata';
 import { NativeModuleHolder } from './nativemodules';
 import type { ViewManagers as ViewManagerInterfaces } from './view-manager-types';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { RNNativeViewAndroid } from '@open-native/core';
 import { ReadableArray } from './types';
 

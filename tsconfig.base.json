@@ -10,10 +10,7 @@
     "target": "ES2020",
     "module": "ESNext",
     "jsx": "react-native",
-    "lib": [
-      "ESNext",
-      "dom"
-    ],
+    "lib": ["ESNext", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
@@ -24,19 +21,10 @@
       }
     ],
     "paths": {
-      "@demo/shared": [
-        "tools/demo/index.ts"
-      ],
-      "@open-native/core": [
-        "packages/core/index.d.ts"
-      ],
-      "react-native-module-test": [
-        "packages/react-native-module-test/index.d.ts"
-      ],
+      "@demo/shared": ["tools/demo/index.ts"],
+      "@open-native/core": ["packages/core/index.d.ts"],
+      "react-native-module-test": ["packages/react-native-module-test/index.d.ts"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "tmp"
-  ]
+  "exclude": ["node_modules", "tmp"]
 }

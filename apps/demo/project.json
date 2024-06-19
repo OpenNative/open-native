@@ -52,10 +52,7 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["apps/demo/**/*.ts"]
-      }
+      "executor": "@nx/eslint:lint"
     }
   }
 }

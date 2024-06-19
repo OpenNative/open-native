@@ -5,7 +5,7 @@
   "sourceRoot": "packages/core",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "options": {
         "outputPath": "dist/packages/core",
         "tsConfig": "packages/core/tsconfig.json",
@@ -44,7 +44,7 @@
         ],
         "parallel": false
       },
-      "outputs": ["apps/demo/scripts"],
+      "outputs": ["{workspaceRoot}/apps/demo/scripts"],
       "dependsOn": [
         {
           "target": "build.hooks.demo",
@@ -60,7 +60,7 @@
         ],
         "parallel": false
       },
-      "outputs": ["dist/packages/core/hooks"],
+      "outputs": ["{workspaceRoot}/dist/packages/core/hooks"],
       "dependsOn": [
         {
           "target": "build.hooks",
@@ -78,7 +78,7 @@
         "commands": ["node tools/scripts/build-finish.ts core"],
         "parallel": false
       },
-      "outputs": ["dist/packages/core"],
+      "outputs": ["{workspaceRoot}/dist/packages/core"],
       "dependsOn": [
         {
           "target": "build.all",
@@ -103,7 +103,7 @@
         ],
         "parallel": false
       },
-      "outputs": ["dist/packages/core"],
+      "outputs": ["{workspaceRoot}/dist/packages/core"],
       "dependsOn": [
         {
           "target": "build.npm",
@@ -131,10 +131,7 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["packages/core/**/*.ts"]
-      }
+      "executor": "@nx/eslint:lint"
     }
   },
   "tags": []

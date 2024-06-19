@@ -5,7 +5,7 @@
   "sourceRoot": "packages/react-native-module-test",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "options": {
         "outputPath": "dist/packages/react-native-module-test",
         "tsConfig": "packages/react-native-module-test/tsconfig.json",
@@ -41,7 +41,7 @@
         "commands": ["node tools/scripts/build-finish.ts react-native-module-test"],
         "parallel": false
       },
-      "outputs": ["dist/packages/react-native-module-test"],
+      "outputs": ["{workspaceRoot}/dist/packages/react-native-module-test"],
       "dependsOn": [
         {
           "target": "build.all",
@@ -61,10 +61,7 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["packages/react-native-module-test/**/*.ts"]
-      }
+      "executor": "@nx/eslint:lint"
     }
   },
   "tags": []
