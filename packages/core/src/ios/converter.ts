@@ -526,7 +526,7 @@ export function toJSValue(
   }
 
   if (data instanceof NSString) {
-    return data.UTF8String;
+    return data.UTF8String as any;
   }
 
   /**

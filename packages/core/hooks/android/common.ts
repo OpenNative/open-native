@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import * as glob from 'glob';
-import type { IOptions } from 'glob';
+import { glob } from 'glob';
+import type { GlobOptions } from 'glob';
 import * as path from 'path';
 import { promisify } from 'util';
 export const readFile = promisify(fs.readFile);
@@ -32,11 +32,13 @@ export function writeFile(
 
 export function globProm(
   pattern: string,
-  options: IOptions
+  options: GlobOptions
 ): Promise<string[]> {
   return new Promise((resolve, reject) => {
-    glob(pattern, options, (err, matches) => {
-      return err ? reject(err) : resolve(matches);
+    glob(pattern, options).then((matches) => {
+      resolve(matches as Array<string>);
+    }, err => {
+      reject(err);
     });
   });
 }

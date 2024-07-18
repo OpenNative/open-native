@@ -3,6 +3,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/core",
+  "tags": [],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
@@ -32,7 +33,7 @@
       "dependsOn": [
         {
           "target": "build.all",
-          "projects": "dependencies"
+          "dependencies": true
         }
       ]
     },
@@ -48,7 +49,7 @@
       "dependsOn": [
         {
           "target": "build.hooks.demo",
-          "projects": "dependencies"
+          "dependencies": true
         }
       ]
     },
@@ -64,11 +65,10 @@
       "dependsOn": [
         {
           "target": "build.hooks",
-          "projects": "dependencies"
+          "dependencies": true
         },
         {
-          "target": "build",
-          "projects": "self"
+          "target": "build"
         }
       ]
     },
@@ -82,15 +82,13 @@
       "dependsOn": [
         {
           "target": "build.all",
-          "projects": "dependencies"
+          "dependencies": true
         },
         {
-          "target": "build.hooks",
-          "projects": "self"
+          "target": "build.hooks"
         },
         {
-          "target": "build",
-          "projects": "self"
+          "target": "build"
         }
       ]
     },
@@ -107,19 +105,16 @@
       "dependsOn": [
         {
           "target": "build.npm",
-          "projects": "dependencies"
+          "dependencies": true
         },
         {
-          "target": "build.all",
-          "projects": "self"
+          "target": "build.all"
         },
         {
-          "target": "build.hooks",
-          "projects": "self"
+          "target": "build.hooks"
         },
         {
-          "target": "build",
-          "projects": "self"
+          "target": "build"
         }
       ]
     },
@@ -133,6 +128,5 @@
     "lint": {
       "executor": "@nx/eslint:lint"
     }
-  },
-  "tags": []
+  }
 }

@@ -5,3 +5,4 @@
 native-src
 
 /.nx/workspace-data
+/.nx/cache

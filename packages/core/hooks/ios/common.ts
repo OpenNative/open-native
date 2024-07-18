@@ -2,8 +2,8 @@ import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import { promisify } from 'util';
-import type { IOptions } from 'glob';
-import * as glob from 'glob';
+import type { GlobOptions } from 'glob';
+import { glob } from 'glob';
 export const execFile = promisify(cp.execFile);
 export const readFile = promisify(fs.readFile);
 export const readFileSync = fs.readFileSync;
@@ -28,11 +28,13 @@ export async function writeFile(
 
 export function globProm(
   pattern: string,
-  options: IOptions
+  options: GlobOptions
 ): Promise<string[]> {
   return new Promise((resolve, reject) => {
-    glob(pattern, options, (err, matches) => {
-      return err ? reject(err) : resolve(matches);
+    glob(pattern, options).then((matches) => {
+      resolve(matches as Array<string>);
+    }, err => {
+      reject(err);
     });
   });
 }

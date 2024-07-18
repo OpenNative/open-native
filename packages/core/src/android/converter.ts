@@ -807,7 +807,7 @@ export function toNativeValue<T extends boolean>(
           break;
         case 'number':
         case 'bigint':
-          writableMap.putDouble(key, toNativeValue(data[key], false) as number);
+          writableMap.putDouble(key, toNativeValue(data[key] as number, false) as number);
           break;
         case 'function':
           writableMap.putNull(key);
