@@ -1,12 +1,12 @@
-<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo">
     <Page.actionBar>
-        <ActionBar title="react-native-module-test" icon="" class="action-bar">
+        <ActionBar title="react-native-module-test" icon="">
         </ActionBar>
     </Page.actionBar>
-    <StackLayout class="p-20">
+    <StackLayout class="p-6">
         <ScrollView class="h-full">
           <StackLayout>
-            <Button text="Test react-native-module-test" tap="{{ testIt }}" class="btn btn-primary"/>
+            <Button text="Test react-native-module-test" tap="{{ testIt }}" class="bg-blue-500 rounded-full text-white p-4 mb-4"/>
 
           </StackLayout>
         </ScrollView>
