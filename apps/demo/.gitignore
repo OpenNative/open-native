@@ -31,6 +31,7 @@ npm-debug.log
 # app
 !*.d.ts
 !src/assets/fontawesome.min.css
+!tailwind.config.js
 /report/
 .nsbuildinfo
 /temp/
