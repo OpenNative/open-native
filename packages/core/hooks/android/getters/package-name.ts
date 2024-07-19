@@ -13,7 +13,7 @@ export async function getAndroidPackageName(
   const reset = '\x1b[0m';
 
   const androidManifest = readFileSync(manifestPath, 'utf8');
-  let packageNameMatchArray = []; //androidManifest.match(/package="(.+?)"/);
+  let packageNameMatchArray = androidManifest.match(/package="(.+?)"/);
 
   if (!packageNameMatchArray || packageNameMatchArray.length === 0) {
     const buildGradle = readFileSync(buildGradlePath, 'utf8');
