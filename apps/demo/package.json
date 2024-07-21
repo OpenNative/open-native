@@ -9,9 +9,10 @@
     "react-native-module-test": "file:../../packages/react-native-module-test"
   },
   "devDependencies": {
-    "@nativescript/android": "^8.8.0-alpha.5",
-    "@nativescript/ios": "~8.7.0",
-    "@rigor789/resolve-package-path": "1.0.5",
+    "@nativescript/android": "~8.8.0",
+    "@nativescript/ios": "~8.8.0",
+    "@nativescript/tailwind": "^2.1.0",
+    "@rigor789/resolve-package-path": "1.0.7",
     "metro-react-native-babel-preset": "file:../../node_modules/metro-react-native-babel-preset"
   },
   "scripts": {

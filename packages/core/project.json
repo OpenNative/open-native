@@ -3,9 +3,10 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/core",
+  "tags": [],
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nx/js:tsc",
       "options": {
         "outputPath": "dist/packages/core",
         "tsConfig": "packages/core/tsconfig.json",
@@ -32,7 +33,7 @@
       "dependsOn": [
         {
           "target": "build.all",
-          "projects": "dependencies"
+          "dependencies": true
         }
       ]
     },
@@ -44,11 +45,11 @@
         ],
         "parallel": false
       },
-      "outputs": ["apps/demo/scripts"],
+      "outputs": ["{workspaceRoot}/apps/demo/scripts"],
       "dependsOn": [
         {
           "target": "build.hooks.demo",
-          "projects": "dependencies"
+          "dependencies": true
         }
       ]
     },
@@ -60,15 +61,14 @@
         ],
         "parallel": false
       },
-      "outputs": ["dist/packages/core/hooks"],
+      "outputs": ["{workspaceRoot}/dist/packages/core/hooks"],
       "dependsOn": [
         {
           "target": "build.hooks",
-          "projects": "dependencies"
+          "dependencies": true
         },
         {
-          "target": "build",
-          "projects": "self"
+          "target": "build"
         }
       ]
     },
@@ -78,19 +78,17 @@
         "commands": ["node tools/scripts/build-finish.ts core"],
         "parallel": false
       },
-      "outputs": ["dist/packages/core"],
+      "outputs": ["{workspaceRoot}/dist/packages/core"],
       "dependsOn": [
         {
           "target": "build.all",
-          "projects": "dependencies"
+          "dependencies": true
         },
         {
-          "target": "build.hooks",
-          "projects": "self"
+          "target": "build.hooks"
         },
         {
-          "target": "build",
-          "projects": "self"
+          "target": "build"
         }
       ]
     },
@@ -103,23 +101,20 @@
         ],
         "parallel": false
       },
-      "outputs": ["dist/packages/core"],
+      "outputs": ["{workspaceRoot}/dist/packages/core"],
       "dependsOn": [
         {
           "target": "build.npm",
-          "projects": "dependencies"
+          "dependencies": true
         },
         {
-          "target": "build.all",
-          "projects": "self"
+          "target": "build.all"
         },
         {
-          "target": "build.hooks",
-          "projects": "self"
+          "target": "build.hooks"
         },
         {
-          "target": "build",
-          "projects": "self"
+          "target": "build"
         }
       ]
     },
@@ -131,11 +126,7 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "options": {
-        "lintFilePatterns": ["packages/core/**/*.ts"]
-      }
+      "executor": "@nx/eslint:lint"
     }
-  },
-  "tags": []
+  }
 }

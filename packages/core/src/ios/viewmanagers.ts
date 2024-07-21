@@ -6,7 +6,7 @@ import { toJSValue, toNativeArguments } from './converter';
 import { NativeModuleHolder } from './nativemodules';
 import type { ViewManagers as ViewManagerInterfaces } from './view-manager-types';
 
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+// eslint-disable-next-line @nx/enforce-module-boundaries
 import { RNNativeViewIOS } from '@open-native/core';
 import { getModuleClasses } from './metadata';
 
@@ -297,9 +297,13 @@ export function requireNativeViewIOS<T extends keyof ViewManagerInterfaces>(
     });
   }
 
-  Object.defineProperty(NATIVE_VIEW_CACHE[key as string].prototype, 'commands', {
-    value: commands,
-  })
+  Object.defineProperty(
+    NATIVE_VIEW_CACHE[key as string].prototype,
+    'commands',
+    {
+      value: commands,
+    }
+  );
 
   for (const prop in viewManager.moduleMetadata.props) {
     Object.defineProperty(NATIVE_VIEW_CACHE[key as string].prototype, prop, {

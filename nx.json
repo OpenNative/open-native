@@ -1,32 +1,42 @@
 {
-  "npmScope": "open-native",
-  "affected": {
-    "defaultBase": "master"
-  },
-  "implicitDependencies": {
-    "workspace.json": "*",
-    "package.json": {
-      "dependencies": "*",
-      "devDependencies": "*"
-    },
-    "tsconfig.base.json": "*",
-    "tslint.json": "*",
-    "nx.json": "*"
-  },
+  "namedInputs": {
+		"default": ["{projectRoot}/**/*", "sharedGlobals"],
+		"sharedGlobals": ["{workspaceRoot}/workspace.json", "{workspaceRoot}/tsconfig.base.json", "{workspaceRoot}/tslint.json", "{workspaceRoot}/nx.json"],
+		"production": ["default", "!{projectRoot}/.eslintrc.json", "!{projectRoot}/src/test-setup.[jt]s"]
+	},
   "workspaceLayout": {
     "appsDir": "apps",
     "libsDir": "packages"
   },
   "tasksRunnerOptions": {
     "default": {
-      "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "build.all", "build.hooks", "lint", "test", "e2e"],
-        "runtimeCacheInputs": ["node -v"],
-        "parallel": 1,
-        "useDaemonProcess": false
+        "runtimeCacheInputs": ["node -v"]
       }
     }
   },
-  "$schema": "./node_modules/nx/schemas/nx-schema.json"
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "useDaemonProcess": false,
+  "parallel": 1,
+  "targetDefaults": {
+    "build": {
+      "cache": true
+    },
+    "build.all": {
+      "cache": true
+    },
+    "build.hooks": {
+      "cache": true
+    },
+    "lint": {
+      "cache": true
+    },
+    "test": {
+      "cache": true
+    },
+    "e2e": {
+      "cache": true
+    }
+  },
+  "defaultBase": "master"
 }

@@ -94,9 +94,9 @@ export class NativeModuleHolder implements Partial<NativeModule> {
         if (
           this.nativeModule.respondsToSelector('methodQueue') &&
           this.nativeModule.methodQueue &&
-          this.nativeModule.methodQueue !== dispatch_get_current_queue()
+          (this.nativeModule.methodQueue as any) !== dispatch_get_current_queue()
         ) {
-          dispatch_async(this.nativeModule.methodQueue, () => {
+          dispatch_async(this.nativeModule.methodQueue as any, () => {
             invokeNativeMethod.call(this, selector, types, args, sync);
           });
         } else {

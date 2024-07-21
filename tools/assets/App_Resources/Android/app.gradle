@@ -1,17 +1,12 @@
-// Add your native dependencies here:
-
-// Uncomment to add recyclerview-v7 dependency
-//dependencies {
-//	compile 'com.android.support:recyclerview-v7:+'
-//}
-
 android {
-  compileSdkVersion 33
+  compileSdkVersion 34
   defaultConfig {
-    minSdkVersion 23
-    targetSdkVersion 33
+    minSdkVersion 24
+    targetSdkVersion 34
     generatedDensities = []
     manifestPlaceholders = [auth0Domain: "YOUR_AUTH0_DOMAIN", auth0Scheme: "${applicationId}"]
+    versionName = "1.0.0"
+    versionCode = 1
   }
   aaptOptions {
     additionalParameters "--no-version-vectors"

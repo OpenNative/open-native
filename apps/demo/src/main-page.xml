@@ -1,11 +1,11 @@
-<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo">
   <Page.actionBar>
-    <ActionBar title="Open Native" icon="" class="action-bar"/>
+    <ActionBar title="Open Native" icon="" />
   </Page.actionBar>
-  <StackLayout class="p-20">
+  <StackLayout class="p-6">
     <ScrollView class="h-full">
       <StackLayout>
-        <Button text="core" tap="{{ viewDemo }}" class="btn btn-primary view-demo"/>
+        <Button text="core" tap="{{ viewDemo }}" class="bg-blue-500 rounded-full text-white p-4 mb-4"/>
       </StackLayout>
     </ScrollView>
   </StackLayout>

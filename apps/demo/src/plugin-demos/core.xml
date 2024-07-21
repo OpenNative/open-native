@@ -1,15 +1,15 @@
-<Page xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:ui="./view" navigatingTo="navigatingTo" class="page">
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:ui="./view" navigatingTo="navigatingTo">
     <Page.actionBar>
-        <ActionBar title="React Native Modules" icon="" class="action-bar">
+        <ActionBar title="React Native Modules" icon="">
         </ActionBar>
     </Page.actionBar>
 
-    <StackLayout>
-      <Button text="Test Primitives" tap="{{ testPrimitives }}" class="btn btn-primary"/>
-      <Button text="Test Promise" tap="{{ testPromise }}" class="btn btn-primary"/>
-      <Button text="Test Callback" tap="{{ testCallback }}" class="btn btn-primary"/>
-      <ui:ModuleTestView  style="width:100%;height:200px;background-color:#f0f0f0;">
-        <Label text="I am a RN view with children" />
+    <StackLayout class="p-6">
+      <Button text="Test Primitives" tap="{{ testPrimitives }}" class="bg-blue-500 rounded-full text-white p-4 mb-4"/>
+      <Button text="Test Promise" tap="{{ testPromise }}" class="bg-blue-500 rounded-full text-white p-4 mb-4"/>
+      <Button text="Test Callback" tap="{{ testCallback }}" class="bg-blue-500 rounded-full text-white p-4 mb-4"/>
+      <ui:ModuleTestView class="w-full h-[100] bg-gray-300 p-2">
+        <Label text="I am a RN view with children" class="text-xl" />
       </ui:ModuleTestView>
     </StackLayout>
 </Page>
