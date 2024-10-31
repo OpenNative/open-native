@@ -1,9 +1,8 @@
 import * as fs from 'fs';
-import { glob } from 'glob';
 import type { GlobOptions } from 'glob';
+import { glob } from 'glob';
 import * as path from 'path';
 import { promisify } from 'util';
-const globPromise = promisify(glob);
 export const readFile = promisify(fs.readFile);
 export const readFileSync = fs.readFileSync;
 export const exists = promisify(fs.exists);
@@ -35,8 +34,18 @@ export function globProm(
   pattern: string,
   options: GlobOptions
 ): Promise<string[]> {
-  return globPromise(pattern, options) as Promise<Array<string>>;
+  return new Promise((resolve, reject) => {
+    glob(pattern, options).then(
+      (matches) => {
+        resolve(matches as Array<string>);
+      },
+      (err) => {
+        reject(err);
+      }
+    );
+  });
 }
+
 
 export type AndroidDependencyParams = {
   sourceDir?: string;

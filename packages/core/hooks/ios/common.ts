@@ -4,7 +4,6 @@ import * as path from 'path';
 import { promisify } from 'util';
 import type { GlobOptions } from 'glob';
 import { glob } from 'glob';
-const globPromise = promisify(glob);
 export const execFile = promisify(cp.execFile);
 export const readFile = promisify(fs.readFile);
 export const readFileSync = fs.readFileSync;
@@ -31,7 +30,16 @@ export function globProm(
   pattern: string,
   options: GlobOptions
 ): Promise<string[]> {
-  return globPromise(pattern, options) as Promise<Array<string>>;
+  return new Promise((resolve, reject) => {
+    glob(pattern, options).then(
+      (matches) => {
+        resolve(matches as Array<string>);
+      },
+      (err) => {
+        reject(err);
+      }
+    );
+  });
 }
 
 export const logPrefix = '[@open-native/core/hooks/prepare-ios.js]';
