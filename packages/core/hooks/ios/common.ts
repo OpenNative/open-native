@@ -31,14 +31,21 @@ export function globProm(
   options: GlobOptions
 ): Promise<string[]> {
   return new Promise((resolve, reject) => {
-    glob(pattern, options).then(
-      (matches) => {
-        resolve(matches as Array<string>);
-      },
-      (err) => {
-        reject(err);
-      }
-    );
+    try {
+      glob(pattern, options).then(
+        (matches) => {
+          resolve(matches as Array<string>);
+        },
+        (err) => {
+          reject(err);
+        }
+      );
+    } catch (e) {
+      console.error(
+        'It seems like you are using an old version of glob, please upgrade by installing the latest version from npm.'
+      );
+      reject(null);
+    }
   });
 }
 
