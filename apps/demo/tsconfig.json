@@ -1,14 +1,30 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDirs": [".", "../.."],
+    "rootDirs": [
+      ".",
+      "../.."
+    ],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"],
-      "@demo/shared": ["../../tools/demo/index.ts"],
-      "@open-native/core": ["../../packages/core/index.d.ts"],
-      "react-native-module-test": ["../../packages/react-native-module-test/index.ts"],
-      "crypto": ["node_modules/crypto-js"]
+      "~/*": [
+        "src/*"
+      ],
+      "@demo/shared": [
+        "../../tools/demo/index.ts"
+      ],
+      "@open-native/core": [
+        "../../packages/core/index.d.ts"
+      ],
+      "react-native-module-test": [
+        "../../packages/react-native-module-test/index.ts"
+      ],
+      "crypto": [
+        "node_modules/crypto-js"
+      ],
+      "@open-native/*": [
+        "../../packages/*"
+      ]
     }
   }
 }
