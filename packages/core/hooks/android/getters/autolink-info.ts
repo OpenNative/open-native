@@ -1,7 +1,7 @@
 import { AndroidDependencyParams, exists, logPrefix } from '../common';
 import * as path from 'path';
 import { getManifestPath } from './manifest-path';
-import { getAndroidPackageName } from './package-name';
+import { getAndroidPackageName, hasNamespace } from './package-name';
 import { extractPackageModules } from '../extractors/modules';
 import { extractLibraryName } from '../extractors/library-name';
 import { extractComponentDescriptors } from '../extractors/component-descriptors';
@@ -77,6 +77,8 @@ export async function getPackageAutolinkInfo({
   const androidPackageName =
     userConfig.packageName ||
     (await getAndroidPackageName(manifestPath, buildGradlePath));
+
+  const namespaceDefined = hasNamespace(buildGradlePath);
   const parsed = await extractPackageModules(sourceDir);
   if (!parsed) {
     return null;
@@ -196,5 +198,11 @@ export async function getPackageAutolinkInfo({
     packageInstance,
     /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android' */
     sourceDir,
+    /** example false */
+    hasNamespace: namespaceDefined,
+    /** @example '/Users/jamie/Documents/git/nativescript-magic-spells/dist/packages/react-native-module-test/android/build.gradle' */
+    buildGradlePath,
+    /** @example 'com.testmodule' */
+    androidPackageName
   };
 }

@@ -39,3 +39,13 @@ export async function getAndroidPackageName(
 export function validateAndroidPackageName(packageName: string) {
   return /^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/.test(packageName);
 }
+
+
+export async function hasNamespace(
+  buildGradlePath: string
+): Promise<boolean> {
+
+  const buildGradle = readFileSync(buildGradlePath, 'utf8');
+  const packageNameMatchArray = buildGradle.match(/namespace[ |=]"(.+?)"/);
+  return !!(packageNameMatchArray && packageNameMatchArray.length > 0);
+}
