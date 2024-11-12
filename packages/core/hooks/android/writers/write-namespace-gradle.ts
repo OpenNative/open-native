@@ -4,9 +4,9 @@ export async function writeNamespaceGradleFile(
   buildGradlePath: string,
   packageName: string
 ) {
-  const buildGradleNamespacePatch = `// Mark open-native_core namespace patch
-  android {
-  namespace "${packageName}"
+  const buildGradleNamespacePatch = `android {
+    // Mark open-native_core namespace patch
+    namespace "${packageName}"
     `;
   if (!(await exists(buildGradlePath))) return;
   const currentSettingsGradle = await readFile(buildGradlePath, {
