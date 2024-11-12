@@ -78,7 +78,7 @@ export async function getPackageAutolinkInfo({
     userConfig.packageName ||
     (await getAndroidPackageName(manifestPath, buildGradlePath));
 
-  const namespaceDefined = hasNamespace(buildGradlePath);
+  const namespaceDefined = await hasNamespace(buildGradlePath);
   const parsed = await extractPackageModules(sourceDir);
   if (!parsed) {
     return null;
