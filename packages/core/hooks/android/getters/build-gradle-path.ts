@@ -7,6 +7,7 @@ export async function getBuildGradlePath(
   const buildGradlePath = (
     await globProm(path.join('**', 'build.gradle'), {
       cwd: folder,
+      windowsPathsNoEscape: true,
       ignore: [
         'node_modules/**',
         '**/build/**',

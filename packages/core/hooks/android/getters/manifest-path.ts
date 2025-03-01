@@ -5,6 +5,7 @@ export async function getManifestPath(folder: string): Promise<string | null> {
   const manifestPath = (
     await globProm(path.join('**', 'AndroidManifest.xml'), {
       cwd: folder,
+      windowsPathsNoEscape: true,
       ignore: [
         'node_modules/**',
         '**/build/**',
