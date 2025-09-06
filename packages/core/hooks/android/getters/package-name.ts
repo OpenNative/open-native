@@ -46,6 +46,6 @@ export async function hasNamespace(
 ): Promise<boolean> {
 
   const buildGradle = readFileSync(buildGradlePath, 'utf8');
-  const packageNameMatchArray = buildGradle.match(/namespace[ |=]"(.+?)"/);
+  const packageNameMatchArray = buildGradle.match(/namespace\s*[\s*|=]\s*\"(.+?)\"/);
   return !!(packageNameMatchArray && packageNameMatchArray.length > 0);
 }
