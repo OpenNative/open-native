@@ -38,6 +38,22 @@ public class ReactModuleInfo {
     mIsTurboModule = isTurboModule;
   }
 
+   public ReactModuleInfo(
+      String name,
+      String className,
+      boolean canOverrideExistingModule,
+      boolean needsEagerInit,
+      boolean isCxxModule,
+      boolean isTurboModule) {
+    mName = name;
+    mClassName = className;
+    mCanOverrideExistingModule = canOverrideExistingModule;
+    mNeedsEagerInit = needsEagerInit;
+    mIsCxxModule = isCxxModule;
+    mIsTurboModule = isTurboModule;
+    mHasConstants = true;
+  }
+
   public String name() {
     return mName;
   }
