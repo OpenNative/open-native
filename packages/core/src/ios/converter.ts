@@ -1,8 +1,4 @@
 import { assert, isNullOrUndefined, RNObjcSerialisableType } from '../common';
-import {
-  numberHasDecimals,
-  numberIs64Bit,
-} from '@nativescript/core/utils/types';
 import { Utils } from '@nativescript/core';
 import { isPromise } from './utils';
 
@@ -620,8 +616,8 @@ export function toNativeValue<T extends boolean>(
     // Any other kinds of numbers are handled by Utils.dataSerialize().
     if (
       typeof data === 'number' &&
-      !numberIs64Bit(data) &&
-      !numberHasDecimals(data)
+      !Utils.numberIs64Bit(data) &&
+      !Utils.numberHasDecimals(data)
     ) {
       return NSNumber.alloc().initWithInt(data);
     }

@@ -1,4 +1,3 @@
-import { Utils } from '@nativescript/core';
 import { NativeModule } from '../../Libraries/EventEmitter/NativeEventEmitter';
 import { getCurrentBridge } from './bridge';
 import {
