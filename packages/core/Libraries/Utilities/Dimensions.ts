@@ -1,6 +1,6 @@
 import { Screen } from '@nativescript/core';
-import { getCurrentFontScale } from '@nativescript/core/accessibility';
-import { Application } from '@nativescript/core/application';
+import { getCurrentFontScale } from '@nativescript/core';
+import { Application } from '@nativescript/core';
 
 class Dimensions {
   static get(type: 'window' | 'screen') {

@@ -1,9 +1,5 @@
 import { Utils } from '@nativescript/core';
 import {
-  numberHasDecimals,
-  numberIs64Bit,
-} from '@nativescript/core/utils/types';
-import {
   assert,
   isNullOrUndefined,
   RNJavaSerialisableType,
@@ -816,7 +812,7 @@ export function toNativeValue<T extends boolean>(
     return writableMap as ReadableMap;
   }
 
-  if (!numberHasDecimals(data as number) && !numberIs64Bit(data as number)) {
+  if (!Utils.numberHasDecimals(data as number) && !Utils.numberIs64Bit(data as number)) {
     return data as never;
   }
 
