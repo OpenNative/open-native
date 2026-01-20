@@ -11,10 +11,14 @@
 #import <React/RCTDefines.h>
 #import <React/RCTJSThread.h>
 
+#import "RCTDeprecation.h"
+
 #import "RCTBundleManager.h"
 
 @class RCTBridge;
 @protocol RCTBridgeMethod;
+@protocol RCTTurboModule;
+@protocol RCTTurboModuleRegistry;
 @class RCTModuleRegistry;
 @class RCTViewRegistry;
 @class RCTCallableJSModules;
@@ -81,28 +85,15 @@ RCT_EXTERN_C_END
  * registration. Useful for registering swift classes that forbids use of load
  * Used in RCT_EXTERN_REMAP_MODULE
  */
-#define RCT_EXPORT_MODULE_NO_LOAD(js_name, objc_name)                           \
-  RCT_EXTERN void RCTRegisterModule(Class);                                     \
-  +(NSString *)moduleName                                                       \
-  {                                                                             \
-    return @ #js_name;                                                          \
-  }                                                                             \
-  __attribute__((constructor)) static void RCT_CONCAT(initialize_, objc_name)() \
-  {                                                                             \
-    RCTRegisterModule([objc_name class]);                                       \
-  }
-
-/**
- * To improve startup performance users may want to generate their module lists
- * at build time and hook the delegate to merge with the runtime list. This
- * macro takes the place of the above for those cases by omitting the +load
- * generation.
- *
- */
-#define RCT_EXPORT_PRE_REGISTERED_MODULE(js_name) \
-  +(NSString *)moduleName                         \
-  {                                               \
-    return @ #js_name;                            \
+#define RCT_EXPORT_MODULE_NO_LOAD(js_name, objc_name)                               \
+  RCT_EXTERN void RCTRegisterModule(Class);                                         \
+  +(NSString *)moduleName                                                           \
+  {                                                                                 \
+    return @ #js_name;                                                              \
+  }                                                                                 \
+  __attribute__((constructor)) static void RCT_CONCAT(initialize_, objc_name)(void) \
+  {                                                                                 \
+    RCTRegisterModule([objc_name class]);                                           \
   }
 
 // Implemented by RCT_EXPORT_MODULE
@@ -157,30 +148,20 @@ RCT_EXTERN_C_END
  * To implement this in your module, just add `@synthesize bridge = _bridge;`
  * If using Swift, add `@objc var bridge: RCTBridge!` to your module.
  */
-@property (nonatomic, weak, readonly) RCTBridge *bridge;
+@property (nonatomic, weak, readonly) RCTBridge *bridge RCT_DEPRECATED;
 
 /**
- * The queue that will be used to call all exported methods. If omitted, this
- * will call on a default background queue, which is avoids blocking the main
- * thread.
+ * This property is deprecated. This selector used to support two functionalities.
  *
- * If the methods in your module need to interact with UIKit methods, they will
- * probably need to call those on the main thread, as most of UIKit is main-
- * thread-only. You can tell React Native to call your module methods on the
- * main thread by returning a reference to the main queue, like this:
+ * 1) Providing a queue to do additional async work.
+ * Instead of synthesizing this selector, retrieve a queue from GCD to do any asynchronous work.
+ * Example: _myQueue = dispatch_queue_create("myQueue", DISPATCH_QUEUE_SERIAL);
  *
- * - (dispatch_queue_t)methodQueue
- * {
- *   return dispatch_get_main_queue();
- * }
- *
- * If you don't want to specify the queue yourself, but you need to use it
- * inside your class (e.g. if you have internal methods that need to dispatch
- * onto that queue), you can just add `@synthesize methodQueue = _methodQueue;`
- * and the bridge will populate the methodQueue property for you automatically
- * when it initializes the module.
+ * 2) Overriding this in order to run all the module's methods on a specific queue, usually main.
+ * Instead of overriding this, directly dispatch the code onto main queue when necessary.
+ * Example: dispatch_async(dispatch_get_main_queue, ^{ ... });
  */
-@property (nonatomic, strong, readonly) dispatch_queue_t methodQueue;
+@property (nonatomic, strong, readonly) dispatch_queue_t methodQueue RCT_DEPRECATED;
 
 /**
  * Wrap the parameter line of your method implementation with this macro to
@@ -255,7 +236,7 @@ RCT_EXTERN_C_END
  */
 #define RCT_REMAP_METHOD(js_name, method)       \
   _RCT_EXTERN_REMAP_METHOD(js_name, method, NO) \
-  -(void)method RCT_DYNAMIC;
+  -(void)method RCT_DYNAMIC
 
 /**
  * Similar to RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD but lets you set
@@ -267,7 +248,7 @@ RCT_EXTERN_C_END
  */
 #define RCT_REMAP_BLOCKING_SYNCHRONOUS_METHOD(js_name, returnType, method) \
   _RCT_EXTERN_REMAP_METHOD(js_name, method, YES)                           \
-  -(returnType)method RCT_DYNAMIC;
+  -(returnType)method RCT_DYNAMIC
 
 /**
  * Use this macro in a private Objective-C implementation file to automatically
@@ -302,12 +283,10 @@ RCT_EXTERN_C_END
 /**
  * Like RCT_EXTERN_MODULE, but allows setting a custom JavaScript name.
  */
-#define RCT_EXTERN_REMAP_MODULE(js_name, objc_name, objc_supername) \
-  objc_name:                                                        \
-  objc_supername @                                                  \
-  end @interface objc_name(RCTExternModule)<RCTBridgeModule>        \
-  @end                                                              \
-  @implementation objc_name (RCTExternModule)                       \
+#define RCT_EXTERN_REMAP_MODULE(js_name, objc_name, objc_supername)                      \
+  objc_name : objc_supername @end @interface objc_name(RCTExternModule)<RCTBridgeModule> \
+  @end                                                                                   \
+  @implementation objc_name (RCTExternModule)                                            \
   RCT_EXPORT_MODULE_NO_LOAD(js_name, objc_name)
 
 /**
@@ -367,58 +346,25 @@ RCT_EXTERN_C_END
 /**
  * Notifies the module that a batch of JS method invocations has just completed.
  */
-- (void)batchDidComplete;
-
-/**
- * Notifies the module that the active batch of JS method invocations has been
- * partially flushed.
- *
- * This occurs before -batchDidComplete, and more frequently.
- */
-- (void)partialBatchDidFlush;
+- (void)batchDidComplete RCT_DEPRECATED;
 
 @end
-
-/**
- * A protocol that allows TurboModules to do lookup on other TurboModules.
- * Calling these methods may cause a module to be synchronously instantiated.
- */
-@protocol RCTTurboModuleRegistry <NSObject>
-- (id)moduleForName:(const char *)moduleName;
-
-/**
- * Rationale:
- * When TurboModules lookup other modules by name, we first check the TurboModule
- * registry to see if a TurboModule exists with the respective name. In this case,
- * we don't want a RedBox to be raised if the TurboModule isn't found.
- *
- * This method is deprecated and will be deleted after the migration from
- * TurboModules to TurboModules is complete.
- */
-- (id)moduleForName:(const char *)moduleName warnOnLookupFailure:(BOOL)warnOnLookupFailure;
-- (BOOL)moduleIsInitialized:(const char *)moduleName;
-
-- (NSArray<NSString *> *)eagerInitModuleNames;
-- (NSArray<NSString *> *)eagerInitMainQueueModuleNames;
-@end
-
-/**
- * Experimental.
- * A protocol to declare that a class supports TurboModule.
- * This may be removed in the future.
- * See RCTTurboModule.h for actual signature.
- */
-@protocol RCTTurboModule;
 
 /**
  * A class that allows NativeModules and TurboModules to look up one another.
  */
 @interface RCTModuleRegistry : NSObject
+#ifndef RCT_FIT_RM_OLD_RUNTIME
 - (void)setBridge:(RCTBridge *)bridge;
+#endif // RCT_FIT_RM_OLD_RUNTIME
 - (void)setTurboModuleRegistry:(id<RCTTurboModuleRegistry>)turboModuleRegistry;
 
 - (id)moduleForName:(const char *)moduleName;
 - (id)moduleForName:(const char *)moduleName lazilyLoadIfNecessary:(BOOL)lazilyLoad;
+- (BOOL)moduleIsInitialized:(Class)moduleClass;
+
+// Note: This method lazily load the module as necessary.
+- (id)moduleForClass:(Class)moduleClass;
 @end
 
 typedef UIView * (^RCTBridgelessComponentViewProvider)(NSNumber *);
@@ -429,7 +375,9 @@ typedef void (^RCTViewRegistryUIBlock)(RCTViewRegistry *viewRegistry);
  * A class that allows NativeModules to query for views, given React Tags.
  */
 @interface RCTViewRegistry : NSObject
+#ifndef RCT_FIT_RM_OLD_RUNTIME
 - (void)setBridge:(RCTBridge *)bridge;
+#endif // RCT_FIT_RM_OLD_RUNTIME
 - (void)setBridgelessComponentViewProvider:(RCTBridgelessComponentViewProvider)bridgelessComponentViewProvider;
 
 - (UIView *)viewForReactTag:(NSNumber *)reactTag;
@@ -447,7 +395,9 @@ typedef void (^RCTBridgelessJSModuleMethodInvoker)(
  * as callable with React Native.
  */
 @interface RCTCallableJSModules : NSObject
+#ifndef RCT_FIT_RM_OLD_RUNTIME
 - (void)setBridge:(RCTBridge *)bridge;
+#endif // RCT_FIT_RM_OLD_RUNTIME
 - (void)setBridgelessJSModuleMethodInvoker:(RCTBridgelessJSModuleMethodInvoker)bridgelessJSModuleMethodInvoker;
 
 - (void)invokeModule:(NSString *)moduleName method:(NSString *)methodName withArgs:(NSArray *)args;
